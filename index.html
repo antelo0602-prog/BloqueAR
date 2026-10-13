@@ -321,6 +321,14 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
 .lowfx .callout{text-shadow:none!important;animation-duration:.9s!important}
 .lowfx *{box-shadow:none!important}
 @media (max-width:520px){#fullscreen-btn{display:none!important}}
+.lb-alert{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top));z-index:65;width:min(92vw,440px);text-align:left;background:#2a2410f5;border:1px solid #ffd166;color:#fff3d6;border-radius:14px;padding:11px 14px;font-size:14px;line-height:1.4;box-shadow:0 12px 34px #000a;animation:popIn .25s ease-out}
+.lb-alert small{display:block;color:#d9c79c;font-size:11.5px;margin-top:4px}
+.lb-fire{font-size:11px;font-weight:900;color:#ff9a4a;margin-left:6px}
+.lb-sub{margin:0;font-size:12px;color:#d9c79c}
+.lb-champs{display:flex;flex-direction:column;gap:6px;margin:4px 0 10px;padding:9px 11px;border:1px solid #6b5a2a;background:#1d1a10;border-radius:12px;font-size:12.5px;color:#e8dcc0}
+.lb-champs div{display:flex;flex-direction:column;gap:1px}.lb-champs b{color:#ffd166}.lb-champs span b{color:#fff}
+.lb-sep{width:6px}.lb-liga-chip{border-color:#6b5a2a}
+.lb-list li em small{font-size:11px;color:#ffd166;margin-left:4px}
 .lb-box{width:min(100%,340px);margin:8px auto 4px;padding:10px;border:1px solid #6b5a2a;background:#1d1a10;border-radius:14px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .lb-head{font-size:11px;font-weight:900;letter-spacing:.12em;color:#ffd166}
 .lb-form{display:flex;gap:6px}.lb-form input,.lb-url-row input{flex:1;min-width:0;min-height:42px;border-radius:10px;border:1px solid var(--line);background:#0c131e;color:var(--text);padding:0 12px;font-size:16px}
@@ -736,6 +744,7 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
   <div class="mp-foot"><button type="button" class="linkish" id="sp-more">Más opciones de sonido</button><button type="button" class="linkish" id="sp-close">Listo</button></div>
 </div>
 <div class="fps" id="fps" hidden></div>
+<button type="button" class="lb-alert" id="lb-alert" hidden></button>
 <div class="a2hs" id="a2hs" hidden role="dialog" aria-label="Instalar como app">
   <div class="a2hs-icon" aria-hidden="true">▦</div>
   <div class="a2hs-txt" id="a2hs-txt"></div>
@@ -2804,7 +2813,7 @@ function setCpuLevel(k){
    Todo se guarda en este navegador (localStorage), sin cuentas ni servidor.
    Para pasarlo a otro dispositivo (o tener respaldo) hay un "código de progreso". */
 const PKEY='bloques-progress-v1';
-function progDefault(){return {xp:0,games:0,lines:0,tetris:0,tspin:0,pc:0,b2b:0,best:{combo:0,level:0,marathon:0,ultra:0,sprint:0},cpuHardWins:0,dailyDays:[],daily:{},medals:{},splits:{modern:null,classic:null},puzzles:{},hist:[],digBest:{modern:0,classic:0}};}
+function progDefault(){return {xp:0,games:0,lines:0,tetris:0,tspin:0,pc:0,b2b:0,best:{combo:0,level:0,marathon:0,ultra:0,sprint:0},cpuHardWins:0,dailyDays:[],daily:{},medals:{},splits:{modern:null,classic:null},puzzles:{},hist:[],digBest:{modern:0,classic:0},playDays:[],champWeeks:[],champMonths:[]};}
 const PRG=progDefault();
 function progMerge(dst,src){
   if(!src||typeof src!=='object')return;
@@ -2816,6 +2825,7 @@ function progMerge(dst,src){
   if(src.medals&&typeof src.medals==='object')for(const [k,v] of Object.entries(src.medals))if(Number.isFinite(v)&&!dst.medals[k])dst.medals[k]=v;
   for(const m of ['modern','classic'])if(Array.isArray(src.splits?.[m])&&src.splits[m].length===41&&(!dst.splits[m]||src.splits[m][40]<dst.splits[m][40]))dst.splits[m]=src.splits[m].map(Number);
   for(const m of ['modern','classic']){const v=src.digBest?.[m];if(Number.isFinite(v)&&v>0)dst.digBest[m]=dst.digBest[m]?Math.min(dst.digBest[m],v):v;}
+  for(const [k,re] of [['playDays',/^\d{4}-\d\d-\d\d$/],['champWeeks',/^\d{4}-\d\d-\d\d$/],['champMonths',/^\d{4}-\d\d$/]])if(Array.isArray(src[k]))dst[k]=[...new Set([...dst[k],...src[k].filter(d=>re.test(String(d)))])].sort().slice(-400);
   if(src.puzzles&&typeof src.puzzles==='object')for(const [k,v] of Object.entries(src.puzzles))if(/^[a-z0-9]{2,8}$/.test(k)&&Number.isFinite(v)&&!dst.puzzles[k])dst.puzzles[k]=v;
   if(Array.isArray(src.hist)){const seen=new Set(dst.hist.map(h=>h.t));for(const h of src.hist)if(h&&Number.isFinite(h.t)&&Number.isFinite(h.s)&&typeof h.k==='string'&&!seen.has(h.t)){dst.hist.push({t:h.t,k:h.k.slice(0,8),m:h.m==='classic'?'classic':'modern',s:Math.max(0,h.s|0),l:Math.max(0,h.l|0),d:Math.max(0,h.d|0),r:typeof h.r==='string'?h.r.slice(0,6):''});seen.add(h.t);}dst.hist.sort((a,b)=>a.t-b.t);dst.hist=dst.hist.slice(-60);}
   // Sólo se guardan los últimos 60 días del desafío.
@@ -2873,6 +2883,8 @@ const MEDALS=[
   {id:'cpu',g:'VS',name:'Más que la compu',desc:'Ganale a la compu en Difícil.',goal:1,val:()=>PRG.cpuHardWins},
   {id:'dig1',g:'⛏',name:'Excavadora',desc:'Terminá una Excavación.',goal:1,val:()=>(PRG.digBest.modern||PRG.digBest.classic)?1:0},
   {id:'dig60',g:'⛏',name:'Topo veloz',desc:'Terminá una Excavación en menos de 1 minuto.',goal:1,val:()=>[PRG.digBest.modern,PRG.digBest.classic].some(t=>t&&t<60000)?1:0},
+  {id:'wk1',g:'🏆',name:'Campeón semanal',desc:'Terminá primero una semana en la tabla de algún modo.',goal:1,val:()=>PRG.champWeeks.length},
+  {id:'mo1',g:'👑',name:'Campeón del mes',desc:'Ganá la Liga de un mes.',goal:1,val:()=>PRG.champMonths.length},
   {id:'pz3',g:'⟲',name:'Aprendiz del giro',desc:'Resolvé 3 desafíos de giro.',goal:3,val:()=>puzzleSolvedCount()},
   {id:'pzall',g:'⟲',name:'Todos los desafíos',desc:'Resolvé todos los desafíos de giro.',goal:PUZZLES.length,val:()=>puzzleSolvedCount()}
 ];
@@ -2979,6 +2991,7 @@ function progressEnd(result){
   if(r.kind==='online')xp+=40;
   PRG.best.level=Math.max(PRG.best.level,lvlReached);
   PRG.games++;xp=Math.max(5,Math.round(xp));
+  {const d=todayKey();if(!PRG.playDays.includes(d)){PRG.playDays.push(d);PRG.playDays=PRG.playDays.slice(-400);}}
   // "Te faltó poco": distancia al récord.
   if(!delta&&(r.kind==='marathon'||r.kind==='ultra')){
     const rec=r.recordBefore??0;
@@ -3388,22 +3401,32 @@ function setupGfx(){
 
 /* ───────── Tabla de posiciones compartida ─────────
    Los récords se guardan en una planilla de Google del dueño del juego (ver tabla/Codigo.gs).
-   El juego sólo le pide la tabla y le manda récords; no hay cuentas ni servidores propios. */
+   El juego sólo le pide la tabla y le manda récords; no hay cuentas ni servidores propios.
+   Versión 2 de la planilla: tablas de la semana, del mes y de siempre, Liga mensual, campeones y rachas. */
 const LB_DEFAULT='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';// dirección «/exec» de la aplicación web de la planilla
 const LB_CLAVE='bloquear-2026';
 const LB_KINDS={marathon:'Maratón',ultra:'Ultra 2:00',sprint:'Sprint 40',daily:'Del día',dig:'Excavación'};
 const LB_TIME={sprint:true,dig:true};
-const LB={url:storageGet('bloques-lb-url-v1')||LB_DEFAULT,name:storageGet('bloques-lb-name-v1')||'',kind:'marathon',rules:null,cache:{}};
+const LB_PER={dia:'Hoy',semana:'Semana',mes:'Mes',siempre:'Siempre'};
+const LB_PER_TXT={dia:'hoy',semana:'esta semana',mes:'este mes',siempre:'de siempre'};
+const LB={url:storageGet('bloques-lb-url-v1')||LB_DEFAULT,name:storageGet('bloques-lb-name-v1')||'',kind:'marathon',rules:null,per:'semana',view:'tabla',ligaMes:'actual',cache:{},res:null,old:false};
 function lbDev(){let d=storageGet('bloques-lb-dev-v1');if(!d){d=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>b.toString(16).padStart(2,'0')).join('');storageSet('bloques-lb-dev-v1',d);}return d;}
 function lbFirma(t){let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))>>>0;return h.toString(36);}
 function lbClean(n){return String(n||'').replace(/[\u0000-\u001f<>]/g,'').replace(/\s+/g,' ').trim().slice(0,16);}
+// Días seguidos jugando (en este dispositivo), hasta hoy o ayer.
+function lbStreak(){
+  const set=new Set(PRG.playDays||[]),day=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d);},key=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  let d=day(todayKey());if(!set.has(key(d)))d.setDate(d.getDate()-1);
+  let n=0;while(set.has(key(d))&&n<3650){n++;d.setDate(d.getDate()-1);}return n;
+}
 async function lbFetch(params,ms=15000){
   if(!LB.url)throw new Error('La tabla todavía no está conectada.');
   const u=new URL(LB.url);for(const [k,v] of Object.entries(params))u.searchParams.set(k,String(v));u.searchParams.set('_',Date.now());
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
   try{
     const r=await fetch(u.toString(),{cache:'no-store',signal:ctl.signal,redirect:'follow'});
-    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');return j;
+    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');
+    LB.old=!j.version;return j;
   }catch(e){
     if(e.name==='AbortError')throw new Error('La planilla tardó demasiado en responder.');
     if(e instanceof TypeError)throw new Error('Sin conexión con la planilla. ¿Hay internet?');
@@ -3411,12 +3434,17 @@ async function lbFetch(params,ms=15000){
   }finally{clearTimeout(to);}
 }
 const lbVal=(k,x)=>LB_TIME[k]?fmtTime(x.s*1000):fmt(x.puntos);
-function lbListHtml(j,me,max=10){
-  if(!j.top.length)return '<li class="lb-empty">Todavía no hay récords. ¡Sé el primero!</li>';
-  const meL=(me||'').toLowerCase();let html=j.top.slice(0,max).map((x,i)=>`<li class="${x.nombre.toLowerCase()===meL?'me':''}${i<3?' p'+(i+1):''}"><i>${i+1}</i><b>${escHtml(x.nombre)}</b><em>${lbVal(j.modo,x)}</em></li>`).join('');
-  if(j.puesto>max){const x=j.top[j.puesto-1];if(x)html+=`<li class="lb-gap">…</li><li class="me"><i>${j.puesto}</i><b>${escHtml(x.nombre)}</b><em>${lbVal(j.modo,x)}</em></li>`;}
+const lbFire=x=>x.racha>=2?`<span class="lb-fire" title="${x.racha} días seguidos jugando">🔥${x.racha}</span>`:'';
+function lbRow(x,i,meL,val){return `<li class="${x.nombre.toLowerCase()===meL?'me':''}${i<3?' p'+(i+1):''}"><i>${i+1}</i><b>${escHtml(x.nombre)}${lbFire(x)}</b><em>${val(x)}</em></li>`;}
+function lbListHtml(j,me,max=10,liga=false){
+  if(!j.top.length)return `<li class="lb-empty">${liga?'Todavía nadie sumó puntos este mes.':'Todavía no hay récords. ¡Sé el primero!'}</li>`;
+  const meL=(me||'').toLowerCase(),val=liga?(x=>`${x.puntos} pts${x.oros?` <small>🥇×${x.oros}</small>`:''}`):(x=>lbVal(j.modo,x));
+  let html=j.top.slice(0,max).map((x,i)=>lbRow(x,i,meL,val)).join('');
+  if(j.puesto>max){const x=j.top[j.puesto-1];if(x)html+=`<li class="lb-gap">…</li>`+lbRow(x,j.puesto-1,meL,val);}
   return html;
 }
+function lbKnown(){try{return JSON.parse(storageGet('bloques-lb-known-v1')||'null')||{};}catch(_){return {};}}
+function lbSaveKnown(k){storageSet('bloques-lb-known-v1',JSON.stringify(k));}
 
 /* Al terminar una partida: «Nombre» y «Cargar». */
 let lbPending=null;
@@ -3432,6 +3460,7 @@ function lbOffer(r,result){
   div.innerHTML=`<div class="lb-head">🏆 TABLA · ${LB_KINDS[r.kind].toUpperCase()}${r.mode==='classic'?' · CLÁSICO':''}</div>
     <div class="lb-form"><input id="lb-name" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="nickname" autocapitalize="words" enterkeyhint="send" value="${escHtml(LB.name)}"><button type="button" class="primary" id="lb-send">Cargar</button></div>
     <p class="lb-msg" id="lb-msg" role="status" aria-live="polite">${timed?`Tu tiempo: <b>${fmtTime(ms)}</b>`:`Tus puntos: <b>${fmt(st.score)}</b>`}</p>
+    <p class="lb-sub" id="lb-sub" hidden></p>
     <ol class="lb-list" id="lb-list" hidden></ol>`;
   box.appendChild(div);box.hidden=false;
   byId('lb-send').onclick=lbSend;
@@ -3442,26 +3471,46 @@ async function lbSend(){
   const nombre=lbClean(inp.value);if(!nombre){msg.textContent='Poné tu nombre para cargar el récord.';inp.focus();return;}
   LB.name=nombre;storageSet('bloques-lb-name-v1',nombre);
   btn.disabled=true;btn.textContent='Cargando…';msg.textContent='Mandando tu récord a la tabla…';
+  const per=P.modo==='daily'?'dia':'semana';
   try{
-    const j=await lbFetch({accion:'cargar',nombre,modo:P.modo,reglas:P.reglas,puntos:P.puntos,lineas:P.lineas,ms:P.ms,dia:P.dia,disp:lbDev(),v:'23',
+    const j=await lbFetch({accion:'cargar',nombre,modo:P.modo,reglas:P.reglas,puntos:P.puntos,lineas:P.lineas,ms:P.ms,dia:P.dia,disp:lbDev(),v:'25',racha:lbStreak(),periodo:per,
       firma:lbFirma([LB_CLAVE,nombre,P.modo,P.reglas,P.puntos,P.lineas,P.ms,P.dia].join('|'))});
-    P.sent=true;LB.cache[P.modo+':'+P.reglas]={j,t:Date.now()};
+    P.sent=true;LB.cache[`${P.modo}:${P.reglas}:${j.periodo||'siempre'}`]={j,t:Date.now()};
     inp.closest('.lb-form').hidden=true;
     const x=j.top[j.puesto-1],mine=x&&(LB_TIME[P.modo]?Math.abs(x.s*1000-P.ms)<150:x.puntos===P.puntos);
-    msg.innerHTML=j.puesto?`${j.puesto===1?'🥇 ¡Primero en la tabla!':`Quedaste <b>${j.puesto}º</b> de ${j.total}`}${mine?'':' (con tu mejor marca anterior)'}`:'Cargado.';
+    const when=j.periodo&&j.periodo!=='siempre'?' '+LB_PER_TXT[j.periodo]:'';
+    msg.innerHTML=j.puesto?`${j.puesto===1?`🥇 ¡Primero${when?when:' en la tabla'}!`:`Vas <b>${j.puesto}º</b>${when} <small>(de ${j.total})</small>`}${mine?'':' · con tu mejor marca anterior'}`:'Cargado.';
+    if(j.puestos){const s=byId('lb-sub'),bits=['mes','siempre'].filter(k=>j.puestos[k]&&j.puestos[k].puesto).map(k=>`${k==='mes'?'Este mes':'De siempre'}: ${j.puestos[k].puesto}º`);if(bits.length){s.textContent=bits.join(' · ');s.hidden=false;}
+      // Lo que sabemos de tu puesto semanal (para avisarte si después alguien te pasa).
+      if(j.semana&&j.puestos.semana){const K=lbKnown();if(K.semana!==j.semana){K.semana=j.semana;K.pos={};}K.pos=K.pos||{};K.pos[P.modo+':'+P.reglas]=j.puestos.semana.puesto;lbSaveKnown(K);}}
     const ol=byId('lb-list');ol.innerHTML=lbListHtml(j,nombre);ol.hidden=false;
-    if(j.puesto===1)callout('¡PRIMERO EN LA TABLA!','medal');
+    if(j.puesto===1)callout(j.periodo==='semana'?'¡PRIMERO DE LA SEMANA!':'¡PRIMERO EN LA TABLA!','medal');
   }catch(e){
     btn.disabled=false;btn.textContent='Reintentar';msg.textContent='No se pudo cargar: '+e.message;
   }
 }
 
 /* Panel en Menú › Progreso. */
+function lbChampHtml(){
+  const R=LB.res;if(!R||!R.campeones)return '';
+  const ws=R.campeones.filter(c=>c.reglas==='modern').concat(R.campeones.filter(c=>c.reglas==='classic'));
+  if(!ws.length&&!R.campeonMes)return '';
+  return `<div class="lb-champs">${ws.length?`<div><b>🏆 Campeones de la semana pasada</b><span>${ws.map(c=>`${LB_KINDS[c.modo]}${c.reglas==='classic'?' (clásico)':''}: <b>${escHtml(c.nombre)}</b>`).join(' · ')}</span></div>`:''}
+    ${R.campeonMes?`<div><b>👑 Campeón de ${lbMonthName(R.mesPasado)}</b><span><b>${escHtml(R.campeonMes.nombre)}</b> · ${R.campeonMes.puntos} pts en la Liga</span></div>`:''}</div>`;
+}
+function lbMonthName(m){const n=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];const [y,mm]=String(m||'').split('-').map(Number);return mm?n[mm-1]+(y!==new Date().getFullYear()?' '+y:''):'';}
+function lbPrevMonth(){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function lbPanelHtml(){
   if(!LB.rules)LB.rules=mode;
+  if(LB.kind==='daily'&&LB.per==='semana'&&!LB.perTouched)LB.per='dia';
+  if(LB.kind!=='daily'&&LB.per==='dia')LB.per='semana';
+  const liga=LB.view==='liga';
   return `<h3>🏆 TABLA DE POSICIONES</h3>
-    ${LB.url?`<div class="lb-tabs">${Object.entries(LB_KINDS).map(([k,n])=>`<button type="button" class="look-chip${k===LB.kind?' active':''}" data-lbk="${k}">${n}</button>`).join('')}</div>
-    <div class="lb-tabs"><button type="button" class="look-chip${LB.rules==='modern'?' active':''}" data-lbr="modern">Moderno</button><button type="button" class="look-chip${LB.rules==='classic'?' active':''}" data-lbr="classic">Clásico</button><button type="button" class="pill lb-refresh" id="lb-refresh">↻ Actualizar</button></div>
+    ${LB.url?`${lbChampHtml()}
+    <div class="lb-tabs">${Object.entries(LB_KINDS).map(([k,n])=>`<button type="button" class="look-chip${!liga&&k===LB.kind?' active':''}" data-lbk="${k}">${n}</button>`).join('')}<button type="button" class="look-chip lb-liga-chip${liga?' active':''}" data-lbv="liga">🏅 Liga del mes</button></div>
+    ${liga?`<div class="lb-tabs"><button type="button" class="look-chip${LB.ligaMes==='actual'?' active':''}" data-lbm="actual">Este mes</button><button type="button" class="look-chip${LB.ligaMes==='pasado'?' active':''}" data-lbm="pasado">${lbMonthName(lbPrevMonth()).replace(/^./,c=>c.toUpperCase())}</button><button type="button" class="pill lb-refresh" id="lb-refresh">↻ Actualizar</button></div>
+      <p class="hint">Cada semana, en cada modo: 1º suma 10 puntos, 2º 7, 3º 5, 4º 3 y el resto 1 por participar. Gana el más parejo del mes.</p>`
+    :`<div class="lb-tabs">${Object.entries(LB_PER).filter(([k])=>k!=='dia'||LB.kind==='daily').map(([k,n])=>`<button type="button" class="look-chip${LB.per===k?' active':''}" data-lbp="${k}">${n}</button>`).join('')}<span class="lb-sep"></span><button type="button" class="look-chip${LB.rules==='modern'?' active':''}" data-lbr="modern">Moderno</button><button type="button" class="look-chip${LB.rules==='classic'?' active':''}" data-lbr="classic">Clásico</button><button type="button" class="pill lb-refresh" id="lb-refresh">↻</button></div>`}
     <ol class="lb-list" id="lb-plist"><li class="lb-empty">Cargando…</li></ol>
     <p class="hint" id="lb-pmsg"></p>`:`<p class="hint">Todavía no está conectada la planilla de la tabla.</p>`}
     <details class="fine"><summary>Conectar la planilla (para el dueño del juego)</summary>
@@ -3472,8 +3521,11 @@ function lbPanelHtml(){
 }
 function lbSetupPanel(){
   const box=byId('lb-panel');if(!box)return;box.innerHTML=lbPanelHtml();
-  box.querySelectorAll('[data-lbk]').forEach(b=>b.onclick=()=>{LB.kind=b.dataset.lbk;lbSetupPanel();});
+  box.querySelectorAll('[data-lbk]').forEach(b=>b.onclick=()=>{LB.view='tabla';LB.kind=b.dataset.lbk;LB.perTouched=false;LB.per=LB.kind==='daily'?'dia':'semana';lbSetupPanel();});
+  box.querySelectorAll('[data-lbv]').forEach(b=>b.onclick=()=>{LB.view='liga';lbSetupPanel();});
+  box.querySelectorAll('[data-lbp]').forEach(b=>b.onclick=()=>{LB.per=b.dataset.lbp;LB.perTouched=true;lbSetupPanel();});
   box.querySelectorAll('[data-lbr]').forEach(b=>b.onclick=()=>{LB.rules=b.dataset.lbr;lbSetupPanel();});
+  box.querySelectorAll('[data-lbm]').forEach(b=>b.onclick=()=>{LB.ligaMes=b.dataset.lbm;lbSetupPanel();});
   byId('lb-refresh')?.addEventListener('click',()=>lbLoadPanel(true));
   byId('lb-url-save').onclick=async()=>{
     const v=byId('lb-url').value.trim(),m=byId('lb-url-msg');
@@ -3483,25 +3535,65 @@ function lbSetupPanel(){
     try{await lbFetch({});storageSet('bloques-lb-url-v1',v);LB.cache={};byId('overlay-lb').hidden=false;lbSetupPanel();byId('lb-url-msg').textContent='¡Conectada!';}
     catch(e){LB.url=old;m.textContent='No respondió: '+e.message+' Revisá que esté publicada para «Cualquier usuario».';}
   };
-  if(LB.url)lbLoadPanel(false);
+  if(LB.url){lbLoadPanel(false);if(!LB.res)lbSummary(false);}
 }
 async function lbLoadPanel(force){
-  const k=LB.kind,r=LB.rules,key=k+':'+r,list=byId('lb-plist'),msg=byId('lb-pmsg');if(!list)return;
+  const liga=LB.view==='liga',k=LB.kind,r=LB.rules,per=LB.per,mes=LB.ligaMes==='pasado'?lbPrevMonth():'';
+  const key=liga?`liga:${mes||'actual'}`:`${k}:${r}:${per}`,list=byId('lb-plist'),msg=byId('lb-pmsg');if(!list)return;
+  const show=j=>{const l=byId('lb-plist');if(!l)return;l.innerHTML=lbListHtml(j,LB.name,20,liga);byId('lb-pmsg').textContent=lbPanelNote(j,liga);};
   const c=LB.cache[key];
-  if(c&&!force&&Date.now()-c.t<60000){list.innerHTML=lbListHtml(c.j,LB.name,20);msg.textContent=lbPanelNote(c.j);return;}
-  if(c)list.innerHTML=lbListHtml(c.j,LB.name,20);
+  if(c&&!force&&Date.now()-c.t<60000){show(c.j);return;}
+  if(c)show(c.j);
   msg.textContent='Actualizando…';
   try{
-    const j=await lbFetch({accion:'tabla',modo:k,reglas:r,dia:k==='daily'?todayKey():'',nombre:LB.name});
+    const j=liga?await lbFetch({accion:'liga',mes,nombre:LB.name}):await lbFetch({accion:'tabla',modo:k,reglas:r,periodo:per,dia:k==='daily'?todayKey():'',nombre:LB.name});
+    if(liga&&!j.version){const l=byId('lb-plist');if(l)l.innerHTML='';byId('lb-pmsg').textContent='Para ver la Liga hay que actualizar el código de la planilla (versión 2).';return;}
     LB.cache[key]={j,t:Date.now()};
-    if(LB.kind===k&&LB.rules===r&&byId('lb-plist')){byId('lb-plist').innerHTML=lbListHtml(j,LB.name,20);byId('lb-pmsg').textContent=lbPanelNote(j);}
+    const now=LB.view==='liga'?`liga:${(LB.ligaMes==='pasado'?lbPrevMonth():'')||'actual'}`:`${LB.kind}:${LB.rules}:${LB.per}`;
+    if(now===key)show(j);
   }catch(e){if(byId('lb-pmsg'))byId('lb-pmsg').textContent='No se pudo actualizar: '+e.message;if(!c&&byId('lb-plist'))byId('lb-plist').innerHTML='';}
 }
-function lbPanelNote(j){
-  const who=LB.name?(j.puesto?`${LB.name}: ${j.puesto}º de ${j.total}.`:`${LB.name}: todavía sin récord acá.`):'Al terminar una partida podés cargar tu récord con tu nombre.';
-  return `${j.modo==='daily'?'Desafío de hoy. ':''}${who}`;
+function lbPanelNote(j,liga){
+  if(!liga&&!j.version&&LB.per!=='siempre')return 'La planilla todavía tiene el código viejo: muestra la tabla de siempre. Actualizalo para ver semana y mes.';
+  if(liga){const m=lbMonthName(j.mes);return LB.name?(j.puesto?`${LB.name}: ${j.puesto}º de ${j.total} en la Liga de ${m}.`:`${LB.name}: todavía sin puntos en la Liga de ${m}.`):`Liga de ${m}.`;}
+  const when=LB_PER_TXT[j.periodo||'siempre'];
+  const who=LB.name?(j.puesto?`${LB.name}: ${j.puesto}º de ${j.total} ${when}.`:`${LB.name}: todavía sin récord ${when}.`):'Al terminar una partida podés cargar tu récord con tu nombre.';
+  return `${j.periodo==='semana'?'La semana va de lunes a domingo. ':''}${who}`;
 }
 function lbOpenPanel(){openMenu();setMenuTab('progreso');setTimeout(()=>byId('lb-panel')?.scrollIntoView({block:'start'}),50);}
+
+/* Al abrir el juego: «te pasaron», campeones de la semana pasada y del mes (y sus medallas). */
+let lbAlertTimer=0;
+function lbAlert(html){
+  const el=byId('lb-alert');if(!el)return;el.innerHTML=html;el.hidden=false;clearTimeout(lbAlertTimer);
+  lbAlertTimer=setTimeout(()=>{el.hidden=true;},8000);
+}
+async function lbSummary(notify=true){
+  if(!LB.url)return;
+  let R;try{R=await lbFetch({accion:'resumen',nombre:LB.name||''});}catch(_){return;}
+  if(!R.version)return;
+  LB.res=R;if(byId('lb-panel')&&byId('lb-panel').querySelector('.lb-champs')===null&&lbChampHtml())lbSetupPanel();
+  if(!LB.name)return;
+  const me=LB.name.toLowerCase(),K=lbKnown(),msgs=[];
+  // Campeón de la semana pasada / del mes pasado: medalla y festejo (una sola vez).
+  const won=R.campeones.filter(c=>c.nombre.toLowerCase()===me);
+  if(won.length&&!PRG.champWeeks.includes(R.semanaPasada)){PRG.champWeeks.push(R.semanaPasada);msgs.push(`🏆 ¡Ganaste la semana pasada en ${won.map(c=>LB_KINDS[c.modo]).join(', ')}!`);}
+  if(R.campeonMes&&R.campeonMes.nombre.toLowerCase()===me&&!PRG.champMonths.includes(R.mesPasado)){PRG.champMonths.push(R.mesPasado);msgs.push(`👑 ¡Sos el campeón de ${lbMonthName(R.mesPasado)}!`);}
+  if(msgs.length){checkMedals();saveProg();}
+  // ¿Alguien te pasó esta semana?
+  if(K.semana===R.semana&&K.pos){
+    const passed=R.mios.filter(m=>K.pos[m.modo+':'+m.reglas]&&m.puesto>K.pos[m.modo+':'+m.reglas]&&m.arriba);
+    if(passed.length){const p=passed[0];msgs.push(`😤 <b>${escHtml(p.arriba)}</b> te pasó en ${LB_KINDS[p.modo]}${p.reglas==='classic'?' (clásico)':''}. Ahora vas ${p.puesto}º esta semana.${passed.length>1?` Y en ${passed.length-1} ${passed.length===2?'modo':'modos'} más.`:''}`);}
+  }
+  K.semana=R.semana;K.pos={};for(const m of R.mios)K.pos[m.modo+':'+m.reglas]=m.puesto;lbSaveKnown(K);
+  if(notify&&msgs.length)lbAlert(msgs.join('<br>')+'<small>Tocá para ver la tabla</small>');
+}
+function setupTabla(){
+  const el=byId('lb-alert');el.addEventListener('click',()=>{el.hidden=true;lbOpenPanel();});
+  // Un rato después de abrir, y cada vez que se vuelve al juego (como mucho cada 10 minutos).
+  let last=0;const go=()=>{if(Date.now()-last<600000||!LB.url)return;last=Date.now();lbSummary(true);};
+  setTimeout(go,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)go();});
+}
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
@@ -5446,7 +5538,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
@@ -5501,7 +5593,7 @@ if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
     INST:{kick,hat,clap,tom,ride,bass,bassV,lead,stab,pad,pluck,crash,riser,boom,metal,shaker,snare,noiseHit,rave},PROGS,newPhrase,AU,AUDIO,musicStyle,STYLE_POOL,buildSet,curSt,musicStart,musicStop,musicUpdate,musicReset,audioEvent,auCtx,beatPulse,setStageNow,__tick:(t,dt)=>cpuTick(t,dt),cpu,cpuM,bot,botChoose,cpuStats,setCpuLevel,cpuStart,soloTimer,setSoloKind,getSoloKind:()=>soloKind,FEEL,applyFeel,setPadVisible,nearestPadButton,padHidden,touchLayouts,fromTemplate,openEditor,closeEditor,orientation,renderPad,currentLayout,saveLayouts,editing:()=>editing,
-    askRestart,confirmResetOn:()=>confirmReset,openSoundPop,closeSoundPop,GFXSET,GFX,gfxApply,SPR,LB,lbOffer,lbSend,lbOpenPanel,lbFetch,PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
+    askRestart,confirmResetOn:()=>confirmReset,openSoundPop,closeSoundPop,GFXSET,GFX,gfxApply,SPR,LB,lbOffer,lbSend,lbOpenPanel,lbFetch,lbSummary,lbStreak,lbSetupPanel,PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
 }
 })();
 </script>
