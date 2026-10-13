@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BLOQUES">
+<meta name="apple-mobile-web-app-title" content="BloqueAR">
 <meta name="format-detection" content="telephone=no">
-<meta name="description" content="BLOQUES: juego de piezas en un solo archivo. Solo y local sin internet; dos dispositivos por conexión directa.">
-<title>BLOQUES</title>
+<meta name="description" content="BloqueAR: juego de piezas en un solo archivo. Solo y local sin internet; dos dispositivos por conexión directa.">
+<title>BloqueAR</title>
 <style>
 :root{--theme:#7ce9e5;--pulse:0;color-scheme:dark;--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--p1:#7ce9e5;--p2:#c7a5ff;--cell:24px;--rail:72px;--gap:8px;--btn:56px;--padw:130px;--next-h:5}
 *{box-sizing:border-box}
@@ -296,6 +296,18 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 .head-pills{display:flex;gap:6px;margin-left:auto}#menu-close{white-space:nowrap;padding:0 12px}.head-pills .pill{white-space:nowrap;padding:0 11px}
 @media (max-width:430px){.wide-only{display:none}}
 @media (max-width:400px){.sheet-head .pill{padding:0 9px;font-size:12.5px}.sheet-head h2{font-size:17px}}
+.overlay:has(.overlay-extra:not([hidden]) :is(.tut-tips,.how-qr)) .overlay-mark{display:none}
+.overlay:has(.overlay-extra:not([hidden]) :is(.tut-tips,.how-qr)) #overlay-title{font-size:min(9vw,34px);margin-bottom:4px}
+.overlay:has(.overlay-extra:not([hidden]) :is(.tut-tips,.how-qr)) #overlay-description{font-size:13px;margin:0 0 6px}
+.tut-tips{list-style:none;margin:2px auto 10px;padding:0;width:min(100%,340px);display:flex;flex-direction:column;gap:6px;text-align:left}
+.tut-tips li{display:flex;gap:8px;align-items:flex-start;background:#111a27;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12px;line-height:1.35;color:#cfe0ea}
+.tut-tips li i{font-style:normal;font-size:16px;line-height:1.1}.tut-tips b{color:#fff}
+.how-qr{list-style:none;margin:4px auto 6px;padding:0;width:min(100%,340px);display:flex;flex-direction:column;gap:6px;text-align:left}
+.how-qr li{display:flex;gap:10px;align-items:flex-start;background:#111a27;border:1px solid var(--line);border-radius:10px;padding:6px 9px}
+.how-qr li i{font-style:normal;flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#a4f4e7;color:#0c2932;font-weight:900;font-size:13px}
+.how-qr li div{display:flex;flex-direction:column;gap:2px;font-size:12.5px;line-height:1.35;color:#cfe0ea}.how-qr li b{color:#fff;font-size:13px}
+.overlay-extra .how-far,.how-far{width:min(100%,340px);margin:0 auto 8px;font-size:12px;line-height:1.4;color:var(--dim);text-align:left}
+.net-how .how-qr,.net-how .how-far{margin-left:0;width:100%;max-width:520px}
 .overlay-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 .party{width:min(100%,320px);margin:4px auto 10px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .party-names{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -353,6 +365,9 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 .q-music.off,.q-sfx.off{opacity:.5}
 .q-music.off::after,.q-sfx.off::after{content:"";position:absolute;left:22%;right:22%;top:50%;height:2px;background:#ff8a8a;transform:rotate(-40deg);border-radius:2px}
 .rail-tools{display:grid!important;grid-template-columns:1fr 1fr}
+.tool-restart{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1;padding:4px 0!important;overflow:hidden}.tool-restart small{font-size:8px;font-weight:900;letter-spacing:.04em;color:var(--dim);margin-top:2px}
+.tool-restart[hidden]{display:none}
+@media (orientation:landscape) and (max-height:520px){.rail-tools{grid-template-columns:repeat(3,1fr)}.tool-restart{grid-column:auto;font-size:16px}.tool-restart small{display:none}}
 
 /* Récord: barrita bajo el puntaje */
 .rec-bar{height:4px;border-radius:3px;background:#24324a;margin-top:4px;overflow:hidden}
@@ -432,13 +447,14 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 <div class="app" id="app">
   <header class="topbar" id="topbar">
     <button class="pill menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span><span class="label">Menú</span></button>
-    <div class="identity"><div class="emblem" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="brand">BLO<span>Q</span>UES</div></div>
+    <div class="identity"><div class="emblem" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="brand">BLOQUE<span>AR</span></div></div>
     <button class="chip" id="mode-chip" type="button" aria-label="Cambiar modo de juego">SOLO · MODERNO</button>
     <div class="spacer"></div>
     <div class="top-actions">
       <button class="icon-btn q-music" id="q-music" type="button" aria-label="Música">♪</button>
       <button class="icon-btn q-sfx" id="q-sfx" type="button" aria-label="Efectos de sonido">🔈</button>
       <button class="icon-btn" id="fullscreen-btn" type="button" aria-label="Pantalla completa" hidden>⛶</button>
+      <button class="icon-btn" id="restart-btn" type="button" aria-label="Empezar de nuevo" title="Empezar de nuevo" hidden>↻</button>
       <button class="icon-btn" id="pause-btn" type="button" aria-label="Pausar">Ⅱ</button>
     </div>
   </header>
@@ -470,6 +486,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
       <h3 id="online-title">EN LÍNEA</h3>
       <div class="net-ok" id="net-ok" hidden><i aria-hidden="true"></i><span>Conectado</span><span class="net-badge" id="net-ok-ms"></span></div>
       <p class="hint" id="net-path-hint" hidden></p>
+      <div class="net-how" id="net-how" hidden></div>
       <p class="steps" id="net-steps"></p>
       <div class="row" id="net-start"><button type="button" class="primary" id="net-create">Crear partida</button></div>
       <div class="code-box" id="net-mine" hidden>
@@ -540,7 +557,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
         <label for="au-sv">Volumen de los efectos <output id="au-sv-out"></output></label><input type="range" id="au-sv" min="0" max="100" step="5">
       </div>
       <label class="check"><input type="checkbox" id="au-quant"> Efectos al ritmo de la música</label>
-      <p class="hint">Cambia de etapa cada 2 niveles. Arcade: música de juego, alegre y movida; con el tablero alto se acelera. Arcade → Techno: arranca como Arcade y en cada etapa una parte se vuelve techno, hasta el drop del nivel 9. Arcade Techno: las mismas melodías sobre techno duro. Techno oscuro: duro y oscuro. Original: la primera música. Tetris, combos y rachas suben la música. En iPhone, si no suena, sacá el modo silencio.</p>
+      <p class="hint">Cambia de etapa cada 2 niveles. Arcade: música de juego, alegre y movida; con el tablero alto se acelera. Arcade → Techno: arranca como Arcade y en cada etapa una parte se vuelve techno, hasta el drop del nivel 9. Arcade Techno: las mismas melodías sobre techno duro. Techno oscuro: duro y oscuro. Original: la primera música. Los cuádruples, combos y rachas suben la música. En iPhone, si no suena, sacá el modo silencio.</p>
     </div>
 
     <div class="block" data-tab="mas" id="install-block"><h3>INSTALAR COMO APP</h3><p class="hint" id="install-txt"></p><div class="row"><button type="button" class="pill" id="install-btn" hidden>Instalar</button></div></div>
@@ -572,7 +589,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
     <section class="arena" id="solo-area" aria-label="Tu tablero">
       <div class="field">
         <aside class="rail rail-l">
-          <section class="card rail-tools" id="rail-tools" hidden aria-label="Menú y pausa"><button type="button" class="tool-btn" id="tool-menu" aria-label="Menú">☰</button><button type="button" class="tool-btn" id="tool-pause" aria-label="Pausar">Ⅱ</button><button type="button" class="tool-btn q-music" id="tool-music" aria-label="Música">♪</button><button type="button" class="tool-btn q-sfx" id="tool-sfx" aria-label="Efectos de sonido">🔈</button></section>
+          <section class="card rail-tools" id="rail-tools" hidden aria-label="Menú y pausa"><button type="button" class="tool-btn" id="tool-menu" aria-label="Menú">☰</button><button type="button" class="tool-btn" id="tool-pause" aria-label="Pausar">Ⅱ</button><button type="button" class="tool-btn q-music" id="tool-music" aria-label="Música">♪</button><button type="button" class="tool-btn q-sfx" id="tool-sfx" aria-label="Efectos de sonido">🔈</button><button type="button" class="tool-btn tool-restart" id="tool-restart" aria-label="Empezar de nuevo" hidden>↻<small>REINICIAR</small></button></section>
           <section class="card stats" id="card-stats" aria-label="Puntaje"><div class="eyebrow">PUNTOS</div><strong class="big-num" id="score">0</strong>
             <div class="mini-stats"><span>LÍNEAS<b id="lines">0</b></span><span>NIVEL<b id="level">1</b></span></div>
             <div class="record"><span id="record-label">RÉCORD</span> <b id="record">0</b></div><div class="rec-bar" id="rec-bar" hidden><i></i></div></section>
@@ -991,7 +1008,7 @@ function createGame(root,prefix,options){
         state.b2b=difficult;
       }else state.score+=([0,40,100,300,1200][cleared]||0)*(lvl+1);
       state.lines+=cleared;state.level=(state.mode==='classic'?0:1)+Math.floor(state.lines/10);
-      const texts=['','SINGLE','DOUBLE','TRIPLE','¡TETRIS!'];
+      const texts=['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'];
       const combo=state.mode==='modern'&&state.combo>0?`\nCOMBO ×${state.combo}`:'';
       announce((spin?'¡T-SPIN!':texts[cleared])+combo);
       const pc=state.grid.every(r=>r.every(c=>!c));
@@ -1399,7 +1416,7 @@ function refreshControlHints(){
   <p><b>Clásico (inspirado en NES, no idéntico):</b> sin reserva, sin pieza fantasma ni caída instantánea, rotación simple sin ajustes y una pieza siguiente. La pieza queda fija apenas se apoya.</p>
   <p><b>Solo:</b> Maratón (sube la velocidad hasta que se llene el tablero), Sprint 40 (40 líneas contra reloj) y Ultra 2:00 (máximo puntaje en 2 minutos), cada uno con su récord.</p>
   <p><b>Contra la compu:</b> versus con envío de líneas contra la computadora, en Fácil, Normal o Difícil. Las dos reciben las mismas piezas.</p>
-  <p><b>Versus:</b> Double manda 1 línea, Triple 2 y Tetris 4; en moderno los T‑Spin, combos y rachas suman. Tus ataques primero cancelan las líneas que te mandaron. Las pendientes entran cuando fijás una pieza sin hacer línea (hasta 8 por pieza).</p>`;
+  <p><b>Versus:</b> Double manda 1 línea, Triple 2 y Cuádruple 4; en moderno los T‑Spin, combos y rachas suman. Tus ataques primero cancelan las líneas que te mandaron. Las pendientes entran cuando fijás una pieza sin hacer línea (hasta 8 por pieza).</p>`;
   for(const n of [1,2])byId(`p${n}-key-hint`).textContent=`${keyLabel('p'+n,'left')}/${keyLabel('p'+n,'right')} · ${keyLabel('p'+n,'cw')} · ${keyLabel('p'+n,'drop')}`;
 }
 function renderBindings(){
@@ -1760,7 +1777,7 @@ function findCode(text){
 }
 function decodeCode(text){
   const code=findCode(text);
-  if(!code)throw codeError('No encontré un código de BLOQUES. Pegá el mensaje completo que te mandó tu amigo.');
+  if(!code)throw codeError('No encontré un código de BloqueAR. Pegá el mensaje completo que te mandó tu amigo.');
   return {...unpackBody(unb64url(code.slice(CODE_PREFIX.length))),code};
 }
 
@@ -2151,7 +2168,7 @@ function onlineLock(result){
   const s=solo.state;let attack=attackFor(result);
   const cancelled=Math.min(attack,s.incoming.length);s.incoming.splice(0,cancelled);attack-=cancelled;
   if(attack>0&&net.m.peerStatus!=='over'){netSend({t:'attack',round:net.m.round,n:attack,hole:Math.floor(Math.random()*W)});s.sent+=attack;}
-  if(cancelled||attack)solo.announce((result.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡TETRIS!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
+  if(cancelled||attack)solo.announce((result.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
   if(!result.cleared&&s.incoming.length)solo.addGarbage(s.incoming.splice(0,8));
   solo.renderScore();
 }
@@ -2221,7 +2238,9 @@ function refreshOnlineOverlay(){
   if(net.step==='lost'){g.showOverlay('SE CORTÓ\nLA CONEXIÓN',net.status.replace(/ Para seguir.*/,'')||'Se perdió la conexión.','VOLVER A CONECTAR');return;}
   if(!net.hello){
     const waiting=net.step==='answered'||net.step==='connecting'||net.step==='invited';
-    g.showOverlay('EN LÍNEA',waiting?'Terminá de pasar los códigos en el menú.':'Jugá con un amigo en otro dispositivo, cada uno con su internet.',waiting?'VER CÓDIGOS':'CONECTAR');return;
+    g.showOverlay('EN LÍNEA',waiting?'Terminá de pasar los códigos en el menú.':'Jugá con un amigo en otro celular o compu. Se conectan así:',waiting?'VER CÓDIGOS':'CONECTAR');
+    if(!waiting){const box=byId('overlay-extra');box.innerHTML=onlineHowHtml();box.hidden=false;}
+    return;
   }
   switch(M.phase){
     case 'ready':case 'finished':{
@@ -2404,7 +2423,7 @@ async function openScanner(){
       if(me.stop)return;
       if(text){
         if(/BLQ-[A-Za-z0-9_-]{16,}/.test(text)){closeScanner();buzz();byId('net-friendcode').value='';netUseFriendCode(text);return;}
-        msg.textContent='Ese QR no es de BLOQUES. Mostrá el que aparece en el juego de tu amigo.';
+        msg.textContent='Ese QR no es de BloqueAR. Mostrá el que aparece en el juego de tu amigo.';
       }
       me.timer=setTimeout(loop,120);
     };
@@ -2629,7 +2648,7 @@ function cpuLock(side,r){
   let attack=attackFor(r);const cancelled=Math.min(attack,game.state.incoming.length);
   game.state.incoming.splice(0,cancelled);attack-=cancelled;
   if(attack&&other.state.status==='playing'){other.state.incoming.push(...Array(attack).fill(Math.floor(Math.random()*W)));game.state.sent+=attack;other.renderScore();if(other===solo)solo.announce(`TE MANDAN ${attack}`);}
-  if(side==='me'&&(cancelled||attack))solo.announce((r.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡TETRIS!'][r.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
+  if(side==='me'&&(cancelled||attack))solo.announce((r.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'][r.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
   if(!r.cleared&&game.state.incoming.length)game.addGarbage(game.state.incoming.splice(0,8));
   game.renderScore();
 }
@@ -2743,9 +2762,9 @@ function lookChanged(){
 }
 /* Medallas: unas por total acumulado y otras por lo mejor que hiciste en una partida. */
 const MEDALS=[
-  {id:'t1',g:'IV',name:'Primer Tetris',desc:'Borrá 4 líneas de una.',goal:1,val:()=>PRG.tetris},
-  {id:'t10',g:'IV',name:'Diez Tetris',desc:'10 Tetris en total.',goal:10,val:()=>PRG.tetris},
-  {id:'t100',g:'IV',name:'Cien Tetris',desc:'100 Tetris en total.',goal:100,val:()=>PRG.tetris},
+  {id:'t1',g:'IV',name:'Primer cuádruple',desc:'Borrá 4 líneas de una.',goal:1,val:()=>PRG.tetris},
+  {id:'t10',g:'IV',name:'Diez cuádruples',desc:'10 cuádruples en total.',goal:10,val:()=>PRG.tetris},
+  {id:'t100',g:'IV',name:'Cien cuádruples',desc:'100 cuádruples en total.',goal:100,val:()=>PRG.tetris},
   {id:'l100',g:'≡',name:'Cien líneas',desc:'100 líneas en total.',goal:100,val:()=>PRG.lines},
   {id:'l1000',g:'≡',name:'Mil líneas',desc:'1.000 líneas en total.',goal:1000,val:()=>PRG.lines},
   {id:'ts1',g:'T',name:'Primer T-spin',desc:'Girá la T en un hueco y borrá líneas.',goal:1,val:()=>PRG.tspin},
@@ -2824,7 +2843,7 @@ function progressEvent(name,d){
     if(session==='solo'&&soloKind==='sprint'){for(let k=RUN.splits.length;k<=Math.min(40,solo.state.lines);k++)RUN.splits[k]=Math.round(soloTimer.elapsed);}
     // Festejos.
     if(d.pc)callout('¡TABLERO VACÍO!','big');
-    else if(n>=4)callout(d.b2b?'TETRIS · B2B':'TETRIS','big');
+    else if(n>=4)callout(d.b2b?'CUATRO LÍNEAS · B2B':'¡CUATRO LÍNEAS!','big');
     else if(d.spin)callout('T-SPIN'+(n===2?' DOBLE':n===3?' TRIPLE':''),'big');
     if(combo>=2)callout('COMBO ×'+combo,combo>=5?'big':'');
     if(n>=4||d.spin||combo>=4||d.pc){RUN.bigTimes=RUN.bigTimes.filter(x=>now-x<25000);RUN.bigTimes.push(now);if(RUN.bigTimes.length>=2)fever();}
@@ -2914,7 +2933,7 @@ function renderProgress(){
   const L=levelInfo(PRG.xp),got=MEDALS.filter(m=>PRG.medals[m.id]).length,dr=dailyRec();
   box.innerHTML=`<h3>TU PROGRESO</h3>
     <div class="prog-level"><div class="prog-lv">${L.lv}</div><div class="prog-lv-txt"><b>Nivel ${L.lv}</b><div class="xpbar"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></div><span>${fmt(L.into)} / ${fmt(L.need)} XP</span></div></div>
-    <div class="prog-stats"><span><b>${fmt(PRG.games)}</b>partidas</span><span><b>${fmt(PRG.lines)}</b>líneas</span><span><b>${fmt(PRG.tetris)}</b>Tetris</span><span><b>${got}/${MEDALS.length}</b>medallas</span></div>
+    <div class="prog-stats"><span><b>${fmt(PRG.games)}</b>partidas</span><span><b>${fmt(PRG.lines)}</b>líneas</span><span><b>${fmt(PRG.tetris)}</b>cuádruples</span><span><b>${got}/${MEDALS.length}</b>medallas</span></div>
     <div class="prog-daily"><div><b>DESAFÍO DEL DÍA</b><span>2 minutos con las mismas piezas para todos hoy.</span><span>${dr.tries?`Tu mejor de hoy: <b>${fmt(dr.best)}</b> · ${dr.tries} ${dr.tries===1?'intento':'intentos'}`:'Todavía no lo jugaste hoy.'}${PRG.dailyDays.length?` · ${PRG.dailyDays.length} ${PRG.dailyDays.length===1?'día jugado':'días jugados'}`:''}</span></div><button type="button" class="primary" id="prog-daily-go">Jugar</button></div>
     <h3>TUS ÚLTIMAS PARTIDAS</h3>
     <div id="hist-box"></div>
@@ -3164,11 +3183,27 @@ function tutLock(r){
 function tutDone(){TUT.active=false;storageSet('bloques-tut-v1','1');byId('coach').hidden=true;}
 function tutFinish(){
   tutDone();solo.freeze();sound('tetris');
-  solo.showOverlay('¡YA SABÉS\nJUGAR!','Completá líneas para sumar puntos: si borrás varias de una vez, valen mucho más.\nSi la pila llega arriba, se termina la partida.','JUGAR');
+  solo.showOverlay('¡YA SABÉS\nJUGAR!','Borrá varias líneas de una para sumar más. Si la pila llega arriba, se termina.','JUGAR');
+  const touch=tutInput()!=='keys',box=byId('overlay-extra');
+  box.innerHTML=`<ul class="tut-tips">
+    <li><i>🎮</i><span><b>Controles:</b> ${touch?'en Menú ☰ › Controles podés ajustar los gestos o sumar botones en pantalla.':'en Menú ☰ › Controles podés cambiar las teclas. También anda con joystick.'}</span></li>
+    <li><i>🧩</i><span><b>Modos:</b> en Menú ☰ › Partida elegís Maratón, Sprint, Ultra, Desafío del día, T-spin, Excavación o Fiesta, con reglas Moderno o Clásico.</span></li>
+    <li><i>🌐</i><span><b>Con amigos:</b> en línea desde otro celular (se conectan con un QR), contra la compu o de a 2 en el mismo equipo.</span></li>
+    <li><i>⭐</i><span><b>Progreso:</b> subís de nivel, ganás medallas y desbloqueás colores y fondos.</span></li></ul>`;
+  box.hidden=false;
   byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';refreshTop();
 }
 function tutSkip(){tutDone();soloTimer.elapsed=0;solo.reset(true);refreshTop();solo.boardCanvas.focus({preventScroll:true});}
 function tutStop(){if(!TUT.active)return;TUT.active=false;byId('coach').hidden=true;}
+
+/* Cómo conectarse en línea con QR, explicado en tres pasos (en la pantalla del juego y en el menú). */
+function onlineHowHtml(){
+  return `<ol class="how-qr">
+    <li><i>1</i><div><b>Uno crea la partida</b><span>Toca «Crear partida» y en su pantalla aparece un QR.</span></div></li>
+    <li><i>2</i><div><b>El otro lo escanea</b><span>Con la cámara del celu o con «📷 Escanear QR» del juego. En su pantalla aparece otro QR: la respuesta.</span></div></li>
+    <li><i>3</i><div><b>El primero escanea la respuesta</b><span>Toca «📷 Escanear su respuesta», apunta a la otra pantalla y quedan conectados.</span></div></li></ol>
+    <p class="how-far">¿Están lejos? Mandá la invitación por WhatsApp con «Compartir» y tu amigo te devuelve su respuesta por el mismo lado. Cada uno usa su propio internet.</p>`;
+}
 
 /* Después de cada reinicio de la partida Solo. */
 function afterSoloReset(start){
@@ -3196,7 +3231,7 @@ function setupExtra(){
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
    Cada etapa tiene su tonalidad, tempo, patrones y capas. La energía sube con el nivel y con tus jugadas;
-   el peligro (tablero alto) filtra y tensa la música; Tetris, combos y rachas disparan tramos eufóricos.
+   el peligro (tablero alto) filtra y tensa la música; cuádruples, combos y rachas disparan tramos eufóricos.
    Los sonidos del juego son notas de la escala que caen en la grilla de semicorcheas del tema. */
 const AUDIO_DEFAULT={music:true,sfx:true,mv:.8,sv:.8,quant:true,style:'auto',sv16:true};
 const AUDIO={...AUDIO_DEFAULT};
@@ -4283,7 +4318,7 @@ function handleLock(index,result){
   let attack=attackFor(result);const cancelled=Math.min(attack,game.state.incoming.length);
   game.state.incoming.splice(0,cancelled);attack-=cancelled;
   if(attack&&rivalGame.state.status==='playing'){const hole=Math.floor(Math.random()*W);rivalGame.state.incoming.push(...Array(attack).fill(hole));game.state.sent+=attack;rivalGame.renderScore();}
-  if(cancelled||attack)game.announce((result.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡TETRIS!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
+  if(cancelled||attack)game.announce((result.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
   if(!result.cleared&&game.state.incoming.length)game.addGarbage(game.state.incoming.splice(0,8));
   game.renderScore();
 }
@@ -4311,7 +4346,7 @@ function soloReadyOverlay(){
   solo.showOverlay(kind?SOLO_KINDS[soloKind].toUpperCase():'¿LISTO PARA\nJUGAR?',(kind||(mode==='classic'?'Clásico: sin reserva ni caída instantánea. La pieza queda fija al apoyarse.':'Completá líneas, usá la reserva y superá tu récord.'))+touchHint,'JUGAR');
   byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';
 }
-function soloPauseOverlay(){solo.showOverlay('EN PAUSA','Tu partida está a salvo.','CONTINUAR');byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Menú';}
+function soloPauseOverlay(){confirmReset=false;solo.showOverlay('EN PAUSA','Tu partida está a salvo.','CONTINUAR');byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Menú';}
 
 /* Dos jugadores en el mismo equipo */
 function timeLabel(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
@@ -4380,6 +4415,7 @@ function advanceMatch(now,dt){
 
 /* Acciones principales, iguales para teclado, mando, toque y menú */
 function primaryAction(){
+  if(confirmReset){confirmReset=false;restart();return;}
   if(menuOpen)closeMenu();
   lastFrame=performance.now();
   if(session==='solo'){
@@ -4403,7 +4439,21 @@ function primaryAction(){
   }
   refreshTop();
 }
+/* Botón de reinicio (sólo en Solo, nunca en la fiesta): si hay una partida en juego, pide confirmación. */
+let confirmReset=false;
+function canRestartSolo(){return session==='solo'&&!(soloKind==='fiesta'&&!TUT.active);}
+function askRestart(){
+  if(!canRestartSolo())return;
+  if(menuOpen)closeMenu();
+  const st=solo.state.status;
+  if(st!=='playing'&&st!=='paused'){confirmReset=false;restart();return;}
+  if(st==='playing')solo.pause();
+  confirmReset=true;
+  solo.showOverlay('¿EMPEZAR\nDE NUEVO?','Se pierde la partida que estás jugando.','SÍ, REINICIAR');
+  byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Seguir jugando';refreshTop();
+}
 function pauseOrResume(){
+  confirmReset=false;
   lastFrame=performance.now();
   if(session==='solo'){if(solo.state.status==='playing'){solo.pause();soloPauseOverlay();}else primaryAction();}
   else if(session==='cpu'){if(['playing','countdown'].includes(cpuM.phase))cpuPause();else primaryAction();}
@@ -4481,6 +4531,7 @@ function refreshTop(){
   const pb=byId('pause-btn');pb.textContent=paused?'▶':'Ⅱ';pb.setAttribute('aria-label',paused?'Continuar':'Pausar');
   const tp=byId('tool-pause');tp.textContent=paused?'▶':'Ⅱ';tp.setAttribute('aria-label',paused?'Continuar':'Pausar');
   const rl=session==='cpu'?'PARTIDAS':session==='solo'&&soloKind==='puzzle'?'RESUELTOS':session==='solo'&&soloKind==='fiesta'?'A SUPERAR':'RÉCORD';if(byId('record-label').textContent!==rl){byId('record-label').textContent=rl;solo.renderScore();}
+  {const rs=!canRestartSolo(),a=byId('restart-btn'),b=byId('tool-restart');a.hidden=rs;if(b.hidden!==rs){b.hidden=rs;fitArena(true);}}
   const bar=byId('matchbar'),showBar=session!=='solo'||soloKind!=='marathon';
   if(bar.hidden===showBar){bar.hidden=!showBar;fitArena(true);}
   if(!showBar)return;
@@ -4525,6 +4576,7 @@ function refreshTop(){
 
 /* Menú integrado (reemplaza al tablero mientras está abierto) */
 function openMenu(focus){
+  if(confirmReset){confirmReset=false;soloPauseOverlay();}
   closeModePop();
   if(configOpen)closeControls();
   if(!menuOpen){autoPause();menuOpen=true;}
@@ -4571,7 +4623,7 @@ function renderNet(){
   if(initializing)return;
   const s=net.step,host=net.role==='host';
   const steps={
-    idle:'Uno de los dos toca «Crear partida» y le manda la invitación al otro.\nSi tu amigo ya te mandó un código o un enlace, pegalo abajo.',
+    idle:'Si tu amigo ya te mandó un código o un enlace, pegalo abajo en «Código de tu amigo».',
     creating:'',
     invited:'1. Tu amigo escanea tu QR (o le mandás la invitación con Compartir).\n2. En su pantalla aparece un QR de respuesta.\n3. Tocá «Escanear QR» acá abajo y apuntá la cámara a su pantalla. Listo.',
     joining:'',
@@ -4579,6 +4631,7 @@ function renderNet(){
     connecting:'',connected:'Listos para jugar. Toquen JUGAR los dos.',lost:'Toquen «Empezar de nuevo» y vuelvan a pasarse los códigos.'
   };
   byId('net-steps').textContent=steps[s]??'';
+  {const how=byId('net-how'),show=s==='idle'||s==='lost';if(show&&!how.innerHTML)how.innerHTML=onlineHowHtml();how.hidden=!show;}
   byId('net-ok').hidden=!net.hello;
   byId('net-start').hidden=!(s==='idle'||s==='lost');
   byId('net-create').disabled=!netSupported();
@@ -4627,11 +4680,11 @@ function myLink(){const base=gameBase();return base&&net.myCode?`${base}#${net.r
 function shareText(){
   const code=net.myCode,link=myLink();
   if(net.role==='host'){
-    if(link)return `Juguemos BLOQUES. Abrí este enlace y mandame la respuesta que aparece:\n${link}`;
-    return `Juguemos BLOQUES. Abrí el juego, entrá en Menú › En línea y pegá este código en «Código de tu amigo»:\n${code}`;
+    if(link)return `Juguemos BloqueAR. Abrí este enlace y mandame la respuesta que aparece:\n${link}`;
+    return `Juguemos BloqueAR. Abrí el juego, entrá en Menú › En línea y pegá este código en «Código de tu amigo»:\n${code}`;
   }
-  if(link)return `Mi respuesta para BLOQUES. Abrila en el mismo navegador donde creaste la partida (o pegala en «Código de tu amigo»):\n${link}`;
-  return `Mi respuesta para BLOQUES (pegala en «Código de tu amigo»):\n${code}`;
+  if(link)return `Mi respuesta para BloqueAR. Abrila en el mismo navegador donde creaste la partida (o pegala en «Código de tu amigo»):\n${link}`;
+  return `Mi respuesta para BloqueAR (pegala en «Código de tu amigo»):\n${code}`;
 }
 function saveBase(){
   const raw=byId('net-base-input').value.trim();let url;
@@ -5002,6 +5055,7 @@ function tick(now){
 /* Menú contextual de modos: se despliega junto al botón que lo abre, sin tapar todo. */
 let popOpen=false,popAnchor=null;
 function openModePop(anchor){
+  if(confirmReset){confirmReset=false;soloPauseOverlay();}
   if(menuOpen)closeMenu();
   autoPause();popOpen=true;popAnchor=anchor||null;
   byId('mode-pop').hidden=false;byId('mode-scrim').hidden=false;
@@ -5046,7 +5100,7 @@ function renderShareGame(){
 }
 async function shareGameNative(){
   const url=gameBase();if(!url)return;
-  try{await navigator.share({title:'BLOQUES',text:'Juguemos BLOQUES: abrilo en el navegador, no hace falta instalar nada.',url});}
+  try{await navigator.share({title:'BloqueAR',text:'Juguemos BloqueAR: abrilo en el navegador, no hace falta instalar nada.',url});}
   catch(e){if(e?.name!=='AbortError')byId('share-msg').textContent='No se pudo abrir Compartir. Usá «Copiar enlace».';}
 }
 async function shareGameCopy(){
@@ -5082,8 +5136,9 @@ function init(){
   byId('menu-close').addEventListener('click',closeMenu);
   byId('menu-play').addEventListener('click',()=>{if(session==='online'&&!net.hello){closeMenu();return;}primaryAction();});
   // «Cambiar modo» despliega el menú contextual; «Menú» (en pausa o en línea conectado) abre el menú completo.
-  byId('overlay-alt').addEventListener('click',e=>{const t=e.currentTarget.textContent;if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
+  byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){pauseOrResume();return;}const t=e.currentTarget.textContent;if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
   byId('pause-btn').addEventListener('click',pauseOrResume);
+  for(const id of ['restart-btn','tool-restart'])byId(id).addEventListener('click',e=>{askRestart();e.currentTarget.blur();});
   document.querySelectorAll('[data-session]').forEach(b=>b.addEventListener('click',()=>changeSession(b.dataset.session)));
   document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>changeMode(b.dataset.mode)));
   byId('match-duration').addEventListener('change',()=>{
@@ -5159,7 +5214,7 @@ if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
     INST:{kick,hat,clap,tom,ride,bass,bassV,lead,stab,pad,pluck,crash,riser,boom,metal,shaker,snare,noiseHit,rave},PROGS,newPhrase,AU,AUDIO,musicStyle,STYLE_POOL,buildSet,curSt,musicStart,musicStop,musicUpdate,musicReset,audioEvent,auCtx,beatPulse,setStageNow,__tick:(t,dt)=>cpuTick(t,dt),cpu,cpuM,bot,botChoose,cpuStats,setCpuLevel,cpuStart,soloTimer,setSoloKind,getSoloKind:()=>soloKind,FEEL,applyFeel,setPadVisible,nearestPadButton,padHidden,touchLayouts,fromTemplate,openEditor,closeEditor,orientation,renderPad,currentLayout,saveLayouts,editing:()=>editing,
-    PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
+    askRestart,confirmResetOn:()=>confirmReset,PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
 }
 })();
 </script>
