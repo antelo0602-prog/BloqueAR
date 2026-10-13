@@ -292,7 +292,32 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 .mp-item:hover{background:#1a2638}
 .mp-item.active{background:#1f3242;border-color:#3f6274}.mp-item.active b{color:#dbffff}
 .mp-item.active b::before{content:"● ";color:var(--theme);font-size:10px;vertical-align:2px}
-.seg.wrap{flex-wrap:wrap}.pz-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:6px 0 4px}
+.seg.wrap{flex-wrap:wrap}.overlay{overflow-y:auto;justify-content:safe center}
+.head-pills{display:flex;gap:6px;margin-left:auto}#menu-close{white-space:nowrap;padding:0 12px}.head-pills .pill{white-space:nowrap;padding:0 11px}
+@media (max-width:430px){.wide-only{display:none}}
+@media (max-width:400px){.sheet-head .pill{padding:0 9px;font-size:12.5px}.sheet-head h2{font-size:17px}}
+.overlay-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.party{width:min(100%,320px);margin:4px auto 10px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.party-names{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.party-chip{display:inline-flex;align-items:center;gap:4px;background:#1b2a3e;border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 12px;font-weight:800;font-size:13px}
+.party-chip button{background:none;border:0;color:var(--dim);min-width:26px;min-height:26px;font-size:12px}
+.party-empty{color:var(--dim);font-size:13px}
+.party-add{display:flex;gap:6px}.party-add input{flex:1;min-width:0;min-height:40px;border-radius:10px;border:1px solid var(--line);background:#0c131e;color:var(--text);padding:0 12px;font-size:16px}
+.party-dur{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--dim)}
+.party-msg{min-height:1em;margin:0;text-align:center;color:#ffd166;font-size:12.5px}
+.party-rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;counter-reset:r}
+.party-rank li{display:flex;align-items:center;gap:10px;background:#111a27;border:1px solid var(--line);border-radius:10px;padding:7px 12px;counter-increment:r;font-size:14px}
+.party-rank li::before{content:counter(r);color:var(--dim);font-weight:900;width:14px}
+.party-rank li b{flex:1}.party-rank li em{font-style:normal;font-weight:900}
+.party-rank li.cur{border-color:#7ce9e5}.party-rank li.win{border-color:#ffd166;background:#2a2410}.party-rank li.win em{color:#ffd166}
+.party-night{display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;font-size:12.5px;color:var(--dim)}.party-night b{width:100%;text-align:center;font-size:11px;letter-spacing:.12em}.party-night em{font-style:normal;color:var(--text);font-weight:900}
+.party .linkish{align-self:center}
+.coach{position:absolute;left:8px;right:8px;top:8%;z-index:4;pointer-events:none;background:#0b1422ee;border:1px solid #7ce9e5aa;border-radius:16px;padding:12px 14px;text-align:center;box-shadow:0 10px 30px #0008}
+.coach-step{font-size:10.5px;letter-spacing:.14em;color:#7ce9e5;font-weight:900;margin-bottom:4px}
+.coach-txt{font-size:15px;line-height:1.35;color:#fff}.coach-txt kbd{display:inline-block;background:#1d2a3d;border:1px solid #3b5170;border-bottom-width:3px;border-radius:6px;padding:0 6px;font:800 12.5px/1.6 inherit}
+.coach-skip{pointer-events:auto;margin-top:6px;font-size:12px}
+.playfield:has(.overlay:not(.hidden)) .coach{display:none}
+.pz-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:6px 0 4px}
 .pz-chip{display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:#111a27;color:var(--text);border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:750;min-height:40px}
 .pz-chip i{font-style:normal;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#1d2a3d;color:var(--dim);font-size:11px;flex:none}
 .pz-chip.done i{background:#2bd67b;color:#06210f}.pz-chip.cur{border-color:#b45cff;box-shadow:0 0 0 1px #b45cff inset}
@@ -393,7 +418,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 .look-chip:disabled{opacity:.45}.look-chip small{font-size:10px;color:var(--dim)}
 .look-chip .sw{display:inline-flex;gap:2px}.look-chip .sw i{width:7px;height:12px;border-radius:2px;display:block}
 
-.a2hs{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;gap:10px;background:#142233f2;border:1px solid #3f6274;border-radius:16px;padding:10px 12px;box-shadow:0 12px 40px #000a;max-width:520px;margin:0 auto;animation:popIn .2s ease-out}
+.a2hs{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:10px;background:#142233f2;border:1px solid #3f6274;border-radius:16px;padding:10px 12px;box-shadow:0 12px 40px #000a;max-width:520px;margin:0 auto;animation:popIn .2s ease-out}
 .a2hs-icon{min-width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:#a4f4e7;color:#0c2932;font-size:20px}
 .a2hs-txt{flex:1;display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:#cfe0ea}.a2hs-txt b{color:#fff}.a2hs-txt span{line-height:1.4}
 .a2hs .primary{min-height:40px;padding:0 14px}
@@ -425,7 +450,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
   </div>
 
   <section class="sheet" id="menu" hidden aria-labelledby="menu-title">
-    <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><button class="pill share-pill" id="menu-share" type="button">📲 Pasar el juego</button><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
+    <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><span class="head-pills"><button class="pill share-pill" id="menu-share" type="button">📲 Pasar<span class="wide-only"> el juego</span></button><button class="pill share-pill" id="menu-install" type="button">⬇ Instalar</button></span><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
     <div class="menu-tabs" role="tablist" aria-label="Secciones del menú"><button type="button" role="tab" data-mtab="partida">Partida</button><button type="button" role="tab" data-mtab="progreso">Progreso</button><button type="button" role="tab" data-mtab="sonido">Sonido</button><button type="button" role="tab" data-mtab="controles">Controles</button><button type="button" role="tab" data-mtab="mas">Más</button></div>
 
     <div class="block" data-tab="partida"><h3>MODO</h3>
@@ -436,7 +461,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
         <button type="button" class="tile" data-session="local"><b>2 en este equipo</b><span>Por puntaje</span></button>
         <button type="button" class="tile" data-session="versus"><b>2 en este equipo</b><span>Versus · envío de líneas</span></button>
       </div>
-      <div class="field-row" id="solo-kind-row" hidden><label>PARTIDA</label><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">T-spin</button></div></div>
+      <div class="field-row" id="solo-kind-row" hidden><label>PARTIDA</label><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">T-spin</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
       <p class="hint" id="solo-kind-note" hidden></p>
       <div class="field-row" id="cpu-level-row" hidden><label>DIFICULTAD</label><div class="seg" role="group" aria-label="Dificultad"><button type="button" data-cpulevel="facil">Fácil</button><button type="button" data-cpulevel="normal">Normal</button><button type="button" data-cpulevel="dificil">Difícil</button></div></div>
     </div>
@@ -523,6 +548,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
       <div class="row">
         <button type="button" class="pill" id="share-game-btn">📲 Pasar el juego (QR)</button>
         <button type="button" class="pill" id="new-btn">↻ Nueva partida</button>
+        <button type="button" class="pill" id="tut-btn">🎓 Ver el tutorial</button>
         <button type="button" class="pill" id="menu-fullscreen" hidden>⛶ Pantalla completa</button>
       </div>
     </div>
@@ -556,6 +582,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
         <div class="playfield" id="playfield">
           <canvas id="board" width="300" height="600" tabindex="0" aria-label="Tablero de juego, diez columnas por veinte filas"></canvas>
           <div class="callouts" id="callouts" aria-live="polite"></div>
+          <div class="coach" id="coach" hidden aria-live="polite"><div class="coach-step" id="coach-step"></div><div class="coach-txt" id="coach-txt"></div><button type="button" class="linkish coach-skip" id="coach-skip">Saltar tutorial</button></div>
           <div class="overlay" id="overlay" role="dialog" aria-labelledby="overlay-title" aria-describedby="overlay-description">
             <div class="overlay-mark" aria-hidden="true">▦</div>
             <h1 id="overlay-title">¿LISTO PARA JUGAR?</h1>
@@ -564,7 +591,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
             <button type="button" id="overlay-btn" class="primary big">JUGAR</button>
             <button type="button" id="overlay-alt" class="linkish">Cambiar modo</button>
             <div class="overlay-level" id="overlay-level"></div>
-            <button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasale el juego a un amigo</button>
+            <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasale el juego a un amigo</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button></div>
             <div class="overlay-foot">SIN ANUNCIOS · SIN REGISTRO</div>
           </div>
         </div>
@@ -613,7 +640,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
     <button type="button" class="mp-item" data-session="local"><b>2 en este equipo</b><span>Por puntaje</span></button>
     <button type="button" class="mp-item" data-session="versus"><b>2 en este equipo</b><span>Versus · envío de líneas</span></button>
   </div>
-  <div class="mp-row" id="mp-solo" hidden><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">T-spin</button></div></div>
+  <div class="mp-row" id="mp-solo" hidden><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">T-spin</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
   <div class="mp-row" id="mp-cpu" hidden><div class="seg" role="group" aria-label="Dificultad"><button type="button" data-cpulevel="facil">Fácil</button><button type="button" data-cpulevel="normal">Normal</button><button type="button" data-cpulevel="dificil">Difícil</button></div></div>
   <div class="mp-row"><div class="seg" role="group" aria-label="Reglas"><button type="button" data-mode="modern">Moderno</button><button type="button" data-mode="classic">Clásico</button></div></div>
   <button type="button" class="primary mp-play" id="mp-play">JUGAR</button>
@@ -2401,7 +2428,7 @@ function setupScanner(){
 }
 
 /* ───────── Solo: Maratón, Sprint 40 y Ultra 2:00 ───────── */
-const SOLO_KINDS={marathon:'Maratón',sprint:'Sprint 40',ultra:'Ultra 2:00',daily:'Desafío del día',puzzle:'Desafíos T-spin'};
+const SOLO_KINDS={marathon:'Maratón',sprint:'Sprint 40',ultra:'Ultra 2:00',daily:'Desafío del día',puzzle:'Desafíos T-spin',dig:'Excavación',fiesta:'Modo fiesta'};
 /* Desafíos T-spin: tableros armados con pocas piezas. Sin gravedad: la pieza baja sólo cuando la soltás.
    Todos se verificaron con un simulador de la misma rotación (SRS) que usa el juego. */
 const PUZZLES=[
@@ -2436,6 +2463,7 @@ function puzzleLock(r){
   byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';renderOverlayLevel();refreshTop();
 }
 function puzzleOut(){
+  if(TUT.active)return;
   if(session!=='solo'||soloKind!=='puzzle'||solo.state.status!=='playing')return;
   pz.state='failed';solo.freeze();sound('over');
   const p=PUZZLES[puzzleIdx];
@@ -2454,11 +2482,13 @@ function soloRecordText(m){
   if(session==='solo'&&soloKind==='sprint'){const b=settings.sprintRecords[m];return b?fmtTime(b):'—';}
   if(session==='solo'&&soloKind==='daily'){const b=dailyRec().best;return b?fmt(b):'—';}
   if(session==='solo'&&soloKind==='puzzle')return `${puzzleSolvedCount()}/${PUZZLES.length}`;
+  if(session==='solo'&&soloKind==='dig'){const b=digBest();return b?fmtTime(b):'—';}
+  if(session==='solo'&&soloKind==='fiesta'){const m=partyLeader();return m?fmt(m):'—';}
   return fmt(soloRecords()[m]);
 }
 function setSoloKind(k){
   if(!Object.hasOwn(SOLO_KINDS,k)||k===soloKind)return;
-  soloKind=k;storageSet('bloques-solokind-v1',k);soloTimer.elapsed=0;
+  tutStop();soloKind=k;storageSet('bloques-solokind-v1',k);soloTimer.elapsed=0;
   if(k==='puzzle'&&mode==='classic'){changeMode('modern');solo.announce('Los desafíos usan reglas modernas');}
   if(session==='solo'){solo.reset(false);soloReadyOverlay();}
   renderMenu();refreshTop();fitArena(true);
@@ -2466,6 +2496,7 @@ function setSoloKind(k){
 function soloKindIntro(){
   if(soloKind==='sprint'){const b=settings.sprintRecords[mode];return `Hacé ${SPRINT_LINES} líneas lo más rápido que puedas.${b?`\nRécord: ${fmtTime(b)}`:''}`;}
   if(soloKind==='ultra'){const b=settings.ultraRecords[mode];return `Sumá todos los puntos que puedas en 2 minutos.${b?`\nRécord: ${fmt(b)}`:''}`;}
+  if(soloKind==='dig'){const b=digBest();return `Limpiá las ${DIG_ROWS} líneas de basura lo más rápido que puedas.${b?`\nRécord: ${fmtTime(b)}`:''}`;}
   if(soloKind==='puzzle'){const p=PUZZLES[puzzleIdx];return `${puzzleIdx+1}/${PUZZLES.length} · ${p.name}${PRG.puzzles[p.id]?' ✓':''}
 ${puzzleGoalText(p)} Piezas: ${p.pieces.join(' → ')}.
 ${p.hint}
@@ -2474,19 +2505,31 @@ Sin gravedad: la pieza baja sólo cuando la soltás.`;}
   return null;
 }
 function soloLocked(r){
+  if(session==='solo'&&TUT.active){tutLock(r||{});return;}
+  if(session==='solo'&&soloKind==='dig'){if(solo.state.status==='playing'&&digLeft()===0)soloFinish();return;}
   if(session==='solo'&&soloKind==='puzzle'){puzzleLock(r||{});return;}
   if(session!=='solo'||soloKind!=='sprint'||solo.state.status!=='playing')return;
   if(solo.state.lines>=SPRINT_LINES)soloFinish();
 }
 function soloTick(dt){
-  if(solo.state.status!=='playing'||soloKind==='marathon'||soloKind==='puzzle')return;
+  if(solo.state.status!=='playing'||soloKind==='marathon'||soloKind==='puzzle'||TUT.active)return;
   soloTimer.elapsed+=dt;
+  // El reloj de la barra de arriba se actualiza unas 10 veces por segundo.
+  soloTimer.acc=(soloTimer.acc||0)+dt;if(soloTimer.acc>=100){soloTimer.acc=0;refreshTop();}
+  if(soloKind==='fiesta'&&soloTimer.elapsed>=PARTY.dur){soloTimer.elapsed=PARTY.dur;soloFinish();return;}
   if((soloKind==='ultra'||soloKind==='daily')&&soloTimer.elapsed>=ULTRA_MS){soloTimer.elapsed=ULTRA_MS;soloFinish();}
 }
 // Final por objetivo cumplido (40 líneas) o por tiempo (Ultra).
 function soloFinish(){
-  const s=solo.state;solo.freeze();sound('tetris');
-  if(soloKind==='sprint'){
+  const s=solo.state;solo.freeze();
+  if(soloKind==='fiesta'){partyTurnEnd(false);return;}
+  sound('tetris');
+  if(soloKind==='dig'){
+    const t=Math.round(soloTimer.elapsed),best=digBest(),isRec=!best||t<best;
+    if(isRec){PRG.digBest[mode]=t;saveProg();}
+    progressEnd('finish');
+    solo.showOverlay(isRecord(isRec,'¡EXCAVASTE!'),`Tiempo: ${fmtTime(t)} · ${s.pieceId} piezas`,'OTRA ↻');
+  }else if(soloKind==='sprint'){
     const t=Math.round(soloTimer.elapsed),best=settings.sprintRecords[mode],isRec=!best||t<best;
     if(isRec){settings.sprintRecords[mode]=t;persist();}
     progressEnd('finish');
@@ -2654,7 +2697,7 @@ function setCpuLevel(k){
    Todo se guarda en este navegador (localStorage), sin cuentas ni servidor.
    Para pasarlo a otro dispositivo (o tener respaldo) hay un "código de progreso". */
 const PKEY='bloques-progress-v1';
-function progDefault(){return {xp:0,games:0,lines:0,tetris:0,tspin:0,pc:0,b2b:0,best:{combo:0,level:0,marathon:0,ultra:0,sprint:0},cpuHardWins:0,dailyDays:[],daily:{},medals:{},splits:{modern:null,classic:null},puzzles:{},hist:[]};}
+function progDefault(){return {xp:0,games:0,lines:0,tetris:0,tspin:0,pc:0,b2b:0,best:{combo:0,level:0,marathon:0,ultra:0,sprint:0},cpuHardWins:0,dailyDays:[],daily:{},medals:{},splits:{modern:null,classic:null},puzzles:{},hist:[],digBest:{modern:0,classic:0}};}
 const PRG=progDefault();
 function progMerge(dst,src){
   if(!src||typeof src!=='object')return;
@@ -2665,6 +2708,7 @@ function progMerge(dst,src){
   if(src.daily&&typeof src.daily==='object')for(const [k,v] of Object.entries(src.daily))if(/^\d{4}-\d\d-\d\d:(modern|classic)$/.test(k)&&Number.isFinite(v?.best)){const o=dst.daily[k]||{best:0,tries:0};dst.daily[k]={best:Math.max(o.best,v.best),tries:Math.max(o.tries,v.tries|0)};}
   if(src.medals&&typeof src.medals==='object')for(const [k,v] of Object.entries(src.medals))if(Number.isFinite(v)&&!dst.medals[k])dst.medals[k]=v;
   for(const m of ['modern','classic'])if(Array.isArray(src.splits?.[m])&&src.splits[m].length===41&&(!dst.splits[m]||src.splits[m][40]<dst.splits[m][40]))dst.splits[m]=src.splits[m].map(Number);
+  for(const m of ['modern','classic']){const v=src.digBest?.[m];if(Number.isFinite(v)&&v>0)dst.digBest[m]=dst.digBest[m]?Math.min(dst.digBest[m],v):v;}
   if(src.puzzles&&typeof src.puzzles==='object')for(const [k,v] of Object.entries(src.puzzles))if(/^[a-z0-9]{2,8}$/.test(k)&&Number.isFinite(v)&&!dst.puzzles[k])dst.puzzles[k]=v;
   if(Array.isArray(src.hist)){const seen=new Set(dst.hist.map(h=>h.t));for(const h of src.hist)if(h&&Number.isFinite(h.t)&&Number.isFinite(h.s)&&typeof h.k==='string'&&!seen.has(h.t)){dst.hist.push({t:h.t,k:h.k.slice(0,8),m:h.m==='classic'?'classic':'modern',s:Math.max(0,h.s|0),l:Math.max(0,h.l|0),d:Math.max(0,h.d|0),r:typeof h.r==='string'?h.r.slice(0,6):''});seen.add(h.t);}dst.hist.sort((a,b)=>a.t-b.t);dst.hist=dst.hist.slice(-60);}
   // Sólo se guardan los últimos 60 días del desafío.
@@ -2719,6 +2763,8 @@ const MEDALS=[
   {id:'g100',g:'100',name:'Cien partidas',desc:'Jugá 100 partidas.',goal:100,val:()=>PRG.games},
   {id:'d7',g:'7',name:'Una semana de desafíos',desc:'Jugá el desafío del día en 7 días distintos.',goal:7,val:()=>PRG.dailyDays.length},
   {id:'cpu',g:'VS',name:'Más que la compu',desc:'Ganale a la compu en Difícil.',goal:1,val:()=>PRG.cpuHardWins},
+  {id:'dig1',g:'⛏',name:'Excavadora',desc:'Terminá una Excavación.',goal:1,val:()=>(PRG.digBest.modern||PRG.digBest.classic)?1:0},
+  {id:'dig60',g:'⛏',name:'Topo veloz',desc:'Terminá una Excavación en menos de 1 minuto.',goal:1,val:()=>[PRG.digBest.modern,PRG.digBest.classic].some(t=>t&&t<60000)?1:0},
   {id:'pz3',g:'⟲',name:'Aprendiz del giro',desc:'Resolvé 3 desafíos T-spin.',goal:3,val:()=>puzzleSolvedCount()},
   {id:'pzall',g:'⟲',name:'Todos los desafíos',desc:'Resolvé todos los desafíos T-spin.',goal:PUZZLES.length,val:()=>puzzleSolvedCount()}
 ];
@@ -2736,8 +2782,10 @@ function dailySeed(){let h=2166136261;for(const ch of 'BLOQUES·'+todayKey()+'·
 function dailyRec(){return PRG.daily[todayKey()+':'+mode]||{best:0,tries:0};}
 // Antes de empezar o preparar una partida Solo: el desafío usa la semilla del día; el resto, piezas al azar.
 function prepSoloSeed(){
-  const puzzle=session==='solo'&&soloKind==='puzzle';solo.setPuzzle(puzzle?PUZZLES[puzzleIdx]:null);pz.spins=0;pz.state=puzzle?'ready':'idle';
-  if(session!=='solo')return;if(soloKind==='daily')solo.setSeed(dailySeed());else solo.clearSeed();
+  const tut=session==='solo'&&TUT.active,puzzle=!tut&&session==='solo'&&soloKind==='puzzle';
+  solo.setPuzzle(tut?tutBoard():puzzle?PUZZLES[puzzleIdx]:null);pz.spins=0;pz.state=puzzle?'ready':'idle';
+  if(session!=='solo')return;
+  if(!tut&&soloKind==='daily')solo.setSeed(dailySeed());else if(!tut&&soloKind==='fiesta')solo.setSeed(PARTY.seed);else solo.clearSeed();
 }
 
 /* Seguimiento de la partida en curso. */
@@ -2764,6 +2812,7 @@ function sprintPace(){
   if(!ref||n<1||!RUN.splits[n])return '';const d=(RUN.splits[n]-ref[n])/1000;return (d<=0?'−':'+')+Math.abs(d).toFixed(1)+' s';
 }
 function progressEvent(name,d){
+  if(TUT.active){tutEvent(name,d);return;}
   if(!RUN)return;const now=performance.now();
   if(name==='clear'){
     const n=d.n||0;RUN.lines+=n;PRG.lines+=n;
@@ -2810,6 +2859,8 @@ function progressEnd(result){
     if(!PRG.best.sprint||t<PRG.best.sprint){PRG.best.sprint=t;}
     const ref=PRG.splits[mode];if(!ref||t<ref[40]){const sp=r.splits.slice(0,41);while(sp.length<41)sp.push(t);sp[40]=t;PRG.splits[mode]=sp;}}
   if(r.kind==='ultra'&&result==='finish')xp+=40;
+  if(r.kind==='dig'&&result==='finish'){xp+=60;const t=Math.round(soloTimer.elapsed);if(r.digBest){const d=(t-r.digBest)/1000;delta=d<0?`¡Récord por ${Math.abs(d).toFixed(1)} s!`:`A ${d.toFixed(1)} s de tu récord`;}}
+  if(r.kind==='dig'&&result!=='finish'){const left=digLeft();delta=`Te faltaron ${left} ${left===1?'línea':'líneas'} de basura`;}
   if(r.kind==='daily'){
     const key=todayKey()+':'+mode,o=PRG.daily[key]||{best:0,tries:0},first=!PRG.dailyDays.includes(todayKey());
     o.tries++;const prev=o.best;o.best=Math.max(o.best,st.score);PRG.daily[key]=o;
@@ -2827,7 +2878,7 @@ function progressEnd(result){
   }
   if(!delta&&r.kind==='sprint'){const ref=r.sprintBest;if(result==='finish'&&ref){const d=(Math.round(soloTimer.elapsed)-ref)/1000;delta=d<0?`¡Récord por ${Math.abs(d).toFixed(1)} s!`:`A ${d.toFixed(1)} s de tu récord`;}
 }
-  PRG.hist.push({t:Date.now(),k:r.kind,m:mode,s:st.score,l:st.lines,d:r.kind==='sprint'&&result==='finish'?Math.round(soloTimer.elapsed):Date.now()-r.t0Abs,r:result});if(PRG.hist.length>60)PRG.hist=PRG.hist.slice(-60);
+  PRG.hist.push({t:Date.now(),k:r.kind,m:mode,s:st.score,l:st.lines,d:(r.kind==='sprint'||r.kind==='dig')&&result==='finish'?Math.round(soloTimer.elapsed):Date.now()-r.t0Abs,r:result});if(PRG.hist.length>60)PRG.hist=PRG.hist.slice(-60);
   const before=levelInfo(PRG.xp);PRG.xp+=xp;const after=levelInfo(PRG.xp);
   const unl=unlockedBetween(before.lv,after.lv);if(unl.length)lines.push('Desbloqueaste: '+unl.join(' · ')+'. Elegilos en Menú › Progreso.');
   const medals=[...r.medals,...checkMedals()];
@@ -2890,7 +2941,7 @@ function renderProgress(){
   byId('prog-load').onclick=()=>{const ok=loadProgressCode(byId('prog-code').value);byId('prog-msg').textContent=ok?'Listo: se sumó el progreso del código.':'Ese código no es válido.';if(ok)renderProgress();};
 }
 /* Historial: gráfico de las últimas partidas de un tipo (puntos; en Sprint, el tiempo). */
-const HIST_KINDS={marathon:'Maratón',ultra:'Ultra',sprint:'Sprint',daily:'Del día',cpu:'Compu',online:'En línea'};
+const HIST_KINDS={marathon:'Maratón',ultra:'Ultra',sprint:'Sprint',dig:'Excavación',daily:'Del día',cpu:'Compu',online:'En línea'};
 let histKind=null;
 function renderHist(){
   const box=byId('hist-box');if(!box)return;
@@ -2898,10 +2949,10 @@ function renderHist(){
   if(!H.length){box.innerHTML='<p class="hint">Todavía no hay partidas. Cuando juegues, acá vas a ver cómo venís.</p>';return;}
   const kinds=Object.keys(HIST_KINDS).filter(k=>H.some(h=>h.k===k));
   if(!kinds.includes(histKind))histKind=H[H.length-1].k;
-  const sprint=histKind==='sprint',all=H.filter(h=>h.k===histKind&&(!sprint||h.r==='finish')),L=all.slice(-20);
+  const sprint=histKind==='sprint'||histKind==='dig',all=H.filter(h=>h.k===histKind&&(!sprint||h.r==='finish')),L=all.slice(-20);
   const val=h=>sprint?h.d:h.s,lab=h=>sprint?fmtTime(h.d):fmt(h.s);
   let svg='',txt='';
-  if(!L.length)txt='<p class="hint">Todavía no terminaste un Sprint.</p>';
+  if(!L.length)txt='<p class="hint">Todavía no terminaste ninguna.</p>';
   else{
     const vals=L.map(val),max=Math.max(...vals,1),min=sprint?Math.min(...vals):0,best=sprint?min:Math.max(...vals),bi=vals.lastIndexOf(best);
     const W=300,Hh=110,pad=4,bw=(W-pad*2)/Math.max(10,L.length),avg=vals.reduce((a,b)=>a+b,0)/vals.length;
@@ -2934,7 +2985,7 @@ function loadProgressCode(code){
 /* Enganches con el juego. */
 function setupProgress(){
   const _reset=solo.reset,_setPlaying=solo.setPlaying,_show=solo.showOverlay;
-  solo.reset=(start=false)=>{prepSoloSeed();_reset(start);if(start&&session==='solo'){if(soloKind==='puzzle'){RUN=null;byId('rec-bar').hidden=true;pz.state='playing';}else runStartSolo();}};
+  solo.reset=(start=false)=>{prepSoloSeed();_reset(start);afterSoloReset(start);};
   solo.setPlaying=()=>{const was=solo.state.status;_setPlaying();if((session==='cpu'||session==='online')&&was==='ready')runStart();};
   solo.showOverlay=(...a)=>{_show(...a);
     const st=solo.state.status;if(!summaryKeep||!['over','frozen'].includes(st)){byId('overlay-extra').hidden=true;summaryKeep=false;}
@@ -2942,11 +2993,11 @@ function setupProgress(){
   byId('overlay-share').addEventListener('click',()=>openShareGame());
   document.addEventListener('visibilitychange',()=>{if(document.hidden)saveProg();});
   renderOverlayLevel();
-  setTimeout(()=>{if(session==='solo'&&soloKind==='puzzle'&&mode==='classic')soloKind='marathon';if(session==='solo'&&(soloKind==='daily'||soloKind==='puzzle')&&solo.state.status==='ready'){solo.reset(false);soloReadyOverlay();refreshTop();}},0);
+  setTimeout(()=>{if(session==='solo'&&soloKind==='puzzle'&&mode==='classic')soloKind='marathon';if(session==='solo'&&['daily','puzzle','dig','fiesta'].includes(soloKind)&&solo.state.status==='ready'){solo.reset(false);soloReadyOverlay();refreshTop();}},0);
 }
 function runStartSolo(){
   runStart();RUN.recordBefore=soloKind==='marathon'?settings.records[mode]:soloKind==='ultra'?settings.ultraRecords[mode]:0;
-  RUN.sprintBest=settings.sprintRecords[mode]||0;
+  RUN.sprintBest=settings.sprintRecords[mode]||0;RUN.digBest=digBest();
 }
 
 /* Instalar como app: en iPhone hay que hacerlo a mano desde Compartir; en Android/Chrome hay un botón.
@@ -2977,6 +3028,169 @@ function setupInstall(){
   byId('a2hs-install').addEventListener('click',doInstall);byId('install-btn').addEventListener('click',doInstall);
   renderInstall();
   // Aparece después de la primera partida terminada (no interrumpe al entrar).
+}
+
+/* ───────── Excavación, Modo fiesta, Tutorial y botón Instalar ───────── */
+const escHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+
+/* Excavación: el tablero arranca con 10 líneas de basura (un hueco por línea, nunca dos seguidos en la misma columna).
+   Gana el tiempo más bajo en limpiarlas todas. */
+const DIG_ROWS=10;
+function digFill(){
+  const s=solo.state;let prev=-1;
+  for(let i=0;i<DIG_ROWS;i++){let h;do{h=Math.floor(Math.random()*W);}while(h===prev);prev=h;
+    const y=H-DIG_ROWS+i;for(let x=0;x<W;x++)s.grid[y][x]=x===h?null:'G';}
+  s.dirty=true;solo.draw();
+}
+function digLeft(){return solo.state.grid.filter(r=>r.includes('G')).length;}
+function digBest(){return PRG.digBest?.[mode]||0;}
+
+/* Modo fiesta: varias personas se pasan el mismo dispositivo. Cada ronda, todos juegan el mismo tiempo
+   con las mismas piezas; gana el que hace más puntos. No suma experiencia ni medallas al dueño del dispositivo. */
+const PKEY_PARTY='bloques-fiesta-v1';
+const PARTY={names:[],scores:[],turn:0,round:1,wins:{},dur:120000,seed:1,phase:'setup',last:null};
+try{const o=JSON.parse(storageGet(PKEY_PARTY)||'null');
+  if(o&&Array.isArray(o.names)){PARTY.names=o.names.filter(n=>typeof n==='string'&&n.trim()).map(n=>n.trim().slice(0,14)).slice(0,8);
+    if([60000,120000,180000].includes(o.dur))PARTY.dur=o.dur;
+    if(o.wins&&typeof o.wins==='object')for(const [k,v] of Object.entries(o.wins))if(PARTY.names.includes(k)&&Number.isInteger(v))PARTY.wins[k]=v;
+    if(['turn','results'].includes(o.phase)&&Array.isArray(o.scores)&&o.scores.length===PARTY.names.length&&PARTY.names.length>=2){
+      PARTY.phase=o.phase;PARTY.scores=o.scores.map(x=>Number.isFinite(x)?x:null);PARTY.turn=Math.min(PARTY.names.length,Math.max(0,o.turn|0));
+      PARTY.round=Math.max(1,o.round|0);PARTY.seed=(o.seed>>>0)||1;PARTY.last=o.last&&typeof o.last.name==='string'?o.last:null;}}}catch(_){}
+function partySave(){storageSet(PKEY_PARTY,JSON.stringify(PARTY));}
+const durText=ms=>ms===60000?'1 minuto':`${ms/60000} minutos`;
+function partyLeader(){const v=PARTY.scores.filter(x=>x!=null);return v.length?Math.max(...v):0;}
+function partyNewRound(fresh){
+  if(fresh){PARTY.round=1;PARTY.wins={};}else PARTY.round++;
+  PARTY.turn=0;PARTY.scores=PARTY.names.map(()=>null);PARTY.last=null;
+  PARTY.seed=crypto.getRandomValues(new Uint32Array(1))[0]||1;PARTY.phase='turn';partySave();
+  soloTimer.elapsed=0;solo.reset(false);
+}
+function partyRows(highlight){
+  return `<ol class="party-rank">${PARTY.names.map((n,i)=>({n,i,s:PARTY.scores[i]})).sort((a,b)=>(b.s??-1)-(a.s??-1)||a.i-b.i).map((x,k)=>
+    `<li class="${x.i===highlight?'cur':''}${PARTY.phase==='results'&&k===0&&x.s===partyLeader()?' win':''}"><b>${escHtml(x.n)}</b><em>${x.s==null?'—':fmt(x.s)}</em></li>`).join('')}</ol>`;
+}
+function partyOverlay(){
+  const P=PARTY,box=byId('overlay-extra'),alt=byId('overlay-alt');
+  if(P.phase==='setup'){
+    solo.showOverlay('MODO FIESTA',`Se pasan el celular: cada uno juega ${durText(P.dur)} con las mismas piezas. Gana el que hace más puntos.`,'EMPEZAR');
+    box.innerHTML=`<div class="party">
+      <div class="party-names">${P.names.length?P.names.map((n,i)=>`<span class="party-chip">${escHtml(n)}<button type="button" data-prm="${i}" aria-label="Sacar a ${escHtml(n)}">✕</button></span>`).join(''):'<span class="party-empty">Sumá a los jugadores (de 2 a 8).</span>'}</div>
+      ${P.names.length<8?`<div class="party-add"><input id="party-name" type="text" maxlength="14" placeholder="Nombre" autocomplete="off" autocapitalize="words" enterkeyhint="done"><button type="button" class="pill" id="party-add">Sumar</button></div>`:''}
+      <div class="party-dur"><span>Tiempo por turno</span>${[60000,120000,180000].map(d=>`<button type="button" class="look-chip${P.dur===d?' active':''}" data-pdur="${d}">${d/60000} min</button>`).join('')}</div>
+      <p class="party-msg" id="party-msg" role="status"></p></div>`;
+    box.hidden=false;
+    box.querySelectorAll('[data-prm]').forEach(b=>b.onclick=()=>{P.names.splice(Number(b.dataset.prm),1);partySave();partyOverlay();});
+    box.querySelectorAll('[data-pdur]').forEach(b=>b.onclick=()=>{P.dur=Number(b.dataset.pdur);partySave();partyOverlay();});
+    const inp=byId('party-name'),add=()=>{const v=(inp.value||'').trim().slice(0,14);if(!v)return;
+      if(P.names.some(n=>n.toLowerCase()===v.toLowerCase())){byId('party-msg').textContent='Ese nombre ya está.';return;}
+      P.names.push(v);partySave();partyOverlay();byId('party-name')?.focus();};
+    if(inp){byId('party-add').onclick=add;inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();add();}});}
+  }else if(P.phase==='turn'){
+    const name=P.names[P.turn],prev=P.last;
+    solo.showOverlay(`TURNO DE\n${name.toUpperCase()}`,`${prev?`${prev.name}: ${fmt(prev.score)} puntos${prev.top?' (se le llenó el tablero)':''}.\n`:''}Pasale el celular a ${name}.\nRonda ${P.round} · jugador ${P.turn+1} de ${P.names.length} · ${durText(P.dur)}`,'JUGAR');
+    box.innerHTML=`<div class="party">${partyRows(P.turn)}</div>`;box.hidden=false;
+  }else{
+    const max=partyLeader(),win=P.names.filter((n,i)=>P.scores[i]===max);
+    solo.showOverlay(win.length===1?`¡GANÓ\n${win[0].toUpperCase()}!`:'¡EMPATE!',`Ronda ${P.round} · ${fmt(max)} puntos${win.length>1?` (${win.join(' y ')})`:''}`,'OTRA RONDA');
+    const night=P.names.map(n=>[n,P.wins[n]||0]).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML=`<div class="party">${partyRows(-1)}
+      ${P.round>1||night.some(x=>x[1])?`<div class="party-night"><b>Rondas ganadas</b>${night.map(([n,w])=>`<span>${escHtml(n)} <em>${w}</em></span>`).join('')}</div>`:''}
+      <button type="button" class="linkish" id="party-edit">Cambiar jugadores o tiempo</button></div>`;
+    box.hidden=false;byId('party-edit').onclick=()=>{P.phase='setup';partySave();partyOverlay();};
+  }
+  alt.hidden=false;alt.textContent='Cambiar modo';
+}
+// Botón principal en el modo fiesta. Devuelve true si arrancó un turno.
+function partyPrimary(){
+  const P=PARTY;
+  if(P.phase==='setup'){
+    if(P.names.length<2){const m=byId('party-msg');if(m)m.textContent='Sumá al menos 2 jugadores.';byId('party-name')?.focus();return false;}
+    partyNewRound(true);partyOverlay();return false;
+  }
+  if(P.phase==='results'){partyNewRound(false);partyOverlay();return false;}
+  byId('overlay-extra').hidden=true;soloTimer.elapsed=0;solo.reset(true);return true;
+}
+function partyTurnEnd(top){
+  const P=PARTY,s=solo.state;if(P.phase!=='turn')return;
+  P.scores[P.turn]=s.score;P.last={name:P.names[P.turn],score:s.score,top:!!top};P.turn++;
+  if(P.turn>=P.names.length){const max=partyLeader(),win=P.names.filter((n,i)=>P.scores[i]===max);if(win.length===1)P.wins[win[0]]=(P.wins[win[0]]||0)+1;P.phase='results';sound('tetris');}
+  partySave();if(['playing','paused'].includes(s.status))solo.freeze();
+  partyOverlay();solo.renderScore();refreshTop();
+}
+
+/* Tutorial: la primera vez que alguien toca JUGAR (y desde Menú › Más). Tablero armado y sin gravedad. */
+const TUT={active:false,step:0,steps:[]};
+function tutSteps(){return mode==='classic'?['move','rotate','drop']:['move','rotate','hold','drop'];}
+function tutBoard(){return mode==='classic'?{rows:['XXX....XXX'],pieces:['I','I']}:{rows:['XXX....XXX'],pieces:['T','I']};}
+function tutShouldStart(){
+  // (Las pruebas automáticas abren el juego con #diagnostico y no lo ven.)
+  if(/diagnostico/.test(location.hash))return false;
+  return session==='solo'&&!TUT.active&&!['puzzle','fiesta'].includes(soloKind)&&!storageGet('bloques-tut-v1')&&PRG.games===0&&!(settings.records.modern>0||settings.records.classic>0);
+}
+function tutInput(){
+  const coarse=matchMedia('(pointer: coarse)').matches||app.classList.contains('free-touch');
+  if(!coarse)return 'keys';return padHidden(currentLayout())?'gestures':'pad';
+}
+function tutText(k){
+  const how=tutInput(),K=a=>`<kbd>${escHtml(keyLabel('solo',a))}</kbd>`,g=how==='gestures',pad=how==='pad';
+  if(k==='move')return g?'Deslizá el dedo hacia un costado para <b>mover</b> la pieza.':pad?'Tocá ◀ o ▶ para <b>mover</b> la pieza.':`Usá ${K('left')} y ${K('right')} para <b>mover</b> la pieza.`;
+  if(k==='rotate')return g?'Tocá la pantalla para <b>girarla</b>.':pad?'Tocá ⟳ para <b>girarla</b>.':`Apretá ${K('cw')} para <b>girarla</b>.`;
+  if(k==='hold')return g?'Deslizá hacia arriba para <b>guardarla</b>: la cambiás por la siguiente.':pad?'Tocá ▣ GUARDAR para cambiarla por la siguiente.':`Apretá ${K('hold')} para <b>guardarla</b>: la cambiás por la siguiente.`;
+  if(mode==='classic')return g?'Acostala sobre el hueco y deslizá hacia abajo para <b>bajarla</b> y completar la línea.':pad?'Acostala sobre el hueco y bajala con ▼ hasta completar la línea.':`Acostala sobre el hueco y bajala con ${K('down')} hasta completar la línea.`;
+  return g?'Deslizá rápido hacia abajo para <b>soltarla</b> en el hueco y completar la línea.':pad?'Tocá ⤓ CAER para <b>soltarla</b> en el hueco y completar la línea.':`Apretá ${K('drop')} para <b>soltarla</b> en el hueco y completar la línea.`;
+}
+function tutRender(){
+  const c=byId('coach');if(!TUT.active){c.hidden=true;return;}
+  byId('coach-step').textContent=`CÓMO SE JUEGA · ${TUT.step+1} DE ${TUT.steps.length}`;
+  byId('coach-txt').innerHTML=tutText(TUT.steps[TUT.step]);c.hidden=false;
+}
+function tutStart(){
+  if(session!=='solo')changeSession('solo');
+  if(menuOpen)closeMenu();
+  TUT.active=true;TUT.step=0;TUT.steps=tutSteps();soloTimer.elapsed=0;
+  solo.reset(true);byId('overlay-alt').hidden=true;tutRender();refreshTop();solo.boardCanvas.focus({preventScroll:true});
+}
+function tutEvent(name){
+  if(!TUT.active||solo.state.status!=='playing')return;
+  const cur=TUT.steps[TUT.step];
+  if(cur!=='drop'&&name===cur){TUT.step++;callout('¡BIEN!','');sound('line');tutRender();}
+}
+function tutLock(r){
+  if(r.cleared>0){tutFinish();return;}
+  solo.freeze();callout('¡CASI! OTRA VEZ','');
+  const hi=TUT.steps.indexOf('hold');if(hi>=0&&TUT.step>hi)TUT.step=hi;
+  setTimeout(()=>{if(TUT.active){solo.reset(true);tutRender();}},800);
+}
+function tutDone(){TUT.active=false;storageSet('bloques-tut-v1','1');byId('coach').hidden=true;}
+function tutFinish(){
+  tutDone();solo.freeze();sound('tetris');
+  solo.showOverlay('¡YA SABÉS\nJUGAR!','Completá líneas para sumar puntos: si borrás varias de una vez, valen mucho más.\nSi la pila llega arriba, se termina la partida.','JUGAR');
+  byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';refreshTop();
+}
+function tutSkip(){tutDone();soloTimer.elapsed=0;solo.reset(true);refreshTop();solo.boardCanvas.focus({preventScroll:true});}
+function tutStop(){if(!TUT.active)return;TUT.active=false;byId('coach').hidden=true;}
+
+/* Después de cada reinicio de la partida Solo. */
+function afterSoloReset(start){
+  if(session!=='solo')return;
+  if(soloKind==='dig'&&!TUT.active)digFill();
+  if(!start)return;
+  if(TUT.active||soloKind==='puzzle'||soloKind==='fiesta'){RUN=null;byId('rec-bar').hidden=true;if(soloKind==='puzzle'&&!TUT.active)pz.state='playing';return;}
+  runStartSolo();
+}
+
+/* Botón «Instalar» al lado de «Pasar el juego»: con el aviso del navegador si lo hay; si no, los pasos. */
+function installClick(){
+  if(installEvt){doInstall();return;}
+  const txt=IS_IOS?IOS_STEPS:/Android/i.test(navigator.userAgent)?'En el menú del navegador (⋮) elegí <b>«Instalar app»</b> o <b>«Agregar a la pantalla de inicio»</b>.'
+    :'En Chrome o Edge: tocá el ícono de instalar a la derecha de la barra de direcciones. En Safari de Mac: Archivo › <b>Agregar al Dock</b>.';
+  byId('a2hs-txt').innerHTML=`<b>Instalalo como app</b><span>${txt}</span>`;byId('a2hs-install').hidden=true;byId('a2hs').hidden=false;
+}
+function setupExtra(){
+  for(const id of ['overlay-install','menu-install']){const b=byId(id);if(!b)continue;b.hidden=IS_STANDALONE;b.addEventListener('click',installClick);}
+  window.addEventListener('appinstalled',()=>{for(const id of ['overlay-install','menu-install'])byId(id).hidden=true;byId('a2hs').hidden=true;});
+  byId('coach-skip').addEventListener('click',tutSkip);
+  byId('tut-btn').addEventListener('click',()=>{closeMenu();tutStart();});
 }
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
@@ -4039,7 +4253,7 @@ function musicBoost(bars){AU.boostBars=Math.max(AU.boostBars,bars);}
 let session='solo',mode='modern',menuOpen=false,lastFrame=0,initializing=true;
 const app=byId('app');
 const match={kind:'score',phase:'ready',resumePhase:null,countdown:3000,duration:180000,remaining:180000,elapsed:0,winner:null};
-const soloRecords=()=>session==='online'?onlineRecords():session==='cpu'?NO_RECORD:session==='solo'&&soloKind==='ultra'?settings.ultraRecords:session==='solo'&&(soloKind==='sprint'||soloKind==='puzzle')?NO_RECORD:session==='solo'&&soloKind==='daily'?{classic:Infinity,modern:Infinity}:settings.records;
+const soloRecords=()=>session==='online'?onlineRecords():session==='cpu'?NO_RECORD:session==='solo'&&soloKind==='ultra'?settings.ultraRecords:session==='solo'&&['sprint','puzzle','dig','fiesta'].includes(soloKind)?NO_RECORD:session==='solo'&&soloKind==='daily'?{classic:Infinity,modern:Infinity}:settings.records;
 const solo=createGame(byId('solo-area'),'',{records:soloRecords,recordText:m=>soloRecordText(m),onChange:onGameChange,onOverlay:primaryAction,
   gestureSurface:byId('stage'),gestureAccept:e=>{
     if(!singleBoard()||editing)return false;
@@ -4083,12 +4297,15 @@ function onGameChange(){
 function soloOver(isRecord){
   if(session==='online'){onlineOver();return;}
   if(session==='cpu'){cpuFinish('cpu');return;}
+  if(soloKind==='fiesta'){partyTurnEnd(true);return;}
   const s=solo.state;progressEnd('over');
-  if(soloKind==='sprint')solo.showOverlay('FIN DE PARTIDA',`Te faltaron ${Math.max(0,SPRINT_LINES-s.lines)} líneas · ${fmtTime(soloTimer.elapsed)}`,'OTRA ↻');
+  if(soloKind==='dig')solo.showOverlay('FIN DE PARTIDA',`Te faltaron ${digLeft()} líneas de basura · ${fmtTime(soloTimer.elapsed)}`,'OTRA ↻');
+  else if(soloKind==='sprint')solo.showOverlay('FIN DE PARTIDA',`Te faltaron ${Math.max(0,SPRINT_LINES-s.lines)} líneas · ${fmtTime(soloTimer.elapsed)}`,'OTRA ↻');
   else solo.showOverlay(isRecord?'¡NUEVO RÉCORD!':'FIN DE PARTIDA',`${fmt(s.score)} puntos · ${s.lines} líneas`,'OTRA ↻');
   byId('overlay-alt').hidden=false;refreshTop();
 }
 function soloReadyOverlay(){
+  if(soloKind==='fiesta'){partyOverlay();return;}
   const kind=soloKindIntro();
   const touchHint=(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\nDeslizá para mover, tocá para girar y deslizá hacia abajo para bajar.':'\nDeslizá para mover · tocá para girar · abajo rápido la suelta · arriba la guarda.'):'';
   solo.showOverlay(kind?SOLO_KINDS[soloKind].toUpperCase():'¿LISTO PARA\nJUGAR?',(kind||(mode==='classic'?'Clásico: sin reserva ni caída instantánea. La pieza queda fija al apoyarse.':'Completá líneas, usá la reserva y superá tu récord.'))+touchHint,'JUGAR');
@@ -4167,7 +4384,11 @@ function primaryAction(){
   lastFrame=performance.now();
   if(session==='solo'){
     if(solo.state.status==='paused'){solo.resume();}
-    else if(solo.state.status!=='playing'){soloTimer.elapsed=0;solo.reset(true);}
+    else if(solo.state.status!=='playing'){
+      if(soloKind==='fiesta'&&!TUT.active){if(!partyPrimary()){refreshTop();return;}}
+      else if(tutShouldStart()){tutStart();return;}
+      else{soloTimer.elapsed=0;solo.reset(true);}
+    }
     byId('overlay-alt').hidden=true;solo.boardCanvas.focus({preventScroll:true});
   }else if(session==='cpu'){
     if(cpuM.phase==='paused')cpuResume();
@@ -4192,6 +4413,7 @@ function pauseOrResume(){
 }
 function restart(){
   lastFrame=performance.now();
+  if(session==='solo'&&soloKind==='fiesta'&&!TUT.active){solo.announce('En la fiesta no se reinicia el turno');return;}
   if(session==='solo'){soloTimer.elapsed=0;solo.reset(true);byId('overlay-alt').hidden=true;solo.boardCanvas.focus({preventScroll:true});}
   else if(session==='cpu')cpuStart();
   else if(session==='online'){if(['playing','countdown'].includes(net.m.phase))onlinePause('me');}
@@ -4230,7 +4452,7 @@ function changeMode(next,fromNet=false){
 function changeSession(next){
   if(!['solo','local','versus','online','cpu'].includes(next)||next===session)return;
   if(session==='online')netLeave();
-  releaseAll();
+  tutStop();releaseAll();
   if(session==='cpu'&&cpuM.phase!=='ready'){for(const g of [solo,cpu])if(['playing','paused'].includes(g.state.status))g.freeze();cpuM.phase='ready';}
   if(solo.state.status==='playing')solo.pause();
   if(['countdown','playing'].includes(match.phase))pauseMatch();
@@ -4258,7 +4480,7 @@ function refreshTop(){
   else paused=match.phase==='paused';
   const pb=byId('pause-btn');pb.textContent=paused?'▶':'Ⅱ';pb.setAttribute('aria-label',paused?'Continuar':'Pausar');
   const tp=byId('tool-pause');tp.textContent=paused?'▶':'Ⅱ';tp.setAttribute('aria-label',paused?'Continuar':'Pausar');
-  const rl=session==='cpu'?'PARTIDAS':session==='solo'&&soloKind==='puzzle'?'RESUELTOS':'RÉCORD';if(byId('record-label').textContent!==rl){byId('record-label').textContent=rl;solo.renderScore();}
+  const rl=session==='cpu'?'PARTIDAS':session==='solo'&&soloKind==='puzzle'?'RESUELTOS':session==='solo'&&soloKind==='fiesta'?'A SUPERAR':'RÉCORD';if(byId('record-label').textContent!==rl){byId('record-label').textContent=rl;solo.renderScore();}
   const bar=byId('matchbar'),showBar=session!=='solo'||soloKind!=='marathon';
   if(bar.hidden===showBar){bar.hidden=!showBar;fitArena(true);}
   if(!showBar)return;
@@ -4267,6 +4489,9 @@ function refreshTop(){
     byId('net-badge').hidden=true;
     if(soloKind==='sprint'){const pace=sprintPace();title=`SPRINT · ${Math.min(SPRINT_LINES,solo.state.lines)}/${SPRINT_LINES} LÍNEAS${pace?' · '+pace:''}`;clock=fmtTime(soloTimer.elapsed);}
     else if(soloKind==='daily'){title=`DESAFÍO DEL DÍA · ${fmt(solo.state.score)} PUNTOS`;clock=timeLabel(ULTRA_MS-soloTimer.elapsed);}
+    else if(TUT.active){title='TUTORIAL · CÓMO SE JUEGA';clock='';}
+    else if(soloKind==='dig'){const n=digLeft();title=`EXCAVACIÓN · ${n?`QUEDAN ${n} ${n===1?'LÍNEA':'LÍNEAS'}`:'¡LIMPIO!'}`;clock=fmtTime(soloTimer.elapsed);}
+    else if(soloKind==='fiesta'){const P=PARTY;title=P.phase==='turn'?`FIESTA · TURNO DE ${P.names[P.turn].toUpperCase()} · RONDA ${P.round}`:P.phase==='results'?`FIESTA · RONDA ${P.round} TERMINADA`:'MODO FIESTA';clock=P.phase==='turn'?timeLabel(P.dur-soloTimer.elapsed):'';}
     else if(soloKind==='puzzle'){const p=PUZZLES[puzzleIdx],left=solo.state.queue.length+(solo.state.active?1:0)+(solo.state.hold?1:0);title=`T-SPIN ${puzzleIdx+1}/${PUZZLES.length} · ${p.name.toUpperCase()}`;clock=`${left} ${left===1?'PIEZA':'PIEZAS'}`;}
     else{title=`ULTRA · ${fmt(solo.state.score)} PUNTOS`;clock=timeLabel(ULTRA_MS-soloTimer.elapsed);}
   }else if(session==='cpu'){
@@ -4332,7 +4557,7 @@ function renderMenu(){
   byId('solo-kind-row').hidden=session!=='solo';byId('cpu-level-row').hidden=session!=='cpu';
   document.querySelectorAll('[data-solokind]').forEach(b=>{const on=b.dataset.solokind===soloKind;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   document.querySelectorAll('[data-cpulevel]').forEach(b=>{const on=b.dataset.cpulevel===cpuLevel;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=session==='cpu'&&['countdown','playing','paused'].includes(cpuM.phase);});
-  const kn=byId('solo-kind-note');kn.hidden=session!=='solo';kn.textContent=soloKind==='sprint'?'Sprint: 40 líneas contra reloj. Gana el tiempo más bajo.':soloKind==='ultra'?'Ultra: 2 minutos para sumar todos los puntos que puedas.':soloKind==='daily'?'Desafío del día: 2 minutos con las mismas piezas para todos. Cambia cada día.':soloKind==='puzzle'?`Desafíos T-spin: tableros armados con pocas piezas, sin gravedad. Llevás ${puzzleSolvedCount()}/${PUZZLES.length}. Elegí cuál en Progreso.`:'Maratón: la velocidad sube cada 10 líneas hasta que se llene el tablero.';
+  const kn=byId('solo-kind-note');kn.hidden=session!=='solo';kn.textContent=soloKind==='sprint'?'Sprint: 40 líneas contra reloj. Gana el tiempo más bajo.':soloKind==='ultra'?'Ultra: 2 minutos para sumar todos los puntos que puedas.':soloKind==='dig'?'Excavación: el tablero arranca con 10 líneas de basura. Limpialas lo más rápido que puedas.':soloKind==='fiesta'?'Modo fiesta: se pasan el celular por turnos y todos juegan con las mismas piezas. No suma a tu progreso.':soloKind==='daily'?'Desafío del día: 2 minutos con las mismas piezas para todos. Cambia cada día.':soloKind==='puzzle'?`Desafíos T-spin: tableros armados con pocas piezas, sin gravedad. Llevás ${puzzleSolvedCount()}/${PUZZLES.length}. Elegí cuál en Progreso.`:'Maratón: la velocidad sube cada 10 líneas hasta que se llene el tablero.';
   const play=byId('menu-play');
   const pausedNow=(session==='solo'&&solo.state.status==='paused')||(session==='cpu'&&cpuM.phase==='paused')||((session==='local'||session==='versus')&&match.phase==='paused');
   play.textContent=online?(net.hello?'JUGAR':'VOLVER AL JUEGO'):pausedNow?'CONTINUAR':'JUGAR';
@@ -4879,7 +5104,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
@@ -4934,7 +5159,7 @@ if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
     INST:{kick,hat,clap,tom,ride,bass,bassV,lead,stab,pad,pluck,crash,riser,boom,metal,shaker,snare,noiseHit,rave},PROGS,newPhrase,AU,AUDIO,musicStyle,STYLE_POOL,buildSet,curSt,musicStart,musicStop,musicUpdate,musicReset,audioEvent,auCtx,beatPulse,setStageNow,__tick:(t,dt)=>cpuTick(t,dt),cpu,cpuM,bot,botChoose,cpuStats,setCpuLevel,cpuStart,soloTimer,setSoloKind,getSoloKind:()=>soloKind,FEEL,applyFeel,setPadVisible,nearestPadButton,padHidden,touchLayouts,fromTemplate,openEditor,closeEditor,orientation,renderPad,currentLayout,saveLayouts,editing:()=>editing,
-    PRG,PUZZLES,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
+    PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
 }
 })();
 </script>
