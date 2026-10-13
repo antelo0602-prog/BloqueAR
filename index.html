@@ -299,6 +299,42 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 .overlay:has(.overlay-extra:not([hidden]) :is(.tut-tips,.how-qr)) .overlay-mark{display:none}
 .overlay:has(.overlay-extra:not([hidden]) :is(.tut-tips,.how-qr)) #overlay-title{font-size:min(9vw,34px);margin-bottom:4px}
 .overlay:has(.overlay-extra:not([hidden]) :is(.tut-tips,.how-qr)) #overlay-description{font-size:13px;margin:0 0 6px}
+.overlay-sign{font-size:11px;letter-spacing:.06em;color:#8fa3b8;margin-top:2px;font-style:italic}
+.about-sign{font-size:14px;margin:4px 0 6px}.about-sign span{color:var(--aqua)}
+details.fine{border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
+details.fine>summary{cursor:pointer;font-weight:800;color:#d9e6f2;min-height:36px;display:flex;align-items:center;font-size:13px}
+details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}details.fine[open]>summary::after{content:"▴"}
+.sound-pop{gap:8px}
+.sp-row{display:flex;gap:6px}.sp-tog{flex:1;min-height:46px;border-radius:12px;border:1px solid #3f6274;background:#1f3242;color:#dbffff;font-weight:900;font-size:14px}
+.sp-tog.off{background:#111a27;color:var(--dim);border-color:var(--line);text-decoration:line-through}
+.sp-tog.q-music.off::after,.sp-tog.q-sfx.off::after{display:none}
+.sp-styles{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.sp-styles button{min-height:38px;border-radius:10px;border:1px solid var(--line);background:#111a27;color:var(--dim);font-weight:800;font-size:12.5px}
+.sp-styles button.active{background:#1f3242;color:#dbffff;border-color:#3f6274}
+.sp-vol{margin:0}
+.q-sound.muted{opacity:.6}
+.fps{position:fixed;left:6px;top:calc(4px + env(safe-area-inset-top));z-index:70;font:800 11px/1 system-ui;color:#7dffb3;background:#000a;padding:3px 6px;border-radius:6px;pointer-events:none}
+/* Modo liviano: sin desenfoques, brillos ni animaciones costosas. */
+.lowfx .overlay,.lowfx .share-modal,.lowfx .layout-editor{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.lowfx .overlay{background:#0a111df2}
+.lowfx.fever .playfield,.lowfx .fever *{animation:none!important}
+.lowfx .callout{text-shadow:none!important;animation-duration:.9s!important}
+.lowfx *{box-shadow:none!important}
+@media (max-width:520px){#fullscreen-btn{display:none!important}}
+.lb-box{width:min(100%,340px);margin:8px auto 4px;padding:10px;border:1px solid #6b5a2a;background:#1d1a10;border-radius:14px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.lb-head{font-size:11px;font-weight:900;letter-spacing:.12em;color:#ffd166}
+.lb-form{display:flex;gap:6px}.lb-form input,.lb-url-row input{flex:1;min-width:0;min-height:42px;border-radius:10px;border:1px solid var(--line);background:#0c131e;color:var(--text);padding:0 12px;font-size:16px}
+.lb-form .primary{min-height:42px;padding:0 16px}
+.lb-msg{margin:0;font-size:13px;color:#e8dcc0}.lb-msg b{color:#ffd166}
+.lb-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.lb-list li{display:flex;align-items:center;gap:10px;background:#111a27;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:13.5px}
+.lb-list li i{font-style:normal;font-weight:900;color:var(--dim);width:22px}.lb-list li b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lb-list li em{font-style:normal;font-weight:900}
+.lb-list li.p1 i{color:#ffd166}.lb-list li.p2 i{color:#d7dee8}.lb-list li.p3 i{color:#e0a46a}
+.lb-list li.me{border-color:#ffd166;background:#2a2410}
+.lb-list li.lb-gap{background:none;border:0;justify-content:center;color:var(--dim);padding:0}
+.lb-list li.lb-empty{color:var(--dim);justify-content:center}
+.lb-tabs{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 8px;align-items:center}.lb-refresh{margin-left:auto;min-height:34px;padding:0 12px}
+.lb-panel{margin-bottom:6px;scroll-margin-top:64px}.lb-url-row{display:flex;gap:6px;flex-wrap:wrap}
 .tut-tips{list-style:none;margin:2px auto 10px;padding:0;width:min(100%,340px);display:flex;flex-direction:column;gap:6px;text-align:left}
 .tut-tips li{display:flex;gap:8px;align-items:flex-start;background:#111a27;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12px;line-height:1.35;color:#cfe0ea}
 .tut-tips li i{font-style:normal;font-size:16px;line-height:1.1}.tut-tips b{color:#fff}
@@ -365,9 +401,9 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 .q-music.off,.q-sfx.off{opacity:.5}
 .q-music.off::after,.q-sfx.off::after{content:"";position:absolute;left:22%;right:22%;top:50%;height:2px;background:#ff8a8a;transform:rotate(-40deg);border-radius:2px}
 .rail-tools{display:grid!important;grid-template-columns:1fr 1fr}
-.tool-restart{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1;padding:4px 0!important;overflow:hidden}.tool-restart small{font-size:8px;font-weight:900;letter-spacing:.04em;color:var(--dim);margin-top:2px}
+.tool-restart{display:flex;align-items:center;justify-content:center}.tool-restart small{display:none}
 .tool-restart[hidden]{display:none}
-@media (orientation:landscape) and (max-height:520px){.rail-tools{grid-template-columns:repeat(3,1fr)}.tool-restart{grid-column:auto;font-size:16px}.tool-restart small{display:none}}
+@media (orientation:landscape) and (max-height:520px){.rail-tools{grid-template-columns:repeat(4,1fr)}}
 
 /* Récord: barrita bajo el puntaje */
 .rec-bar{height:4px;border-radius:3px;background:#24324a;margin-top:4px;overflow:hidden}
@@ -451,8 +487,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
     <button class="chip" id="mode-chip" type="button" aria-label="Cambiar modo de juego">SOLO · MODERNO</button>
     <div class="spacer"></div>
     <div class="top-actions">
-      <button class="icon-btn q-music" id="q-music" type="button" aria-label="Música">♪</button>
-      <button class="icon-btn q-sfx" id="q-sfx" type="button" aria-label="Efectos de sonido">🔈</button>
+      <button class="icon-btn q-sound" id="q-sound" type="button" aria-label="Sonido" aria-haspopup="dialog">🔊</button>
       <button class="icon-btn" id="fullscreen-btn" type="button" aria-label="Pantalla completa" hidden>⛶</button>
       <button class="icon-btn" id="restart-btn" type="button" aria-label="Empezar de nuevo" title="Empezar de nuevo" hidden>↻</button>
       <button class="icon-btn" id="pause-btn" type="button" aria-label="Pausar">Ⅱ</button>
@@ -477,7 +512,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
         <button type="button" class="tile" data-session="local"><b>2 en este equipo</b><span>Por puntaje</span></button>
         <button type="button" class="tile" data-session="versus"><b>2 en este equipo</b><span>Versus · envío de líneas</span></button>
       </div>
-      <div class="field-row" id="solo-kind-row" hidden><label>PARTIDA</label><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">T-spin</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
+      <div class="field-row" id="solo-kind-row" hidden><label>PARTIDA</label><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">Giros</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
       <p class="hint" id="solo-kind-note" hidden></p>
       <div class="field-row" id="cpu-level-row" hidden><label>DIFICULTAD</label><div class="seg" role="group" aria-label="Dificultad"><button type="button" data-cpulevel="facil">Fácil</button><button type="button" data-cpulevel="normal">Normal</button><button type="button" data-cpulevel="dificil">Difícil</button></div></div>
     </div>
@@ -531,6 +566,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
     <div class="block" id="touch-block" data-tab="controles" hidden><h3>CONTROLES TÁCTILES</h3>
       <div class="field-row"><label>BOTONES EN PANTALLA</label><div class="seg" role="group" aria-label="Botones en pantalla"><button type="button" data-padvis="show">Mostrar</button><button type="button" data-padvis="hide">Ocultar · sólo gestos</button></div></div>
       <div class="row" style="margin-top:10px"><button type="button" class="pill" id="edit-pad-btn">✥ Editar botones y plantillas</button></div>
+      <details class="fine"><summary>Ajustes finos del tacto</summary>
       <div class="feel">
         <label for="feel-sens">Sensibilidad del arrastre <output id="feel-sens-out"></output></label>
         <input type="range" id="feel-sens" min="1" max="10" step="1">
@@ -545,6 +581,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
       <label class="check"><input type="checkbox" id="feel-tapsides"> Tocar a la izquierda rota a la izquierda; a la derecha, a la derecha</label>
       <label class="check"><input type="checkbox" id="feel-haptics"> Vibración al tocar (en iPhone requiere iOS 18 o posterior)</label>
       <div class="row"><button type="button" class="pill" id="feel-reset">Restablecer sensibilidad</button></div>
+      </details>
     </div>
 
     <div class="block" data-tab="sonido"><h3>SONIDO</h3>
@@ -556,10 +593,17 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
         <label for="au-mv">Volumen de la música <output id="au-mv-out"></output></label><input type="range" id="au-mv" min="0" max="100" step="5">
         <label for="au-sv">Volumen de los efectos <output id="au-sv-out"></output></label><input type="range" id="au-sv" min="0" max="100" step="5">
       </div>
+      <details class="fine"><summary>Más opciones y cómo funciona la música</summary>
       <label class="check"><input type="checkbox" id="au-quant"> Efectos al ritmo de la música</label>
       <p class="hint">Cambia de etapa cada 2 niveles. Arcade: música de juego, alegre y movida; con el tablero alto se acelera. Arcade → Techno: arranca como Arcade y en cada etapa una parte se vuelve techno, hasta el drop del nivel 9. Arcade Techno: las mismas melodías sobre techno duro. Techno oscuro: duro y oscuro. Original: la primera música. Los cuádruples, combos y rachas suben la música. En iPhone, si no suena, sacá el modo silencio.</p>
+      </details>
     </div>
 
+    <div class="block" data-tab="mas" id="gfx-block"><h3>GRÁFICOS</h3>
+      <div class="seg" role="group" aria-label="Calidad de los gráficos"><button type="button" data-gfx="auto">Automático</button><button type="button" data-gfx="normal">Normal</button><button type="button" data-gfx="liviano">Liviano</button></div>
+      <p class="hint" id="gfx-note"></p>
+      <label class="check"><input type="checkbox" id="gfx-fps"> Mostrar cuadros por segundo (para ver si anda fluido)</label>
+    </div>
     <div class="block" data-tab="mas" id="install-block"><h3>INSTALAR COMO APP</h3><p class="hint" id="install-txt"></p><div class="row"><button type="button" class="pill" id="install-btn" hidden>Instalar</button></div></div>
     <div class="block" data-tab="mas"><h3>MÁS</h3>
       <div class="row">
@@ -580,6 +624,10 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
       </ol>
       <p>La página sólo entrega el archivo. Las partidas no pasan por ningún servidor de salas.</p>
     </details>
+    <div class="block about" data-tab="mas"><h3>ACERCA DE</h3>
+      <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
+      <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
+    </div>
     <div class="menu-play-bar"><button type="button" class="primary menu-play" id="menu-play">JUGAR</button></div>
   </section>
 
@@ -589,7 +637,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
     <section class="arena" id="solo-area" aria-label="Tu tablero">
       <div class="field">
         <aside class="rail rail-l">
-          <section class="card rail-tools" id="rail-tools" hidden aria-label="Menú y pausa"><button type="button" class="tool-btn" id="tool-menu" aria-label="Menú">☰</button><button type="button" class="tool-btn" id="tool-pause" aria-label="Pausar">Ⅱ</button><button type="button" class="tool-btn q-music" id="tool-music" aria-label="Música">♪</button><button type="button" class="tool-btn q-sfx" id="tool-sfx" aria-label="Efectos de sonido">🔈</button><button type="button" class="tool-btn tool-restart" id="tool-restart" aria-label="Empezar de nuevo" hidden>↻<small>REINICIAR</small></button></section>
+          <section class="card rail-tools" id="rail-tools" hidden aria-label="Menú y pausa"><button type="button" class="tool-btn" id="tool-menu" aria-label="Menú">☰</button><button type="button" class="tool-btn" id="tool-pause" aria-label="Pausar">Ⅱ</button><button type="button" class="tool-btn q-sound" id="tool-sound" aria-label="Sonido" aria-haspopup="dialog">🔊</button><button type="button" class="tool-btn tool-restart" id="tool-restart" aria-label="Empezar de nuevo" hidden>↻<small>REINICIAR</small></button></section>
           <section class="card stats" id="card-stats" aria-label="Puntaje"><div class="eyebrow">PUNTOS</div><strong class="big-num" id="score">0</strong>
             <div class="mini-stats"><span>LÍNEAS<b id="lines">0</b></span><span>NIVEL<b id="level">1</b></span></div>
             <div class="record"><span id="record-label">RÉCORD</span> <b id="record">0</b></div><div class="rec-bar" id="rec-bar" hidden><i></i></div></section>
@@ -608,8 +656,9 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
             <button type="button" id="overlay-btn" class="primary big">JUGAR</button>
             <button type="button" id="overlay-alt" class="linkish">Cambiar modo</button>
             <div class="overlay-level" id="overlay-level"></div>
-            <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasale el juego a un amigo</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button></div>
+            <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasale el juego a un amigo</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
             <div class="overlay-foot">SIN ANUNCIOS · SIN REGISTRO</div>
+            <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
         <aside class="rail rail-r">
@@ -657,7 +706,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
     <button type="button" class="mp-item" data-session="local"><b>2 en este equipo</b><span>Por puntaje</span></button>
     <button type="button" class="mp-item" data-session="versus"><b>2 en este equipo</b><span>Versus · envío de líneas</span></button>
   </div>
-  <div class="mp-row" id="mp-solo" hidden><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">T-spin</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
+  <div class="mp-row" id="mp-solo" hidden><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">Giros</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
   <div class="mp-row" id="mp-cpu" hidden><div class="seg" role="group" aria-label="Dificultad"><button type="button" data-cpulevel="facil">Fácil</button><button type="button" data-cpulevel="normal">Normal</button><button type="button" data-cpulevel="dificil">Difícil</button></div></div>
   <div class="mp-row"><div class="seg" role="group" aria-label="Reglas"><button type="button" data-mode="modern">Moderno</button><button type="button" data-mode="classic">Clásico</button></div></div>
   <button type="button" class="primary mp-play" id="mp-play">JUGAR</button>
@@ -678,6 +727,15 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
     <button type="button" class="pill" id="share-close">Cerrar</button>
   </div>
 </div>
+<div class="mode-scrim" id="sound-scrim" hidden></div>
+<div class="mode-pop sound-pop" id="sound-pop" hidden role="dialog" aria-label="Sonido">
+  <div class="sp-row"><button type="button" class="sp-tog q-music">♪ Música</button><button type="button" class="sp-tog q-sfx">🔈 Efectos</button></div>
+  <div class="mp-title">ESTILO DE MÚSICA</div>
+  <div class="sp-styles"><button type="button" data-mstyle="auto">Automática</button><button type="button" data-mstyle="arcade">Arcade</button><button type="button" data-mstyle="arcmix">Arcade → Techno</button><button type="button" data-mstyle="arctech">Arcade Techno</button><button type="button" data-mstyle="nueva">Techno oscuro</button><button type="button" data-mstyle="original">Original</button></div>
+  <div class="feel sp-vol"><label for="sp-mv">Volumen de la música</label><input type="range" id="sp-mv" min="0" max="100" step="5"><label for="sp-sv">Volumen de los efectos</label><input type="range" id="sp-sv" min="0" max="100" step="5"></div>
+  <div class="mp-foot"><button type="button" class="linkish" id="sp-more">Más opciones de sonido</button><button type="button" class="linkish" id="sp-close">Listo</button></div>
+</div>
+<div class="fps" id="fps" hidden></div>
 <div class="a2hs" id="a2hs" hidden role="dialog" aria-label="Instalar como app">
   <div class="a2hs-icon" aria-hidden="true">▦</div>
   <div class="a2hs-txt" id="a2hs-txt"></div>
@@ -717,19 +775,25 @@ function classicMatrix(type,rot=0){
   for(const [x,y] of NES_CELLS[type][rot])m[y+2][x+2]=1;
   return m;
 }
-const COLORS = {G:'#697b91',I:'#3fcee6',O:'#f8d66a',T:'#b88aff',S:'#59deb2',Z:'#fa7287',J:'#72a3ff',L:'#ffa968'};
+const COLORS = {G:'#5a606c',I:'#f6b93b',O:'#6ec6f2',T:'#e9eef5',S:'#ff7b6b',Z:'#57d49b',J:'#b394ff',L:'#ff8fc8'};
 /* Apariencia (recompensas por nivel): paleta, estilo de bloque, fondo del tablero, efecto al borrar y modo daltónico. */
 const PALETTES={
-  clasica:{G:'#697b91',I:'#3fcee6',O:'#f8d66a',T:'#b88aff',S:'#59deb2',Z:'#fa7287',J:'#72a3ff',L:'#ffa968'},
-  neon:{G:'#5d6b80',I:'#00f0ff',O:'#ffe600',T:'#c84bff',S:'#2bff88',Z:'#ff2e63',J:'#2e7bff',L:'#ff8c1a'},
-  pastel:{G:'#8a95a5',I:'#a8e6f0',O:'#fff1a8',T:'#d9c2ff',S:'#b5f0d3',Z:'#ffc2cc',J:'#bcd4ff',L:'#ffd3b0'},
+  // Propia de BloqueAR: sol, celeste y blanco, más coral, menta, lavanda y rosa.
+  bloquear:{G:'#5a606c',I:'#f6b93b',O:'#6ec6f2',T:'#e9eef5',S:'#ff7b6b',Z:'#57d49b',J:'#b394ff',L:'#ff8fc8'},
+  neon:{G:'#5d6b80',I:'#ff2bd6',O:'#00e5ff',T:'#ffe600',S:'#ff8c1a',Z:'#2bff88',J:'#ff2e63',L:'#4d7dff'},
+  pastel:{G:'#8a95a5',I:'#fff0a8',O:'#bfe6ff',T:'#ffd0e4',S:'#ffc9b0',Z:'#c4f0d6',J:'#ddd2ff',L:'#f4f4f4'},
   fuego:{G:'#7a6660',I:'#ffd27a',O:'#ffe9a3',T:'#ff7b54',S:'#ffb347',Z:'#e8364f',J:'#c2412d',L:'#ff9447'},
   hielo:{G:'#6c7c90',I:'#bff6ff',O:'#e9fbff',T:'#8fb8ff',S:'#7fe3e0',Z:'#9aa8ff',J:'#4f8cff',L:'#6fd3ff'},
   retro:{G:'#4a5a3a',I:'#9bbc0f',O:'#c5d96a',T:'#7aa23a',S:'#8bac0f',Z:'#5f8a2a',J:'#306230',L:'#aacb4a'},
   oro:{G:'#6f6550',I:'#ffe08a',O:'#fff1c2',T:'#e0b84a',S:'#f5cf6b',Z:'#d39b2a',J:'#b8862b',L:'#ffcf5a'}
 };
-const LOOK={palette:'clasica',block:'auto',bg:'noche',fx:'chispas',cb:false};
-function applyPalette(){Object.assign(COLORS,PALETTES[LOOK.palette]||PALETTES.clasica);}
+const LOOK={palette:'bloquear',block:'auto',bg:'noche',fx:'chispas',cb:false};
+function applyPalette(){Object.assign(COLORS,PALETTES[LOOK.palette]||PALETTES.bloquear);SPR.clear();}
+/* Gráficos: en modo liviano se dibuja a menos resolución y con menos efectos (para celulares de gama baja). */
+const GFX={low:false};
+function renderPR(){return Math.min(GFX.low?1.5:3,window.devicePixelRatio||1);}
+// Cada bloque se dibuja una sola vez por color/tamaño/estilo y después se copia: mucho más liviano.
+const SPR=new Map();
 // Dibujito por pieza para distinguirlas sin depender del color.
 function cbMark(ctx,type,x,y,s){
   ctx.save();ctx.strokeStyle='#0a1220b0';ctx.fillStyle='#0a1220b0';ctx.lineWidth=Math.max(1.4,s*.09);ctx.lineCap='round';
@@ -1008,15 +1072,15 @@ function createGame(root,prefix,options){
         state.b2b=difficult;
       }else state.score+=([0,40,100,300,1200][cleared]||0)*(lvl+1);
       state.lines+=cleared;state.level=(state.mode==='classic'?0:1)+Math.floor(state.lines/10);
-      const texts=['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'];
+      const texts=['','SIMPLE','DOBLE','TRIPLE','¡CUATRO!'];
       const combo=state.mode==='modern'&&state.combo>0?`\nCOMBO ×${state.combo}`:'';
-      announce((spin?'¡T-SPIN!':texts[cleared])+combo);
+      announce((spin?'¡GIRO T!':texts[cleared])+combo);
       const pc=state.grid.every(r=>r.every(c=>!c));
       sfx('clear',{n:cleared,combo:Math.max(0,state.combo),spin,b2b:(cleared===4||spin)&&wasB2B,pc});
       clearFx(fullRows,cleared,spin);
       if(state.level>lvlBefore)sfx('levelup',{level:state.level});
     }else if(state.mode==='modern'){
-      if(spin){state.score+=400*state.level;announce('¡T-SPIN!');}
+      if(spin){state.score+=400*state.level;announce('¡GIRO T!');}
       state.combo=-1;
     }
     state.active=null;
@@ -1099,9 +1163,10 @@ function createGame(root,prefix,options){
     const now=performance.now();
     for(const r of rows){fx.rows.push({y:r.y,t:now,n});
       const F=LOOK.fx,pal=Object.values(COLORS);
-      r.cells.forEach((c,x)=>{for(let k=0;k<(n>=4?3:2)+(F==='confeti'?1:0);k++)if(fx.parts.length<300)fx.parts.push({x:(x+.5)*CELL,y:(r.y+.5)*CELL,vx:(Math.random()-.5)*(.35+n*.12)*(F==='onda'?2.2:1),vy:-(Math.random()*.32+.08)*(1+n*.15)*(F==='onda'?.3:1),life:520+Math.random()*380,age:0,c:F==='confeti'?pal[(Math.random()*pal.length)|0]:F==='estrellas'?'#fff6c8':COLORS[c]||'#fff',s:F==='estrellas'?4+Math.random()*5:F==='confeti'?3+Math.random()*3:3+Math.random()*4,star:F==='estrellas'});});}
-    if(n>=4||spin)fx.flash=1;
-    kickFx(n>=4?8:spin?6:1.5+n,'y');fx.active=true;
+      const per=GFX.low?(x=>x%2===0?1:0):()=>(n>=4?3:2)+(F==='confeti'?1:0),cap=GFX.low?40:300;
+      r.cells.forEach((c,x)=>{for(let k=0;k<per(x);k++)if(fx.parts.length<cap)fx.parts.push({x:(x+.5)*CELL,y:(r.y+.5)*CELL,vx:(Math.random()-.5)*(.35+n*.12)*(F==='onda'?2.2:1),vy:-(Math.random()*.32+.08)*(1+n*.15)*(F==='onda'?.3:1),life:520+Math.random()*380,age:0,c:F==='confeti'?pal[(Math.random()*pal.length)|0]:F==='estrellas'?'#fff6c8':COLORS[c]||'#fff',s:F==='estrellas'?4+Math.random()*5:F==='confeti'?3+Math.random()*3:3+Math.random()*4,star:F==='estrellas'});});}
+    if((n>=4||spin)&&!GFX.low)fx.flash=1;
+    if(!GFX.low)kickFx(n>=4?8:spin?6:1.5+n,'y');fx.active=true;
   }
   function kickFx(amp,dir){fx.shake={amp:Math.max(fx.shake.amp*.5,amp),t:0,dir};fx.active=true;}
   function stepFx(now,dt){
@@ -1128,7 +1193,7 @@ function createGame(root,prefix,options){
     if(fx.flash>0){ctx.fillStyle=`rgba(255,255,255,${(fx.flash*.35).toFixed(3)})`;ctx.fillRect(0,0,W*CELL,H*CELL);}
   }
   function setupCanvas(canvas,ctx,w,h){
-    const pr=Math.min(3,window.devicePixelRatio||1);
+    const pr=renderPR();
     const cw=Math.round(w*pr),ch=Math.round(h*pr);
     if(canvas.width!==cw||canvas.height!==ch){canvas.width=cw;canvas.height=ch;}
     ctx.setTransform(pr,0,0,pr,0,0);
@@ -1140,8 +1205,31 @@ function createGame(root,prefix,options){
   }
   function tile(ctx,x,y,size,type,ghost=false){
     if(y<0)return;
-    const classic=state.mode==='classic',pad=classic?1:1.1,px=x+pad,py=y+pad,s=size-pad*2;
-    if(ghost){ctx.strokeStyle=COLORS[type]+'8f';ctx.lineWidth=1.6;ctx.strokeRect(px+2,py+2,s-4,s-4);return;}
+    const classic=state.mode==='classic';
+    if(ghost){const pad=classic?1:1.1,px=x+pad,py=y+pad,s=size-pad*2;ctx.strokeStyle=COLORS[type]+'8f';ctx.lineWidth=1.6;ctx.strokeRect(px+2,py+2,s-4,s-4);return;}
+    const v=type==='G'?((Math.round(x/size)*7+Math.round(y/size)*3)&3):0,pr=renderPR();
+    const key=`${type}|${size}|${classic?1:0}|${LOOK.block}|${COLORS[type]}|${LOOK.cb?1:0}|${v}|${pr}`;
+    let c=SPR.get(key);
+    if(!c){
+      if(SPR.size>500)SPR.clear();
+      c=document.createElement('canvas');c.width=c.height=Math.max(1,Math.ceil(size*pr));
+      const cx=c.getContext('2d');cx.setTransform(pr,0,0,pr,0,0);tileRaw(cx,size,type,classic,v);SPR.set(key,c);
+    }
+    ctx.drawImage(c,x,y,c.width/pr,c.height/pr);
+  }
+  function tileRaw(ctx,size,type,classic,v){
+    const pad=classic?1:1.1,px=pad,py=pad,s=size-pad*2;
+    // Basura: piedra gris con manchas y una grieta (distinta según la casilla).
+    if(type==='G'){
+      rounded(ctx,px,py,s,s,3);ctx.fillStyle=['#555b67','#5a5f6a','#4f5561','#5d6270'][v];ctx.fill();
+      ctx.fillStyle='#ffffff16';ctx.fillRect(px+s*.1,py+s*.1,s*.55,Math.max(1.5,s*.1));
+      ctx.fillStyle='#0000003a';const sp=[[.22,.55],[.62,.3],[.7,.7],[.38,.78],[.15,.3]],d=Math.max(1.5,s*.09);
+      for(let i=0;i<3;i++){const [a,b]=sp[(i+v)%5];ctx.fillRect(px+a*s,py+b*s,d,d);}
+      ctx.strokeStyle='#00000059';ctx.lineWidth=Math.max(1,s*.06);ctx.beginPath();
+      const k=[[.2,.25,.45,.45,.4,.75],[.75,.2,.55,.5,.7,.8],[.3,.8,.5,.55,.8,.45],[.6,.15,.4,.4,.5,.65]][v];
+      ctx.moveTo(px+k[0]*s,py+k[1]*s);ctx.lineTo(px+k[2]*s,py+k[3]*s);ctx.lineTo(px+k[4]*s,py+k[5]*s);ctx.stroke();
+      return;
+    }
     ctx.fillStyle=COLORS[type];
     const bs=LOOK.block==='auto'?(classic?'pixel':'gema'):LOOK.block;
     if(bs==='pixel'){ctx.fillRect(px,py,s,s);ctx.fillStyle='#ffffff35';ctx.fillRect(px+2,py+2,s-4,Math.max(2,size*.1));ctx.fillStyle='#0000002b';ctx.fillRect(px+2,py+s-5,s-4,3);}
@@ -1328,7 +1416,7 @@ function createRivalView(canvas){
     ctx.strokeStyle='#677b8c14';ctx.lineWidth=1;ctx.beginPath();for(let x=1;x<W;x++){ctx.moveTo(x*10+.5,0);ctx.lineTo(x*10+.5,200);}ctx.stroke();
     for(let i=0;i<W*H;i++){const c=grid[i];if(c!=='.'){ctx.fillStyle=COLORS[c];ctx.fillRect((i%W)*10+.6,Math.floor(i/W)*10+.6,8.8,8.8);}}
   }
-  function resize(){const pr=Math.min(3,window.devicePixelRatio||1);canvas.width=Math.round(100*pr);canvas.height=Math.round(200*pr);ctx.setTransform(pr,0,0,pr,0,0);draw();}
+  function resize(){const pr=renderPR();canvas.width=Math.round(100*pr);canvas.height=Math.round(200*pr);ctx.setTransform(pr,0,0,pr,0,0);draw();}
   function set(g){if(typeof g==='string'&&g.length===W*H&&/^[.IOTSZJLG]+$/.test(g)&&g!==grid){grid=g;draw();}}
   return {resize,set,clear(){grid='.'.repeat(W*H);draw();}};
 }
@@ -1412,11 +1500,11 @@ function refreshControlHints(){
   byId('help-keys').innerHTML=`<p><b>Solo y en línea:</b> ${one('solo')}</p><p><b>Jugador 1:</b> ${one('p1')}</p><p><b>Jugador 2:</b> ${one('p2')}</p>
   <p><b>Todos:</b> ${k('common','pause')} o <kbd>Esc</kbd> pausa · ${k('common','start')} jugar/continuar · ${k('common','restart')} nueva partida · ${k('common','sound')} sonido.</p>
   <p><b>Táctil:</b> elegí una plantilla o mové los botones en Menú › Editar botones táctiles. Gestos sobre el tablero: arrastrá para mover la pieza, tocá para rotar (con dos dedos rota al otro lado), deslizá rápido hacia abajo para soltarla y hacia arriba para guardarla.</p>
-  <p><b>Moderno:</b> reserva, pieza fantasma, rotación SRS, combos, T‑Spin y 5 siguientes. La velocidad sube cada 10 líneas; desde el nivel 20 la pieza cae al instante y tenés 0,47 s para acomodarla.</p>
-  <p><b>Clásico (inspirado en NES, no idéntico):</b> sin reserva, sin pieza fantasma ni caída instantánea, rotación simple sin ajustes y una pieza siguiente. La pieza queda fija apenas se apoya.</p>
+  <p><b>Moderno:</b> reserva, sombra de caída, rotación con ajustes en las paredes, combos, giros T y 5 siguientes. La velocidad sube cada 10 líneas; desde el nivel 20 la pieza cae al instante y tenés 0,47 s para acomodarla.</p>
+  <p><b>Clásico (al estilo de los juegos de los 80):</b> sin reserva, sin sombra de caída ni caída instantánea, rotación simple sin ajustes y una pieza siguiente. La pieza queda fija apenas se apoya.</p>
   <p><b>Solo:</b> Maratón (sube la velocidad hasta que se llene el tablero), Sprint 40 (40 líneas contra reloj) y Ultra 2:00 (máximo puntaje en 2 minutos), cada uno con su récord.</p>
   <p><b>Contra la compu:</b> versus con envío de líneas contra la computadora, en Fácil, Normal o Difícil. Las dos reciben las mismas piezas.</p>
-  <p><b>Versus:</b> Double manda 1 línea, Triple 2 y Cuádruple 4; en moderno los T‑Spin, combos y rachas suman. Tus ataques primero cancelan las líneas que te mandaron. Las pendientes entran cuando fijás una pieza sin hacer línea (hasta 8 por pieza).</p>`;
+  <p><b>Versus:</b> Doble manda 1 línea, Triple 2 y Cuádruple 4; en moderno los giros T, combos y rachas suman. Tus ataques primero cancelan las líneas que te mandaron. Las pendientes entran cuando fijás una pieza sin hacer línea (hasta 8 por pieza).</p>`;
   for(const n of [1,2])byId(`p${n}-key-hint`).textContent=`${keyLabel('p'+n,'left')}/${keyLabel('p'+n,'right')} · ${keyLabel('p'+n,'cw')} · ${keyLabel('p'+n,'drop')}`;
 }
 function renderBindings(){
@@ -2168,7 +2256,7 @@ function onlineLock(result){
   const s=solo.state;let attack=attackFor(result);
   const cancelled=Math.min(attack,s.incoming.length);s.incoming.splice(0,cancelled);attack-=cancelled;
   if(attack>0&&net.m.peerStatus!=='over'){netSend({t:'attack',round:net.m.round,n:attack,hole:Math.floor(Math.random()*W)});s.sent+=attack;}
-  if(cancelled||attack)solo.announce((result.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
+  if(cancelled||attack)solo.announce((result.spin?'¡GIRO T!':['','SIMPLE','DOBLE','TRIPLE','¡CUATRO!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
   if(!result.cleared&&s.incoming.length)solo.addGarbage(s.incoming.splice(0,8));
   solo.renderScore();
 }
@@ -2447,17 +2535,17 @@ function setupScanner(){
 }
 
 /* ───────── Solo: Maratón, Sprint 40 y Ultra 2:00 ───────── */
-const SOLO_KINDS={marathon:'Maratón',sprint:'Sprint 40',ultra:'Ultra 2:00',daily:'Desafío del día',puzzle:'Desafíos T-spin',dig:'Excavación',fiesta:'Modo fiesta'};
-/* Desafíos T-spin: tableros armados con pocas piezas. Sin gravedad: la pieza baja sólo cuando la soltás.
+const SOLO_KINDS={marathon:'Maratón',sprint:'Sprint 40',ultra:'Ultra 2:00',daily:'Desafío del día',puzzle:'Desafíos de giro',dig:'Excavación',fiesta:'Modo fiesta'};
+/* Desafíos de giro: tableros armados con pocas piezas. Sin gravedad: la pieza baja sólo cuando la soltás.
    Todos se verificaron con un simulador de la misma rotación (SRS) que usa el juego. */
 const PUZZLES=[
-  {id:'tss',name:'T-Spin simple',rows:['XX........','X...XXXXXX','XX.XXXXXX.'],pieces:['T'],goal:{type:'spin',lines:1},hint:'Bajá la T hasta apoyarla junto al hueco y girala: se mete debajo del techo.'},
-  {id:'tsdl',name:'T-Spin doble',rows:['XX........','X...XXXXXX','XX.XXXXXXX'],pieces:['T'],goal:{type:'spin',lines:2},hint:'El mismo hueco, ahora borra 2 líneas. El último movimiento tiene que ser un giro.'},
+  {id:'tss',name:'Giro T simple',rows:['XX........','X...XXXXXX','XX.XXXXXX.'],pieces:['T'],goal:{type:'spin',lines:1},hint:'Bajá la T hasta apoyarla junto al hueco y girala: se mete debajo del techo.'},
+  {id:'tsdl',name:'Giro T doble',rows:['XX........','X...XXXXXX','XX.XXXXXXX'],pieces:['T'],goal:{type:'spin',lines:2},hint:'El mismo hueco, ahora borra 2 líneas. El último movimiento tiene que ser un giro.'},
   {id:'tsdr',name:'Doble espejo',rows:['........XX','XXXXXX...X','XXXXXXX.XX'],pieces:['T'],goal:{type:'spin',lines:2},hint:'Igual que el anterior, pero del otro lado.'},
   {id:'tsdc',name:'Doble al centro',rows:['...X......','XXX...XXXX','XXXX.XXXXX'],pieces:['T'],goal:{type:'spin',lines:2},hint:'El techo está a la izquierda: entrá por la derecha y girá.'},
   {id:'tsdo',name:'Techo con O',rows:['X...XXXXXX','XX.XXXXXXX'],pieces:['O','T'],goal:{type:'spin',lines:2},hint:'Primero armá un techo con la O; después metés la T girando.'},
   {id:'tsdl2',name:'Armá el techo',rows:['XXXXX....X','XXXXXX.XXX'],pieces:['L','T'],goal:{type:'spin',lines:2},hint:'Con la L armás el techo justo donde hace falta.'},
-  {id:'tst',name:'T-Spin triple',rows:['XX........','X.........','X.XXXXXXXX','X..XXXXXXX','X.XXXXXXXX'],pieces:['T'],goal:{type:'spin',lines:3},hint:'Bajá la T hasta apoyarla arriba del pozo y girala: se mete de costado.'},
+  {id:'tst',name:'Giro T triple',rows:['XX........','X.........','X.XXXXXXXX','X..XXXXXXX','X.XXXXXXXX'],pieces:['T'],goal:{type:'spin',lines:3},hint:'Bajá la T hasta apoyarla arriba del pozo y girala: se mete de costado.'},
   {id:'pc1',name:'Tablero vacío',rows:['XXX...XXXX','XXX...XXXX','XXXX..XXXX'],pieces:['T','J'],goal:{type:'pc'},hint:'Con 2 piezas, no tiene que quedar ni un bloque. Podés usar la reserva.'},
   {id:'pc2',name:'Tablero vacío II',rows:['XXX....XXX','XXXX..XXXX','XXXX.XXXXX','XXXX.XXXXX'],pieces:['J','I'],goal:{type:'pc'},hint:'Pensá qué pieza va abajo de todo.'}
 ];
@@ -2465,7 +2553,7 @@ let puzzleIdx=(()=>{const n=Number(storageGet('bloques-puzzle-v1'));return Numbe
 const pz={spins:0,state:'idle'};
 function puzzleSolvedCount(){return PUZZLES.filter(p=>PRG.puzzles?.[p.id]).length;}
 function setPuzzleIdx(i){puzzleIdx=((i%PUZZLES.length)+PUZZLES.length)%PUZZLES.length;storageSet('bloques-puzzle-v1',String(puzzleIdx));}
-function puzzleGoalText(p){return p.goal.type==='pc'?'Objetivo: dejar el tablero vacío.':`Objetivo: T-spin ${['','simple','doble','triple'][p.goal.lines]} (${p.goal.lines} ${p.goal.lines===1?'línea':'líneas'}).`;}
+function puzzleGoalText(p){return p.goal.type==='pc'?'Objetivo: dejar el tablero vacío.':`Objetivo: giro T ${['','simple','doble','triple'][p.goal.lines]} (${p.goal.lines} ${p.goal.lines===1?'línea':'líneas'}).`;}
 function puzzleLock(r){
   if(solo.state.status!=='playing')return;
   const p=PUZZLES[puzzleIdx];
@@ -2648,7 +2736,7 @@ function cpuLock(side,r){
   let attack=attackFor(r);const cancelled=Math.min(attack,game.state.incoming.length);
   game.state.incoming.splice(0,cancelled);attack-=cancelled;
   if(attack&&other.state.status==='playing'){other.state.incoming.push(...Array(attack).fill(Math.floor(Math.random()*W)));game.state.sent+=attack;other.renderScore();if(other===solo)solo.announce(`TE MANDAN ${attack}`);}
-  if(side==='me'&&(cancelled||attack))solo.announce((r.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'][r.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
+  if(side==='me'&&(cancelled||attack))solo.announce((r.spin?'¡GIRO T!':['','SIMPLE','DOBLE','TRIPLE','¡CUATRO!'][r.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
   if(!r.cleared&&game.state.incoming.length)game.addGarbage(game.state.incoming.splice(0,8));
   game.renderScore();
 }
@@ -2743,7 +2831,7 @@ function levelInfo(xp){let lv=1,acc=0,need=120;while(xp>=acc+need){acc+=need;lv+
 
 /* Recompensas: se desbloquean con el nivel de jugador. */
 const REWARDS={
-  palette:{title:'Colores',items:[['clasica','Clásica',1],['neon','Neón',3],['pastel','Pastel',5],['fuego','Fuego',8],['hielo','Hielo',11],['retro','Retro',14],['oro','Oro',20]]},
+  palette:{title:'Colores',items:[['bloquear','BloqueAR',1],['neon','Neón',3],['pastel','Pastel',5],['fuego','Fuego',8],['hielo','Hielo',11],['retro','Retro',14],['oro','Oro',20]]},
   block:{title:'Bloques',items:[['auto','Gema',1],['plano','Plano',2],['vidrio','Vidrio',4],['pixel','Píxel',7],['ladrillo','Ladrillo',10],['brillo','Brillo',16]]},
   bg:{title:'Fondo',items:[['noche','Noche',1],['negro','Negro',2],['grilla','Grilla',6],['galaxia','Galaxia',9],['atardecer','Atardecer',12],['aurora','Aurora',18]]},
   fx:{title:'Al borrar líneas',items:[['chispas','Chispas',1],['confeti','Confeti',4],['estrellas','Estrellas',13],['onda','Onda',15]]}
@@ -2752,7 +2840,8 @@ function rewardLevel(cat,id){const it=REWARDS[cat].items.find(x=>x[0]===id);retu
 function unlockedBetween(a,b){const out=[];for(const [cat,R] of Object.entries(REWARDS))for(const [id,name,lv] of R.items)if(lv>a&&lv<=b)out.push(`${R.title}: ${name}`);return out;}
 function loadLook(){
   try{const o=JSON.parse(storageGet('bloques-look-v1')||'null');if(o)for(const k of ['palette','block','bg','fx'])if(typeof o[k]==='string')LOOK[k]=o[k];if(o&&typeof o.cb==='boolean')LOOK.cb=o.cb;}catch(_){}
-  const lv=levelInfo(PRG.xp).lv;const def={palette:'clasica',block:'auto',bg:'noche',fx:'chispas'};
+  const lv=levelInfo(PRG.xp).lv;const def={palette:'bloquear',block:'auto',bg:'noche',fx:'chispas'};
+  if(!PALETTES[LOOK.palette])LOOK.palette='bloquear';// la vieja «Clásica» pasa a la paleta propia
   for(const k of Object.keys(def))if(rewardLevel(k,LOOK[k])>lv)LOOK[k]=def[k];
   applyPalette();
 }
@@ -2767,8 +2856,8 @@ const MEDALS=[
   {id:'t100',g:'IV',name:'Cien cuádruples',desc:'100 cuádruples en total.',goal:100,val:()=>PRG.tetris},
   {id:'l100',g:'≡',name:'Cien líneas',desc:'100 líneas en total.',goal:100,val:()=>PRG.lines},
   {id:'l1000',g:'≡',name:'Mil líneas',desc:'1.000 líneas en total.',goal:1000,val:()=>PRG.lines},
-  {id:'ts1',g:'T',name:'Primer T-spin',desc:'Girá la T en un hueco y borrá líneas.',goal:1,val:()=>PRG.tspin},
-  {id:'ts25',g:'T',name:'Maestro del giro',desc:'25 T-spins en total.',goal:25,val:()=>PRG.tspin},
+  {id:'ts1',g:'T',name:'Primer giro T',desc:'Girá la T en un hueco y borrá líneas.',goal:1,val:()=>PRG.tspin},
+  {id:'ts25',g:'T',name:'Maestro del giro',desc:'25 giros T en total.',goal:25,val:()=>PRG.tspin},
   {id:'c5',g:'×5',name:'Combo ×5',desc:'Borrá líneas con 6 piezas seguidas.',goal:5,val:()=>PRG.best.combo},
   {id:'c10',g:'×10',name:'Combo ×10',desc:'Borrá líneas con 11 piezas seguidas.',goal:10,val:()=>PRG.best.combo},
   {id:'pc',g:'□',name:'Tablero vacío',desc:'Dejá el tablero completamente vacío.',goal:1,val:()=>PRG.pc},
@@ -2784,8 +2873,8 @@ const MEDALS=[
   {id:'cpu',g:'VS',name:'Más que la compu',desc:'Ganale a la compu en Difícil.',goal:1,val:()=>PRG.cpuHardWins},
   {id:'dig1',g:'⛏',name:'Excavadora',desc:'Terminá una Excavación.',goal:1,val:()=>(PRG.digBest.modern||PRG.digBest.classic)?1:0},
   {id:'dig60',g:'⛏',name:'Topo veloz',desc:'Terminá una Excavación en menos de 1 minuto.',goal:1,val:()=>[PRG.digBest.modern,PRG.digBest.classic].some(t=>t&&t<60000)?1:0},
-  {id:'pz3',g:'⟲',name:'Aprendiz del giro',desc:'Resolvé 3 desafíos T-spin.',goal:3,val:()=>puzzleSolvedCount()},
-  {id:'pzall',g:'⟲',name:'Todos los desafíos',desc:'Resolvé todos los desafíos T-spin.',goal:PUZZLES.length,val:()=>puzzleSolvedCount()}
+  {id:'pz3',g:'⟲',name:'Aprendiz del giro',desc:'Resolvé 3 desafíos de giro.',goal:3,val:()=>puzzleSolvedCount()},
+  {id:'pzall',g:'⟲',name:'Todos los desafíos',desc:'Resolvé todos los desafíos de giro.',goal:PUZZLES.length,val:()=>puzzleSolvedCount()}
 ];
 function checkMedals(silent=false){
   const out=[];
@@ -2844,7 +2933,7 @@ function progressEvent(name,d){
     // Festejos.
     if(d.pc)callout('¡TABLERO VACÍO!','big');
     else if(n>=4)callout(d.b2b?'CUATRO LÍNEAS · B2B':'¡CUATRO LÍNEAS!','big');
-    else if(d.spin)callout('T-SPIN'+(n===2?' DOBLE':n===3?' TRIPLE':''),'big');
+    else if(d.spin)callout('GIRO T'+(n===2?' DOBLE':n===3?' TRIPLE':''),'big');
     if(combo>=2)callout('COMBO ×'+combo,combo>=5?'big':'');
     if(n>=4||d.spin||combo>=4||d.pc){RUN.bigTimes=RUN.bigTimes.filter(x=>now-x<25000);RUN.bigTimes.push(now);if(RUN.bigTimes.length>=2)fever();}
     checkMedals();updateRecBar();
@@ -2905,6 +2994,7 @@ function progressEnd(result){
   const won=MEDALS.filter(m=>PRG.medals[m.id]&&PRG.medals[m.id]>=r.t0Abs);
   saveProg();
   showSummary({xp,before,after,delta,lines,won});
+  try{lbOffer(r,result);}catch(_){}
   if(PRG.games>=1)setTimeout(maybeA2hs,1500);
   return {xp,before,after};
 }
@@ -2931,13 +3021,14 @@ function renderOverlayLevel(){
 function renderProgress(){
   const box=byId('prog-panel');if(!box)return;
   const L=levelInfo(PRG.xp),got=MEDALS.filter(m=>PRG.medals[m.id]).length,dr=dailyRec();
-  box.innerHTML=`<h3>TU PROGRESO</h3>
+  box.innerHTML=`<div class="lb-panel" id="lb-panel"></div>
+    <h3>TU PROGRESO</h3>
     <div class="prog-level"><div class="prog-lv">${L.lv}</div><div class="prog-lv-txt"><b>Nivel ${L.lv}</b><div class="xpbar"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></div><span>${fmt(L.into)} / ${fmt(L.need)} XP</span></div></div>
     <div class="prog-stats"><span><b>${fmt(PRG.games)}</b>partidas</span><span><b>${fmt(PRG.lines)}</b>líneas</span><span><b>${fmt(PRG.tetris)}</b>cuádruples</span><span><b>${got}/${MEDALS.length}</b>medallas</span></div>
     <div class="prog-daily"><div><b>DESAFÍO DEL DÍA</b><span>2 minutos con las mismas piezas para todos hoy.</span><span>${dr.tries?`Tu mejor de hoy: <b>${fmt(dr.best)}</b> · ${dr.tries} ${dr.tries===1?'intento':'intentos'}`:'Todavía no lo jugaste hoy.'}${PRG.dailyDays.length?` · ${PRG.dailyDays.length} ${PRG.dailyDays.length===1?'día jugado':'días jugados'}`:''}</span></div><button type="button" class="primary" id="prog-daily-go">Jugar</button></div>
     <h3>TUS ÚLTIMAS PARTIDAS</h3>
     <div id="hist-box"></div>
-    <h3>DESAFÍOS T-SPIN <small>${puzzleSolvedCount()}/${PUZZLES.length}</small></h3>
+    <h3>DESAFÍOS DE GIRO <small>${puzzleSolvedCount()}/${PUZZLES.length}</small></h3>
     <p class="hint">Tableros armados para aprender a girar la T en un hueco. Pocas piezas y sin gravedad.</p>
     <div class="pz-list">${PUZZLES.map((p,i)=>`<button type="button" class="pz-chip${PRG.puzzles[p.id]?' done':''}${i===puzzleIdx?' cur':''}" data-pz="${i}"><i>${PRG.puzzles[p.id]?'✓':i+1}</i>${p.name}</button>`).join('')}</div>
     <h3>APARIENCIA</h3>
@@ -2954,7 +3045,7 @@ function renderProgress(){
   box.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{const [cat,id]=b.dataset.look.split(':');LOOK[cat]=id;lookChanged();renderProgress();});
   byId('look-cb').onchange=e=>{LOOK.cb=e.target.checked;lookChanged();};
   box.querySelectorAll('[data-pz]').forEach(b=>b.onclick=()=>{setPuzzleIdx(Number(b.dataset.pz));if(session!=='solo')changeSession('solo');if(soloKind!=='puzzle')setSoloKind('puzzle');closeMenu();solo.reset(true);refreshTop();});
-  renderHist();
+  renderHist();lbSetupPanel();
   byId('prog-daily-go').onclick=()=>{if(session!=='solo')changeSession('solo');setSoloKind('daily');closeMenu();primaryAction();};
   byId('prog-copy').onclick=async()=>{byId('prog-msg').textContent=(await copyText(progressCode()))?'Código copiado.':'No se pudo copiar.';};
   byId('prog-load').onclick=()=>{const ok=loadProgressCode(byId('prog-code').value);byId('prog-msg').textContent=ok?'Listo: se sumó el progreso del código.':'Ese código no es válido.';if(ok)renderProgress();};
@@ -3187,7 +3278,7 @@ function tutFinish(){
   const touch=tutInput()!=='keys',box=byId('overlay-extra');
   box.innerHTML=`<ul class="tut-tips">
     <li><i>🎮</i><span><b>Controles:</b> ${touch?'en Menú ☰ › Controles podés ajustar los gestos o sumar botones en pantalla.':'en Menú ☰ › Controles podés cambiar las teclas. También anda con joystick.'}</span></li>
-    <li><i>🧩</i><span><b>Modos:</b> en Menú ☰ › Partida elegís Maratón, Sprint, Ultra, Desafío del día, T-spin, Excavación o Fiesta, con reglas Moderno o Clásico.</span></li>
+    <li><i>🧩</i><span><b>Modos:</b> en Menú ☰ › Partida elegís Maratón, Sprint, Ultra, Desafío del día, Giros, Excavación o Fiesta, con reglas Moderno o Clásico.</span></li>
     <li><i>🌐</i><span><b>Con amigos:</b> en línea desde otro celular (se conectan con un QR), contra la compu o de a 2 en el mismo equipo.</span></li>
     <li><i>⭐</i><span><b>Progreso:</b> subís de nivel, ganás medallas y desbloqueás colores y fondos.</span></li></ul>`;
   box.hidden=false;
@@ -3226,7 +3317,191 @@ function setupExtra(){
   window.addEventListener('appinstalled',()=>{for(const id of ['overlay-install','menu-install'])byId(id).hidden=true;byId('a2hs').hidden=true;});
   byId('coach-skip').addEventListener('click',tutSkip);
   byId('tut-btn').addEventListener('click',()=>{closeMenu();tutStart();});
+  byId('overlay-lb').hidden=!LB.url;byId('overlay-lb').addEventListener('click',lbOpenPanel);
 }
+
+/* Menú contextual de sonido: un solo botón 🔊 con música, efectos, estilo y volumen. */
+let spOpen=false,spPaused=false;
+function openSoundPop(anchor){
+  if(menuOpen)closeMenu();if(popOpen)closeModePop();
+  spPaused=false;
+  // En línea no se pausa (la partida es de los dos); en el resto, sí, mientras se toca el sonido.
+  if(session!=='online'){const live=session==='solo'?solo.state.status==='playing':session==='cpu'?cpuM.phase==='playing':match.phase==='playing';if(live){autoPause();spPaused=true;}}
+  spOpen=true;byId('sound-pop').hidden=false;byId('sound-scrim').hidden=false;renderAudio();
+  const pop=byId('sound-pop'),vw=innerWidth,vh=innerHeight,m=10,w=Math.min(320,vw-2*m);pop.style.width=w+'px';pop.style.maxHeight=(vh-2*m)+'px';
+  const r=anchor&&anchor.offsetParent!==null?anchor.getBoundingClientRect():{left:vw/2,width:0,top:vh/3,bottom:vh/3},h=pop.offsetHeight;
+  let left=Math.max(m,Math.min(vw-w-m,r.left+r.width/2-w/2)),top=r.bottom+8;if(top+h>vh-m)top=r.top-8-h;if(top<m)top=Math.max(m,(vh-h)/2);
+  pop.style.left=left+'px';pop.style.top=top+'px';
+}
+function closeSoundPop(resume=true){
+  if(!spOpen)return;spOpen=false;byId('sound-pop').hidden=true;byId('sound-scrim').hidden=true;
+  if(resume&&spPaused){spPaused=false;pauseOrResume();}
+}
+function setupSoundPop(){
+  document.querySelectorAll('.q-sound').forEach(b=>b.addEventListener('click',e=>{const a=e.currentTarget;if(spOpen)closeSoundPop();else openSoundPop(a);a.blur();}));
+  byId('sound-scrim').addEventListener('pointerdown',e=>{e.preventDefault();closeSoundPop();});
+  byId('sp-close').addEventListener('click',()=>closeSoundPop());
+  byId('sp-more').addEventListener('click',()=>{closeSoundPop(false);openMenu();setMenuTab('sonido');});
+  for(const [id,key] of [['sp-mv','mv'],['sp-sv','sv']])byId(id).addEventListener('input',e=>{AUDIO[key]=clamp(Number(e.target.value)/100,0,1);saveAudio();applyAudioLevels();renderAudio();});
+  window.addEventListener('keydown',e=>{if(spOpen&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeSoundPop();}},true);
+}
+function renderSoundIcons(){
+  const ic=AUDIO.music&&AUDIO.sfx?'🔊':AUDIO.music?'♪':AUDIO.sfx?'🔉':'🔇';
+  document.querySelectorAll('.q-sound').forEach(b=>{if(b.textContent!==ic)b.textContent=ic;b.classList.toggle('muted',!AUDIO.music&&!AUDIO.sfx);b.title=`Sonido: música ${AUDIO.music?'prendida':'apagada'}, efectos ${AUDIO.sfx?'prendidos':'apagados'}`;});
+  const mv=byId('sp-mv'),sv=byId('sp-sv');if(mv)mv.value=String(Math.round(AUDIO.mv*100));if(sv)sv.value=String(Math.round(AUDIO.sv*100));
+}
+
+/* Gráficos: Automático (se pone liviano solo si el equipo va lento), Normal o Liviano. */
+const GFXSET={mode:'auto',fps:false,autoLow:false};
+try{const o=JSON.parse(storageGet('bloques-gfx-v1')||'null');if(o){if(['auto','normal','liviano'].includes(o.mode))GFXSET.mode=o.mode;GFXSET.fps=!!o.fps;GFXSET.autoLow=!!o.autoLow;}
+  else if(navigator.deviceMemory&&navigator.deviceMemory<=2)GFXSET.autoLow=true;}catch(_){}
+function gfxSave(){storageSet('bloques-gfx-v1',JSON.stringify(GFXSET));}
+function gfxLow(){return GFXSET.mode==='liviano'||(GFXSET.mode==='auto'&&GFXSET.autoLow);}
+function gfxApply(){
+  const low=gfxLow(),changed=GFX.low!==low;GFX.low=low;app.classList.toggle('lowfx',low);
+  if(changed){SPR.clear();for(const g of [solo,cpu,...players])try{g.resize();}catch(_){}try{rival.resize();}catch(_){}try{audioLight(low);}catch(_){}}
+  byId('fps').hidden=!GFXSET.fps;renderGfx();
+}
+function renderGfx(){
+  document.querySelectorAll('[data-gfx]').forEach(b=>{const on=b.dataset.gfx===GFXSET.mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+  const n=byId('gfx-note');if(n)n.textContent=GFXSET.mode==='auto'?(GFXSET.autoLow?'Ahora: liviano. Lo activé porque el juego iba lento en este equipo.':'Ahora: normal. Si el juego va lento, se pone liviano solo.'):GFXSET.mode==='liviano'?'Menos resolución, sin partículas ni temblores y reverb más corta: anda mejor en celulares de gama baja.':'Calidad completa, con todos los efectos.';
+  const f=byId('gfx-fps');if(f)f.checked=GFXSET.fps;
+}
+const fm={last:0,n:0,slow:0,fpsT:0,frames:0};
+function gfxMonitor(t){
+  requestAnimationFrame(gfxMonitor);
+  const dt=t-(fm.last||t);fm.last=t;if(dt<=0||dt>250||document.hidden)return;
+  if(GFXSET.fps){fm.frames++;fm.fpsT+=dt;if(fm.fpsT>=500){byId('fps').textContent=Math.round(fm.frames*1000/fm.fpsT)+' fps';fm.frames=0;fm.fpsT=0;}}
+  if(GFXSET.mode!=='auto'||GFXSET.autoLow)return;
+  if(![solo,cpu,...players].some(g=>g.state.status==='playing'))return;
+  fm.n++;if(dt>28)fm.slow++;
+  if(fm.n>=300){
+    if(fm.slow/fm.n>.3){GFXSET.autoLow=true;gfxSave();gfxApply();solo.announce('Modo liviano activado\npara que ande más fluido');}
+    fm.n=0;fm.slow=0;
+  }
+}
+function setupGfx(){
+  document.querySelectorAll('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{GFXSET.mode=b.dataset.gfx;if(GFXSET.mode==='auto')GFXSET.autoLow=false;gfxSave();gfxApply();}));
+  byId('gfx-fps').addEventListener('change',e=>{GFXSET.fps=e.target.checked;gfxSave();gfxApply();});
+  gfxApply();requestAnimationFrame(gfxMonitor);
+}
+
+/* ───────── Tabla de posiciones compartida ─────────
+   Los récords se guardan en una planilla de Google del dueño del juego (ver tabla/Codigo.gs).
+   El juego sólo le pide la tabla y le manda récords; no hay cuentas ni servidores propios. */
+const LB_DEFAULT='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';// dirección «/exec» de la aplicación web de la planilla
+const LB_CLAVE='bloquear-2026';
+const LB_KINDS={marathon:'Maratón',ultra:'Ultra 2:00',sprint:'Sprint 40',daily:'Del día',dig:'Excavación'};
+const LB_TIME={sprint:true,dig:true};
+const LB={url:storageGet('bloques-lb-url-v1')||LB_DEFAULT,name:storageGet('bloques-lb-name-v1')||'',kind:'marathon',rules:null,cache:{}};
+function lbDev(){let d=storageGet('bloques-lb-dev-v1');if(!d){d=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>b.toString(16).padStart(2,'0')).join('');storageSet('bloques-lb-dev-v1',d);}return d;}
+function lbFirma(t){let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))>>>0;return h.toString(36);}
+function lbClean(n){return String(n||'').replace(/[\u0000-\u001f<>]/g,'').replace(/\s+/g,' ').trim().slice(0,16);}
+async function lbFetch(params,ms=15000){
+  if(!LB.url)throw new Error('La tabla todavía no está conectada.');
+  const u=new URL(LB.url);for(const [k,v] of Object.entries(params))u.searchParams.set(k,String(v));u.searchParams.set('_',Date.now());
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
+  try{
+    const r=await fetch(u.toString(),{cache:'no-store',signal:ctl.signal,redirect:'follow'});
+    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');return j;
+  }catch(e){
+    if(e.name==='AbortError')throw new Error('La planilla tardó demasiado en responder.');
+    if(e instanceof TypeError)throw new Error('Sin conexión con la planilla. ¿Hay internet?');
+    throw e;
+  }finally{clearTimeout(to);}
+}
+const lbVal=(k,x)=>LB_TIME[k]?fmtTime(x.s*1000):fmt(x.puntos);
+function lbListHtml(j,me,max=10){
+  if(!j.top.length)return '<li class="lb-empty">Todavía no hay récords. ¡Sé el primero!</li>';
+  const meL=(me||'').toLowerCase();let html=j.top.slice(0,max).map((x,i)=>`<li class="${x.nombre.toLowerCase()===meL?'me':''}${i<3?' p'+(i+1):''}"><i>${i+1}</i><b>${escHtml(x.nombre)}</b><em>${lbVal(j.modo,x)}</em></li>`).join('');
+  if(j.puesto>max){const x=j.top[j.puesto-1];if(x)html+=`<li class="lb-gap">…</li><li class="me"><i>${j.puesto}</i><b>${escHtml(x.nombre)}</b><em>${lbVal(j.modo,x)}</em></li>`;}
+  return html;
+}
+
+/* Al terminar una partida: «Nombre» y «Cargar». */
+let lbPending=null;
+function lbOffer(r,result){
+  lbPending=null;
+  if(!LB.url||session!=='solo'||!LB_KINDS[r.kind])return;
+  const st=solo.state,timed=LB_TIME[r.kind];
+  if(timed&&result!=='finish')return;
+  if(!timed&&st.score<=0)return;
+  const ms=Math.round(r.kind==='marathon'?Date.now()-r.t0Abs:soloTimer.elapsed);
+  lbPending={modo:r.kind,reglas:r.mode,puntos:st.score,lineas:st.lines,ms,dia:r.kind==='daily'?todayKey():'',sent:false};
+  const box=byId('overlay-extra'),div=document.createElement('div');div.className='lb-box';
+  div.innerHTML=`<div class="lb-head">🏆 TABLA · ${LB_KINDS[r.kind].toUpperCase()}${r.mode==='classic'?' · CLÁSICO':''}</div>
+    <div class="lb-form"><input id="lb-name" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="nickname" autocapitalize="words" enterkeyhint="send" value="${escHtml(LB.name)}"><button type="button" class="primary" id="lb-send">Cargar</button></div>
+    <p class="lb-msg" id="lb-msg" role="status" aria-live="polite">${timed?`Tu tiempo: <b>${fmtTime(ms)}</b>`:`Tus puntos: <b>${fmt(st.score)}</b>`}</p>
+    <ol class="lb-list" id="lb-list" hidden></ol>`;
+  box.appendChild(div);box.hidden=false;
+  byId('lb-send').onclick=lbSend;
+  byId('lb-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();lbSend();}});
+}
+async function lbSend(){
+  const P=lbPending,btn=byId('lb-send'),msg=byId('lb-msg'),inp=byId('lb-name');if(!P||!btn||P.sent)return;
+  const nombre=lbClean(inp.value);if(!nombre){msg.textContent='Poné tu nombre para cargar el récord.';inp.focus();return;}
+  LB.name=nombre;storageSet('bloques-lb-name-v1',nombre);
+  btn.disabled=true;btn.textContent='Cargando…';msg.textContent='Mandando tu récord a la tabla…';
+  try{
+    const j=await lbFetch({accion:'cargar',nombre,modo:P.modo,reglas:P.reglas,puntos:P.puntos,lineas:P.lineas,ms:P.ms,dia:P.dia,disp:lbDev(),v:'23',
+      firma:lbFirma([LB_CLAVE,nombre,P.modo,P.reglas,P.puntos,P.lineas,P.ms,P.dia].join('|'))});
+    P.sent=true;LB.cache[P.modo+':'+P.reglas]={j,t:Date.now()};
+    inp.closest('.lb-form').hidden=true;
+    const x=j.top[j.puesto-1],mine=x&&(LB_TIME[P.modo]?Math.abs(x.s*1000-P.ms)<150:x.puntos===P.puntos);
+    msg.innerHTML=j.puesto?`${j.puesto===1?'🥇 ¡Primero en la tabla!':`Quedaste <b>${j.puesto}º</b> de ${j.total}`}${mine?'':' (con tu mejor marca anterior)'}`:'Cargado.';
+    const ol=byId('lb-list');ol.innerHTML=lbListHtml(j,nombre);ol.hidden=false;
+    if(j.puesto===1)callout('¡PRIMERO EN LA TABLA!','medal');
+  }catch(e){
+    btn.disabled=false;btn.textContent='Reintentar';msg.textContent='No se pudo cargar: '+e.message;
+  }
+}
+
+/* Panel en Menú › Progreso. */
+function lbPanelHtml(){
+  if(!LB.rules)LB.rules=mode;
+  return `<h3>🏆 TABLA DE POSICIONES</h3>
+    ${LB.url?`<div class="lb-tabs">${Object.entries(LB_KINDS).map(([k,n])=>`<button type="button" class="look-chip${k===LB.kind?' active':''}" data-lbk="${k}">${n}</button>`).join('')}</div>
+    <div class="lb-tabs"><button type="button" class="look-chip${LB.rules==='modern'?' active':''}" data-lbr="modern">Moderno</button><button type="button" class="look-chip${LB.rules==='classic'?' active':''}" data-lbr="classic">Clásico</button><button type="button" class="pill lb-refresh" id="lb-refresh">↻ Actualizar</button></div>
+    <ol class="lb-list" id="lb-plist"><li class="lb-empty">Cargando…</li></ol>
+    <p class="hint" id="lb-pmsg"></p>`:`<p class="hint">Todavía no está conectada la planilla de la tabla.</p>`}
+    <details class="fine"><summary>Conectar la planilla (para el dueño del juego)</summary>
+      <p class="hint">Pegá la dirección de la aplicación web de tu planilla de Google (termina en <b>/exec</b>).</p>
+      <div class="row lb-url-row"><input id="lb-url" type="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec" value="${escHtml(LB.url===LB_DEFAULT?'':LB.url)}"><button type="button" class="pill" id="lb-url-save">Probar y guardar</button></div>
+      <p class="hint" id="lb-url-msg"></p>
+    </details>`;
+}
+function lbSetupPanel(){
+  const box=byId('lb-panel');if(!box)return;box.innerHTML=lbPanelHtml();
+  box.querySelectorAll('[data-lbk]').forEach(b=>b.onclick=()=>{LB.kind=b.dataset.lbk;lbSetupPanel();});
+  box.querySelectorAll('[data-lbr]').forEach(b=>b.onclick=()=>{LB.rules=b.dataset.lbr;lbSetupPanel();});
+  byId('lb-refresh')?.addEventListener('click',()=>lbLoadPanel(true));
+  byId('lb-url-save').onclick=async()=>{
+    const v=byId('lb-url').value.trim(),m=byId('lb-url-msg');
+    if(!v){LB.url=LB_DEFAULT;storageSet('bloques-lb-url-v1','');m.textContent=LB.url?'Volví a la planilla del juego.':'Listo, sin planilla.';lbSetupPanel();return;}
+    if(!/^https:\/\/script\.google(usercontent)?\.com\/.+/.test(v)){m.textContent='Esa dirección no parece de una planilla (tiene que empezar con https://script.google.com/).';return;}
+    m.textContent='Probando…';const old=LB.url;LB.url=v;
+    try{await lbFetch({});storageSet('bloques-lb-url-v1',v);LB.cache={};byId('overlay-lb').hidden=false;lbSetupPanel();byId('lb-url-msg').textContent='¡Conectada!';}
+    catch(e){LB.url=old;m.textContent='No respondió: '+e.message+' Revisá que esté publicada para «Cualquier usuario».';}
+  };
+  if(LB.url)lbLoadPanel(false);
+}
+async function lbLoadPanel(force){
+  const k=LB.kind,r=LB.rules,key=k+':'+r,list=byId('lb-plist'),msg=byId('lb-pmsg');if(!list)return;
+  const c=LB.cache[key];
+  if(c&&!force&&Date.now()-c.t<60000){list.innerHTML=lbListHtml(c.j,LB.name,20);msg.textContent=lbPanelNote(c.j);return;}
+  if(c)list.innerHTML=lbListHtml(c.j,LB.name,20);
+  msg.textContent='Actualizando…';
+  try{
+    const j=await lbFetch({accion:'tabla',modo:k,reglas:r,dia:k==='daily'?todayKey():'',nombre:LB.name});
+    LB.cache[key]={j,t:Date.now()};
+    if(LB.kind===k&&LB.rules===r&&byId('lb-plist')){byId('lb-plist').innerHTML=lbListHtml(j,LB.name,20);byId('lb-pmsg').textContent=lbPanelNote(j);}
+  }catch(e){if(byId('lb-pmsg'))byId('lb-pmsg').textContent='No se pudo actualizar: '+e.message;if(!c&&byId('lb-plist'))byId('lb-plist').innerHTML='';}
+}
+function lbPanelNote(j){
+  const who=LB.name?(j.puesto?`${LB.name}: ${j.puesto}º de ${j.total}.`:`${LB.name}: todavía sin récord acá.`):'Al terminar una partida podés cargar tu récord con tu nombre.';
+  return `${j.modo==='daily'?'Desafío de hoy. ':''}${who}`;
+}
+function lbOpenPanel(){openMenu();setMenuTab('progreso');setTimeout(()=>byId('lb-panel')?.scrollIntoView({block:'start'}),50);}
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
@@ -3242,7 +3517,7 @@ try{const a=JSON.parse(storageGet('bloques-audio-v1')||'null');
   if(a)for(const k of Object.keys(AUDIO_DEFAULT))if(typeof a[k]===typeof AUDIO_DEFAULT[k])AUDIO[k]=a[k];}catch(_){}
 AUDIO.mv=clamp(AUDIO.mv,0,1);AUDIO.sv=clamp(AUDIO.sv,0,1);AUDIO.sv16=true;
 if(!['auto','arcade','arcmix','arctech','nueva','original'].includes(AUDIO.style))AUDIO.style='auto';
-/* Automática: Original en los desafíos T-spin, Arcade Techno con 2 jugadores (en la misma pantalla o en línea),
+/* Automática: Original en los desafíos de giro, Arcade Techno con 2 jugadores (en la misma pantalla o en línea),
    Arcade en Clásico y Arcade → Techno en el resto. */
 function musicStyle(){
   if(AUDIO.style!=='auto')return AUDIO.style;
@@ -3252,6 +3527,14 @@ function musicStyle(){
     if(mode==='classic')return 'arcade';
   }catch(_){}
   return 'arcmix';
+}
+/* Modo liviano: cambia las reverbs por unas más cortas (lo que más procesador gasta del audio). */
+function audioLight(on){
+  const n=AU.nodes,ctx=AU.ctx;if(!n||!ctx||!AU.ir||AU.light===on)return;AU.light=on;
+  try{
+    const rc=ctx.createConvolver();rc.buffer=AU.ir(on?.7:2.1,3);n.rev.disconnect();n.rev.connect(rc);rc.connect(n.revOut);rc.connect(n.sfxRev);n.revConv.disconnect();n.revConv=rc;
+    const uc=ctx.createConvolver();uc.buffer=AU.ir(on?.6:1.4,2.2);n.rlp.disconnect();n.rlp.connect(uc);uc.connect(n.rhp);n.rumConv.disconnect();n.rumConv=uc;
+  }catch(_){}
 }
 function saveAudio(){storageSet('bloques-audio-v1',JSON.stringify(AUDIO));}
 
@@ -3291,13 +3574,16 @@ function auCtx(){
   const nb=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;AU.noise=nb;
   // Reverb y delay.
   const ir=(sec,decay)=>{const b=ctx.createBuffer(2,Math.round(ctx.sampleRate*sec),ctx.sampleRate);for(let c=0;c<2;c++){const x=b.getChannelData(c);for(let i=0;i<x.length;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/x.length,decay);}return b;};
-  n.rev=ctx.createConvolver();n.rev.buffer=ir(2.1,3);n.revOut=ctx.createGain();n.revOut.gain.value=.5;n.rev.connect(n.revOut).connect(n.music);
-  n.sfxRev=ctx.createGain();n.sfxRev.gain.value=.35;n.rev.connect(n.sfxRev).connect(n.sfx);
+  // La entrada de la reverb es fija; detrás va el convolver (más corto en modo liviano, que consume mucho menos).
+  AU.ir=ir;AU.light=GFX.low;
+  n.rev=ctx.createGain();n.revConv=ctx.createConvolver();n.revConv.buffer=ir(GFX.low?.7:2.1,3);n.rev.connect(n.revConv);
+  n.revOut=ctx.createGain();n.revOut.gain.value=.5;n.revConv.connect(n.revOut).connect(n.music);
+  n.sfxRev=ctx.createGain();n.sfxRev.gain.value=.35;n.revConv.connect(n.sfxRev).connect(n.sfx);
   n.dly=ctx.createDelay(2);n.dly.delayTime.value=.33;n.dlyFb=ctx.createGain();n.dlyFb.gain.value=.3;n.dlyLp=ctx.createBiquadFilter();n.dlyLp.type='lowpass';n.dlyLp.frequency.value=3200;
   n.dly.connect(n.dlyLp).connect(n.dlyFb).connect(n.dly);n.dlyOut=ctx.createGain();n.dlyOut.gain.value=.45;n.dlyLp.connect(n.dlyOut).connect(n.music);
   // Rumble: el bombo pasa por una reverb oscura y filtrada (el "retumbe" del techno de galpón).
   n.rumIn=ctx.createGain();const rlp=ctx.createBiquadFilter();rlp.type='lowpass';rlp.frequency.value=170;
-  n.rumConv=ctx.createConvolver();n.rumConv.buffer=ir(1.4,2.2);const rhp=ctx.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=38;
+  n.rumConv=ctx.createConvolver();n.rumConv.buffer=ir(GFX.low?.6:1.4,2.2);const rhp=ctx.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=38;n.rlp=rlp;n.rhp=rhp;
   n.rumOut=ctx.createGain();n.rumOut.gain.value=1.1;n.rumIn.connect(rlp).connect(n.rumConv).connect(rhp).connect(n.rumOut).connect(n.duck);
   // Voz ácida persistente (para que las ligaduras deslicen de verdad).
   n.acidOsc=ctx.createOscillator();n.acidOsc.type='sawtooth';n.acidF=ctx.createBiquadFilter();n.acidF.type='lowpass';n.acidF.Q.value=14;n.acidF.frequency.value=300;
@@ -4318,7 +4604,7 @@ function handleLock(index,result){
   let attack=attackFor(result);const cancelled=Math.min(attack,game.state.incoming.length);
   game.state.incoming.splice(0,cancelled);attack-=cancelled;
   if(attack&&rivalGame.state.status==='playing'){const hole=Math.floor(Math.random()*W);rivalGame.state.incoming.push(...Array(attack).fill(hole));game.state.sent+=attack;rivalGame.renderScore();}
-  if(cancelled||attack)game.announce((result.spin?'¡T-SPIN!':['','SINGLE','DOUBLE','TRIPLE','¡CUATRO!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
+  if(cancelled||attack)game.announce((result.spin?'¡GIRO T!':['','SIMPLE','DOBLE','TRIPLE','¡CUATRO!'][result.cleared])+(cancelled?`\nBLOQUEO ${cancelled}`:'')+(attack?`\nENVÍO ${attack}`:''));
   if(!result.cleared&&game.state.incoming.length)game.addGarbage(game.state.incoming.splice(0,8));
   game.renderScore();
 }
@@ -4543,7 +4829,7 @@ function refreshTop(){
     else if(TUT.active){title='TUTORIAL · CÓMO SE JUEGA';clock='';}
     else if(soloKind==='dig'){const n=digLeft();title=`EXCAVACIÓN · ${n?`QUEDAN ${n} ${n===1?'LÍNEA':'LÍNEAS'}`:'¡LIMPIO!'}`;clock=fmtTime(soloTimer.elapsed);}
     else if(soloKind==='fiesta'){const P=PARTY;title=P.phase==='turn'?`FIESTA · TURNO DE ${P.names[P.turn].toUpperCase()} · RONDA ${P.round}`:P.phase==='results'?`FIESTA · RONDA ${P.round} TERMINADA`:'MODO FIESTA';clock=P.phase==='turn'?timeLabel(P.dur-soloTimer.elapsed):'';}
-    else if(soloKind==='puzzle'){const p=PUZZLES[puzzleIdx],left=solo.state.queue.length+(solo.state.active?1:0)+(solo.state.hold?1:0);title=`T-SPIN ${puzzleIdx+1}/${PUZZLES.length} · ${p.name.toUpperCase()}`;clock=`${left} ${left===1?'PIEZA':'PIEZAS'}`;}
+    else if(soloKind==='puzzle'){const p=PUZZLES[puzzleIdx],left=solo.state.queue.length+(solo.state.active?1:0)+(solo.state.hold?1:0);title=`DESAFÍO ${puzzleIdx+1}/${PUZZLES.length} · ${p.name.toUpperCase()}`;clock=`${left} ${left===1?'PIEZA':'PIEZAS'}`;}
     else{title=`ULTRA · ${fmt(solo.state.score)} PUNTOS`;clock=timeLabel(ULTRA_MS-soloTimer.elapsed);}
   }else if(session==='cpu'){
     byId('net-badge').hidden=true;const L=CPU_LEVELS[cpuLevel].name;
@@ -4597,7 +4883,7 @@ function renderMenu(){
   document.querySelectorAll('[data-session]').forEach(b=>{const on=b.dataset.session===session;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   const locked=session==='online'&&(net.role==='guest'&&net.hello||['countdown','playing','paused','finishing'].includes(net.m.phase));
   document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=locked;});
-  byId('rules-note').textContent=mode==='classic'?'Clásico, inspirado en NES (no es una réplica exacta): sin reserva, sin pieza fantasma ni caída instantánea, rotación simple y una pieza siguiente. La pieza queda fija en cuanto se apoya.':'Moderno: reserva, pieza fantasma, rotación SRS con ajustes en paredes, caída instantánea, combos y 5 siguientes. Desde el nivel 20 la caída es inmediata, con 0,47 s para acomodar la pieza.';
+  byId('rules-note').textContent=mode==='classic'?'Clásico, al estilo de los 80: sin reserva ni sombra de caída; la pieza se fija apenas se apoya.':'Moderno: con reserva, sombra de caída, caída instantánea y 5 siguientes.';
   const online=session==='online';
   byId('online-panel').hidden=!online;byId('online-kind-row').hidden=!online;
   byId('online-kind').value=net.m.kind;byId('online-kind').disabled=locked;
@@ -4609,7 +4895,7 @@ function renderMenu(){
   byId('solo-kind-row').hidden=session!=='solo';byId('cpu-level-row').hidden=session!=='cpu';
   document.querySelectorAll('[data-solokind]').forEach(b=>{const on=b.dataset.solokind===soloKind;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   document.querySelectorAll('[data-cpulevel]').forEach(b=>{const on=b.dataset.cpulevel===cpuLevel;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=session==='cpu'&&['countdown','playing','paused'].includes(cpuM.phase);});
-  const kn=byId('solo-kind-note');kn.hidden=session!=='solo';kn.textContent=soloKind==='sprint'?'Sprint: 40 líneas contra reloj. Gana el tiempo más bajo.':soloKind==='ultra'?'Ultra: 2 minutos para sumar todos los puntos que puedas.':soloKind==='dig'?'Excavación: el tablero arranca con 10 líneas de basura. Limpialas lo más rápido que puedas.':soloKind==='fiesta'?'Modo fiesta: se pasan el celular por turnos y todos juegan con las mismas piezas. No suma a tu progreso.':soloKind==='daily'?'Desafío del día: 2 minutos con las mismas piezas para todos. Cambia cada día.':soloKind==='puzzle'?`Desafíos T-spin: tableros armados con pocas piezas, sin gravedad. Llevás ${puzzleSolvedCount()}/${PUZZLES.length}. Elegí cuál en Progreso.`:'Maratón: la velocidad sube cada 10 líneas hasta que se llene el tablero.';
+  const kn=byId('solo-kind-note');kn.hidden=session!=='solo';kn.textContent=soloKind==='sprint'?'Sprint: 40 líneas contra reloj. Gana el tiempo más bajo.':soloKind==='ultra'?'Ultra: 2 minutos para sumar todos los puntos que puedas.':soloKind==='dig'?'Excavación: el tablero arranca con 10 líneas de basura. Limpialas lo más rápido que puedas.':soloKind==='fiesta'?'Modo fiesta: se pasan el celular por turnos y todos juegan con las mismas piezas. No suma a tu progreso.':soloKind==='daily'?'Desafío del día: 2 minutos con las mismas piezas para todos. Cambia cada día.':soloKind==='puzzle'?`Desafíos de giro: tableros armados con pocas piezas, sin gravedad. Llevás ${puzzleSolvedCount()}/${PUZZLES.length}. Elegí cuál en Progreso.`:'Maratón: la velocidad sube cada 10 líneas hasta que se llene el tablero.';
   const play=byId('menu-play');
   const pausedNow=(session==='solo'&&solo.state.status==='paused')||(session==='cpu'&&cpuM.phase==='paused')||((session==='local'||session==='versus')&&match.phase==='paused');
   play.textContent=online?(net.hello?'JUGAR':'VOLVER AL JUEGO'):pausedNow?'CONTINUAR':'JUGAR';
@@ -4988,7 +5274,8 @@ function renderAudio(){
   document.querySelectorAll('.q-sfx').forEach(b=>{b.classList.toggle('off',!AUDIO.sfx);b.setAttribute('aria-pressed',String(AUDIO.sfx));b.title=AUDIO.sfx?'Apagar efectos':'Prender efectos';});
   document.querySelectorAll('[data-mstyle]').forEach(b=>{const on=b.dataset.mstyle===AUDIO.style;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   {const N={arcade:'Arcade',arcmix:'Arcade → Techno',arctech:'Arcade Techno',nueva:'Techno oscuro',original:'Original'};const n=byId('au-style-note');
-   if(n)n.textContent=AUDIO.style==='auto'?`Automática: Arcade → Techno en Solo y contra la compu, Arcade Techno con 2 jugadores (misma pantalla o en línea), Arcade en Clásico y Original en los desafíos T-spin. Ahora: ${N[musicStyle()]}.`:`Siempre ${N[AUDIO.style]}, en todos los modos.`;}
+   if(n)n.textContent=AUDIO.style==='auto'?`Automática elige según el modo: Arcade → Techno en Solo, Arcade Techno con 2 jugadores, Arcade en Clásico y Original en Giros. Ahora suena: ${N[musicStyle()]}.`:`Siempre ${N[AUDIO.style]}, en todos los modos.`;}
+  renderSoundIcons();
   byId('au-music').checked=AUDIO.music;byId('au-sfx').checked=AUDIO.sfx;byId('au-quant').checked=AUDIO.quant;
   byId('au-mv').value=String(Math.round(AUDIO.mv*100));byId('au-sv').value=String(Math.round(AUDIO.sv*100));
   byId('au-mv-out').textContent=Math.round(AUDIO.mv*100)+'%';byId('au-sv-out').textContent=Math.round(AUDIO.sv*100)+'%';
@@ -5159,7 +5446,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
@@ -5214,7 +5501,7 @@ if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
     INST:{kick,hat,clap,tom,ride,bass,bassV,lead,stab,pad,pluck,crash,riser,boom,metal,shaker,snare,noiseHit,rave},PROGS,newPhrase,AU,AUDIO,musicStyle,STYLE_POOL,buildSet,curSt,musicStart,musicStop,musicUpdate,musicReset,audioEvent,auCtx,beatPulse,setStageNow,__tick:(t,dt)=>cpuTick(t,dt),cpu,cpuM,bot,botChoose,cpuStats,setCpuLevel,cpuStart,soloTimer,setSoloKind,getSoloKind:()=>soloKind,FEEL,applyFeel,setPadVisible,nearestPadButton,padHidden,touchLayouts,fromTemplate,openEditor,closeEditor,orientation,renderPad,currentLayout,saveLayouts,editing:()=>editing,
-    askRestart,confirmResetOn:()=>confirmReset,PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
+    askRestart,confirmResetOn:()=>confirmReset,openSoundPop,closeSoundPop,GFXSET,GFX,gfxApply,SPR,LB,lbOffer,lbSend,lbOpenPanel,lbFetch,PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
 }
 })();
 </script>
