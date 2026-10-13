@@ -507,7 +507,8 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 
     <div class="block" data-tab="sonido"><h3>SONIDO</h3>
       <label class="check"><input type="checkbox" id="au-music"> Música que sigue tu partida</label>
-      <div class="field-row"><label>ESTILO</label><div class="seg seg-wrap" role="group" aria-label="Estilo de música"><button type="button" data-mstyle="arcade">Arcade · de juego</button><button type="button" data-mstyle="arcmix">Arcade → Techno</button><button type="button" data-mstyle="arctech">Arcade Techno</button><button type="button" data-mstyle="nueva">Techno oscuro</button><button type="button" data-mstyle="original">Original</button></div></div>
+      <div class="field-row"><label>ESTILO</label><div class="seg seg-wrap" role="group" aria-label="Estilo de música"><button type="button" data-mstyle="auto">Automática</button><button type="button" data-mstyle="arcade">Arcade · de juego</button><button type="button" data-mstyle="arcmix">Arcade → Techno</button><button type="button" data-mstyle="arctech">Arcade Techno</button><button type="button" data-mstyle="nueva">Techno oscuro</button><button type="button" data-mstyle="original">Original</button></div></div>
+      <p class="hint" id="au-style-note"></p>
       <label class="check"><input type="checkbox" id="au-sfx"> Efectos de juego (notas al mover, rotar y borrar líneas)</label>
       <div class="feel">
         <label for="au-mv">Volumen de la música <output id="au-mv-out"></output></label><input type="range" id="au-mv" min="0" max="100" step="5">
@@ -2983,14 +2984,26 @@ function setupInstall(){
    Cada etapa tiene su tonalidad, tempo, patrones y capas. La energía sube con el nivel y con tus jugadas;
    el peligro (tablero alto) filtra y tensa la música; Tetris, combos y rachas disparan tramos eufóricos.
    Los sonidos del juego son notas de la escala que caen en la grilla de semicorcheas del tema. */
-const AUDIO_DEFAULT={music:true,sfx:true,mv:.8,sv:.8,quant:true,style:'arcade',sv14:true};
+const AUDIO_DEFAULT={music:true,sfx:true,mv:.8,sv:.8,quant:true,style:'auto',sv16:true};
 const AUDIO={...AUDIO_DEFAULT};
 try{const a=JSON.parse(storageGet('bloques-audio-v1')||'null');
   // v12: 'Nueva' (dura y oscura) pasa a ser la predeterminada.
-  if(a&&!a.sv14)a.style='arcade';
+  // v16: la predeterminada pasa a ser «Automática» (elige según el modo de juego).
+  if(a&&!a.sv16)a.style='auto';
   if(a)for(const k of Object.keys(AUDIO_DEFAULT))if(typeof a[k]===typeof AUDIO_DEFAULT[k])AUDIO[k]=a[k];}catch(_){}
-AUDIO.mv=clamp(AUDIO.mv,0,1);AUDIO.sv=clamp(AUDIO.sv,0,1);AUDIO.sv14=true;
-if(!['arcade','arcmix','arctech','nueva','original'].includes(AUDIO.style))AUDIO.style='arcade';
+AUDIO.mv=clamp(AUDIO.mv,0,1);AUDIO.sv=clamp(AUDIO.sv,0,1);AUDIO.sv16=true;
+if(!['auto','arcade','arcmix','arctech','nueva','original'].includes(AUDIO.style))AUDIO.style='auto';
+/* Automática: Original en los desafíos T-spin, Arcade Techno con 2 jugadores (en la misma pantalla o en línea),
+   Arcade en Clásico y Arcade → Techno en el resto. */
+function musicStyle(){
+  if(AUDIO.style!=='auto')return AUDIO.style;
+  try{
+    if(session==='solo'&&soloKind==='puzzle')return 'original';
+    if(['local','versus','online'].includes(session))return 'arctech';
+    if(mode==='classic')return 'arcade';
+  }catch(_){}
+  return 'arcmix';
+}
 function saveAudio(){storageSet('bloques-audio-v1',JSON.stringify(AUDIO));}
 
 const SCALE=[0,2,3,5,7,8,10];// menor natural
@@ -3267,12 +3280,12 @@ const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floo
 const TIERS=[['galpon'],['acidc','tunel','hyperspace'],['trance','hipnotico','hyperspace','hardtrance'],['hardtrance','rave','schranz'],['peak','maquinal']];
 const TIERS_DURO=[['hipnotico','hyperspace'],['hyperspace','hipnotico','hardtrance'],['hardtrance','rave','schranz'],['schranz','rave','hardtrance'],['peak','maquinal']];
 function buildSet(){
-  const style=AUDIO.style||'original';
+  const style=musicStyle();
   // Original: la primera música, tal como sonaba (bombo, bajo rodante y retumbe; las otras capas nunca llegaban a sonar).
   if(style==='arcade')return {id:'ARCADE',style,arc:true,stages:[]};
   if(style==='arctech')return {id:'ARCADE TECHNO',style,dark:true,at:true,stages:[]};
   if(style==='arcmix')return {id:'ARCADE A TECHNO',style,mix:true,stages:[]};
-  if(style!=='nueva')return {id:'ORIGINAL',legacy:true,v7:true,stages:CLASSIC_SET.map(s=>({...s}))};
+  if(style!=='nueva')return {id:'ORIGINAL',style:'original',legacy:true,v7:true,stages:CLASSIC_SET.map(s=>({...s}))};
   return {id:String(1000+Math.floor(Math.random()*9000)),style,dark:true,stages:[]};
 }
 /* Nueva: arranca igual que la original y con los niveles (AU.M de 0 a 1) se vuelve techno duro y oscuro:
@@ -3937,6 +3950,7 @@ function playStep(step,t){
 function musicStart(){
   if(!AUDIO.music)return;const ctx=auCtx();if(!ctx)return;if(ctx.state!=='running')ctx.resume().catch(()=>{});
   if(AU.running)return;
+  if(AU.set&&AU.set.style!==musicStyle())musicReset();
   AU.running=true;AU.step=0;AU.bar=0;AU.lastPlay=0;AU.nextTime=ctx.currentTime+.08;AU.gridT0=AU.nextTime;
   if(!AU.pats){AU.set=buildSet();AU.M=0;AU.lpBase=18000;AU.stage=0;AU.stageCycle=0;setStageNow(0);AU.bpm=AU.targetBpm;AU.announce=true;}
   const g=AU.nodes.music.gain;g.cancelScheduledValues(ctx.currentTime);g.setValueAtTime(0,ctx.currentTime);g.linearRampToValueAtTime(AUDIO.mv*.62,ctx.currentTime+.25);
@@ -4695,6 +4709,8 @@ function renderAudio(){
   document.querySelectorAll('.q-music').forEach(b=>{b.classList.toggle('off',!AUDIO.music);b.setAttribute('aria-pressed',String(AUDIO.music));b.title=AUDIO.music?'Apagar música':'Prender música';});
   document.querySelectorAll('.q-sfx').forEach(b=>{b.classList.toggle('off',!AUDIO.sfx);b.setAttribute('aria-pressed',String(AUDIO.sfx));b.title=AUDIO.sfx?'Apagar efectos':'Prender efectos';});
   document.querySelectorAll('[data-mstyle]').forEach(b=>{const on=b.dataset.mstyle===AUDIO.style;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+  {const N={arcade:'Arcade',arcmix:'Arcade → Techno',arctech:'Arcade Techno',nueva:'Techno oscuro',original:'Original'};const n=byId('au-style-note');
+   if(n)n.textContent=AUDIO.style==='auto'?`Automática: Arcade → Techno en Solo y contra la compu, Arcade Techno con 2 jugadores (misma pantalla o en línea), Arcade en Clásico y Original en los desafíos T-spin. Ahora: ${N[musicStyle()]}.`:`Siempre ${N[AUDIO.style]}, en todos los modos.`;}
   byId('au-music').checked=AUDIO.music;byId('au-sfx').checked=AUDIO.sfx;byId('au-quant').checked=AUDIO.quant;
   byId('au-mv').value=String(Math.round(AUDIO.mv*100));byId('au-sv').value=String(Math.round(AUDIO.sv*100));
   byId('au-mv-out').textContent=Math.round(AUDIO.mv*100)+'%';byId('au-sv-out').textContent=Math.round(AUDIO.sv*100)+'%';
@@ -4917,7 +4933,7 @@ if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
     changeSession,changeMode,primaryAction,pauseOrResume,autoPause,restart,startMatch,finishMatch,pauseMatch,resumeMatch,advanceMatch,
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
-    INST:{kick,hat,clap,tom,ride,bass,bassV,lead,stab,pad,pluck,crash,riser,boom,metal,shaker,snare,noiseHit,rave},PROGS,newPhrase,AU,AUDIO,STYLE_POOL,buildSet,curSt,musicStart,musicStop,musicUpdate,musicReset,audioEvent,auCtx,beatPulse,setStageNow,__tick:(t,dt)=>cpuTick(t,dt),cpu,cpuM,bot,botChoose,cpuStats,setCpuLevel,cpuStart,soloTimer,setSoloKind,getSoloKind:()=>soloKind,FEEL,applyFeel,setPadVisible,nearestPadButton,padHidden,touchLayouts,fromTemplate,openEditor,closeEditor,orientation,renderPad,currentLayout,saveLayouts,editing:()=>editing,
+    INST:{kick,hat,clap,tom,ride,bass,bassV,lead,stab,pad,pluck,crash,riser,boom,metal,shaker,snare,noiseHit,rave},PROGS,newPhrase,AU,AUDIO,musicStyle,STYLE_POOL,buildSet,curSt,musicStart,musicStop,musicUpdate,musicReset,audioEvent,auCtx,beatPulse,setStageNow,__tick:(t,dt)=>cpuTick(t,dt),cpu,cpuM,bot,botChoose,cpuStats,setCpuLevel,cpuStart,soloTimer,setSoloKind,getSoloKind:()=>soloKind,FEEL,applyFeel,setPadVisible,nearestPadButton,padHidden,touchLayouts,fromTemplate,openEditor,closeEditor,orientation,renderPad,currentLayout,saveLayouts,editing:()=>editing,
     PRG,PUZZLES,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
 }
 })();
