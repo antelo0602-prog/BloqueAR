@@ -329,6 +329,26 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
 .lb-champs div{display:flex;flex-direction:column;gap:1px}.lb-champs b{color:#ffd166}.lb-champs span b{color:#fff}
 .lb-sep{width:6px}.lb-liga-chip{border-color:#6b5a2a}
 .lb-list li em small{font-size:11px;color:#ffd166;margin-left:4px}
+.av{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--avc) 30%,#0c131e);border:1.5px solid var(--avc);font-size:13px;line-height:1}
+.av.big{width:46px;height:46px;font-size:24px;border-width:2px}
+.acct-panel{margin-bottom:6px}.acct-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);background:#111a27;border-radius:14px}
+.acct-card div{display:flex;flex-direction:column;gap:2px}.acct-card b{font-size:16px}.acct-card span{font-size:12px;color:var(--dim)}
+.acct-row{margin-top:8px;align-items:center}.acct-row .linkish{margin-left:auto}
+.acct-form{display:flex;flex-wrap:wrap;gap:6px}.acct-form input{flex:1 1 140px;min-width:0;min-height:44px;border-radius:10px;border:1px solid var(--line);background:#0c131e;color:var(--text);padding:0 12px;font-size:16px}
+.acct-form .primary{min-height:44px;padding:0 18px}.acct-err{color:#ffd166}
+.acct-picker{margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:12px;background:#0c131e}
+.av-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}.av-pick{min-height:40px;border-radius:10px;border:1px solid transparent;background:#111a27;font-size:20px}
+.av-pick.on{border-color:#7ce9e5;background:#1f3242}
+.av-colors{display:flex;gap:8px;margin-top:8px;justify-content:center}.av-col{width:30px;height:30px;border-radius:50%;background:var(--avc);border:2px solid transparent}.av-col.on{border-color:#fff}
+.lb-list li .av{margin-left:-2px}
+.lb-ch{border:1px solid #6b5a2a;background:#2a2410;border-radius:8px;min-width:32px;min-height:30px;font-size:14px;margin-left:2px}
+.lb-need{margin:0;font-size:13px;color:#e8dcc0}.lb-pinwarn{margin:0;font-size:11.5px;color:#a89a76}
+.lb-form input{flex:1 1 100px}.lb-send{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px}
+.ch-vs{display:flex;align-items:center;justify-content:center;gap:14px;margin:4px 0 8px;font-size:22px}
+.ch-box{width:min(100%,340px);margin:8px auto 4px;padding:10px;border:1px solid #8a4a4a;background:#221212;border-radius:14px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.ch-box.won{border-color:#2bd67b;background:#0f2418}.ch-box p{margin:0;font-size:13.5px;color:#f0e2e2}.ch-box.won p{color:#d6f5e2}
+.ch-head{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:900;letter-spacing:.12em;color:#ff9a8a}.ch-box.won .ch-head{color:#7dffb3}
+.ch-note{font-size:12px!important;opacity:.8}.ch-box .linkish{align-self:flex-start;margin:0;padding:2px 0}
 .lb-box{width:min(100%,340px);margin:8px auto 4px;padding:10px;border:1px solid #6b5a2a;background:#1d1a10;border-radius:14px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .lb-head{font-size:11px;font-weight:900;letter-spacing:.12em;color:#ffd166}
 .lb-form{display:flex;gap:6px}.lb-form input,.lb-url-row input{flex:1;min-width:0;min-height:42px;border-radius:10px;border:1px solid var(--line);background:#0c131e;color:var(--text);padding:0 12px;font-size:16px}
@@ -2604,7 +2624,7 @@ function soloRecordText(m){
 }
 function setSoloKind(k){
   if(!Object.hasOwn(SOLO_KINDS,k)||k===soloKind)return;
-  tutStop();soloKind=k;storageSet('bloques-solokind-v1',k);soloTimer.elapsed=0;
+  tutStop();if(CH.active&&k!==CH.modo)CH.active=false;soloKind=k;storageSet('bloques-solokind-v1',k);soloTimer.elapsed=0;
   if(k==='puzzle'&&mode==='classic'){changeMode('modern');solo.announce('Los desafíos usan reglas modernas');}
   if(session==='solo'){solo.reset(false);soloReadyOverlay();}
   renderMenu();refreshTop();fitArena(true);
@@ -2858,6 +2878,7 @@ function loadLook(){
 function lookChanged(){
   applyPalette();storageSet('bloques-look-v1',JSON.stringify(LOOK));
   for(const g of [solo,cpu,...players])if(g?.state){g.state.dirty=true;}
+  try{acctPush();}catch(_){}
 }
 /* Medallas: unas por total acumulado y otras por lo mejor que hiciste en una partida. */
 const MEDALS=[
@@ -2905,7 +2926,13 @@ function prepSoloSeed(){
   const tut=session==='solo'&&TUT.active,puzzle=!tut&&session==='solo'&&soloKind==='puzzle';
   solo.setPuzzle(tut?tutBoard():puzzle?PUZZLES[puzzleIdx]:null);pz.spins=0;pz.state=puzzle?'ready':'idle';
   if(session!=='solo')return;
-  if(!tut&&soloKind==='daily')solo.setSeed(dailySeed());else if(!tut&&soloKind==='fiesta')solo.setSeed(PARTY.seed);else solo.clearSeed();
+  // Cada partida tiene su semilla (se guarda con el récord): así otro puede jugar con las mismas piezas en un reto.
+  if(!tut&&soloKind==='daily'){soloSeed=dailySeed();solo.setSeed(soloSeed);}
+  else if(!tut&&soloKind==='fiesta')solo.setSeed(PARTY.seed);
+  else if(!tut&&['marathon','sprint','ultra','dig'].includes(soloKind)){
+    if(CH.active&&(CH.modo!==soloKind||CH.reglas!==mode))CH.active=false;
+    soloSeed=CH.active?CH.x.semilla>>>0:(crypto.getRandomValues(new Uint32Array(1))[0]||1);solo.setSeed(soloSeed);
+  }else solo.clearSeed();
 }
 
 /* Seguimiento de la partida en curso. */
@@ -2916,6 +2943,7 @@ function runStart(){
 }
 function recTarget(){
   if(!RUN||session!=='solo')return 0;
+  if(CH.active&&CH.modo===soloKind&&!LB_TIME[CH.modo])return CH.x.puntos;
   if(soloKind==='marathon')return settings.records[mode]||0;
   if(soloKind==='ultra')return settings.ultraRecords[mode]||0;
   if(soloKind==='daily')return dailyRec().best||0;
@@ -3008,6 +3036,8 @@ function progressEnd(result){
   saveProg();
   showSummary({xp,before,after,delta,lines,won});
   try{lbOffer(r,result);}catch(_){}
+  try{chResult(r,result);}catch(_){}
+  acctPush();
   if(PRG.games>=1)setTimeout(maybeA2hs,1500);
   return {xp,before,after};
 }
@@ -3034,7 +3064,8 @@ function renderOverlayLevel(){
 function renderProgress(){
   const box=byId('prog-panel');if(!box)return;
   const L=levelInfo(PRG.xp),got=MEDALS.filter(m=>PRG.medals[m.id]).length,dr=dailyRec();
-  box.innerHTML=`<div class="lb-panel" id="lb-panel"></div>
+  box.innerHTML=`<div class="acct-panel" id="acct-panel"></div>
+    <div class="lb-panel" id="lb-panel"></div>
     <h3>TU PROGRESO</h3>
     <div class="prog-level"><div class="prog-lv">${L.lv}</div><div class="prog-lv-txt"><b>Nivel ${L.lv}</b><div class="xpbar"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></div><span>${fmt(L.into)} / ${fmt(L.need)} XP</span></div></div>
     <div class="prog-stats"><span><b>${fmt(PRG.games)}</b>partidas</span><span><b>${fmt(PRG.lines)}</b>líneas</span><span><b>${fmt(PRG.tetris)}</b>cuádruples</span><span><b>${got}/${MEDALS.length}</b>medallas</span></div>
@@ -3058,7 +3089,7 @@ function renderProgress(){
   box.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{const [cat,id]=b.dataset.look.split(':');LOOK[cat]=id;lookChanged();renderProgress();});
   byId('look-cb').onchange=e=>{LOOK.cb=e.target.checked;lookChanged();};
   box.querySelectorAll('[data-pz]').forEach(b=>b.onclick=()=>{setPuzzleIdx(Number(b.dataset.pz));if(session!=='solo')changeSession('solo');if(soloKind!=='puzzle')setSoloKind('puzzle');closeMenu();solo.reset(true);refreshTop();});
-  renderHist();lbSetupPanel();
+  renderHist();setupAcctPanel();lbSetupPanel();
   byId('prog-daily-go').onclick=()=>{if(session!=='solo')changeSession('solo');setSoloKind('daily');closeMenu();primaryAction();};
   byId('prog-copy').onclick=async()=>{byId('prog-msg').textContent=(await copyText(progressCode()))?'Código copiado.':'No se pudo copiar.';};
   byId('prog-load').onclick=()=>{const ok=loadProgressCode(byId('prog-code').value);byId('prog-msg').textContent=ok?'Listo: se sumó el progreso del código.':'Ese código no es válido.';if(ok)renderProgress();};
@@ -3160,8 +3191,9 @@ const escHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
    Gana el tiempo más bajo en limpiarlas todas. */
 const DIG_ROWS=10;
 function digFill(){
-  const s=solo.state;let prev=-1;
-  for(let i=0;i<DIG_ROWS;i++){let h;do{h=Math.floor(Math.random()*W);}while(h===prev);prev=h;
+  // Los huecos salen de la semilla de la partida: en un reto, la basura es la misma.
+  const s=solo.state,rnd=seededRng((soloSeed^0x5bd1e995)>>>0);let prev=-1;
+  for(let i=0;i<DIG_ROWS;i++){let h;do{h=Math.floor(rnd()*W);}while(h===prev);prev=h;
     const y=H-DIG_ROWS+i;for(let x=0;x<W;x++)s.grid[y][x]=x===h?null:'G';}
   s.dirty=true;solo.draw();
 }
@@ -3409,7 +3441,7 @@ const LB_KINDS={marathon:'Maratón',ultra:'Ultra 2:00',sprint:'Sprint 40',daily:
 const LB_TIME={sprint:true,dig:true};
 const LB_PER={dia:'Hoy',semana:'Semana',mes:'Mes',siempre:'Siempre'};
 const LB_PER_TXT={dia:'hoy',semana:'esta semana',mes:'este mes',siempre:'de siempre'};
-const LB={url:storageGet('bloques-lb-url-v1')||LB_DEFAULT,name:storageGet('bloques-lb-name-v1')||'',kind:'marathon',rules:null,per:'semana',view:'tabla',ligaMes:'actual',cache:{},res:null,old:false};
+const LB={url:storageGet('bloques-lb-url-v1')||LB_DEFAULT,name:'',kind:'marathon',rules:null,per:'semana',view:'tabla',ligaMes:'actual',cache:{},res:null,old:false};
 function lbDev(){let d=storageGet('bloques-lb-dev-v1');if(!d){d=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>b.toString(16).padStart(2,'0')).join('');storageSet('bloques-lb-dev-v1',d);}return d;}
 function lbFirma(t){let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))>>>0;return h.toString(36);}
 function lbClean(n){return String(n||'').replace(/[\u0000-\u001f<>]/g,'').replace(/\s+/g,' ').trim().slice(0,16);}
@@ -3419,28 +3451,39 @@ function lbStreak(){
   let d=day(todayKey());if(!set.has(key(d)))d.setDate(d.getDate()-1);
   let n=0;while(set.has(key(d))&&n<3650){n++;d.setDate(d.getDate()-1);}return n;
 }
-async function lbFetch(params,ms=15000){
+// Lecturas por GET; lo que escribe (cuentas, récords, retos) por POST «text/plain» (Google no acepta otro tipo sin permiso previo).
+async function lbFetch(params,ms=15000,post=false){
   if(!LB.url)throw new Error('La tabla todavía no está conectada.');
-  const u=new URL(LB.url);for(const [k,v] of Object.entries(params))u.searchParams.set(k,String(v));u.searchParams.set('_',Date.now());
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
   try{
-    const r=await fetch(u.toString(),{cache:'no-store',signal:ctl.signal,redirect:'follow'});
-    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');
-    LB.old=!j.version;return j;
+    let r;
+    if(post)r=await fetch(LB.url,{method:'POST',body:JSON.stringify(params),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
+    else{const u=new URL(LB.url);for(const [k,v] of Object.entries(params))u.searchParams.set(k,String(v));u.searchParams.set('_',Date.now());r=await fetch(u.toString(),{cache:'no-store',signal:ctl.signal,redirect:'follow'});}
+    const j=await r.json();
+    if(!j||!j.ok){const m=j&&j.error||'La planilla respondió con un error.';if(/sesión venció/.test(m))acctLogout(true);throw new Error(m);}
+    LB.old=!j.version;LB.v=j.version||1;return j;
   }catch(e){
     if(e.name==='AbortError')throw new Error('La planilla tardó demasiado en responder.');
+    if(e instanceof SyntaxError)throw new Error('La planilla tiene el código viejo: hay que actualizarlo (versión 3).');
     if(e instanceof TypeError)throw new Error('Sin conexión con la planilla. ¿Hay internet?');
     throw e;
   }finally{clearTimeout(to);}
 }
+const lbPost=(params,ms)=>lbFetch(params,ms,true);
 const lbVal=(k,x)=>LB_TIME[k]?fmtTime(x.s*1000):fmt(x.puntos);
 const lbFire=x=>x.racha>=2?`<span class="lb-fire" title="${x.racha} días seguidos jugando">🔥${x.racha}</span>`:'';
-function lbRow(x,i,meL,val){return `<li class="${x.nombre.toLowerCase()===meL?'me':''}${i<3?' p'+(i+1):''}"><i>${i+1}</i><b>${escHtml(x.nombre)}${lbFire(x)}</b><em>${val(x)}</em></li>`;}
+// Retos: cada fila (de otro, con semilla) lleva un ⚔️ que juega con las mismas piezas que ese récord.
+const LB_CH={};let lbChN=0;
+function lbRow(x,i,meL,val,j,liga){
+  const mine=x.nombre.toLowerCase()===meL,can=!liga&&!mine&&x.semilla&&j&&j.modo!=='daily';
+  let ch='';if(can){const id='c'+(++lbChN);LB_CH[id]={x,modo:j.modo,reglas:j.reglas};ch=`<button type="button" class="lb-ch" data-ch="${id}" title="Retar a ${escHtml(x.nombre)} con las mismas piezas" aria-label="Retar a ${escHtml(x.nombre)}">⚔️</button>`;}
+  return `<li class="${mine?'me':''}${i<3?' p'+(i+1):''}"><i>${i+1}</i>${x.avatar?avHtml(x.avatar,x.color):''}<b>${escHtml(x.nombre)}${lbFire(x)}</b><em>${val(x)}</em>${ch}</li>`;
+}
 function lbListHtml(j,me,max=10,liga=false){
   if(!j.top.length)return `<li class="lb-empty">${liga?'Todavía nadie sumó puntos este mes.':'Todavía no hay récords. ¡Sé el primero!'}</li>`;
   const meL=(me||'').toLowerCase(),val=liga?(x=>`${x.puntos} pts${x.oros?` <small>🥇×${x.oros}</small>`:''}`):(x=>lbVal(j.modo,x));
-  let html=j.top.slice(0,max).map((x,i)=>lbRow(x,i,meL,val)).join('');
-  if(j.puesto>max){const x=j.top[j.puesto-1];if(x)html+=`<li class="lb-gap">…</li>`+lbRow(x,j.puesto-1,meL,val);}
+  let html=j.top.slice(0,max).map((x,i)=>lbRow(x,i,meL,val,j,liga)).join('');
+  if(j.puesto>max){const x=j.top[j.puesto-1];if(x)html+=`<li class="lb-gap">…</li>`+lbRow(x,j.puesto-1,meL,val,j,liga);}
   return html;
 }
 function lbKnown(){try{return JSON.parse(storageGet('bloques-lb-known-v1')||'null')||{};}catch(_){return {};}}
@@ -3455,28 +3498,42 @@ function lbOffer(r,result){
   if(timed&&result!=='finish')return;
   if(!timed&&st.score<=0)return;
   const ms=Math.round(r.kind==='marathon'?Date.now()-r.t0Abs:soloTimer.elapsed);
-  lbPending={modo:r.kind,reglas:r.mode,puntos:st.score,lineas:st.lines,ms,dia:r.kind==='daily'?todayKey():'',sent:false};
-  const box=byId('overlay-extra'),div=document.createElement('div');div.className='lb-box';
+  lbPending={modo:r.kind,reglas:r.mode,puntos:st.score,lineas:st.lines,ms,dia:r.kind==='daily'?todayKey():'',semilla:soloSeed>>>0,sent:false};
+  const box=byId('overlay-extra'),div=document.createElement('div');div.className='lb-box';div.id='lb-box';
   div.innerHTML=`<div class="lb-head">🏆 TABLA · ${LB_KINDS[r.kind].toUpperCase()}${r.mode==='classic'?' · CLÁSICO':''}</div>
-    <div class="lb-form"><input id="lb-name" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="nickname" autocapitalize="words" enterkeyhint="send" value="${escHtml(LB.name)}"><button type="button" class="primary" id="lb-send">Cargar</button></div>
+    <div id="lb-act"></div>
     <p class="lb-msg" id="lb-msg" role="status" aria-live="polite">${timed?`Tu tiempo: <b>${fmtTime(ms)}</b>`:`Tus puntos: <b>${fmt(st.score)}</b>`}</p>
     <p class="lb-sub" id="lb-sub" hidden></p>
     <ol class="lb-list" id="lb-list" hidden></ol>`;
-  box.appendChild(div);box.hidden=false;
-  byId('lb-send').onclick=lbSend;
-  byId('lb-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();lbSend();}});
+  box.appendChild(div);box.hidden=false;lbOfferActions();
+}
+// Con cuenta: «Cargar como 🦊 Beto». Sin cuenta: entrar o crearla ahí mismo, y se carga.
+function lbOfferActions(){
+  const a=byId('lb-act');if(!a)return;
+  if(acct){a.innerHTML=`<button type="button" class="primary lb-send" id="lb-send">Cargar como ${avHtml(acct.avatar,acct.color)} ${escHtml(acct.usuario)}</button>`;byId('lb-send').onclick=lbSend;return;}
+  a.innerHTML=`<p class="lb-need">Para cargar tu récord entrá con tu usuario (o creá uno, es un toque).</p>
+    <div class="lb-form"><input id="lb-user" type="text" maxlength="16" placeholder="Usuario" autocomplete="username" autocapitalize="words"><input id="lb-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="PIN" autocomplete="current-password" enterkeyhint="go"></div>
+    <div class="lb-form"><button type="button" class="primary" id="lb-enter">Entrar y cargar</button><button type="button" class="pill" id="lb-create">Crear cuenta y cargar</button></div>
+    <p class="lb-pinwarn">El PIN es de 4 a 6 números, sólo para el juego. No uses el de tu tarjeta.</p>`;
+  const go=async create=>{
+    const u=byId('lb-user').value,p=byId('lb-pin').value,msg=byId('lb-msg');
+    for(const b of [byId('lb-enter'),byId('lb-create')])b.disabled=true;msg.textContent=create?'Creando tu cuenta…':'Entrando…';
+    try{await (create?acctRegister(u,p):acctLogin(u,p));lbOfferActions();lbSend();}
+    catch(e){msg.textContent=e.message;for(const b of [byId('lb-enter'),byId('lb-create')])if(b)b.disabled=false;}
+  };
+  byId('lb-enter').onclick=()=>go(false);byId('lb-create').onclick=()=>go(true);
+  for(const id of ['lb-user','lb-pin'])byId(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();go(false);}});
 }
 async function lbSend(){
-  const P=lbPending,btn=byId('lb-send'),msg=byId('lb-msg'),inp=byId('lb-name');if(!P||!btn||P.sent)return;
-  const nombre=lbClean(inp.value);if(!nombre){msg.textContent='Poné tu nombre para cargar el récord.';inp.focus();return;}
-  LB.name=nombre;storageSet('bloques-lb-name-v1',nombre);
+  const P=lbPending,btn=byId('lb-send'),msg=byId('lb-msg');if(!P||!btn||P.sent||!acct)return;
+  const nombre=acct.usuario;
   btn.disabled=true;btn.textContent='Cargando…';msg.textContent='Mandando tu récord a la tabla…';
   const per=P.modo==='daily'?'dia':'semana';
   try{
-    const j=await lbFetch({accion:'cargar',nombre,modo:P.modo,reglas:P.reglas,puntos:P.puntos,lineas:P.lineas,ms:P.ms,dia:P.dia,disp:lbDev(),v:'25',racha:lbStreak(),periodo:per,
-      firma:lbFirma([LB_CLAVE,nombre,P.modo,P.reglas,P.puntos,P.lineas,P.ms,P.dia].join('|'))});
+    const j=await lbPost({accion:'cargar',usuario:nombre,token:acct.token,modo:P.modo,reglas:P.reglas,puntos:P.puntos,lineas:P.lineas,ms:P.ms,dia:P.dia,semilla:P.semilla,disp:lbDev(),v:'26',racha:lbStreak(),periodo:per,
+      firma:lbFirma([LB_CLAVE,nombre,P.modo,P.reglas,P.puntos,P.lineas,P.ms,P.dia,P.semilla].join('|'))});
     P.sent=true;LB.cache[`${P.modo}:${P.reglas}:${j.periodo||'siempre'}`]={j,t:Date.now()};
-    inp.closest('.lb-form').hidden=true;
+    btn.hidden=true;
     const x=j.top[j.puesto-1],mine=x&&(LB_TIME[P.modo]?Math.abs(x.s*1000-P.ms)<150:x.puntos===P.puntos);
     const when=j.periodo&&j.periodo!=='siempre'?' '+LB_PER_TXT[j.periodo]:'';
     msg.innerHTML=j.puesto?`${j.puesto===1?`🥇 ¡Primero${when?when:' en la tabla'}!`:`Vas <b>${j.puesto}º</b>${when} <small>(de ${j.total})</small>`}${mine?'':' · con tu mejor marca anterior'}`:'Cargado.';
@@ -3486,6 +3543,7 @@ async function lbSend(){
     const ol=byId('lb-list');ol.innerHTML=lbListHtml(j,nombre);ol.hidden=false;
     if(j.puesto===1)callout(j.periodo==='semana'?'¡PRIMERO DE LA SEMANA!':'¡PRIMERO EN LA TABLA!','medal');
   }catch(e){
+    if(!acct){lbOfferActions();msg.textContent=e.message;return;}
     btn.disabled=false;btn.textContent='Reintentar';msg.textContent='No se pudo cargar: '+e.message;
   }
 }
@@ -3573,7 +3631,8 @@ async function lbSummary(notify=true){
   let R;try{R=await lbFetch({accion:'resumen',nombre:LB.name||''});}catch(_){return;}
   if(!R.version)return;
   LB.res=R;if(byId('lb-panel')&&byId('lb-panel').querySelector('.lb-champs')===null&&lbChampHtml())lbSetupPanel();
-  if(!LB.name)return;
+  // Sólo la consulta «con aviso» marca las novedades como vistas (la del panel no las consume).
+  if(!LB.name||!notify)return;
   const me=LB.name.toLowerCase(),K=lbKnown(),msgs=[];
   // Campeón de la semana pasada / del mes pasado: medalla y festejo (una sola vez).
   const won=R.campeones.filter(c=>c.nombre.toLowerCase()===me);
@@ -3583,16 +3642,182 @@ async function lbSummary(notify=true){
   // ¿Alguien te pasó esta semana?
   if(K.semana===R.semana&&K.pos){
     const passed=R.mios.filter(m=>K.pos[m.modo+':'+m.reglas]&&m.puesto>K.pos[m.modo+':'+m.reglas]&&m.arriba);
-    if(passed.length){const p=passed[0];msgs.push(`😤 <b>${escHtml(p.arriba)}</b> te pasó en ${LB_KINDS[p.modo]}${p.reglas==='classic'?' (clásico)':''}. Ahora vas ${p.puesto}º esta semana.${passed.length>1?` Y en ${passed.length-1} ${passed.length===2?'modo':'modos'} más.`:''}`);}
+    if(passed.length){const p=passed[0];msgs.push(`😤 ${p.avatar?p.avatar+' ':''}<b>${escHtml(p.arriba)}</b> te pasó en ${LB_KINDS[p.modo]}${p.reglas==='classic'?' (clásico)':''}. Ahora vas ${p.puesto}º esta semana.${passed.length>1?` Y en ${passed.length-1} ${passed.length===2?'modo':'modos'} más.`:''}`);}
+  }
+  // Retos que te hicieron desde la última vez.
+  if(Array.isArray(R.retos)){
+    const seen=new Set(K.retos||[]),nuevos=R.retos.filter(x=>!seen.has(x.t+':'+x.de));
+    const val=(m,v)=>LB_TIME[m]?fmtTime(v*1000):fmt(v);
+    for(const x of nuevos.slice(-3))msgs.push(x.gano?`⚔️ ${x.avatar?x.avatar+' ':''}<b>${escHtml(x.de)}</b> te ganó el reto en ${LB_KINDS[x.modo]}: ${val(x.modo,x.mio)} contra tu ${val(x.modo,x.suyo)}. ¡Revancha!`:`🛡️ ${x.avatar?x.avatar+' ':''}<b>${escHtml(x.de)}</b> te retó en ${LB_KINDS[x.modo]} y no pudo con tu ${val(x.modo,x.suyo)}.`);
+    K.retos=R.retos.map(x=>x.t+':'+x.de).slice(-40);
+    if(nuevos.some(x=>x.gano)){const w=nuevos.filter(x=>x.gano).pop();LB.kind=w.modo;LB.rules=w.reglas;LB.view='tabla';LB.per='siempre';}
   }
   K.semana=R.semana;K.pos={};for(const m of R.mios)K.pos[m.modo+':'+m.reglas]=m.puesto;lbSaveKnown(K);
   if(notify&&msgs.length)lbAlert(msgs.join('<br>')+'<small>Tocá para ver la tabla</small>');
 }
 function setupTabla(){
+  // Retar desde cualquier lista (la del final de la partida o la del menú).
+  document.addEventListener('click',e=>{const b=e.target.closest('.lb-ch');if(!b)return;const c=LB_CH[b.dataset.ch];if(c){e.preventDefault();chStart(c.x,c.modo,c.reglas);}});
   const el=byId('lb-alert');el.addEventListener('click',()=>{el.hidden=true;lbOpenPanel();});
   // Un rato después de abrir, y cada vez que se vuelve al juego (como mucho cada 10 minutos).
   let last=0;const go=()=>{if(Date.now()-last<600000||!LB.url)return;last=Date.now();lbSummary(true);};
   setTimeout(go,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)go();});
+}
+
+/* ───────── Cuenta: usuario + PIN (en la planilla), progreso sincronizado, avatar y retos ───────── */
+const AVATARS=['🙂','🦊','🐸','🐙','🐱','🐶','🐼','🐯','🦁','🐵','🐧','🦉','🐢','🦖','🐝','🦄','👾','🤖','👽','👻','🎃','🔥','⚡','🌵','🍕','🧉','⚽','🎸','🎧','🚀','🌙','⭐'];
+const AV_COLORS=['#7ce9e5','#f6b93b','#ff7b6b','#57d49b','#b394ff','#ff8fc8','#6ec6f2','#e9eef5'];
+let acct=(()=>{try{const o=JSON.parse(storageGet('bloques-acct-v1')||'null');if(o&&o.usuario&&o.token)return o;}catch(_){}return null;})();
+if(acct)LB.name=acct.usuario;
+function acctSave(){storageSet('bloques-acct-v1',acct?JSON.stringify(acct):'');LB.name=acct?acct.usuario:'';}
+function avHtml(a,c,big=false){return `<span class="av${big?' big':''}" style="--avc:${/^#[0-9a-fA-F]{6}$/.test(c||'')?c:'#7ce9e5'}" aria-hidden="true">${escHtml(a||'🙂')}</span>`;}
+function acctValid(u,p){
+  u=lbClean(u);if(!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ._-]{3,16}$/.test(u))throw new Error('El usuario tiene que tener de 3 a 16 letras o números.');
+  if(!/^\d{4,6}$/.test(String(p||'')))throw new Error('El PIN tiene que ser de 4 a 6 números.');return u;
+}
+function acctSet(j){acct={usuario:j.perfil.usuario,token:j.token,avatar:j.perfil.avatar,color:j.perfil.color,sync:0};acctSave();}
+async function acctRegister(u,p,av,col){
+  u=acctValid(u,p);
+  const j=await lbPost({accion:'registrar',usuario:u,pin:String(p),avatar:av||AVATARS[1+Math.floor(Math.random()*(AVATARS.length-1))],color:col||AV_COLORS[Math.floor(Math.random()*AV_COLORS.length)]});
+  acctSet(j);acctPush(true);acctAfterChange();return j;
+}
+async function acctLogin(u,p){
+  u=acctValid(u,p);
+  const j=await lbPost({accion:'entrar',usuario:u,pin:String(p)});
+  acctSet(j);if(j.progreso)syncMerge(j.progreso,true);acctPush(true);acctAfterChange();return j;
+}
+function acctLogout(expired=false){
+  if(!acct)return;acct=null;acctSave();acctAfterChange();
+  if(expired)lbAlert('Tu sesión de la tabla venció: entrá de nuevo con tu usuario y PIN.<small>Menú › Progreso › Tu cuenta</small>');
+}
+function acctAfterChange(){try{renderProgress();}catch(_){}try{lbOfferActions();}catch(_){}}
+
+/* Progreso sincronizado: se guarda en la planilla al terminar cada partida y se trae al abrir el juego.
+   Al juntar dos dispositivos queda lo mejor de cada uno (como el código de progreso). */
+function syncBlob(){
+  return JSON.stringify({v:1,t:Date.now(),prg:PRG,rec:{records:settings.records,sprint:settings.sprintRecords,ultra:settings.ultraRecords},
+    look:{palette:LOOK.palette,block:LOOK.block,bg:LOOK.bg,fx:LOOK.fx,cb:LOOK.cb}});
+}
+function syncMerge(str,applyLook=false){
+  let o;try{o=JSON.parse(str);}catch(_){return false;}if(!o||typeof o!=='object'||!o.prg)return false;
+  const before=JSON.stringify([PRG,settings.records,settings.sprintRecords,settings.ultraRecords]);
+  progMerge(PRG,o.prg);checkMedals(true);saveProg();
+  const R=o.rec||{};
+  for(const m of ['modern','classic']){
+    if(Number.isFinite(R.records?.[m]))settings.records[m]=Math.max(settings.records[m]||0,R.records[m]);
+    if(Number.isFinite(R.ultra?.[m]))settings.ultraRecords[m]=Math.max(settings.ultraRecords[m]||0,R.ultra[m]);
+    const s=R.sprint?.[m];if(Number.isFinite(s)&&s>0)settings.sprintRecords[m]=settings.sprintRecords[m]?Math.min(settings.sprintRecords[m],s):s;
+  }
+  persist();
+  if(applyLook&&o.look){const lv=levelInfo(PRG.xp).lv;let ch=false;for(const k of ['palette','block','bg','fx'])if(typeof o.look[k]==='string'&&rewardLevel(k,o.look[k])<=lv&&LOOK[k]!==o.look[k]){LOOK[k]=o.look[k];ch=true;}if(typeof o.look.cb==='boolean'&&LOOK.cb!==o.look.cb){LOOK.cb=o.look.cb;ch=true;}if(ch)lookChanged();}
+  try{solo.renderScore();}catch(_){}
+  return before!==JSON.stringify([PRG,settings.records,settings.sprintRecords,settings.ultraRecords]);
+}
+let pushTimer=0,pushBusy=false;
+function acctPush(now=false){
+  if(!acct||!LB.url)return;clearTimeout(pushTimer);
+  pushTimer=setTimeout(async()=>{
+    if(pushBusy){acctPush();return;}pushBusy=true;
+    try{await lbPost({accion:'guardar',usuario:acct.usuario,token:acct.token,progreso:syncBlob()});if(acct){acct.sync=Date.now();acctSave();}renderAcctStatus();}
+    catch(_){}finally{pushBusy=false;}
+  },now?50:1500);
+}
+async function acctPull(){
+  if(!acct||!LB.url)return;
+  try{const j=await lbPost({accion:'cuenta',usuario:acct.usuario,token:acct.token});
+    if(!acct)return;acct.avatar=j.perfil.avatar;acct.color=j.perfil.color;acct.sync=Date.now();acctSave();
+    const remote=j.progreso||'';const changed=remote?syncMerge(remote,false):false;
+    // Si acá había algo que la planilla no tenía, se sube.
+    if(!remote||JSON.stringify(JSON.parse(remote).prg)!==JSON.stringify(PRG)||changed)acctPush();
+    renderAcctStatus();
+  }catch(_){}
+}
+
+/* Panel «Tu cuenta» (Menú › Progreso). */
+let acctMode='crear',acctPicker=false;
+function agoText(t){if(!t)return 'todavía no';const s=(Date.now()-t)/1000;return s<60?'recién':s<3600?`hace ${Math.round(s/60)} min`:s<86400?`hace ${Math.round(s/3600)} h`:`hace ${Math.round(s/86400)} días`;}
+function renderAcctStatus(){const el=byId('acct-sync-txt');if(el&&acct)el.textContent=`Progreso sincronizado ${agoText(acct.sync)}`;}
+function acctPanelHtml(){
+  if(!LB.url)return '';
+  if(acct)return `<h3>👤 TU CUENTA</h3>
+    <div class="acct-card">${avHtml(acct.avatar,acct.color,true)}<div><b>${escHtml(acct.usuario)}</b><span id="acct-sync-txt">Progreso sincronizado ${agoText(acct.sync)}</span></div></div>
+    <div class="row acct-row"><button type="button" class="pill" id="acct-av">${acctPicker?'Listo':'Cambiar avatar'}</button><button type="button" class="pill" id="acct-sync">↻ Sincronizar</button><button type="button" class="linkish" id="acct-out">Salir</button></div>
+    ${acctPicker?`<div class="acct-picker"><div class="av-grid">${AVATARS.map(a=>`<button type="button" class="av-pick${a===acct.avatar?' on':''}" data-av="${a}">${a}</button>`).join('')}</div>
+      <div class="av-colors">${AV_COLORS.map(c=>`<button type="button" class="av-col${c===acct.color?' on':''}" data-avc="${c}" style="--avc:${c}" aria-label="Color ${c}"></button>`).join('')}</div></div>`:''}
+    <p class="hint" id="acct-msg"></p>`;
+  return `<h3>👤 TU CUENTA</h3>
+    <p class="hint">Con tu cuenta cargás récords en la tabla, retás a tus amigos y llevás tu progreso a otro celular o compu.</p>
+    <div class="lb-tabs"><button type="button" class="look-chip${acctMode==='crear'?' active':''}" data-acm="crear">Crear cuenta</button><button type="button" class="look-chip${acctMode==='entrar'?' active':''}" data-acm="entrar">Ya tengo cuenta</button></div>
+    <div class="acct-form"><input id="acct-user" type="text" maxlength="16" placeholder="Usuario" autocomplete="username" autocapitalize="words"><input id="acct-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="PIN (4 a 6 números)" autocomplete="${acctMode==='crear'?'new-password':'current-password'}" enterkeyhint="go"><button type="button" class="primary" id="acct-go">${acctMode==='crear'?'Crear cuenta':'Entrar'}</button></div>
+    <p class="hint">${acctMode==='crear'?'El PIN es sólo para el juego: no uses el de tu tarjeta. Si te lo olvidás, pedile al dueño del juego que te lo reinicie.':'Al entrar se junta el progreso de este dispositivo con el de tu cuenta.'}</p>
+    <p class="hint acct-err" id="acct-msg"></p>`;
+}
+function setupAcctPanel(){
+  const box=byId('acct-panel');if(!box)return;box.innerHTML=acctPanelHtml();box.hidden=!LB.url;
+  box.querySelectorAll('[data-acm]').forEach(b=>b.onclick=()=>{acctMode=b.dataset.acm;setupAcctPanel();});
+  const go=byId('acct-go');
+  if(go){const run=async()=>{const m=byId('acct-msg');go.disabled=true;m.textContent=acctMode==='crear'?'Creando tu cuenta…':'Entrando…';
+      try{acctMode==='crear'?await acctRegister(byId('acct-user').value,byId('acct-pin').value):await acctLogin(byId('acct-user').value,byId('acct-pin').value);}
+      catch(e){m.textContent=e.message;go.disabled=false;}};
+    go.onclick=run;for(const id of ['acct-user','acct-pin'])byId(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();run();}});}
+  byId('acct-av')?.addEventListener('click',()=>{acctPicker=!acctPicker;setupAcctPanel();});
+  byId('acct-sync')?.addEventListener('click',async()=>{byId('acct-msg').textContent='Sincronizando…';await acctPull();acctPush(true);const m=byId('acct-msg');if(m)m.textContent='Listo.';});
+  byId('acct-out')?.addEventListener('click',()=>{acctPicker=false;acctLogout();});
+  const setP=async(o)=>{const prev={avatar:acct.avatar,color:acct.color};Object.assign(acct,o);acctSave();setupAcctPanel();
+    try{await lbPost({accion:'perfil',usuario:acct.usuario,token:acct.token,...o});LB.cache={};}catch(e){if(acct){Object.assign(acct,prev);acctSave();setupAcctPanel();byId('acct-msg').textContent='No se pudo guardar: '+e.message;}}};
+  box.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>setP({avatar:b.dataset.av}));
+  box.querySelectorAll('[data-avc]').forEach(b=>b.onclick=()=>setP({color:b.dataset.avc}));
+}
+
+/* ───────── Retos: jugar con las mismas piezas que el récord de otro ───────── */
+let soloSeed=0;
+const CH={active:false};
+// Generador con semilla para lo que no son piezas (por ejemplo, los huecos de la Excavación).
+function seededRng(seed){let a=seed>>>0||1;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
+function chTarget(){return LB_TIME[CH.modo]?CH.x.s*1000:CH.x.puntos;}
+function chTargetText(){return LB_TIME[CH.modo]?fmtTime(CH.x.s*1000):fmt(CH.x.puntos)+' puntos';}
+function chStart(x,modo,reglas){
+  if(!x||!x.semilla)return;
+  if(menuOpen)closeMenu();if(popOpen)closeModePop();
+  if(session!=='solo')changeSession('solo');
+  if(mode!==reglas)changeMode(reglas);
+  Object.assign(CH,{active:true,x,modo,reglas,reported:false});
+  if(soloKind!==modo)setSoloKind(modo);else{solo.reset(false);soloReadyOverlay();}
+  refreshTop();
+}
+function chStop(){if(!CH.active)return;CH.active=false;refreshTop();}
+function chReadyOverlay(){
+  const x=CH.x;
+  solo.showOverlay(`RETO A\n${x.nombre.toUpperCase()}`,`${LB_KINDS[CH.modo]}${CH.reglas==='classic'?' · clásico':''} con las mismas piezas que usó ${x.nombre}.\nTenés que superar ${LB_TIME[CH.modo]?'su tiempo: ':''}${chTargetText()}.`,'JUGAR');
+  const box=byId('overlay-extra');box.innerHTML=`<div class="ch-vs">${avHtml(x.avatar,x.color,true)}<b>⚔️</b>${acct?avHtml(acct.avatar,acct.color,true):avHtml('🙂','#7ce9e5',true)}</div><button type="button" class="linkish" id="ch-cancel">Cancelar el reto</button>`;box.hidden=false;
+  byId('ch-cancel').onclick=()=>{chStop();soloReadyOverlay();};
+  byId('overlay-alt').hidden=true;
+}
+// Al terminar una partida de reto: resultado, aviso al rival (con cuenta) y «otra vez» con las mismas piezas.
+function chResult(r,result){
+  if(!CH.active||session!=='solo'||r.kind!==CH.modo)return;
+  const timed=LB_TIME[CH.modo],st=solo.state,x=CH.x;
+  const mine=timed?(result==='finish'?Math.round(soloTimer.elapsed):0):st.score,target=chTarget();
+  const won=timed?mine>0&&mine<target:mine>target;
+  const diff=timed?(mine?`por ${((target-mine)/1000).toFixed(1)} s`:''):`por ${fmt(Math.abs(mine-target))} puntos`;
+  const box=byId('overlay-extra'),div=document.createElement('div');div.className='ch-box'+(won?' won':'');
+  div.innerHTML=`<div class="ch-head">${avHtml(x.avatar,x.color)} RETO A ${escHtml(x.nombre.toUpperCase())}</div>
+    <p>${won?`🏆 <b>¡Le ganaste a ${escHtml(x.nombre)}${diff?' '+diff:''}!</b>`:timed&&!mine?`No llegaste a terminar. ${escHtml(x.nombre)} lo hizo en ${chTargetText()}.`:`Te faltaron ${timed?((mine-target)/1000).toFixed(1)+' s':fmt(target-mine+1)+' puntos'} para ganarle a ${escHtml(x.nombre)}.`}</p>
+    <p class="ch-note" id="ch-note">${acct?(won?'Le avisamos que le ganaste. 😎':''):'Con tu cuenta, le llega el aviso de que lo retaste.'}</p>
+    <button type="button" class="linkish" id="ch-end">Terminar el reto</button>`;
+  // El resumen de la partida va primero; el reto, arriba de la tabla.
+  const lb=byId('lb-box');if(lb)box.insertBefore(div,lb);else box.appendChild(div);box.hidden=false;
+  byId('ch-end').onclick=()=>{chStop();div.remove();byId('overlay-btn').textContent='OTRA ↻';};
+  if(won)callout('¡LE GANASTE A '+x.nombre.toUpperCase()+'!','medal');
+  if(acct&&(won||!CH.reported)){CH.reported=true;
+    lbPost({accion:'reto',usuario:acct.usuario,token:acct.token,para:x.nombre,modo:CH.modo,reglas:CH.reglas,suyo:timed?x.s:x.puntos,mio:timed?(mine?Math.round(mine/100)/10:0):mine}).catch(()=>{});}
+  // La pantalla final se arma después (OTRA ↻): el botón pasa a «Revancha» con las mismas piezas.
+  setTimeout(()=>{if(CH.active&&['over','frozen'].includes(solo.state.status))byId('overlay-btn').textContent='REVANCHA ↻';},0);
+}
+
+function setupCuenta(){
+  if(acct)setTimeout(acctPull,2500);
+  let last=Date.now();document.addEventListener('visibilitychange',()=>{if(!document.hidden&&acct&&Date.now()-last>300000){last=Date.now();acctPull();}});
 }
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
@@ -4718,6 +4943,7 @@ function soloOver(isRecord){
   byId('overlay-alt').hidden=false;refreshTop();
 }
 function soloReadyOverlay(){
+  if(CH.active&&soloKind===CH.modo){chReadyOverlay();return;}
   if(soloKind==='fiesta'){partyOverlay();return;}
   const kind=soloKindIntro();
   const touchHint=(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\nDeslizá para mover, tocá para girar y deslizá hacia abajo para bajar.':'\nDeslizá para mover · tocá para girar · abajo rápido la suelta · arriba la guarda.'):'';
@@ -4868,6 +5094,7 @@ function changeMode(next,fromNet=false){
   if(!['classic','modern'].includes(next)||next===mode&&!initializing)return;
   if(session==='online'&&net.role==='guest'&&net.hello&&!fromNet)return;
   if(session==='online'&&['countdown','playing','paused','finishing'].includes(net.m.phase)&&!fromNet)return;
+  if(CH.active&&next!==CH.reglas)chStop();
   releaseAll();mode=next;app.classList.toggle('classic',mode==='classic');
   solo.modeChange(mode);
   if(soloKind==='puzzle'&&mode==='classic'){soloKind='marathon';storageSet('bloques-solokind-v1',soloKind);solo.reset(false);}
@@ -4880,7 +5107,7 @@ function changeMode(next,fromNet=false){
 function changeSession(next){
   if(!['solo','local','versus','online','cpu'].includes(next)||next===session)return;
   if(session==='online')netLeave();
-  tutStop();releaseAll();
+  tutStop();chStop();releaseAll();
   if(session==='cpu'&&cpuM.phase!=='ready'){for(const g of [solo,cpu])if(['playing','paused'].includes(g.state.status))g.freeze();cpuM.phase='ready';}
   if(solo.state.status==='playing')solo.pause();
   if(['countdown','playing'].includes(match.phase))pauseMatch();
@@ -4910,7 +5137,7 @@ function refreshTop(){
   const tp=byId('tool-pause');tp.textContent=paused?'▶':'Ⅱ';tp.setAttribute('aria-label',paused?'Continuar':'Pausar');
   const rl=session==='cpu'?'PARTIDAS':session==='solo'&&soloKind==='puzzle'?'RESUELTOS':session==='solo'&&soloKind==='fiesta'?'A SUPERAR':'RÉCORD';if(byId('record-label').textContent!==rl){byId('record-label').textContent=rl;solo.renderScore();}
   {const rs=!canRestartSolo(),a=byId('restart-btn'),b=byId('tool-restart');a.hidden=rs;if(b.hidden!==rs){b.hidden=rs;fitArena(true);}}
-  const bar=byId('matchbar'),showBar=session!=='solo'||soloKind!=='marathon';
+  const bar=byId('matchbar'),showBar=session!=='solo'||soloKind!=='marathon'||CH.active;
   if(bar.hidden===showBar){bar.hidden=!showBar;fitArena(true);}
   if(!showBar)return;
   let title='',clock='';
@@ -4919,6 +5146,7 @@ function refreshTop(){
     if(soloKind==='sprint'){const pace=sprintPace();title=`SPRINT · ${Math.min(SPRINT_LINES,solo.state.lines)}/${SPRINT_LINES} LÍNEAS${pace?' · '+pace:''}`;clock=fmtTime(soloTimer.elapsed);}
     else if(soloKind==='daily'){title=`DESAFÍO DEL DÍA · ${fmt(solo.state.score)} PUNTOS`;clock=timeLabel(ULTRA_MS-soloTimer.elapsed);}
     else if(TUT.active){title='TUTORIAL · CÓMO SE JUEGA';clock='';}
+    else if(CH.active&&soloKind===CH.modo){title=`⚔️ RETO A ${CH.x.nombre.toUpperCase()} · ${LB_TIME[CH.modo]?'TIEMPO':'MARCA'} ${chTargetText().toUpperCase()}`;clock=soloKind==='marathon'?fmt(solo.state.score):(soloKind==='ultra'?timeLabel(ULTRA_MS-soloTimer.elapsed):fmtTime(soloTimer.elapsed));}
     else if(soloKind==='dig'){const n=digLeft();title=`EXCAVACIÓN · ${n?`QUEDAN ${n} ${n===1?'LÍNEA':'LÍNEAS'}`:'¡LIMPIO!'}`;clock=fmtTime(soloTimer.elapsed);}
     else if(soloKind==='fiesta'){const P=PARTY;title=P.phase==='turn'?`FIESTA · TURNO DE ${P.names[P.turn].toUpperCase()} · RONDA ${P.round}`:P.phase==='results'?`FIESTA · RONDA ${P.round} TERMINADA`:'MODO FIESTA';clock=P.phase==='turn'?timeLabel(P.dur-soloTimer.elapsed):'';}
     else if(soloKind==='puzzle'){const p=PUZZLES[puzzleIdx],left=solo.state.queue.length+(solo.state.active?1:0)+(solo.state.hold?1:0);title=`DESAFÍO ${puzzleIdx+1}/${PUZZLES.length} · ${p.name.toUpperCase()}`;clock=`${left} ${left===1?'PIEZA':'PIEZAS'}`;}
@@ -5538,7 +5766,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
@@ -5593,7 +5821,7 @@ if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
     INST:{kick,hat,clap,tom,ride,bass,bassV,lead,stab,pad,pluck,crash,riser,boom,metal,shaker,snare,noiseHit,rave},PROGS,newPhrase,AU,AUDIO,musicStyle,STYLE_POOL,buildSet,curSt,musicStart,musicStop,musicUpdate,musicReset,audioEvent,auCtx,beatPulse,setStageNow,__tick:(t,dt)=>cpuTick(t,dt),cpu,cpuM,bot,botChoose,cpuStats,setCpuLevel,cpuStart,soloTimer,setSoloKind,getSoloKind:()=>soloKind,FEEL,applyFeel,setPadVisible,nearestPadButton,padHidden,touchLayouts,fromTemplate,openEditor,closeEditor,orientation,renderPad,currentLayout,saveLayouts,editing:()=>editing,
-    askRestart,confirmResetOn:()=>confirmReset,openSoundPop,closeSoundPop,GFXSET,GFX,gfxApply,SPR,LB,lbOffer,lbSend,lbOpenPanel,lbFetch,lbSummary,lbStreak,lbSetupPanel,PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
+    askRestart,confirmResetOn:()=>confirmReset,openSoundPop,closeSoundPop,GFXSET,GFX,gfxApply,SPR,CH,chStart,chStop,acctRegister,acctLogin,acctLogout,acctPull,acctPush,syncBlob,syncMerge,getAcct:()=>acct,getSoloSeed:()=>soloSeed,LB,lbOffer,lbSend,lbOpenPanel,lbFetch,lbSummary,lbStreak,lbSetupPanel,PRG,PUZZLES,PARTY,partyOverlay,partyPrimary,TUT,tutStart,tutSkip,tutShouldStart,digLeft,digFill,installClick,setPuzzleIdx,getPuzzleIdx:()=>puzzleIdx,pz,renderHist,puzzleRestart,PRG,progressEnd,progressEvent,levelInfo,MEDALS,dailySeed,progressCode,loadProgressCode,callout,renderProgress,setMenuTab,openScanner,closeScanner,qrDecoder,QR,classifyPath,pathLabel,gameBase,myLink,openModePop,closeModePop,openShareGame,popOpen:()=>popOpen,shareText,handleLinkHash,deliverAnswerToOtherTab};
 }
 })();
 </script>
