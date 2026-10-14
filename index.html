@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1019">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,6 +19,9 @@ html{background:var(--bg);height:100%;-webkit-text-size-adjust:100%;text-size-ad
 body{margin:0;min-height:100%;font:500 14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(ellipse at 50% -25%,#202c41 0,transparent 62%),var(--bg);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
 button,select,textarea,input{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+/* Safari (en el navegador) agranda la página con doble toque o al tocar un campo de texto chico: se evita. */
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@supports (-webkit-touch-callout:none){input,textarea,select{font-size:16px!important}}
 button:disabled{cursor:default;opacity:.45}
 button:focus-visible,canvas:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--aqua);outline-offset:3px}
 [hidden]{display:none!important}
@@ -96,6 +99,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .overlay p{color:#b2c0d2;font-size:clamp(11px,calc(var(--cell)*.5),14px);max-width:240px;line-height:1.5;margin:0 0 14px;white-space:pre-line}
 .primary{background:#a4f4e7;color:#0c2932;border:0;border-radius:12px;padding:12px 20px;min-height:46px;font-weight:900;letter-spacing:.03em;box-shadow:0 6px 30px #85d9d324;max-width:100%}
 .primary:hover{background:#d0fff6}
+.overlay .primary{transition:opacity .25s}.overlay .primary.cooling{opacity:.35;transition:none}
+.big-num.long{font-size:clamp(11px,calc(var(--rail)*.19),18px);letter-spacing:-.02em}
 .primary.big{font-size:clamp(15px,calc(var(--cell)*.72),20px);min-height:clamp(48px,calc(var(--cell)*2.3),60px);padding:0 clamp(18px,calc(var(--cell)*1.2),34px)}
 .linkish{background:none;border:0;color:#9fd8d2;font-size:12px;font-weight:750;margin-top:10px;padding:8px 10px;min-height:40px;text-decoration:underline;text-underline-offset:3px}
 .overlay-foot{font-size:9px;margin-top:8px;color:#7d92a7;letter-spacing:.07em}
@@ -331,6 +336,21 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
 .lb-list li em small{font-size:11px;color:#ffd166;margin-left:4px}
 .av{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--avc) 30%,#0c131e);border:1.5px solid var(--avc);font-size:13px;line-height:1}
 .av.big{width:46px;height:46px;font-size:24px;border-width:2px}
+.inv-box{margin:4px 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#101927}
+.inv-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.08em;color:var(--dim)}.inv-head .linkish{margin:0;font-size:16px;text-decoration:none;min-height:32px}
+.inv-list{list-style:none;margin:6px 0 4px;padding:0;max-height:260px;overflow:auto}
+.inv-list li{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid #1d2838}.inv-list li:first-child{border-top:0}
+.inv-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:750}.inv-list .pill{min-height:38px;padding:0 14px}
+.inv-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#57d49b;box-shadow:0 0 6px #57d49b;margin-left:7px;vertical-align:1px}
+.inv-wait{display:flex;align-items:center;gap:12px}.inv-wait div{display:flex;flex-direction:column;gap:3px}.inv-wait b{font-size:16px}.inv-wait span{font-size:13px;color:var(--dim)}
+.inv-note{color:#ffd166}
+.how-alt>summary{cursor:pointer;color:#9fd8d2;font-weight:750;font-size:13px;padding:6px 0;list-style-position:inside}.how-alt[open]>summary{margin-bottom:6px}
+.inv-pop{position:fixed;z-index:60;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);width:min(360px,calc(100vw - 32px));background:#121b29;border:1px solid #3a4a60;border-radius:16px;padding:14px;box-shadow:0 18px 50px #000c;display:flex;flex-direction:column;gap:12px;animation:invIn .16s ease-out}
+@keyframes invIn{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translate(-50%,0)}}
+.inv-card{display:flex;align-items:center;gap:12px}.inv-card div{display:flex;flex-direction:column}.inv-card b{font-size:18px}.inv-card span{color:var(--dim)}
+.inv-pop .row{display:flex;gap:8px}.inv-pop .primary{flex:1;min-height:46px}
+.inv-toast{position:fixed;z-index:60;left:50%;top:max(8px,env(safe-area-inset-top));transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 24px);padding:6px 12px;border-radius:999px;border:1px solid #3a4a60;background:#121b29ee;color:var(--ink);font:inherit;font-size:13px;box-shadow:0 8px 24px #0009}
+.inv-toast u{color:#9fd8d2}
 .acct-panel{margin-bottom:6px}.acct-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);background:#111a27;border-radius:14px}
 .acct-card div{display:flex;flex-direction:column;gap:2px}.acct-card b{font-size:16px}.acct-card span{font-size:12px;color:var(--dim)}
 .acct-row{margin-top:8px;align-items:center}.acct-row .linkish{margin-left:auto}
@@ -363,6 +383,15 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
 .lb-list li.lb-empty{color:var(--dim);justify-content:center}
 .lb-tabs{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 8px;align-items:center}.lb-refresh{margin-left:auto;min-height:34px;padding:0 12px}
 .lb-panel{margin-bottom:6px;scroll-margin-top:64px}.lb-url-row{display:flex;gap:6px;flex-wrap:wrap}
+.menu-tabs{grid-template-columns:repeat(3,1fr)!important}
+details.sect{border:1px solid var(--line);border-radius:14px;background:#0f1724;margin:8px 0;overflow:hidden;scroll-margin-top:64px}
+details.sect>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:28px 1fr auto;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:12px 14px;min-height:56px}
+details.sect>summary::-webkit-details-marker{display:none}
+details.sect>summary i{grid-row:1/3;font-style:normal;font-size:20px;text-align:center}
+details.sect>summary b{font-size:14.5px;color:#e8f2fb}details.sect>summary span{grid-column:2;font-size:12px;color:var(--dim)}
+details.sect>summary::after{content:"▾";grid-column:3;grid-row:1/3;color:var(--dim);font-size:14px}
+details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{border-bottom:1px solid var(--line)}
+.sect-body{padding:4px 14px 12px}.sect-body .block{border:0;padding:6px 0;margin:0}.sect-body .block h3{margin-top:8px}
 .tut-tips{list-style:none;margin:2px auto 10px;padding:0;width:min(100%,340px);display:flex;flex-direction:column;gap:6px;text-align:left}
 .tut-tips li{display:flex;gap:8px;align-items:flex-start;background:#111a27;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12px;line-height:1.35;color:#cfe0ea}
 .tut-tips li i{font-style:normal;font-size:16px;line-height:1.1}.tut-tips b{color:#fff}
@@ -461,7 +490,9 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
 .medal-chip{display:inline-flex;align-items:center;gap:5px;background:#1a1508;border:1px solid #6a5418;color:#ffd166;border-radius:999px;padding:3px 9px 3px 3px;font-size:11.5px;font-weight:800}
 .medal-chip i{font-style:normal;display:grid;place-items:center;min-width:20px;height:20px;border-radius:50%;background:#ffd166;color:#2a1d00;font-size:9px;font-weight:950;padding:0 3px}
 .sum-note{font-size:12px;color:#b8c6d6}
-.overlay-level{font-size:11px;font-weight:850;letter-spacing:.08em;color:var(--dim);margin-top:6px}
+.overlay-level{display:flex;align-items:center;gap:10px;margin:8px auto 0;padding:7px 12px 7px 8px;min-width:200px;max-width:280px;border:1px solid var(--line);border-radius:14px;background:#0f1724cc;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.overlay-level:hover,.overlay-level:focus-visible{border-color:#3e5068}.overlay-level .av{width:32px;height:32px;font-size:17px}
+.ol-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.ol-txt b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ol-txt small{font-size:11px;color:var(--dim);font-weight:700}.ol-txt .xpbar.mini{width:100%;margin:2px 0 0}.ol-go{font-size:20px;color:var(--dim)}
 .overlay-share{font-size:12px;margin-top:2px}
 .share-pill{margin-left:auto;margin-right:8px}
 /* Panel de progreso */
@@ -530,7 +561,7 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
 
   <section class="sheet" id="menu" hidden aria-labelledby="menu-title">
     <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><span class="head-pills"><button class="pill share-pill" id="menu-share" type="button">📲 Pasar<span class="wide-only"> el juego</span></button><button class="pill share-pill" id="menu-install" type="button">⬇ Instalar</button></span><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
-    <div class="menu-tabs" role="tablist" aria-label="Secciones del menú"><button type="button" role="tab" data-mtab="partida">Partida</button><button type="button" role="tab" data-mtab="progreso">Progreso</button><button type="button" role="tab" data-mtab="sonido">Sonido</button><button type="button" role="tab" data-mtab="controles">Controles</button><button type="button" role="tab" data-mtab="mas">Más</button></div>
+    <div class="menu-tabs" role="tablist" aria-label="Secciones del menú"><button type="button" role="tab" data-mtab="partida">🎮 Jugar</button><button type="button" role="tab" data-mtab="progreso">👤 Yo</button><button type="button" role="tab" data-mtab="ajustes">⚙️ Ajustes</button></div>
 
     <div class="block" data-tab="partida"><h3>MODO</h3>
       <div class="tiles" role="group" aria-label="Modo de juego">
@@ -549,6 +580,7 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
       <h3 id="online-title">EN LÍNEA</h3>
       <div class="net-ok" id="net-ok" hidden><i aria-hidden="true"></i><span>Conectado</span><span class="net-badge" id="net-ok-ms"></span></div>
       <p class="hint" id="net-path-hint" hidden></p>
+      <div class="inv-box" id="net-friends" hidden></div>
       <div class="net-how" id="net-how" hidden></div>
       <p class="steps" id="net-steps"></p>
       <div class="row" id="net-start"><button type="button" class="primary" id="net-create">Crear partida</button></div>
@@ -590,29 +622,9 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
 
 
     <div class="block" data-tab="progreso" id="prog-panel"></div>
-    <div class="block" data-tab="controles"><h3>TECLADO Y MANDOS</h3><div class="row"><button type="button" class="pill" id="settings-btn">⚙ Teclas y mandos</button></div><label class="check"><input type="checkbox" id="touch-option"> Mostrar botones táctiles en computadora</label></div>
-    <div class="block" id="touch-block" data-tab="controles" hidden><h3>CONTROLES TÁCTILES</h3>
-      <div class="field-row"><label>BOTONES EN PANTALLA</label><div class="seg" role="group" aria-label="Botones en pantalla"><button type="button" data-padvis="show">Mostrar</button><button type="button" data-padvis="hide">Ocultar · sólo gestos</button></div></div>
-      <div class="row" style="margin-top:10px"><button type="button" class="pill" id="edit-pad-btn">✥ Editar botones y plantillas</button></div>
-      <details class="fine"><summary>Ajustes finos del tacto</summary>
-      <div class="feel">
-        <label for="feel-sens">Sensibilidad del arrastre <output id="feel-sens-out"></output></label>
-        <input type="range" id="feel-sens" min="1" max="10" step="1">
-        <label for="feel-das">Demora antes de repetir al mantener <output id="feel-das-out"></output></label>
-        <input type="range" id="feel-das" min="60" max="300" step="5">
-        <label for="feel-arr">Velocidad de repetición (más a la derecha, más rápida) <output id="feel-arr-out"></output></label>
-        <input type="range" id="feel-arr" min="0" max="100" step="2">
-        <p class="hint">La demora y la velocidad de repetición también valen para teclado y mando (reglas modernas).</p>
-      </div>
-      <div class="field-row"><label>DESLIZAR HACIA ABAJO</label><div class="seg" role="group" aria-label="Deslizar hacia abajo"><button type="button" data-swipe="auto">Según la velocidad</button><button type="button" data-swipe="hard">Siempre suelta</button><button type="button" data-swipe="soft">Sólo baja</button></div></div>
-      <p class="hint">Según la velocidad: rápido suelta la pieza, despacio la baja de a poco.</p>
-      <label class="check"><input type="checkbox" id="feel-tapsides"> Tocar a la izquierda rota a la izquierda; a la derecha, a la derecha</label>
-      <label class="check"><input type="checkbox" id="feel-haptics"> Vibración al tocar (en iPhone requiere iOS 18 o posterior)</label>
-      <div class="row"><button type="button" class="pill" id="feel-reset">Restablecer sensibilidad</button></div>
-      </details>
-    </div>
-
-    <div class="block" data-tab="sonido"><h3>SONIDO</h3>
+    <div class="ajustes" data-tab="ajustes">
+    <details class="sect" data-sect="sonido"><summary><i>🔊</i><b>Sonido</b><span>Música, efectos y volumen</span></summary><div class="sect-body">
+    <div class="block">
       <label class="check"><input type="checkbox" id="au-music"> Música que sigue tu partida</label>
       <div class="field-row"><label>ESTILO</label><div class="seg seg-wrap" role="group" aria-label="Estilo de música"><button type="button" data-mstyle="auto">Automática</button><button type="button" data-mstyle="arcade">Arcade · de juego</button><button type="button" data-mstyle="arcmix">Arcade → Techno</button><button type="button" data-mstyle="arctech">Arcade Techno</button><button type="button" data-mstyle="nueva">Techno oscuro</button><button type="button" data-mstyle="original">Original</button></div></div>
       <p class="hint" id="au-style-note"></p>
@@ -627,23 +639,54 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
       </details>
     </div>
 
-    <div class="block" data-tab="mas" id="gfx-block"><h3>GRÁFICOS</h3>
+    </div></details>
+    <details class="sect" data-sect="controles"><summary><i>🎮</i><b>Controles</b><span>Teclas, botones en pantalla y gestos</span></summary><div class="sect-body">
+    <div class="block"><h3>TECLADO Y MANDOS</h3><div class="row"><button type="button" class="pill" id="settings-btn">⚙ Teclas y mandos</button></div><label class="check"><input type="checkbox" id="touch-option"> Mostrar botones táctiles en computadora</label></div>
+    <div class="block" id="touch-block" hidden><h3>CONTROLES TÁCTILES</h3>
+      <div class="field-row"><label>BOTONES EN PANTALLA</label><div class="seg" role="group" aria-label="Botones en pantalla"><button type="button" data-padvis="show">Mostrar</button><button type="button" data-padvis="hide">Ocultar · sólo gestos</button></div></div>
+      <div class="row" style="margin-top:10px"><button type="button" class="pill" id="edit-pad-btn">✥ Editar botones y plantillas</button></div>
+      <details class="fine"><summary>Ajustes finos del tacto</summary>
+      <div class="feel">
+        <label for="feel-sens">Sensibilidad del arrastre <output id="feel-sens-out"></output></label>
+        <input type="range" id="feel-sens" min="1" max="10" step="1">
+        <label for="feel-das">Demora antes de repetir al mantener <output id="feel-das-out"></output></label>
+        <input type="range" id="feel-das" min="60" max="300" step="5">
+        <label for="feel-arr">Velocidad de repetición (más a la derecha, más rápida) <output id="feel-arr-out"></output></label>
+        <input type="range" id="feel-arr" min="0" max="100" step="2">
+        <p class="hint">La demora y la velocidad de repetición también valen para teclado y mando (reglas modernas).</p>
+      </div>
+      <div class="field-row"><label>DESLIZAR HACIA ABAJO</label><div class="seg" role="group" aria-label="Deslizar hacia abajo"><button type="button" data-swipe="auto">Según la velocidad</button><button type="button" data-swipe="hard">Siempre suelta</button><button type="button" data-swipe="soft">Sólo baja</button></div></div>
+      <p class="hint">Según la velocidad: rápido, la suelta de golpe; un poquito y dejando el dedo, baja rápido mientras lo mantenés.</p>
+      <p class="hint">Según la velocidad: rápido suelta la pieza, despacio la baja de a poco.</p>
+      <label class="check"><input type="checkbox" id="feel-tapsides"> Tocar a la izquierda rota a la izquierda; a la derecha, a la derecha</label>
+      <label class="check"><input type="checkbox" id="feel-haptics"> Vibración al tocar (en iPhone requiere iOS 18 o posterior)</label>
+      <div class="row"><button type="button" class="pill" id="feel-reset">Restablecer sensibilidad</button></div>
+      </details>
+    </div>
+
+    </div></details>
+    <details class="sect" data-sect="graficos"><summary><i>✨</i><b>Gráficos</b><span>Calidad y fluidez</span></summary><div class="sect-body">
+    <div class="block" id="gfx-block">
       <div class="seg" role="group" aria-label="Calidad de los gráficos"><button type="button" data-gfx="auto">Automático</button><button type="button" data-gfx="normal">Normal</button><button type="button" data-gfx="liviano">Liviano</button></div>
       <p class="hint" id="gfx-note"></p>
       <label class="check"><input type="checkbox" id="gfx-fps"> Mostrar cuadros por segundo (para ver si anda fluido)</label>
     </div>
-    <div class="block" data-tab="mas" id="install-block"><h3>INSTALAR COMO APP</h3><p class="hint" id="install-txt"></p><div class="row"><button type="button" class="pill" id="install-btn" hidden>Instalar</button></div></div>
-    <div class="block" data-tab="mas"><h3>MÁS</h3>
+    </div></details>
+    <details class="sect" data-sect="app"><summary><i>📲</i><b>App y compartir</b><span>Instalar, pasar el juego, pantalla completa</span></summary><div class="sect-body">
+    <div class="block" id="install-block"><h3>INSTALAR COMO APP</h3><p class="hint" id="install-txt"></p><div class="row"><button type="button" class="pill" id="install-btn" hidden>Instalar</button></div></div>
+    <div class="block"><h3>COMPARTIR Y MÁS</h3>
       <div class="row">
         <button type="button" class="pill" id="share-game-btn">📲 Pasar el juego (QR)</button>
         <button type="button" class="pill" id="new-btn">↻ Nueva partida</button>
-        <button type="button" class="pill" id="tut-btn">🎓 Ver el tutorial</button>
         <button type="button" class="pill" id="menu-fullscreen" hidden>⛶ Pantalla completa</button>
       </div>
     </div>
 
-    <details class="help" data-tab="mas"><summary>Cómo se juega</summary><div id="help-keys"></div></details>
-    <details class="help" data-tab="mas"><summary>Jugar con un iPhone</summary>
+    </div></details>
+    <details class="sect" data-sect="ayuda"><summary><i>❓</i><b>Ayuda</b><span>Cómo se juega y el tutorial</span></summary><div class="sect-body">
+    <div class="row"><button type="button" class="pill" id="tut-btn">🎓 Ver el tutorial</button></div>
+<details class="help"><summary>Cómo se juega</summary><div id="help-keys"></div></details>
+    <details class="help"><summary>Jugar con un iPhone</summary>
       <ol>
         <li>El juego tiene que estar publicado en una página <b>https</b> (por ejemplo, GitHub Pages) con todos sus archivos: index.html, sw.js, manifest e íconos. La vista previa de la app Archivos no sirve para jugar.</li>
         <li>Abrilo una vez en Safari con internet. Desde ahí también abre sin señal.</li>
@@ -652,9 +695,13 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
       </ol>
       <p>La página sólo entrega el archivo. Las partidas no pasan por ningún servidor de salas.</p>
     </details>
-    <div class="block about" data-tab="mas"><h3>ACERCA DE</h3>
+    </div></details>
+    <details class="sect" data-sect="acerca"><summary><i>ℹ️</i><b>Acerca de</b><span>Creado por Antelo Rigali</span></summary><div class="sect-body">
+    <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
+    </div>
+    </div></details>
     </div>
     <div class="menu-play-bar"><button type="button" class="primary menu-play" id="menu-play">JUGAR</button></div>
   </section>
@@ -683,9 +730,9 @@ details.fine>summary::after{content:"▾";margin-left:8px;color:var(--dim)}detai
             <div class="overlay-extra" id="overlay-extra" hidden></div>
             <button type="button" id="overlay-btn" class="primary big">JUGAR</button>
             <button type="button" id="overlay-alt" class="linkish">Cambiar modo</button>
-            <div class="overlay-level" id="overlay-level"></div>
+            <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasale el juego a un amigo</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · SIN REGISTRO</div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS</div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -820,7 +867,9 @@ const LOOK={palette:'bloquear',block:'auto',bg:'noche',fx:'chispas',cb:false};
 function applyPalette(){Object.assign(COLORS,PALETTES[LOOK.palette]||PALETTES.bloquear);SPR.clear();}
 /* Gráficos: en modo liviano se dibuja a menos resolución y con menos efectos (para celulares de gama baja). */
 const GFX={low:false};
-function renderPR(){return Math.min(GFX.low?1.5:3,window.devicePixelRatio||1);}
+// En el celular, 2× ya se ve nítido y dibuja casi la mitad de puntos que 3×.
+GFX.phone=(()=>{try{return matchMedia('(pointer: coarse)').matches;}catch(_){return false;}})();
+function renderPR(){return Math.min(GFX.low?1.5:GFX.phone?2:3,window.devicePixelRatio||1);}
 // Cada bloque se dibuja una sola vez por color/tamaño/estilo y después se copia: mucho más liviano.
 const SPR=new Map();
 // Dibujito por pieza para distinguirlas sin depender del color.
@@ -985,7 +1034,7 @@ function createGame(root,prefix,options){
   function grounded(){return Boolean(state.active)&&!valid(state.active,0,1);}
   function setText(id,value){const el=$(id);if(el&&el.textContent!==String(value))el.textContent=value;}
   function updateScoreboard(){
-    setText('score',fmt(state.score));setText('lines',state.lines);setText('level',state.level);
+    const sc=fmt(state.score);setText('score',sc);{const el=$('score');if(el)el.classList.toggle('long',sc.length>6);}setText('lines',state.lines);setText('level',state.level);
     setText('record',options.recordText?options.recordText(state.mode):fmt(records()[state.mode]));setText('incoming',state.incoming.length);setText('sent',state.sent);
     options.onChange?.();
   }
@@ -1162,6 +1211,8 @@ function createGame(root,prefix,options){
         }
       }
     }
+    // El «bajar rápido» del gesto termina cuando la pieza se fija: la siguiente arranca normal.
+    if(touchStart&&touchStart.soft&&touchStart.piece!==state.pieceId){gestureSoft(touchStart,false);touchStart.done=true;}
     if(state.held.down){
       state.softTime+=dt;
       if(state.softTime>=t.soft){
@@ -1274,8 +1325,14 @@ function createGame(root,prefix,options){
     ctx.fillStyle='#ffffff44';rounded(ctx,px+4,py+3,s-8,Math.max(2,size*.13),2);ctx.fill();}
     if(LOOK.cb&&size>=12)cbMark(ctx,type,px,py,s);
   }
-  function drawBoard(){
-    const ctx=boardCtx,bg=ctx.createLinearGradient(0,0,0,H*CELL),B=LOOK.bg;
+  /* Para que ande fluido: el fondo (con la grilla) y las piezas ya fijadas se dibujan en capas aparte,
+     y sólo se rehacen cuando cambian. En cada cuadro se copian esas capas y se dibuja la pieza que cae. */
+  const layer={bg:null,bgKey:'',stack:null,stackKey:''};
+  function mkLayer(){const c=document.createElement('canvas'),pr=renderPR();c.width=Math.round(W*CELL*pr);c.height=Math.round(H*CELL*pr);const x=c.getContext('2d');x.setTransform(pr,0,0,pr,0,0);return [c,x];}
+  function bgLayer(){
+    const B=LOOK.bg,key=`${B}|${state.mode}|${renderPR()}`;
+    if(layer.bg&&layer.bgKey===key)return layer.bg;
+    const [c,ctx]=mkLayer(),bg=ctx.createLinearGradient(0,0,0,H*CELL);
     const BG={noche:[state.mode==='classic'?'#0e1725':'#101c2c','#0a111b'],negro:['#05070b','#020305'],grilla:['#0d1830','#081022'],galaxia:['#0b0a1f','#03040c'],atardecer:['#2a1630','#0b0f1f'],aurora:['#06261f','#071022']}[B]||['#101c2c','#0a111b'];
     bg.addColorStop(0,BG[0]);bg.addColorStop(1,BG[1]);
     ctx.fillStyle=bg;ctx.fillRect(0,0,W*CELL,H*CELL);
@@ -1283,7 +1340,21 @@ function createGame(root,prefix,options){
     if(B==='aurora'){const g=ctx.createLinearGradient(0,0,W*CELL,H*CELL*.6);g.addColorStop(0,'#2bff8800');g.addColorStop(.5,'#2bff8818');g.addColorStop(1,'#7c5cff00');ctx.fillStyle=g;ctx.fillRect(0,0,W*CELL,H*CELL);}
     ctx.strokeStyle=B==='grilla'?'#4d7bb055':B==='negro'?'#ffffff0d':state.mode==='classic'?'#40506247':'#677b8c19';ctx.lineWidth=1;ctx.beginPath();
     for(let x=1;x<W;x++){ctx.moveTo(x*CELL+.5,0);ctx.lineTo(x*CELL+.5,H*CELL);}for(let y=1;y<H;y++){ctx.moveTo(0,y*CELL+.5);ctx.lineTo(W*CELL,y*CELL+.5);}ctx.stroke();
+    layer.bg=c;layer.bgKey=key;return c;
+  }
+  function stackLayer(){
+    // Firma barata del tablero (200 casillas) + todo lo que cambia cómo se ven los bloques.
+    let h=0;for(let y=0;y<H;y++){const r=state.grid[y];for(let x=0;x<W;x++){const c=r[x];h=(h*31+(c?c.charCodeAt(0):1))|0;}}
+    const key=`${h}|${state.mode}|${LOOK.block}|${LOOK.palette}|${LOOK.cb?1:0}|${COLORS.I}|${renderPR()}`;
+    if(layer.stack&&layer.stackKey===key)return layer.stack;
+    let c,ctx;if(layer.stack&&layer.stack.width===Math.round(W*CELL*renderPR())){c=layer.stack;ctx=c.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);const pr=renderPR();ctx.setTransform(pr,0,0,pr,0,0);}else[c,ctx]=mkLayer();
     for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(state.grid[y][x])tile(ctx,x*CELL,y*CELL,CELL,state.grid[y][x]);
+    layer.stack=c;layer.stackKey=key;return c;
+  }
+  function drawBoard(){
+    const ctx=boardCtx;
+    ctx.drawImage(bgLayer(),0,0,W*CELL,H*CELL);
+    ctx.drawImage(stackLayer(),0,0,W*CELL,H*CELL);
     const p=state.active;
     if(p&&state.status!=='over'){
       if(state.mode==='modern'){
@@ -1305,7 +1376,10 @@ function createGame(root,prefix,options){
     ctx.save();ctx.globalAlpha=alpha;occ.forEach(([x,y])=>tile(ctx,cx+(x-minX)*size,cy+(y-minY)*size,size,type));ctx.restore();
   }
   function previewCount(){return state.mode==='classic'?1:nextCount;}
+  let previewKey='';
   function drawPreviews(){
+    const count0=previewCount(),pk=`${state.queue.slice(0,count0).join('')}|${state.hold}|${state.holdUsed?1:0}|${state.mode}|${count0}|${LOOK.palette}|${LOOK.block}|${LOOK.cb?1:0}|${COLORS.I}|${renderPR()}|${nextCanvas.width}`;
+    if(pk===previewKey)return;previewKey=pk;
     holdCtx.clearRect(0,0,120,98);
     if(state.hold)drawMini(holdCtx,state.hold,0,98,state.holdUsed?.42:1);
     else{holdCtx.strokeStyle='#52647988';holdCtx.lineWidth=1.3;holdCtx.setLineDash([5,5]);holdCtx.strokeRect(29,24,62,49);holdCtx.setLineDash([]);holdCtx.fillStyle='#74859b';holdCtx.textAlign='center';holdCtx.font='800 11px system-ui';holdCtx.fillText('VACÍO',60,53);}
@@ -1363,6 +1437,10 @@ function createGame(root,prefix,options){
   });
   // Velocidad vertical reciente (px/ms) con los últimos ~60 ms del recorrido.
   const recentVy=(g,now)=>{let k=g.trail.length-1;while(k>0&&now-g.trail[k][0]<60)k--;const a=g.trail[k],b=g.trail[g.trail.length-1];return (b[2]-a[2])/Math.max(16,b[0]-a[0]);};
+  function gestureSoft(g,on){
+    if(on&&!g.soft){g.soft=true;g.acted=true;holdInput('down','gesture');}
+    else if(!on&&g.soft){g.soft=false;releaseInput('down','gesture');}
+  }
   function dropNow(g){
     g.done=true;buzz();
     if(state.mode==='modern')hardDrop();else{const id=state.pieceId;for(let i=0;i<H&&state.pieceId===id;i++)softDrop();}
@@ -1385,21 +1463,24 @@ function createGame(root,prefix,options){
     }
     const mode=FEEL.swipe;
     if(dy>0){
-      // Soltar en el momento: al pasar 1,4 celdas con velocidad (o siempre, si así se configuró).
-      if(mode!=='soft'&&dy>=u*1.4&&(mode==='hard'||vy>=.7)){dropNow(g);return;}
-      if(mode!=='hard'){const ty=Math.trunc(dy/u);while(g.my<ty&&state.pieceId===g.piece){softDrop();g.my++;g.acted=true;}}
-    }else if(dy<=-u*1.4&&vy<=-.7&&state.mode==='modern'){g.done=true;reserve();buzz();}
+      // Deslizar rápido: cae de golpe (al pasar 1,4 celdas con velocidad, o siempre si así se configuró).
+      if(mode!=='soft'&&dy>=u*1.4&&(mode==='hard'||vy>=.7)){gestureSoft(g,false);dropNow(g);return;}
+      // Deslizar un poquito y dejar el dedo: baja rápido mientras lo mantenés (como mantener ▼).
+      if(mode!=='hard'&&!g.soft&&dy>=u*.6)gestureSoft(g,true);
+    }else if(g.soft&&dy<u*.25)gestureSoft(g,false);
+    if(dy<=-u*1.4&&vy<=-.7&&state.mode==='modern'){gestureSoft(g,false);g.done=true;reserve();buzz();}
   });
   surface.addEventListener('pointerup',e=>{
     fingers.delete(e.pointerId);
     const g=touchStart;if(!g||g.id!==e.pointerId)return;
-    touchStart=null;if(state.status!=='playing'||g.done)return;
+    touchStart=null;const wasSoft=g.soft;gestureSoft(g,false);if(state.status!=='playing'||g.done)return;
     const now=performance.now(),u=cellPx(),dy=e.clientY-g.y0,dur=now-g.t0;
     if(g.multi){if(!g.acted){rotate(-1);buzz();}return;}
     if(g.piece!==state.pieceId)return;
     if(g.axis==='y'){
       // Gesto decidido aunque frene al final: velocidad máxima alta o gesto corto.
-      if(dy>=u*1.2&&FEEL.swipe!=='soft'&&(FEEL.swipe==='hard'||(dy>=u*1.5&&(g.peakDown>=.5||dur<=320)))){dropNow(g);return;}
+      if(!wasSoft&&dy>=u*1.2&&FEEL.swipe!=='soft'&&(FEEL.swipe==='hard'||(dy>=u*1.5&&(g.peakDown>=.5||dur<=320)))){dropNow(g);return;}
+      if(wasSoft&&FEEL.swipe!=='soft'&&g.peakDown>=1.1&&dy>=u*2){dropNow(g);return;}
       if(dy<=-u*1.2&&state.mode==='modern'&&(g.peakUp<=-.5||dur<=320)){reserve();buzz();return;}
       return;
     }
@@ -1408,9 +1489,9 @@ function createGame(root,prefix,options){
       rotate(FEEL.tapSides&&g.sx<r.left+r.width/2?-1:1);buzz();
     }
   });
-  surface.addEventListener('pointercancel',e=>{fingers.delete(e.pointerId);if(touchStart?.id===e.pointerId)touchStart=null;});
+  surface.addEventListener('pointercancel',e=>{fingers.delete(e.pointerId);if(touchStart?.id===e.pointerId){gestureSoft(touchStart,false);touchStart=null;}});
   $('overlay-btn').addEventListener('click',()=>options.onOverlay?.());
-  function resize(){setupCanvas(boardCanvas,boardCtx,W*CELL,H*CELL);setupCanvas(holdCanvas,holdCtx,120,98);resizePreviews();state.dirty=true;draw();}
+  function resize(){previewKey='';layer.bg=null;layer.stack=null;setupCanvas(boardCanvas,boardCtx,W*CELL,H*CELL);setupCanvas(holdCanvas,holdCtx,120,98);resizePreviews();state.dirty=true;draw();}
   function addGarbage(holes){
     if(holes.length){sfx('garbage',{n:holes.length});kickFx(2+Math.min(6,holes.length),'x');}
     for(const hole of holes){
@@ -1528,7 +1609,7 @@ function refreshControlHints(){
   const one=p=>`${k(p,'left')} ${k(p,'right')} mover · ${k(p,'down')} bajar · ${k(p,'cw')} / ${k(p,'ccw')} rotar · ${k(p,'drop')} caída · ${k(p,'hold')} guardar`;
   byId('help-keys').innerHTML=`<p><b>Solo y en línea:</b> ${one('solo')}</p><p><b>Jugador 1:</b> ${one('p1')}</p><p><b>Jugador 2:</b> ${one('p2')}</p>
   <p><b>Todos:</b> ${k('common','pause')} o <kbd>Esc</kbd> pausa · ${k('common','start')} jugar/continuar · ${k('common','restart')} nueva partida · ${k('common','sound')} sonido.</p>
-  <p><b>Táctil:</b> elegí una plantilla o mové los botones en Menú › Editar botones táctiles. Gestos sobre el tablero: arrastrá para mover la pieza, tocá para rotar (con dos dedos rota al otro lado), deslizá rápido hacia abajo para soltarla y hacia arriba para guardarla.</p>
+  <p><b>Táctil:</b> elegí una plantilla o mové los botones en Menú › Editar botones táctiles. Gestos sobre el tablero: arrastrá para mover la pieza, tocá para rotar (con dos dedos rota al otro lado), deslizá un poquito hacia abajo y mantené el dedo para que baje rápido, deslizá rápido para soltarla de golpe, y hacia arriba para guardarla.</p>
   <p><b>Moderno:</b> reserva, sombra de caída, rotación con ajustes en las paredes, combos, giros T y 5 siguientes. La velocidad sube cada 10 líneas; desde el nivel 20 la pieza cae al instante y tenés 0,47 s para acomodarla.</p>
   <p><b>Clásico (al estilo de los juegos de los 80):</b> sin reserva, sin sombra de caída ni caída instantánea, rotación simple sin ajustes y una pieza siguiente. La pieza queda fija apenas se apoya.</p>
   <p><b>Solo:</b> Maratón (sube la velocidad hasta que se llene el tablero), Sprint 40 (40 líneas contra reloj) y Ultra 2:00 (máximo puntaje en 2 minutos), cada uno con su récord.</p>
@@ -2290,6 +2371,7 @@ function onlineLock(result){
   solo.renderScore();
 }
 function onlineOver(){
+  endGuard();
   const M=net.m;if(session!=='online'||!['playing','finishing'].includes(M.phase)||M.meOver)return;
   M.meOver=true;if(!M.firstOver)M.firstOver=net.role;netSend({t:'over',round:M.round,sc:solo.state.score});netSendBoard(true);
   if(net.role==='host')onlineHostCheckEnd();
@@ -2315,6 +2397,7 @@ function onlineFinalize(reason,forced){
   netSend(res);onlineApplyResult(res);
 }
 function onlineApplyResult(res){
+  endGuard();
   const M=net.m;M.phase='finished';M.myReady=M.peerReady=false;try{progressEnd(res.winner===net.role?'win':res.winner?'lose':'tie');}catch(_){}
   M.result={winner:['host','guest'].includes(res.winner)?res.winner:null,mine:net.role==='host'?res.hs:res.gs,theirs:net.role==='host'?res.gs:res.hs,reason:({time:'Se terminó el tiempo.','both-full':'Se llenaron los dos tableros.','host-full':net.role==='host'?'Se llenó tu tablero.':'Se llenó el tablero de tu amigo.','guest-full':net.role==='guest'?'Se llenó tu tablero.':'Se llenó el tablero de tu amigo.'})[res.reason]||''};
   if(['playing','paused'].includes(solo.state.status))solo.freeze();
@@ -2355,8 +2438,10 @@ function refreshOnlineOverlay(){
   if(net.step==='lost'){g.showOverlay('SE CORTÓ\nLA CONEXIÓN',net.status.replace(/ Para seguir.*/,'')||'Se perdió la conexión.','VOLVER A CONECTAR');return;}
   if(!net.hello){
     const waiting=net.step==='answered'||net.step==='connecting'||net.step==='invited';
-    g.showOverlay('EN LÍNEA',waiting?'Terminá de pasar los códigos en el menú.':'Jugá con un amigo en otro celular o compu. Se conectan así:',waiting?'VER CÓDIGOS':'CONECTAR');
-    if(!waiting){const box=byId('overlay-extra');box.innerHTML=onlineHowHtml();box.hidden=false;}
+    const viaAcct=typeof INV!=='undefined'&&(INV||INVG),withAcct=typeof acct!=='undefined'&&acct&&LB.url;
+    if(viaAcct){const x=INV||INVG;g.showOverlay('EN LÍNEA',INV?`Esperando que ${x.para} acepte tu invitación…`:`Conectando con ${x.de}…`,'VER');return;}
+    g.showOverlay('EN LÍNEA',waiting?'Terminá de pasar los códigos en el menú.':withAcct?'Elegí a tu amigo de la lista y le llega la invitación al toque.\n(Si no tiene cuenta, en el menú también está el QR.)':'Jugá con un amigo en otro celular o compu. Se conectan así:',waiting?'VER CÓDIGOS':withAcct?'INVITAR':'CONECTAR');
+    if(!waiting&&!withAcct){const box=byId('overlay-extra');box.innerHTML=onlineHowHtml();box.hidden=false;}
     return;
   }
   switch(M.phase){
@@ -2657,6 +2742,7 @@ function soloTick(dt){
 }
 // Final por objetivo cumplido (40 líneas) o por tiempo (Ultra).
 function soloFinish(){
+  endGuard();
   const s=solo.state;solo.freeze();
   if(soloKind==='fiesta'){partyTurnEnd(false);return;}
   sound('tetris');
@@ -2792,6 +2878,7 @@ function cpuResume(){
   cpuOverlay();refreshTop();
 }
 function cpuFinish(winner){
+  endGuard();
   if(session!=='cpu'||!['playing','countdown','paused'].includes(cpuM.phase))return;
   cpuM.phase='finished';cpuM.winner=winner;
   for(const g of [solo,cpu])if(['playing','paused'].includes(g.state.status))g.freeze();
@@ -3057,35 +3144,35 @@ function showSummary(o){
 let summaryKeep=false;
 function renderOverlayLevel(){
   const L=levelInfo(PRG.xp),el=byId('overlay-level');
-  el.innerHTML=`<span>NIVEL ${L.lv}</span><span class="xpbar mini"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></span>`;
+  const a=typeof acct!=='undefined'&&acct;
+  el.innerHTML=`${a?avHtml(a.avatar,a.color):'<span class="av" style="--avc:#93a1b6">👤</span>'}<span class="ol-txt"><b>${a?escHtml(a.usuario):'Tu perfil'}</b><small>Nivel ${L.lv}${a?'':' · creá tu cuenta'}</small><span class="xpbar mini"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></span></span><span class="ol-go" aria-hidden="true">›</span>`;
+  if(!el.dataset.on){el.dataset.on='1';el.addEventListener('click',e=>{e.stopPropagation();openMenu();setMenuTab('progreso');});}
 }
 
 /* Panel "Progreso" del menú. */
+const PSECT=new Set();
 function renderProgress(){
   const box=byId('prog-panel');if(!box)return;
   const L=levelInfo(PRG.xp),got=MEDALS.filter(m=>PRG.medals[m.id]).length,dr=dailyRec();
+  const sec=(id,icon,title,sub,body)=>`<details class="sect" data-psect="${id}"${PSECT.has(id)?' open':''}><summary><i>${icon}</i><b>${title}</b><span>${sub}</span></summary><div class="sect-body">${body}</div></details>`;
   box.innerHTML=`<div class="acct-panel" id="acct-panel"></div>
-    <div class="lb-panel" id="lb-panel"></div>
     <h3>TU PROGRESO</h3>
     <div class="prog-level"><div class="prog-lv">${L.lv}</div><div class="prog-lv-txt"><b>Nivel ${L.lv}</b><div class="xpbar"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></div><span>${fmt(L.into)} / ${fmt(L.need)} XP</span></div></div>
     <div class="prog-stats"><span><b>${fmt(PRG.games)}</b>partidas</span><span><b>${fmt(PRG.lines)}</b>líneas</span><span><b>${fmt(PRG.tetris)}</b>cuádruples</span><span><b>${got}/${MEDALS.length}</b>medallas</span></div>
     <div class="prog-daily"><div><b>DESAFÍO DEL DÍA</b><span>2 minutos con las mismas piezas para todos hoy.</span><span>${dr.tries?`Tu mejor de hoy: <b>${fmt(dr.best)}</b> · ${dr.tries} ${dr.tries===1?'intento':'intentos'}`:'Todavía no lo jugaste hoy.'}${PRG.dailyDays.length?` · ${PRG.dailyDays.length} ${PRG.dailyDays.length===1?'día jugado':'días jugados'}`:''}</span></div><button type="button" class="primary" id="prog-daily-go">Jugar</button></div>
-    <h3>TUS ÚLTIMAS PARTIDAS</h3>
-    <div id="hist-box"></div>
-    <h3>DESAFÍOS DE GIRO <small>${puzzleSolvedCount()}/${PUZZLES.length}</small></h3>
-    <p class="hint">Tableros armados para aprender a girar la T en un hueco. Pocas piezas y sin gravedad.</p>
-    <div class="pz-list">${PUZZLES.map((p,i)=>`<button type="button" class="pz-chip${PRG.puzzles[p.id]?' done':''}${i===puzzleIdx?' cur':''}" data-pz="${i}"><i>${PRG.puzzles[p.id]?'✓':i+1}</i>${p.name}</button>`).join('')}</div>
-    <h3>APARIENCIA</h3>
-    <p class="hint">Se desbloquean al subir de nivel.</p>
+    <div class="lb-panel" id="lb-panel"></div>
+    ${sec('hist','📈','Tus últimas partidas','Cómo venís, con gráfico','<div id="hist-box"></div>')}
+    ${sec('giros','🧩','Desafíos de giro',`${puzzleSolvedCount()} de ${PUZZLES.length} resueltos`,`<p class="hint">Tableros armados para aprender a girar la T en un hueco. Pocas piezas y sin gravedad.</p>
+    <div class="pz-list">${PUZZLES.map((p,i)=>`<button type="button" class="pz-chip${PRG.puzzles[p.id]?' done':''}${i===puzzleIdx?' cur':''}" data-pz="${i}"><i>${PRG.puzzles[p.id]?'✓':i+1}</i>${p.name}</button>`).join('')}</div>`)}
+    ${sec('look','🎨','Apariencia','Colores, bloques, fondos y efectos',`<p class="hint">Se desbloquean al subir de nivel.</p>
     <div class="looks">${Object.entries(REWARDS).map(([cat,R])=>`<div class="look-row"><span class="look-t">${R.title}</span><div class="look-chips">${R.items.map(([id,name,lv])=>{const on=LOOK[cat]===id,locked=lv>L.lv;return `<button type="button" class="look-chip${on?' active':''}" data-look="${cat}:${id}" ${locked?'disabled':''} aria-pressed="${on}">${cat==='palette'?`<span class="sw">${['I','O','T','S','Z'].map(t=>`<i style="background:${PALETTES[id][t]}"></i>`).join('')}</span>`:''}${name}${locked?` <small>Nv ${lv}</small>`:''}</button>`;}).join('')}</div></div>`).join('')}
-      <label class="check"><input type="checkbox" id="look-cb" ${LOOK.cb?'checked':''}> Modo daltónico: cada pieza lleva un dibujo además del color</label></div>
-    <h3>MEDALLAS</h3>
-    <div class="medals">${MEDALS.map(m=>{const v=Math.min(m.goal,m.val()),on=!!PRG.medals[m.id];return `<div class="medal${on?' on':''}" title="${m.desc}"><i>${m.g}</i><div><b>${m.name}</b><span>${m.desc}</span>${on?'<em>Conseguida</em>':m.txt?`<em>${m.txt()}</em>`:`<div class="mbar"><s style="width:${(v/m.goal*100).toFixed(1)}%"></s></div><em>${fmt(v)} / ${fmt(m.goal)}</em>`}</div></div>`;}).join('')}</div>
-    <h3>PASAR TU PROGRESO A OTRO DISPOSITIVO</h3>
-    <p class="hint">Tu progreso queda guardado en este navegador. Copiá el código y pegalo en el otro dispositivo (también sirve de respaldo).</p>
+      <label class="check"><input type="checkbox" id="look-cb" ${LOOK.cb?'checked':''}> Modo daltónico: cada pieza lleva un dibujo además del color</label></div>`)}
+    ${sec('medals','🏅','Medallas',`${got} de ${MEDALS.length} conseguidas`,`<div class="medals">${MEDALS.map(m=>{const v=Math.min(m.goal,m.val()),on=!!PRG.medals[m.id];return `<div class="medal${on?' on':''}" title="${m.desc}"><i>${m.g}</i><div><b>${m.name}</b><span>${m.desc}</span>${on?'<em>Conseguida</em>':m.txt?`<em>${m.txt()}</em>`:`<div class="mbar"><s style="width:${(v/m.goal*100).toFixed(1)}%"></s></div><em>${fmt(v)} / ${fmt(m.goal)}</em>`}</div></div>`;}).join('')}</div>`)}
+    ${sec('code','🔁','Código de respaldo','Sin cuenta: pasar el progreso a mano',`<p class="hint">Con tu cuenta, el progreso ya viaja solo. Si no querés cuenta, copiá este código y pegalo en el otro dispositivo (también sirve de respaldo).</p>
     <div class="row"><button type="button" class="pill" id="prog-copy">Copiar código de progreso</button></div>
     <div class="row prog-import"><input id="prog-code" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Pegá acá un código BLQP1…"><button type="button" class="pill" id="prog-load">Cargar</button></div>
-    <p class="hint" id="prog-msg" role="status" aria-live="polite"></p>`;
+    <p class="hint" id="prog-msg" role="status" aria-live="polite"></p>`)}`;
+  box.querySelectorAll('details[data-psect]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)PSECT.add(d.dataset.psect);else PSECT.delete(d.dataset.psect);}));
   box.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{const [cat,id]=b.dataset.look.split(':');LOOK[cat]=id;lookChanged();renderProgress();});
   byId('look-cb').onchange=e=>{LOOK.cb=e.target.checked;lookChanged();};
   box.querySelectorAll('[data-pz]').forEach(b=>b.onclick=()=>{setPuzzleIdx(Number(b.dataset.pz));if(session!=='solo')changeSession('solo');if(soloKind!=='puzzle')setSoloKind('puzzle');closeMenu();solo.reset(true);refreshTop();});
@@ -3266,6 +3353,7 @@ function partyPrimary(){
   byId('overlay-extra').hidden=true;soloTimer.elapsed=0;solo.reset(true);return true;
 }
 function partyTurnEnd(top){
+  endGuard();
   const P=PARTY,s=solo.state;if(P.phase!=='turn')return;
   P.scores[P.turn]=s.score;P.last={name:P.names[P.turn],score:s.score,top:!!top};P.turn++;
   if(P.turn>=P.names.length){const max=partyLeader(),win=P.names.filter((n,i)=>P.scores[i]===max);if(win.length===1)P.wins[win[0]]=(P.wins[win[0]]||0)+1;P.phase='results';sound('tetris');}
@@ -3291,7 +3379,7 @@ function tutText(k){
   if(k==='move')return g?'Deslizá el dedo hacia un costado para <b>mover</b> la pieza.':pad?'Tocá ◀ o ▶ para <b>mover</b> la pieza.':`Usá ${K('left')} y ${K('right')} para <b>mover</b> la pieza.`;
   if(k==='rotate')return g?'Tocá la pantalla para <b>girarla</b>.':pad?'Tocá ⟳ para <b>girarla</b>.':`Apretá ${K('cw')} para <b>girarla</b>.`;
   if(k==='hold')return g?'Deslizá hacia arriba para <b>guardarla</b>: la cambiás por la siguiente.':pad?'Tocá ▣ GUARDAR para cambiarla por la siguiente.':`Apretá ${K('hold')} para <b>guardarla</b>: la cambiás por la siguiente.`;
-  if(mode==='classic')return g?'Acostala sobre el hueco y deslizá hacia abajo para <b>bajarla</b> y completar la línea.':pad?'Acostala sobre el hueco y bajala con ▼ hasta completar la línea.':`Acostala sobre el hueco y bajala con ${K('down')} hasta completar la línea.`;
+  if(mode==='classic')return g?'Acostala sobre el hueco, deslizá un poquito hacia abajo y mantené el dedo para <b>bajarla</b> rápido.':pad?'Acostala sobre el hueco y bajala con ▼ hasta completar la línea.':`Acostala sobre el hueco y bajala con ${K('down')} hasta completar la línea.`;
   return g?'Deslizá rápido hacia abajo para <b>soltarla</b> en el hueco y completar la línea.':pad?'Tocá ⤓ CAER para <b>soltarla</b> en el hueco y completar la línea.':`Apretá ${K('drop')} para <b>soltarla</b> en el hueco y completar la línea.`;
 }
 function tutRender(){
@@ -3429,6 +3517,20 @@ function setupGfx(){
   document.querySelectorAll('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{GFXSET.mode=b.dataset.gfx;if(GFXSET.mode==='auto')GFXSET.autoLow=false;gfxSave();gfxApply();}));
   byId('gfx-fps').addEventListener('change',e=>{GFXSET.fps=e.target.checked;gfxSave();gfxApply();});
   gfxApply();requestAnimationFrame(gfxMonitor);
+}
+
+/* Zoom de Safari: si la página quedó agrandada (pellizco o doble toque), vuelve a su tamaño al jugar. */
+function resetZoom(){
+  const vv=window.visualViewport;if(!vv||vv.scale<=1.01)return;
+  const m=byId('vp');if(!m)return;const c=m.getAttribute('content');
+  m.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
+  setTimeout(()=>{m.setAttribute('content',c);window.scrollTo(0,0);},60);
+}
+function setupZoomGuard(){
+  // Pellizcar o hacer doble toque sobre el juego no agranda la página (Safari no respeta el «maximum-scale»).
+  for(const ev of ['gesturestart','gesturechange'])document.addEventListener(ev,e=>{if(!e.target.closest?.('input,textarea'))e.preventDefault();},{passive:false});
+  document.addEventListener('focusout',e=>{if(e.target.matches?.('input,textarea,select'))setTimeout(resetZoom,120);});
+  window.visualViewport?.addEventListener('resize',()=>{if(window.visualViewport.scale>1.01&&!document.activeElement?.matches?.('input,textarea,select'))setTimeout(resetZoom,400);});
 }
 
 /* ───────── Tabla de posiciones compartida ─────────
@@ -3690,7 +3792,7 @@ function acctLogout(expired=false){
   if(!acct)return;acct=null;acctSave();acctAfterChange();
   if(expired)lbAlert('Tu sesión de la tabla venció: entrá de nuevo con tu usuario y PIN.<small>Menú › Progreso › Tu cuenta</small>');
 }
-function acctAfterChange(){try{renderProgress();}catch(_){}try{lbOfferActions();}catch(_){}}
+function acctAfterChange(){try{renderProgress();}catch(_){}try{lbOfferActions();}catch(_){}try{renderOverlayLevel();}catch(_){}try{AM.users=null;AM.unsupported=false;AM.err='';renderFriends();}catch(_){}}
 
 /* Progreso sincronizado: se guarda en la planilla al terminar cada partida y se trae al abrir el juego.
    Al juntar dos dispositivos queda lo mejor de cada uno (como el código de progreso). */
@@ -3736,7 +3838,7 @@ async function acctPull(){
 /* Panel «Tu cuenta» (Menú › Progreso). */
 let acctMode='crear',acctPicker=false;
 function agoText(t){if(!t)return 'todavía no';const s=(Date.now()-t)/1000;return s<60?'recién':s<3600?`hace ${Math.round(s/60)} min`:s<86400?`hace ${Math.round(s/3600)} h`:`hace ${Math.round(s/86400)} días`;}
-function renderAcctStatus(){const el=byId('acct-sync-txt');if(el&&acct)el.textContent=`Progreso sincronizado ${agoText(acct.sync)}`;}
+function renderAcctStatus(){const el=byId('acct-sync-txt');if(el&&acct)el.textContent=acct.sync?`Progreso sincronizado ${agoText(acct.sync)}`:'Tu progreso se guarda en tu cuenta';}
 function acctPanelHtml(){
   if(!LB.url)return '';
   if(acct)return `<h3>👤 TU CUENTA</h3>
@@ -3819,6 +3921,197 @@ function setupCuenta(){
   if(acct)setTimeout(acctPull,2500);
   let last=Date.now();document.addEventListener('visibilitychange',()=>{if(!document.hidden&&acct&&Date.now()-last>300000){last=Date.now();acctPull();}});
 }
+/* Jugar en línea con la cuenta: invitar a un amigo de la lista, sin QR.
+   La planilla sólo pasa los datos de conexión de uno al otro (unos segundos, en su memoria temporal);
+   después la partida va directo entre los dos dispositivos, igual que con el QR, que queda como plan B. */
+const AM={users:null,loading:false,err:'',unsupported:false,dismissed:new Set(),lastPoll:0,polling:false,pop:null,listAt:0};
+let INV=null;   // mi invitación: {para,avatar,color,id,phase,msg,t0}
+let INVG=null;  // invitación que acepté: {de,avatar,color,id,t0}
+const amOn=()=>Boolean(acct&&LB.url&&!AM.unsupported);
+function amBusyPlaying(){
+  try{return solo.state.status==='playing'||['countdown','playing'].includes(match.phase)||(session==='cpu'&&['countdown','playing'].includes(cpuM.phase));}catch(_){return false;}
+}
+function amUnsupported(e){
+  if(/desconocida|versión 3|código viejo/i.test(String(e&&e.message||e))){AM.unsupported=true;AM.err='Para invitar amigos hay que actualizar el código de la planilla (versión 4).';return true;}
+  return false;
+}
+async function amLoadUsers(force=false){
+  if(!LB.url||AM.loading)return;
+  if(!force&&AM.users&&Date.now()-AM.listAt<20000)return;
+  AM.loading=true;AM.err='';renderFriends();
+  try{
+    const j=await lbFetch({accion:'usuarios'},12000);
+    if(!Array.isArray(j.usuarios)){AM.unsupported=true;AM.err='Para invitar amigos hay que actualizar el código de la planilla (versión 4).';}
+    else{AM.users=j.usuarios;AM.listAt=Date.now();}
+  }catch(e){if(!amUnsupported(e))AM.err=e.message;}
+  AM.loading=false;renderFriends();
+}
+
+/* ── Yo invito ── */
+async function invSend(para){
+  if(!acct||INV)return;
+  const u=(AM.users||[]).find(x=>x.usuario===para)||{usuario:para};
+  INV={para:u.usuario,avatar:u.avatar,color:u.color,id:null,phase:'preparando',msg:'',t0:Date.now()};
+  if(INVG)INVG=null;
+  if(session!=='online')changeSession('online');
+  if(net.step!=='idle'&&net.step!=='lost')netReset();
+  renderFriends();
+  await netCreate();
+  if(!INV||INV.para!==u.usuario)return;
+  if(net.step!=='invited'||!net.myCode){invEnd('No se pudo preparar la invitación. Probá de nuevo.');return;}
+  try{
+    const j=await lbPost({accion:'invitar',usuario:acct.usuario,token:acct.token,para:u.usuario,oferta:net.myCode},15000);
+    if(!INV)return;
+    INV.id=j.id;INV.phase='esperando';INV.online=j.enLinea;renderFriends();invPoll();
+  }catch(e){amUnsupported(e);invEnd(e.message);}
+}
+async function invPoll(){
+  const me=INV;if(!me||!me.id)return;
+  if(Date.now()-me.t0>300000){invEnd(`${me.para} no respondió. La invitación venció.`,true);return;}
+  if(net.role!=='host'||!['invited','connecting'].includes(net.step)){if(!net.hello)invEnd('',false);return;}
+  try{
+    const j=await lbPost({accion:'buzon',usuario:acct.usuario,token:acct.token,id:me.id},12000);
+    if(INV!==me)return;
+    if(j.estado==='aceptada'&&j.respuesta){
+      me.phase='conectando';renderFriends();
+      if(!netUseFriendCode(j.respuesta)){invEnd('No se pudo usar la respuesta de tu amigo. Probá de nuevo.');return;}
+      amWatchConnect(me,()=>INV===me,msg=>invEnd(msg,true),()=>{INV=null;renderFriends();});
+      return;
+    }
+    if(j.estado==='rechazada'){invEnd(`${me.para} dijo «ahora no».`,true);return;}
+    if(j.estado==='cancelada'||j.estado==='vencida'){invEnd('La invitación venció.',true);return;}
+  }catch(e){/* un error de red suelto no corta la espera */}
+  setTimeout(()=>{if(INV===me)invPoll();},2000);
+}
+// Espera a que la conexión se abra; si en 45 s no pasa, deja el mensaje con el plan B.
+function amWatchConnect(ref,alive,fail,done){
+  const t0=Date.now();
+  const tick=()=>{
+    if(!alive())return;
+    if(net.hello){done();return;}
+    if(net.step==='idle'||net.step==='lost'){fail('Se cortó antes de conectar. Probá de nuevo.');return;}
+    if(Date.now()-t0>45000){fail('No logran conectarse por esta red. Prueben con datos móviles en uno de los dos, o usen el QR.');return;}
+    setTimeout(tick,400);
+  };tick();
+}
+function invEnd(msg='',reset=true){
+  const me=INV;INV=null;
+  if(me&&me.id&&me.phase==='esperando'&&acct)lbPost({accion:'cancelar',usuario:acct.usuario,token:acct.token,id:me.id}).catch(()=>{});
+  if(reset&&!net.hello&&net.role==='host')netReset();
+  AM.note=msg;renderFriends();renderNet();try{refreshOnlineOverlay();}catch(_){}
+}
+
+/* ── Me invitan ── */
+function amPollDue(){
+  if(!amOn()||document.hidden||AM.polling)return false;
+  const gap=menuOpen&&session==='online'?8000:amBusyPlaying()?40000:20000;
+  return Date.now()-AM.lastPoll>=gap;
+}
+async function amPoll(){
+  if(!amPollDue())return;
+  AM.polling=true;AM.lastPoll=Date.now();
+  try{
+    const j=await lbPost({accion:'buzon',usuario:acct.usuario,token:acct.token},12000);
+    const inv=j.invitacion;
+    if(inv&&!AM.dismissed.has(inv.id))amOffer(inv);else if(!inv)amClosePop();
+  }catch(e){amUnsupported(e);}
+  AM.polling=false;
+}
+function amOffer(inv){
+  if(INVG&&INVG.id===inv.id)return;
+  if(session==='online'&&net.hello)return;// ya está jugando en línea
+  if(amBusyPlaying()){amToast(inv);return;}
+  if(AM.pop&&AM.pop.id===inv.id&&!AM.pop.toast)return;
+  amClosePop();
+  const pop=document.createElement('div');pop.className='inv-pop';pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Invitación para jugar');
+  pop.innerHTML=`<div class="inv-card">${avHtml(inv.avatar,inv.color,true)}<div><b>${escHtml(inv.de)}</b><span>te invita a jugar en línea</span></div></div>
+    <div class="row"><button type="button" class="primary" data-a="si">Aceptar</button><button type="button" class="pill" data-a="no">Ahora no</button></div>`;
+  pop.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='si')invAccept(inv);else if(a==='no')invDecline(inv);});
+  document.body.appendChild(pop);AM.pop={id:inv.id,el:pop};
+  pop.querySelector('.primary').focus({preventScroll:true});
+}
+// Durante una partida sólo aparece un aviso chiquito arriba, que no la interrumpe.
+function amToast(inv){
+  if(AM.pop&&AM.pop.id===inv.id)return;amClosePop();
+  const t=document.createElement('button');t.type='button';t.className='inv-toast';
+  t.innerHTML=`${avHtml(inv.avatar,inv.color)} <span><b>${escHtml(inv.de)}</b> te invita a jugar · <u>Ver</u></span>`;
+  t.addEventListener('click',()=>{amClosePop();try{if(solo.state.status==='playing')autoPause();}catch(_){}amOffer(inv);});
+  document.body.appendChild(t);AM.pop={id:inv.id,el:t,toast:true};
+}
+function amClosePop(){if(AM.pop){AM.pop.el.remove();AM.pop=null;}}
+function invDecline(inv){
+  AM.dismissed.add(inv.id);amClosePop();
+  if(acct)lbPost({accion:'rechazar',usuario:acct.usuario,token:acct.token,id:inv.id}).catch(()=>{});
+}
+async function invAccept(inv){
+  AM.dismissed.add(inv.id);amClosePop();
+  if(INV)invEnd('',true);
+  INVG={de:inv.de,avatar:inv.avatar,color:inv.color,id:inv.id,t0:Date.now(),phase:'preparando'};
+  if(session!=='online')changeSession('online');
+  else if(net.step!=='idle'&&net.step!=='lost')netReset();
+  openMenu('online');renderFriends();
+  const me=INVG;
+  if(!netUseFriendCode(inv.oferta)){INVG=null;AM.note='La invitación no sirvió. Pedile que te invite de nuevo.';renderFriends();return;}
+  // Espera a que esté lista la respuesta y la manda por la planilla.
+  const t0=Date.now();
+  let began=false;// netJoin arranca un instante después: «idle» sólo cuenta como falla si ya había empezado
+  while(INVG===me&&net.step!=='answered'&&Date.now()-t0<20000){if(net.step!=='idle')began=true;else if(began||Date.now()-t0>3000)break;await new Promise(r=>setTimeout(r,250));}
+  if(INVG!==me)return;
+  if(net.step!=='answered'||!net.myCode){INVG=null;AM.note='No se pudo preparar la conexión. Pedile que te invite de nuevo.';renderFriends();return;}
+  try{await lbPost({accion:'responder',usuario:acct.usuario,token:acct.token,id:inv.id,respuesta:net.myCode},15000);}
+  catch(e){if(INVG===me){INVG=null;AM.note=e.message;netReset();renderFriends();}return;}
+  me.phase='conectando';renderFriends();
+  amWatchConnect(me,()=>INVG===me,msg=>{INVG=null;AM.note=msg;renderFriends();try{refreshOnlineOverlay();}catch(_){}},()=>{INVG=null;renderFriends();});
+}
+
+/* ── Panel «Invitar a un amigo» dentro de En línea ── */
+function renderFriends(){
+  const box=byId('net-friends');if(!box||initializing)return;
+  const idle=net.step==='idle'||net.step==='lost';
+  if(!LB.url||net.hello){box.hidden=true;if(net.hello)AM.note='';return;}
+  box.hidden=false;
+  const mine=byId('net-mine');
+  if(INV||INVG){
+    // Con la cuenta no hace falta el QR: se esconde para no confundir.
+    if(mine)mine.hidden=true;byId('net-friend').hidden=true;byId('net-steps').textContent='';byId('net-how').hidden=true;
+    const x=INV||INVG,who=INV?x.para:x.de;
+    const txt=INV?({preparando:'Preparando la invitación…',esperando:`Esperando que ${who} acepte…`,conectando:`${who} aceptó. Conectando…`})[x.phase]
+      :({preparando:`Preparando la conexión con ${who}…`,conectando:`Conectando con ${who}…`})[x.phase];
+    box.innerHTML=`<div class="inv-wait">${avHtml(x.avatar,x.color,true)}<div><b>${escHtml(who)}</b><span><i class="busy"></i>${escHtml(txt||'Un momento…')}</span>
+      ${INV&&x.phase==='esperando'&&x.online===false?'<span class="dim">No está con el juego abierto ahora: le va a aparecer cuando lo abra (la invitación dura 5 minutos).</span>':''}</div></div>
+      <div class="row"><button type="button" class="pill" data-am="cancel">Cancelar</button></div>`;
+    return;
+  }
+  if(!idle){box.hidden=true;return;}
+  const note=AM.note?`<p class="hint inv-note">${escHtml(AM.note)}</p>`:'';
+  if(!acct){
+    box.innerHTML=`<div class="inv-head"><b>INVITAR A UN AMIGO</b></div>${note}
+      <p class="hint">Con tu cuenta elegís a tu amigo de una lista y le llega la invitación: sin QR ni códigos.</p>
+      <div class="row"><button type="button" class="pill" data-am="cuenta">👤 Crear cuenta o entrar</button></div>`;
+    return;
+  }
+  if(AM.unsupported){box.innerHTML=`<div class="inv-head"><b>INVITAR A UN AMIGO</b></div><p class="hint">${escHtml(AM.err)}</p>`;return;}
+  if(!AM.loading&&!AM.err&&(!AM.users||Date.now()-AM.listAt>30000))amLoadUsers();
+  const list=(AM.users||[]).filter(u=>u.usuario.toLowerCase()!==acct.usuario.toLowerCase());
+  const rows=list.map(u=>`<li>${avHtml(u.avatar,u.color)}<span class="inv-name">${escHtml(u.usuario)}${u.enLinea?'<i class="inv-dot" title="Con el juego abierto"></i>':''}</span><button type="button" class="pill" data-am="inv" data-u="${escHtml(u.usuario)}">Invitar</button></li>`).join('');
+  box.innerHTML=`<div class="inv-head"><b>INVITAR A UN AMIGO</b><button type="button" class="linkish" data-am="reload" aria-label="Actualizar la lista">${AM.loading?'…':'↻'}</button></div>${note}
+    ${AM.err?`<p class="hint acct-err">${escHtml(AM.err)}</p>`:''}
+    ${AM.users?(rows?`<ul class="inv-list">${rows}</ul>`:'<p class="hint">Todavía no hay otras cuentas. Cuando tus amigos se creen una, aparecen acá.</p>'):(AM.loading?'<p class="hint">Cargando…</p>':'')}
+    <p class="hint">El punto verde es que tiene el juego abierto. Si no lo tiene, le aparece cuando lo abra.</p>`;
+}
+function setupAmigos(){
+  const box=byId('net-friends');if(!box)return;
+  box.addEventListener('click',e=>{
+    const b=e.target.closest('[data-am]');if(!b)return;const a=b.dataset.am;
+    if(a==='inv'){AM.note='';invSend(b.dataset.u);}
+    else if(a==='reload'){AM.note='';amLoadUsers(true);}
+    else if(a==='cuenta'){setMenuTab('progreso');}
+    else if(a==='cancel'){if(INV)invEnd('',true);else if(INVG){INVG=null;netReset();renderFriends();}}
+  });
+  setInterval(amPoll,4000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(amPoll,600);});
+  setTimeout(amPoll,2500);
+}
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
@@ -3849,8 +4142,8 @@ function musicStyle(){
 function audioLight(on){
   const n=AU.nodes,ctx=AU.ctx;if(!n||!ctx||!AU.ir||AU.light===on)return;AU.light=on;
   try{
-    const rc=ctx.createConvolver();rc.buffer=AU.ir(on?.7:2.1,3);n.rev.disconnect();n.rev.connect(rc);rc.connect(n.revOut);rc.connect(n.sfxRev);n.revConv.disconnect();n.revConv=rc;
-    const uc=ctx.createConvolver();uc.buffer=AU.ir(on?.6:1.4,2.2);n.rlp.disconnect();n.rlp.connect(uc);uc.connect(n.rhp);n.rumConv.disconnect();n.rumConv=uc;
+    const rc=ctx.createConvolver();rc.buffer=AU.ir(on?.7:AU_MOBILE?1.3:2.1,3);n.rev.disconnect();n.rev.connect(rc);rc.connect(n.revOut);rc.connect(n.sfxRev);n.revConv.disconnect();n.revConv=rc;
+    const uc=ctx.createConvolver();uc.buffer=AU.ir(on?.6:AU_MOBILE?.9:1.4,2.2);n.rlp.disconnect();n.rlp.connect(uc);uc.connect(n.rhp);n.rumConv.disconnect();n.rumConv=uc;
   }catch(_){}
 }
 function saveAudio(){storageSet('bloques-audio-v1',JSON.stringify(AUDIO));}
@@ -3868,7 +4161,7 @@ function auCtx(){
   if(AU.ctx)return AU.ctx;
   const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
   // 'balanced': búfer un poco más grande, para que el audio no se corte cuando el equipo está cargado.
-  let ctx;try{ctx=new C({latencyHint:'balanced'});}catch(_){ctx=new C();}AU.ctx=ctx;
+  let ctx;try{ctx=new C({latencyHint:AU_MOBILE?'playback':'balanced'});}catch(_){ctx=new C();}AU.ctx=ctx;
   const n=AU.nodes;
   n.master=ctx.createGain();n.master.gain.value=.74;
   // Compresión suave (antes apretaba demasiado y aplastaba la mezcla cuando entraban capas).
@@ -3893,25 +4186,25 @@ function auCtx(){
   const ir=(sec,decay)=>{const b=ctx.createBuffer(2,Math.round(ctx.sampleRate*sec),ctx.sampleRate);for(let c=0;c<2;c++){const x=b.getChannelData(c);for(let i=0;i<x.length;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/x.length,decay);}return b;};
   // La entrada de la reverb es fija; detrás va el convolver (más corto en modo liviano, que consume mucho menos).
   AU.ir=ir;AU.light=GFX.low;
-  n.rev=ctx.createGain();n.revConv=ctx.createConvolver();n.revConv.buffer=ir(GFX.low?.7:2.1,3);n.rev.connect(n.revConv);
+  n.rev=ctx.createGain();n.revConv=ctx.createConvolver();n.revConv.buffer=ir(GFX.low?.7:AU_MOBILE?1.3:2.1,3);n.rev.connect(n.revConv);
   n.revOut=ctx.createGain();n.revOut.gain.value=.5;n.revConv.connect(n.revOut).connect(n.music);
   n.sfxRev=ctx.createGain();n.sfxRev.gain.value=.35;n.revConv.connect(n.sfxRev).connect(n.sfx);
   n.dly=ctx.createDelay(2);n.dly.delayTime.value=.33;n.dlyFb=ctx.createGain();n.dlyFb.gain.value=.3;n.dlyLp=ctx.createBiquadFilter();n.dlyLp.type='lowpass';n.dlyLp.frequency.value=3200;
   n.dly.connect(n.dlyLp).connect(n.dlyFb).connect(n.dly);n.dlyOut=ctx.createGain();n.dlyOut.gain.value=.45;n.dlyLp.connect(n.dlyOut).connect(n.music);
   // Rumble: el bombo pasa por una reverb oscura y filtrada (el "retumbe" del techno de galpón).
   n.rumIn=ctx.createGain();const rlp=ctx.createBiquadFilter();rlp.type='lowpass';rlp.frequency.value=170;
-  n.rumConv=ctx.createConvolver();n.rumConv.buffer=ir(GFX.low?.6:1.4,2.2);const rhp=ctx.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=38;n.rlp=rlp;n.rhp=rhp;
+  n.rumConv=ctx.createConvolver();n.rumConv.buffer=ir(GFX.low?.6:AU_MOBILE?.9:1.4,2.2);const rhp=ctx.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=38;n.rlp=rlp;n.rhp=rhp;
   n.rumOut=ctx.createGain();n.rumOut.gain.value=1.1;n.rumIn.connect(rlp).connect(n.rumConv).connect(rhp).connect(n.rumOut).connect(n.duck);
   // Voz ácida persistente (para que las ligaduras deslicen de verdad).
   n.acidOsc=ctx.createOscillator();n.acidOsc.type='sawtooth';n.acidF=ctx.createBiquadFilter();n.acidF.type='lowpass';n.acidF.Q.value=14;n.acidF.frequency.value=300;
-  n.acidG=ctx.createGain();n.acidG.gain.value=0;n.acidSh=ctx.createWaveShaper();n.acidSh.curve=distCurve(2.2);n.acidSh.oversample='2x';
+  n.acidG=ctx.createGain();n.acidG.gain.value=0;n.acidSh=ctx.createWaveShaper();n.acidSh.curve=distCurve(2.2);n.acidSh.oversample=OVS;
   n.acidOsc.connect(n.acidF).connect(n.acidSh).connect(n.acidG).connect(n.duck);const acidSend=ctx.createGain();acidSend.gain.value=.18;n.acidG.connect(acidSend).connect(n.dly);
   n.acidOsc.start();
   // Bus del bajo: un poco de saturación para que se escuche también en parlantes chicos.
   n.bassBus=ctx.createGain();n.bassBus.gain.value=1;n.bassDuck=ctx.createGain();n.bassBus.connect(n.bassDuck).connect(n.music);
   // Drone persistente: colchón armónico que sigue los acordes y respira con el bombo.
   n.droneF=ctx.createBiquadFilter();n.droneF.type='lowpass';n.droneF.Q.value=3;n.droneF.frequency.value=400;
-  n.droneDrv=ctx.createGain();n.droneDrv.gain.value=.4;n.droneSh=ctx.createWaveShaper();n.droneSh.curve=curveOf(1.2);n.droneSh.oversample='2x';
+  n.droneDrv=ctx.createGain();n.droneDrv.gain.value=.4;n.droneSh=ctx.createWaveShaper();n.droneSh.curve=curveOf(1.2);n.droneSh.oversample=OVS;
   n.droneG=ctx.createGain();n.droneG.gain.value=0;
   n.droneOsc=[['sawtooth',-11],['sawtooth',11],['square',0]].map(([ty,det])=>{const o=ctx.createOscillator();o.type=ty;o.detune.value=det;o.frequency.value=110;o.connect(n.droneF);o.start();return o;});
   n.droneF.connect(n.droneDrv).connect(n.droneSh).connect(n.droneG).connect(n.duck);
@@ -3962,7 +4255,7 @@ function env(g,t,a,peak,d,end=.0001){peak=Math.max(peak,.0002);g.gain.setValueAt
 function noiseSrc(t,dur){const s=AU.ctx.createBufferSource();s.buffer=AU.noise;s.start(t,Math.random()*1.5);s.stop(t+dur+.05);return s;}
 function kick(t,vel=1,type='punch',drive=1.6,loHz=null,opt=null){
   const c=AU.ctx,n=AU.nodes,o=c.createOscillator(),g=c.createGain(),sh=c.createWaveShaper(),lp=c.createBiquadFilter();
-  sh.curve=curveOf(drive);sh.oversample='2x';lp.type='lowpass';lp.frequency.value=opt?.lp||(type==='hard'?3600:type==='tonal'?5000:9000);
+  sh.curve=curveOf(drive);sh.oversample=OVS;lp.type='lowpass';lp.frequency.value=opt?.lp||(type==='hard'?3600:type==='tonal'?5000:9000);
   const hi=type==='hard'?210:type==='dist'?185:type==='tonal'?190:165,lo=loHz||(type==='hard'?58:48),tail=type==='hard'?.2:type==='tonal'?.24:type==='rumble'?.12:type==='dist'?.11:.09;
   o.frequency.setValueAtTime(hi,t);o.frequency.exponentialRampToValueAtTime(lo+8,t+.055);o.frequency.exponentialRampToValueAtTime(lo,t+.35);
   // Más distorsión suena más fuerte: se compensa para que el bombo no tape todo.
@@ -4067,7 +4360,7 @@ function rave(t,notes,vel=1,dur=.32){
 // Bajo nuevo: seno de sub + sierra saturada (se oye en el celular por sus armónicos).
 function bassV(t,midi,dur,vel=1,cut=900){
   const c=AU.ctx,o=c.createOscillator(),sub=c.createOscillator(),sh=c.createWaveShaper(),f=c.createBiquadFilter(),g=c.createGain(),sg=c.createGain();
-  o.type='sawtooth';o.frequency.value=mtof(midi);sub.type='sine';sub.frequency.value=mtof(midi);sh.curve=curveOf(3);sh.oversample='2x';
+  o.type='sawtooth';o.frequency.value=mtof(midi);sub.type='sine';sub.frequency.value=mtof(midi);sh.curve=curveOf(3);sh.oversample=OVS;
   f.type='lowpass';f.Q.value=4;f.frequency.setValueAtTime(cut*2.6,t);f.frequency.exponentialRampToValueAtTime(Math.max(160,cut*.5),t+dur);
   env(g,t,.003,.46*vel,dur);env(sg,t,.003,.55*vel,dur*1.05);
   o.connect(sh).connect(f).connect(g).connect(AU.nodes.bassBus);sub.connect(sg).connect(AU.nodes.bassBus);
@@ -4252,7 +4545,7 @@ function arcTechStage(k,set){
 }
 // Lead de rave: dos sierras y una cuadrada una octava abajo, filtradas y apenas saturadas (nada chillón).
 function techLead(t,midi,dur,vel=1){
-  const c=AU.ctx,f=c.createBiquadFilter(),sh=c.createWaveShaper(),g=c.createGain();sh.curve=curveOf(1.6);sh.oversample='2x';
+  const c=AU.ctx,f=c.createBiquadFilter(),sh=c.createWaveShaper(),g=c.createGain();sh.curve=curveOf(1.6);sh.oversample=OVS;
   f.type='lowpass';f.Q.value=1.2;f.frequency.setValueAtTime(2600,t);f.frequency.exponentialRampToValueAtTime(1300,t+Math.min(dur,.35));
   for(const [ty,det,oc,lv] of [['sawtooth',-9,0,1],['sawtooth',9,0,1],['square',0,-12,.5]]){const o=c.createOscillator(),og=c.createGain();o.type=ty;o.frequency.value=mtof(midi+oc);o.detune.value=det;og.gain.value=lv;o.connect(og).connect(f);o.start(t);o.stop(t+dur+.1);}
   const L=.115*vel;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(L,t+.006);g.gain.setValueAtTime(L*.9,t+Math.max(.02,dur-.03));g.gain.exponentialRampToValueAtTime(.0001,t+dur+.05);
@@ -4367,11 +4660,17 @@ function newPhrase(){
 }
 
 /* Secuenciador con planificación anticipada (precisión de audio, no de pantalla). */
-const LOOKAHEAD=.2;
+/* En el celular el audio va con más margen: si el procesador se traba un momento (un cuadro pesado, el recolector
+   de memoria, el sistema), la música no se corta ni se amontona. */
+const AU_MOBILE=(()=>{try{return matchMedia('(pointer: coarse)').matches||/Android|iPhone|iPad/.test(navigator.userAgent);}catch(_){return false;}})();
+const LOOKAHEAD=AU_MOBILE?.35:.22;
+const OVS=AU_MOBILE?'none':'2x';// la saturación con sobremuestreo es lo más caro del audio en un celular
 function stepDur(){return 60/AU.bpm/4;}
 function scheduleLoop(){
   const ctx=AU.ctx;if(!ctx||!AU.running)return;
   const margin=AU.nextTime-ctx.currentTime;AU.minMargin=Math.min(AU.minMargin??9,margin);
+  // Si nos atrasamos (el celular se trabó), se saltean en silencio los pasos vencidos en vez de tocarlos todos juntos.
+  if(margin<-.03){let skip=0;while(AU.nextTime<ctx.currentTime+.02&&skip<512){AU.nextTime+=stepDur();AU.step++;skip++;if(AU.step%16===0){AU.bar++;onBar();}}AU.skipped=(AU.skipped||0)+skip;}
   while(AU.nextTime<ctx.currentTime+LOOKAHEAD){playStep(AU.step,AU.nextTime);AU.nextTime+=stepDur();AU.step++;if(AU.step%16===0){AU.bar++;onBar();}}
 }
 function onBar(){
@@ -4932,7 +5231,17 @@ function onGameChange(){
     else if(players.every(g=>g.state.status==='over'))finishMatch('Se llenaron los dos tableros.');
   }
 }
+/* Al terminar una partida, el botón del cartel no responde por un momento:
+   así un toque (o un Espacio) que venía para la pieza no arranca otra partida sin que se vea el resultado. */
+let endGuardUntil=0;
+function endGuard(ms=1300){
+  if(typeof window.BLOQUES_GUARD_MS==='number')ms=Math.min(ms,window.BLOQUES_GUARD_MS);// sólo para las pruebas automáticas
+  endGuardUntil=performance.now()+ms;
+  for(const b of document.querySelectorAll('.overlay .primary'))b.classList.add('cooling');
+  setTimeout(()=>{if(performance.now()>=endGuardUntil-5)for(const b of document.querySelectorAll('.overlay .primary.cooling'))b.classList.remove('cooling');},ms);
+}
 function soloOver(isRecord){
+  endGuard();
   if(session==='online'){onlineOver();return;}
   if(session==='cpu'){cpuFinish('cpu');return;}
   if(soloKind==='fiesta'){partyTurnEnd(true);return;}
@@ -4946,7 +5255,7 @@ function soloReadyOverlay(){
   if(CH.active&&soloKind===CH.modo){chReadyOverlay();return;}
   if(soloKind==='fiesta'){partyOverlay();return;}
   const kind=soloKindIntro();
-  const touchHint=(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\nDeslizá para mover, tocá para girar y deslizá hacia abajo para bajar.':'\nDeslizá para mover · tocá para girar · abajo rápido la suelta · arriba la guarda.'):'';
+  const touchHint=(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\nDeslizá para mover, tocá para girar y deslizá hacia abajo para bajar.':'\nDeslizá para mover · tocá para girar · abajo un poco baja rápido, rápido la suelta · arriba la guarda.'):'';
   solo.showOverlay(kind?SOLO_KINDS[soloKind].toUpperCase():'¿LISTO PARA\nJUGAR?',(kind||(mode==='classic'?'Clásico: sin reserva ni caída instantánea. La pieza queda fija al apoyarse.':'Completá líneas, usá la reserva y superá tu récord.'))+touchHint,'JUGAR');
   byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';
 }
@@ -4967,6 +5276,7 @@ function startMatch(){
   lastFrame=performance.now();refreshDuelOverlays();refreshTop();
 }
 function finishMatch(reason){
+  endGuard();
   if(match.phase==='finished')return;
   match.phase='finished';
   const [a,b]=players.map(g=>g.state.score);
@@ -5019,7 +5329,8 @@ function advanceMatch(now,dt){
 
 /* Acciones principales, iguales para teclado, mando, toque y menú */
 function primaryAction(){
-  if(confirmReset){confirmReset=false;restart();return;}
+  if(performance.now()<endGuardUntil)return;
+  if(confirmReset){pauseOrResume();return;}// el botón grande es «Seguir jugando»
   if(menuOpen)closeMenu();
   lastFrame=performance.now();
   if(session==='solo'){
@@ -5047,14 +5358,14 @@ function primaryAction(){
 let confirmReset=false;
 function canRestartSolo(){return session==='solo'&&!(soloKind==='fiesta'&&!TUT.active);}
 function askRestart(){
-  if(!canRestartSolo())return;
+  if(!canRestartSolo()||performance.now()<endGuardUntil)return;
   if(menuOpen)closeMenu();
   const st=solo.state.status;
   if(st!=='playing'&&st!=='paused'){confirmReset=false;restart();return;}
   if(st==='playing')solo.pause();
-  confirmReset=true;
-  solo.showOverlay('¿EMPEZAR\nDE NUEVO?','Se pierde la partida que estás jugando.','SÍ, REINICIAR');
-  byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Seguir jugando';refreshTop();
+  confirmReset=true;endGuard(600);
+  solo.showOverlay('¿EMPEZAR\nDE NUEVO?',`Se pierde la partida que estás jugando (${fmt(solo.state.score)} puntos).`,'SEGUIR JUGANDO');
+  byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Sí, empezar de nuevo';refreshTop();
 }
 function pauseOrResume(){
   confirmReset=false;
@@ -5237,9 +5548,16 @@ function renderNet(){
     connecting:'',connected:'Listos para jugar. Toquen JUGAR los dos.',lost:'Toquen «Empezar de nuevo» y vuelvan a pasarse los códigos.'
   };
   byId('net-steps').textContent=steps[s]??'';
-  {const how=byId('net-how'),show=s==='idle'||s==='lost';if(show&&!how.innerHTML)how.innerHTML=onlineHowHtml();how.hidden=!show;}
+  let qrFolded=false;
+  {const how=byId('net-how'),show=s==='idle'||s==='lost',k=acct&&LB.url?'a':'n';
+    if(show&&how.dataset.k!==k){how.dataset.k=k;how.innerHTML=k==='a'?`<details class="how-alt"><summary>O conectarse con QR o código</summary>${onlineHowHtml()}</details>`:onlineHowHtml();}
+    how.hidden=!show;
+    // Con cuenta, lo del QR queda plegado debajo de «O conectarse con QR o código».
+    const alt=how.querySelector('.how-alt');
+    if(alt&&!alt.dataset.on){alt.dataset.on='1';alt.addEventListener('toggle',()=>renderNet());}
+    if(show&&alt&&!alt.open){byId('net-steps').textContent='';qrFolded=true;}}
   byId('net-ok').hidden=!net.hello;
-  byId('net-start').hidden=!(s==='idle'||s==='lost');
+  byId('net-start').hidden=qrFolded||!(s==='idle'||s==='lost');
   byId('net-create').disabled=!netSupported();
   const mine=Boolean(net.myCode)&&(s==='invited'||s==='answered'||s==='connecting');
   byId('net-mine').hidden=!mine;
@@ -5267,7 +5585,7 @@ function renderNet(){
   const ph=byId('net-path-hint'),p=net.hello?net.path:null;
   ph.hidden=!p;
   if(p)ph.textContent=p.kind==='relay'?'La conexión pasa por un relé público porque las redes no permitieron una conexión directa. Funciona, con algo más de demora.':p.kind==='local'?'Están en la misma red: la conexión no sale a internet.':'Conexión directa entre los dos dispositivos, sin servidores en el medio.';
-  byId('net-friend').hidden=!(s==='idle'||s==='lost'||s==='invited');
+  byId('net-friend').hidden=qrFolded||!(s==='idle'||s==='lost'||s==='invited');
   byId('net-cancel').hidden=s==='idle';
   byId('net-cancel').textContent=net.hello?'Desconectar':'Empezar de nuevo';
   const st=byId('net-status');
@@ -5275,6 +5593,7 @@ function renderNet(){
   st.innerHTML='';if(busy){const sp=document.createElement('span');sp.className='busy';st.appendChild(sp);}
   st.appendChild(document.createTextNode(net.status||(busy?'Un momento…':'')));
   st.classList.toggle('error',net.statusError);
+  renderFriends();
 }
 // Dirección del juego publicado: la actual si es una página web, o la guardada si se abrió desde un archivo.
 function gameBase(){
@@ -5572,7 +5891,7 @@ window.addEventListener('keydown',e=>{
   }
   if(tag==='BUTTON'&&(e.code==='Enter'||e.code==='Space'))return;
   if(commonKey(e.code,'pause')||e.code==='Escape'){e.preventDefault();if(!e.repeat)pauseOrResume();}
-  else if(commonKey(e.code,'restart')){e.preventDefault();if(!e.repeat)restart();}
+  else if(commonKey(e.code,'restart')){e.preventDefault();if(!e.repeat){if(confirmReset){confirmReset=false;restart();}else askRestart();}}
   else if(commonKey(e.code,'sound')){e.preventDefault();if(!e.repeat)toggleSound();}
   else if(commonKey(e.code,'start')){e.preventDefault();if(!e.repeat)primaryAction();}
 },{passive:false});
@@ -5582,11 +5901,15 @@ window.addEventListener('keyup',e=>{
   }
 });
 function toggleSound(){const on=!(AUDIO.music||AUDIO.sfx);AUDIO.music=on;AUDIO.sfx=on;saveAudio();applyAudioLevels();if(on)audioUnlock();renderMenu();}
+// Tres pestañas: Jugar, Yo y Ajustes. Los nombres viejos (sonido, controles, más…) abren su sección dentro de Ajustes.
+const MENU_SECT={sonido:'sonido',controles:'controles',mas:'app',graficos:'graficos',ayuda:'ayuda',acerca:'acerca'};
 function setMenuTab(tab,save=true){
-  if(!['partida','progreso','sonido','controles','mas'].includes(tab))tab='partida';if(tab==='progreso')renderProgress();menuTab=tab;if(save)storageSet('bloques-menutab-v1',tab);
+  let sect=null;if(MENU_SECT[tab]){sect=MENU_SECT[tab];tab='ajustes';}
+  if(!['partida','progreso','ajustes'].includes(tab))tab='partida';
+  if(sect){const d=document.querySelector(`#menu [data-sect="${sect}"]`);if(d){d.open=true;setTimeout(()=>{if(menuOpen)d.scrollIntoView({block:'start'});},40);}}if(tab==='progreso')renderProgress();menuTab=tab;if(save)storageSet('bloques-menutab-v1',tab);
   document.querySelectorAll('[data-mtab]').forEach(b=>{const on=b.dataset.mtab===tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on));});
   document.querySelectorAll('#menu [data-tab]').forEach(el=>el.classList.toggle('tab-off',el.dataset.tab!==tab));
-  if(menuOpen)window.scrollTo(0,0);
+  if(menuOpen&&!sect)window.scrollTo(0,0);
 }
 let menuTab='partida';
 function renderAudio(){
@@ -5743,7 +6066,7 @@ function init(){
   byId('menu-close').addEventListener('click',closeMenu);
   byId('menu-play').addEventListener('click',()=>{if(session==='online'&&!net.hello){closeMenu();return;}primaryAction();});
   // «Cambiar modo» despliega el menú contextual; «Menú» (en pausa o en línea conectado) abre el menú completo.
-  byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){pauseOrResume();return;}const t=e.currentTarget.textContent;if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
+  byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){confirmReset=false;restart();return;}const t=e.currentTarget.textContent;if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
   byId('pause-btn').addEventListener('click',pauseOrResume);
   for(const id of ['restart-btn','tool-restart'])byId(id).addEventListener('click',e=>{askRestart();e.currentTarget.blur();});
   document.querySelectorAll('[data-session]').forEach(b=>b.addEventListener('click',()=>changeSession(b.dataset.session)));
@@ -5766,7 +6089,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();setupZoomGuard();setupAmigos();
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
@@ -5816,7 +6139,7 @@ function init(){
 }
 init();
 if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
-  window.BLOQUES_DIAGNOSTICO={solo,players,rival,match,net,netHooks,settings,controls:()=>controls,getSession:()=>session,getMode:()=>mode,
+  window.BLOQUES_DIAGNOSTICO={amPollNow:()=>{AM.lastPoll=0;amPoll();},solo,players,rival,match,net,netHooks,settings,controls:()=>controls,getSession:()=>session,getMode:()=>mode,
     changeSession,changeMode,primaryAction,pauseOrResume,autoPause,restart,startMatch,finishMatch,pauseMatch,resumeMatch,advanceMatch,
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
