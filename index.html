@@ -56,6 +56,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .menu-btn{display:flex;align-items:center;gap:7px}
 .matchbar{flex:none;display:flex;align-items:center;gap:10px;min-height:30px;padding:3px 10px;border:1px solid #35505b;border-radius:10px;background:linear-gradient(110deg,#15303b,#151e30);font-size:12px}
 .matchbar #match-title{flex:1;min-width:0;font-weight:800;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.matchbar.hurry{border-color:#ff7b6b;background:linear-gradient(110deg,#3b1a1f,#251626)}.matchbar.hurry #match-clock{color:#ff9b8b;animation:hurry .5s ease-in-out infinite alternate}
+@keyframes hurry{from{opacity:1}to{opacity:.45}}
 .matchbar #match-clock{font-size:17px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .net-badge{font-size:11px;color:#9ff5d9;white-space:nowrap;font-variant-numeric:tabular-nums}
 .net-badge.warn{color:#ffcf8a}
@@ -401,7 +403,13 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .how-qr li div{display:flex;flex-direction:column;gap:2px;font-size:12.5px;line-height:1.35;color:#cfe0ea}.how-qr li b{color:#fff;font-size:13px}
 .overlay-extra .how-far,.how-far{width:min(100%,340px);margin:0 auto 8px;font-size:12px;line-height:1.4;color:var(--dim);text-align:left}
 .net-how .how-qr,.net-how .how-far{margin-left:0;width:100%;max-width:520px}
-.overlay-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.overlay-links{display:flex;gap:6px 16px;justify-content:center;flex-wrap:wrap}.overlay-links .linkish{margin-top:6px;font-size:13px;min-height:36px;padding:6px 4px}
+/* Cartel según el momento: inicio (todo), final (resultado + tabla) y pausa/en línea (sólo lo justo). */
+.overlay[data-ov="min"] :is(.overlay-level,.overlay-links,.overlay-foot,.overlay-sign,.overlay-mark){display:none}
+.overlay[data-ov="end"] :is(.overlay-foot,.overlay-sign,.overlay-mark,.overlay-level,#overlay-share,#overlay-install){display:none}
+.lb-open{width:100%;min-height:44px}
+@media (max-width:600px){.head-pills{display:none}}
+.overlay[data-ov="end"]:has(#lb-box) #overlay-lb{display:none}
 .party{width:min(100%,320px);margin:4px auto 10px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .party-names{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .party-chip{display:inline-flex;align-items:center;gap:4px;background:#1b2a3e;border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 12px;font-weight:800;font-size:13px}
@@ -568,9 +576,9 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
         <button type="button" class="tile" data-session="solo"><b>Solo</b><span>Un jugador</span></button>
         <button type="button" class="tile" data-session="cpu"><b>Contra la compu</b><span>Versus · 3 dificultades</span></button>
         <button type="button" class="tile" data-session="online"><b>En línea</b><span>Dos dispositivos</span></button>
-        <button type="button" class="tile" data-session="local"><b>2 en este equipo</b><span>Por puntaje</span></button>
-        <button type="button" class="tile" data-session="versus"><b>2 en este equipo</b><span>Versus · envío de líneas</span></button>
+        <button type="button" class="tile" data-two><b>2 en este equipo</b><span>Mismo teclado o pantalla</span></button>
       </div>
+      <div class="field-row" id="two-kind-row" hidden><label>CÓMO</label><div class="seg" role="group" aria-label="Dos jugadores"><button type="button" data-session="local">Por puntaje</button><button type="button" data-session="versus">Versus</button></div></div>
       <div class="field-row" id="solo-kind-row" hidden><label>PARTIDA</label><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">Giros</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
       <p class="hint" id="solo-kind-note" hidden></p>
       <div class="field-row" id="cpu-level-row" hidden><label>DIFICULTAD</label><div class="seg" role="group" aria-label="Dificultad"><button type="button" data-cpulevel="facil">Fácil</button><button type="button" data-cpulevel="normal">Normal</button><button type="button" data-cpulevel="dificil">Difícil</button></div></div>
@@ -616,7 +624,8 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
       <p class="rules-note" id="rules-note"></p>
       <div class="field-row" id="online-kind-row" hidden><label for="online-kind">PARTIDA EN LÍNEA</label><select id="online-kind"><option value="score">Por puntaje · más fácil</option><option value="versus">Versus · envío de líneas</option></select></div>
       <div class="field-row" id="online-bo3-row" hidden><label for="online-bo3">RONDAS</label><select id="online-bo3"><option value="3">Al mejor de 3</option><option value="1">Una sola</option></select></div>
-      <div class="field-row" id="duration-row" hidden><label for="match-duration">DURACIÓN</label><select id="match-duration"><option value="180">3 minutos</option><option value="300">5 minutos</option><option value="0">Hasta que caigan los dos</option></select></div>
+      <div class="field-row" id="duration-row" hidden><label for="match-duration">DURACIÓN</label><select id="match-duration"><option value="180">3 minutos</option><option value="300">5 minutos</option><option value="0">Sin límite de tiempo</option></select></div>
+      <p class="hint" id="catchup-hint" hidden>Sin límite: si se llena el tablero del que va ganando, el otro tiene 3 minutos para alcanzarlo.</p>
       <p class="hint" id="rules-locked" hidden>Las reglas las elige quien creó la partida.</p>
     </div>
 
@@ -700,6 +709,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
+      <p class="hint">Versión <span class="app-ver">31</span></p>
     </div>
     </div></details>
     </div>
@@ -731,8 +741,8 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
             <button type="button" id="overlay-btn" class="primary big">JUGAR</button>
             <button type="button" id="overlay-alt" class="linkish">Cambiar modo</button>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
-            <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasale el juego a un amigo</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS</div>
+            <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v31</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -1504,6 +1514,24 @@ function createGame(root,prefix,options){
   function clearSeed(){random=Math.random;}
   // Desafíos: tablero armado, piezas contadas y sin gravedad (la pieza se fija sólo con caída rápida).
   function setPuzzle(pz){state.puzzle=pz?{rows:pz.rows.slice(),pieces:pz.pieces.slice()}:null;state.script=[];}
+  // Foto de la partida (para seguirla si la página se recarga) y vuelta a ese punto, en pausa.
+  function saveState(){
+    return {grid:state.grid.map(r=>r.slice()),queue:state.queue.slice(),active:state.active?.type||null,hold:state.hold,holdUsed:state.holdUsed,
+      score:state.score,lines:state.lines,level:state.level,combo:state.combo,b2b:state.b2b,pieceId:state.pieceId,mode:state.mode,
+      rng:random===Math.random?null:rngValue,sent:state.sent,received:state.received};
+  }
+  function loadState(z){
+    reset(false);
+    if(!z||!Array.isArray(z.grid)||z.grid.length!==H)return false;
+    state.grid=z.grid.map(r=>Array.from({length:W},(_,x)=>TYPES.includes(r[x])||r[x]==='G'?r[x]:null));
+    state.queue=(z.queue||[]).filter(t=>TYPES.includes(t));state.hold=TYPES.includes(z.hold)?z.hold:null;state.holdUsed=false;
+    for(const k of ['score','lines','level','combo','pieceId','sent','received'])if(Number.isFinite(z[k]))state[k]=z[k];
+    state.b2b=!!z.b2b;
+    if(z.rng!=null){setSeed(z.rng);rngValue=z.rng>>>0;}
+    fillQueue();state.active=piece(TYPES.includes(z.active)?z.active:state.queue.shift());fillQueue();
+    state.gravity=0;state.lockTime=0;state.lockResets=0;
+    state.status='paused';updateScoreboard();state.dirty=true;draw();return true;
+  }
   function setSeed(seed){rngValue=(seed>>>0)||0x9e3779b9;random=()=>{rngValue^=rngValue<<13;rngValue^=rngValue>>>17;rngValue^=rngValue<<5;return(rngValue>>>0)/4294967296;};}
   // Tablero comprimido en 200 caracteres (pieza en juego incluida) para mostrarlo al rival.
   function snapshot(){
@@ -1514,7 +1542,7 @@ function createGame(root,prefix,options){
   }
   function stackDanger(){for(let y=0;y<H;y++)if(state.grid[y].some(Boolean))return Math.max(0,Math.min(1,((H-y)/H-.55)/.38));return 0;}
   return {state,root,boardCanvas,stackDanger,reset,modeChange,move,rotate,softDrop,hardDrop,reserve,lockPiece,update,frame,draw,resize,valid,grounded,
-    gravityInterval,keyAction,holdInput,releaseInput,releaseInputs,pause,resume,setPlaying,freeze,showOverlay,hideOverlay,overlayVisible,
+    saveState,loadState,gravityInterval,keyAction,holdInput,releaseInput,releaseInputs,pause,resume,setPlaying,freeze,showOverlay,hideOverlay,overlayVisible,
     announce,clearToast,addGarbage,setSeed,clearSeed,setPuzzle,snapshot,setNextCount,renderScore:updateScoreboard,fillQueue,piece};
 }
 
@@ -2006,7 +2034,7 @@ async function iceServers(){
 const GATHER={min:1200,quiet:700,max:6500,hardMax:12000};
 const net={gen:0,pc:null,ch:null,role:null,room:null,step:'idle',hello:false,myCode:'',rtt:null,lastSeen:0,peerAway:false,path:null,beat:0,
   unstable:false,timers:new Set(),interval:null,boardTimer:null,lastBoard:0,lastBoardSent:'',noInternet:false,status:'',statusError:false,
-  m:{phase:'ready',round:0,kind:'score',duration:180000,remaining:180000,elapsed:0,countdown:0,resuming:false,myReady:false,peerReady:false,
+  m:{phase:'ready',round:0,kind:'score',duration:0,remaining:0,catchup:null,elapsed:0,countdown:0,resuming:false,myReady:false,peerReady:false,
      peerScore:0,peerStatus:'',peerOver:false,meOver:false,result:null,pausedBy:null,finalTimer:null,bo3:true,ser:{me:0,them:0,done:false}}};
 const netHooks={log:null};
 /* Tipo de conexión real, leído de las estadísticas del navegador. */
@@ -2296,6 +2324,9 @@ function netReceive(raw){
       M.peerOver=true;if(!M.firstOver)M.firstOver=net.role==='host'?'guest':'host';if(Number.isSafeInteger(m.sc))M.peerScore=m.sc;
       if(net.role==='host')onlineHostCheckEnd();
       refreshOnlineOverlay();return;
+    case 'catchup':
+      if(net.role!=='guest'||round!==M.round||M.phase!=='playing'||!Number.isSafeInteger(m.target)||!['host','guest'].includes(m.who))return;
+      M.catchup={target:m.target,who:m.who};M.remaining=clamp(Number(m.ms)||CATCHUP_MS,0,CATCHUP_MS);catchupNotice();refreshOnlineOverlay();refreshTop();return;
     case 'timeup':
       if(net.role!=='guest'||round!==M.round||!['playing','finishing'].includes(M.phase))return;
       M.phase='finishing';M.remaining=0;solo.freeze();netSend({t:'final',round,sc:solo.state.score});refreshOnlineOverlay();return;
@@ -2339,7 +2370,7 @@ function onlineMaybeStart(){
 }
 function onlineBeginRound(round,seed){
   const M=net.m;if(M.ser.done)M.ser={me:0,them:0,done:false};
-  Object.assign(M,{round,remaining:M.duration,elapsed:0,peerOver:false,meOver:false,firstOver:null,result:null,peerScore:0,pausedBy:null});
+  Object.assign(M,{round,remaining:M.duration,elapsed:0,peerOver:false,meOver:false,firstOver:null,result:null,peerScore:0,pausedBy:null,catchup:null});
   if(M.finalTimer){clearTimeout(M.finalTimer);M.finalTimer=null;}
   solo.setSeed(seed);solo.reset(false);rival.clear();byId('rival-score').textContent='0';
 }
@@ -2383,6 +2414,19 @@ function onlineHostCheckEnd(){
     if(M.firstOver==='host')onlineFinalize('host-full','guest');
     else if(M.firstOver==='guest')onlineFinalize('guest-full','host');
   }else if(M.meOver&&M.peerOver)onlineFinalize('both-full');
+  else if(!M.duration&&(M.meOver||M.peerOver)&&!M.catchup){
+    // Sin límite de tiempo: si cae el que iba ganando, el otro tiene 3 minutos para alcanzarlo.
+    // Si cae el que iba perdiendo, gana el otro en el momento.
+    const hostOut=M.meOver,out=hostOut?solo.state.score:M.peerScore,alive=hostOut?M.peerScore:solo.state.score,who=hostOut?'guest':'host';
+    if(alive>out){onlineFinalize('lead-full',who);return;}
+    M.catchup={target:out,who};M.remaining=CATCHUP_MS;
+    netSend({t:'catchup',round:M.round,target:out,who,ms:CATCHUP_MS});catchupNotice();refreshOnlineOverlay();refreshTop();
+  }
+}
+const CATCHUP_MS=180000;
+function catchupNotice(){
+  const C=net.m.catchup;if(!C)return;
+  if(C.who===net.role){solo.announce(`¡ALCANZALO!\n3 MINUTOS PARA PASAR ${fmt(C.target)}`);try{callout('¡ALCANZALO! 3 MINUTOS','medal');}catch(_){}}
 }
 function onlineHostTimeUp(){
   const M=net.m;if(net.role!=='host'||M.phase!=='playing')return;
@@ -2398,8 +2442,11 @@ function onlineFinalize(reason,forced){
 }
 function onlineApplyResult(res){
   endGuard();
-  const M=net.m;M.phase='finished';M.myReady=M.peerReady=false;try{progressEnd(res.winner===net.role?'win':res.winner?'lose':'tie');}catch(_){}
-  M.result={winner:['host','guest'].includes(res.winner)?res.winner:null,mine:net.role==='host'?res.hs:res.gs,theirs:net.role==='host'?res.gs:res.hs,reason:({time:'Se terminó el tiempo.','both-full':'Se llenaron los dos tableros.','host-full':net.role==='host'?'Se llenó tu tablero.':'Se llenó el tablero de tu amigo.','guest-full':net.role==='guest'?'Se llenó tu tablero.':'Se llenó el tablero de tu amigo.'})[res.reason]||''};
+  const M=net.m;M.phase='finished';M.myReady=M.peerReady=false;M.catchup=null;byId('matchbar').classList.remove('hurry');try{progressEnd(res.winner===net.role?'win':res.winner?'lose':'tie');}catch(_){}
+  M.result={winner:['host','guest'].includes(res.winner)?res.winner:null,mine:net.role==='host'?res.hs:res.gs,theirs:net.role==='host'?res.gs:res.hs,reason:({'lead-full':res.winner===net.role?'Tu amigo se quedó sin lugar y vos ibas ganando.':'Te quedaste sin lugar mientras tu amigo iba ganando.',
+    caught:res.winner===net.role?'¡Lo alcanzaste y lo pasaste!':'Tu amigo te alcanzó y te pasó.',
+    'catch-time':res.winner===net.role?'Tu amigo no llegó a alcanzarte en 3 minutos.':'No llegaste a alcanzarlo en los 3 minutos.',
+    time:'Se terminó el tiempo.','both-full':'Se llenaron los dos tableros.','host-full':net.role==='host'?'Se llenó tu tablero.':'Se llenó el tablero de tu amigo.','guest-full':net.role==='guest'?'Se llenó tu tablero.':'Se llenó el tablero de tu amigo.'})[res.reason]||''};
   if(['playing','paused'].includes(solo.state.status))solo.freeze();
   const rec=onlineRecords();if(solo.state.score>rec[mode]){rec[mode]=solo.state.score;persist();solo.renderScore();}
   // Serie al mejor de 3: cada lado lleva la cuenta con el mismo resultado.
@@ -2423,7 +2470,12 @@ function onlineTick(now,dt){
   if(M.phase!=='playing')return;
   solo.frame(now,dt);
   M.elapsed+=dt;
-  if(M.kind==='score'&&M.duration){
+  if(M.catchup){
+    M.remaining=Math.max(0,M.remaining-dt);byId('matchbar').classList.toggle('hurry',M.remaining<=10000);
+    if(net.role==='host'){const C=M.catchup,alive=C.who==='host'?solo.state.score:M.peerScore;
+      if(alive>C.target){onlineFinalize('caught',C.who);return;}
+      if(M.remaining===0){onlineFinalize('catch-time',C.who==='host'?'guest':'host');return;}}
+  }else if(M.kind==='score'&&M.duration){
     M.remaining=Math.max(0,M.remaining-dt);
     if(M.remaining===0){if(net.role==='host')onlineHostTimeUp();else if(solo.state.status==='playing'){solo.freeze();refreshOnlineOverlay();}}
   }
@@ -2461,7 +2513,7 @@ function refreshOnlineOverlay(){
       else g.showOverlay('EN PAUSA',who+(M.peerReady?'\nTu amigo ya quiere seguir.':''),'CONTINUAR');return;}
     case 'finishing':g.showOverlay('¡TIEMPO!','Calculando el resultado…','');return;
     case 'playing':
-      if(mineOver)g.showOverlay('TABLERO LLENO',M.kind==='versus'?'Esperando el resultado…':'Tu puntaje queda fijo. Tu amigo sigue jugando.','');
+      if(mineOver)g.showOverlay('TABLERO LLENO',M.kind==='versus'?'Esperando el resultado…':M.catchup&&M.catchup.who!==net.role?`Ibas ganando: tu amigo tiene 3 minutos para pasar tus ${fmt(M.catchup.target)} puntos.`:'Tu puntaje queda fijo. Tu amigo sigue jugando.','');
       else if(solo.state.status==='frozen')g.showOverlay('¡TIEMPO!','Esperando el resultado…','');
       else g.hideOverlay();
       return;
@@ -2694,7 +2746,8 @@ function puzzleOut(){
 function puzzleRestart(){if(session==='solo'&&soloKind==='puzzle'&&['playing','frozen','paused'].includes(solo.state.status)){solo.reset(true);refreshTop();}}
 const SPRINT_LINES=40,ULTRA_MS=120000;
 const NO_RECORD={classic:Infinity,modern:Infinity};
-let soloKind=(k=>Object.hasOwn(SOLO_KINDS,k)?k:'marathon')(storageGet('bloques-solokind-v1'));
+// El Desafío del día es para una partida: al volver a abrir el juego se arranca en Maratón.
+let soloKind=(k=>Object.hasOwn(SOLO_KINDS,k)&&k!=='daily'?k:'marathon')(storageGet('bloques-solokind-v1'));
 const soloTimer={elapsed:0};
 function fmtTime(ms){const t=Math.max(0,ms),m=Math.floor(t/60000),s=Math.floor(t/1000)%60,d=Math.floor(t/100)%10;return `${m}:${String(s).padStart(2,'0')}.${d}`;}
 function singleBoard(){return session==='solo'||session==='online'||session==='cpu';}
@@ -2738,10 +2791,22 @@ function soloTick(dt){
   // El reloj de la barra de arriba se actualiza unas 10 veces por segundo.
   soloTimer.acc=(soloTimer.acc||0)+dt;if(soloTimer.acc>=100){soloTimer.acc=0;refreshTop();}
   if(soloKind==='fiesta'&&soloTimer.elapsed>=PARTY.dur){soloTimer.elapsed=PARTY.dur;soloFinish();return;}
-  if((soloKind==='ultra'||soloKind==='daily')&&soloTimer.elapsed>=ULTRA_MS){soloTimer.elapsed=ULTRA_MS;soloFinish();}
+  if(soloKind==='ultra'||soloKind==='daily'){
+    const left=ULTRA_MS-soloTimer.elapsed;timeWarn(left);
+    if(left<=0){soloTimer.elapsed=ULTRA_MS;soloFinish();}
+  }else if(soloKind==='fiesta')timeWarn(PARTY.dur-soloTimer.elapsed);
 }
 // Final por objetivo cumplido (40 líneas) o por tiempo (Ultra).
+// Últimos segundos de los modos con reloj: aviso en pantalla y el reloj se pone rojo.
+let warnedAt=0;
+function timeWarn(left){
+  const bar=byId('matchbar');bar.classList.toggle('hurry',left>0&&left<=10000);
+  if(left>10000){warnedAt=0;return;}
+  if(!warnedAt&&left>0){warnedAt=1;solo.announce('¡Quedan 10 segundos!');callout('¡QUEDAN 10 SEGUNDOS!','medal');sound('levelup');}
+}
+function clearHurry(){byId('matchbar').classList.remove('hurry');warnedAt=0;}
 function soloFinish(){
+  clearHurry();
   endGuard();
   const s=solo.state;solo.freeze();
   if(soloKind==='fiesta'){partyTurnEnd(false);return;}
@@ -2758,14 +2823,14 @@ function soloFinish(){
     solo.showOverlay(isRecord(isRec,'¡40 LÍNEAS!'),`Tiempo: ${fmtTime(t)} · ${fmt(s.score)} puntos`,'OTRA ↻');
   }else if(soloKind==='daily'){
     const prev=dailyRec().best;progressEnd('finish');
-    solo.showOverlay(s.score>prev?'¡TU MEJOR DE HOY!':'¡TIEMPO!',`Desafío del día: ${fmt(s.score)} puntos · ${s.lines} líneas`,'OTRA ↻');
+    solo.showOverlay(s.score>prev?'¡TU MEJOR DE HOY!':'¡SE TERMINÓ\nEL TIEMPO!',`El Desafío del día dura 2 minutos.\nHiciste ${fmt(s.score)} puntos · ${s.lines} líneas.`,'REPETIR DESAFÍO');
   }else{
     const best=settings.ultraRecords[mode],isRec=s.score>best;
     if(isRec){settings.ultraRecords[mode]=s.score;persist();}
     progressEnd('finish');
     solo.showOverlay(isRecord(isRec,'¡TIEMPO!'),`${fmt(s.score)} puntos · ${s.lines} líneas`,'OTRA ↻');
   }
-  solo.renderScore();byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';refreshTop();
+  solo.renderScore();byId('overlay-alt').hidden=false;byId('overlay-alt').textContent=soloKind==='daily'?'Jugar Maratón':'Cambiar modo';refreshTop();
 }
 function isRecord(rec,title){return rec?'¡NUEVO RÉCORD!':title;}
 
@@ -3177,7 +3242,7 @@ function renderProgress(){
   byId('look-cb').onchange=e=>{LOOK.cb=e.target.checked;lookChanged();};
   box.querySelectorAll('[data-pz]').forEach(b=>b.onclick=()=>{setPuzzleIdx(Number(b.dataset.pz));if(session!=='solo')changeSession('solo');if(soloKind!=='puzzle')setSoloKind('puzzle');closeMenu();solo.reset(true);refreshTop();});
   renderHist();setupAcctPanel();lbSetupPanel();
-  byId('prog-daily-go').onclick=()=>{if(session!=='solo')changeSession('solo');setSoloKind('daily');closeMenu();primaryAction();};
+  byId('prog-daily-go').onclick=()=>{if(session!=='solo')changeSession('solo');if(soloKind==='daily'&&solo.state.status!=='playing'){solo.reset(false);soloReadyOverlay();}else setSoloKind('daily');closeMenu();refreshTop();};
   byId('prog-copy').onclick=async()=>{byId('prog-msg').textContent=(await copyText(progressCode()))?'Código copiado.':'No se pudo copiar.';};
   byId('prog-load').onclick=()=>{const ok=loadProgressCode(byId('prog-code').value);byId('prog-msg').textContent=ok?'Listo: se sumó el progreso del código.':'Ese código no es válido.';if(ok)renderProgress();};
 }
@@ -3229,6 +3294,8 @@ function setupProgress(){
   solo.reset=(start=false)=>{prepSoloSeed();_reset(start);afterSoloReset(start);};
   solo.setPlaying=()=>{const was=solo.state.status;_setPlaying();if((session==='cpu'||session==='online')&&was==='ready')runStart();};
   solo.showOverlay=(...a)=>{_show(...a);
+    // Qué se ve en el cartel: todo en la pantalla de inicio; en pausa y en línea, sólo lo justo.
+    {const st=solo.state.status,ov=session==='solo'&&st==='ready'&&!confirmReset?'home':session==='solo'&&['over','frozen'].includes(st)?'end':'min';byId('overlay').dataset.ov=ov;}
     const st=solo.state.status;if(!summaryKeep||!['over','frozen'].includes(st)){byId('overlay-extra').hidden=true;summaryKeep=false;}
     renderOverlayLevel();};
   byId('overlay-share').addEventListener('click',()=>openShareGame());
@@ -3255,13 +3322,17 @@ function renderInstall(){
   if(installEvt){t.textContent='Instalalo y abrilo como una app, sin las barras del navegador.';b.hidden=false;return;}
   t.textContent='En el celular: desde el menú del navegador, «Agregar a la pantalla de inicio» o «Instalar app».';b.hidden=true;
 }
+// El aviso para instalar aparece una sola vez, unos segundos, y nunca en medio de una partida.
+let a2hsTimer=0;
+function hideA2hs(){clearTimeout(a2hsTimer);const el=byId('a2hs');if(el)el.hidden=true;}
 function maybeA2hs(){
-  if(IS_STANDALONE)return;
-  const last=Number(storageGet('bloques-a2hs-v1')||0);if(Date.now()-last<14*864e5)return;
+  if(IS_STANDALONE||storageGet('bloques-a2hs-once'))return;
+  if(solo.state.status==='playing'||menuOpen)return;
   if(!(IS_IOS||installEvt))return;
   if(!/^https?:$/.test(location.protocol))return;
   byId('a2hs-txt').innerHTML=IS_IOS?`<b>Instalalo como app</b><span>${IOS_STEPS}</span>`:'<b>Instalalo como app</b><span>Se abre sin barras del navegador y tu progreso queda guardado.</span>';
   byId('a2hs-install').hidden=!installEvt;byId('a2hs').hidden=false;
+  storageSet('bloques-a2hs-once','1');clearTimeout(a2hsTimer);a2hsTimer=setTimeout(hideA2hs,7000);
 }
 async function doInstall(){if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice;}catch(_){}installEvt=null;byId('a2hs').hidden=true;renderInstall();}
 function setupInstall(){
@@ -3353,7 +3424,7 @@ function partyPrimary(){
   byId('overlay-extra').hidden=true;soloTimer.elapsed=0;solo.reset(true);return true;
 }
 function partyTurnEnd(top){
-  endGuard();
+  endGuard();clearHurry();
   const P=PARTY,s=solo.state;if(P.phase!=='turn')return;
   P.scores[P.turn]=s.score;P.last={name:P.names[P.turn],score:s.score,top:!!top};P.turn++;
   if(P.turn>=P.names.length){const max=partyLeader(),win=P.names.filter((n,i)=>P.scores[i]===max);if(win.length===1)P.wins[win[0]]=(P.wins[win[0]]||0)+1;P.phase='results';sound('tetris');}
@@ -3431,6 +3502,7 @@ function onlineHowHtml(){
 
 /* Después de cada reinicio de la partida Solo. */
 function afterSoloReset(start){
+  clearHurry();
   if(session!=='solo')return;
   if(soloKind==='dig'&&!TUT.active)digFill();
   if(!start)return;
@@ -3610,10 +3682,13 @@ function lbOffer(r,result){
   box.appendChild(div);box.hidden=false;lbOfferActions();
 }
 // Con cuenta: «Cargar como 🦊 Beto». Sin cuenta: entrar o crearla ahí mismo, y se carga.
+let lbFormOpen=false;
 function lbOfferActions(){
   const a=byId('lb-act');if(!a)return;
   if(acct){a.innerHTML=`<button type="button" class="primary lb-send" id="lb-send">Cargar como ${avHtml(acct.avatar,acct.color)} ${escHtml(acct.usuario)}</button>`;byId('lb-send').onclick=lbSend;return;}
-  a.innerHTML=`<p class="lb-need">Para cargar tu récord entrá con tu usuario (o creá uno, es un toque).</p>
+  // Sin cuenta: primero un solo botón; el formulario aparece al tocarlo (así el final de la partida queda limpio).
+  if(!lbFormOpen){a.innerHTML=`<button type="button" class="pill lb-open" id="lb-open">Subir mis puntos a la tabla</button>`;byId('lb-open').onclick=()=>{lbFormOpen=true;lbOfferActions();byId('lb-user')?.focus();};return;}
+  a.innerHTML=`<p class="lb-need">Entrá con tu usuario o creá uno (es un toque).</p>
     <div class="lb-form"><input id="lb-user" type="text" maxlength="16" placeholder="Usuario" autocomplete="username" autocapitalize="words"><input id="lb-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="PIN" autocomplete="current-password" enterkeyhint="go"></div>
     <div class="lb-form"><button type="button" class="primary" id="lb-enter">Entrar y cargar</button><button type="button" class="pill" id="lb-create">Crear cuenta y cargar</button></div>
     <p class="lb-pinwarn">El PIN es de 4 a 6 números, sólo para el juego. No uses el de tu tarjeta.</p>`;
@@ -4112,6 +4187,46 @@ function setupAmigos(){
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(amPoll,600);});
   setTimeout(amPoll,2500);
 }
+/* Si la página se recarga en medio de una partida (por ejemplo, porque el celular se quedó sin memoria),
+   la partida Solo se guarda cada par de segundos y al volver se ofrece seguirla donde estaba. */
+const RESUME_KEY='bloques-resume-v1',RESUME_KINDS=['marathon','ultra','sprint','dig','daily'];
+let resumeOffer=null;
+function resumeEligible(){return session==='solo'&&RESUME_KINDS.includes(soloKind)&&!TUT.active&&!CH.active&&['playing','paused'].includes(solo.state.status)&&solo.state.pieceId>1;}
+function resumeSave(){
+  try{
+    if(resumeOffer)return;// todavía no eligió qué hacer con la guardada
+    if(!resumeEligible()){if(['over','frozen','ready'].includes(solo.state.status)||session!=='solo')storageSet(RESUME_KEY,'');return;}
+    storageSet(RESUME_KEY,JSON.stringify({v:1,t:Date.now(),kind:soloKind,mode,elapsed:soloTimer.elapsed,snap:solo.saveState(),run:typeof RUN==='object'?RUN:null}));
+  }catch(_){}
+}
+function resumeClear(){resumeOffer=null;storageSet(RESUME_KEY,'');}
+function resumeLoad(){
+  let o;try{o=JSON.parse(storageGet(RESUME_KEY)||'null');}catch(_){return null;}
+  if(!o||o.v!==1||!o.snap||!RESUME_KINDS.includes(o.kind)||Date.now()-o.t>12*3600e3)return null;
+  if(o.kind==='daily'&&new Date(o.t).toDateString()!==new Date().toDateString())return null;
+  return o;
+}
+function resumeOverlay(o){
+  const z=o.snap;
+  solo.showOverlay('TU PARTIDA\nSIGUE AHÍ',`La página se cerró en medio de la partida.\n${SOLO_KINDS[o.kind]} · ${fmt(z.score)} puntos · nivel ${z.level}`,'SEGUIR LA PARTIDA');
+  const alt=byId('overlay-alt');alt.hidden=false;alt.textContent='Empezar una nueva';
+}
+function setupResume(){
+  setInterval(resumeSave,2000);
+  const now=()=>{if(document.hidden)resumeSave();};
+  document.addEventListener('visibilitychange',now);window.addEventListener('pagehide',()=>resumeSave());
+  const o=resumeLoad();if(!o||session!=='solo')return;
+  resumeOffer=o;
+  if(soloKind!==o.kind){soloKind=o.kind;}
+  if(mode!==o.mode)changeMode(o.mode);
+  if(!solo.loadState(o.snap)){resumeClear();soloReadyOverlay();return;}
+  soloTimer.elapsed=Number(o.elapsed)||0;
+  if(o.run&&typeof o.run==='object')RUN=o.run;else runStartSolo();
+  resumeOverlay(o);renderMenu();refreshTop();
+}
+// El botón grande sigue la partida (está en pausa); el link de abajo la descarta.
+function resumeAccept(){if(!resumeOffer)return false;resumeOffer=null;return false;}
+function resumeDiscard(){resumeClear();RUN=null;soloTimer.elapsed=0;solo.reset(false);soloReadyOverlay();refreshTop();}
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
@@ -4220,8 +4335,47 @@ function auCtx(){
   n.voices={drone:[[n.droneG,n.duck],[n.droneG,drs]],atm:[[n.atmG,n.duck],[n.atmG,ars]],acid:[[n.acidG,n.duck],[n.acidG,acidSend]],exc:[[n.lp,n.excSh]]};
   AU.vOn={drone:true,atm:true,acid:true,exc:false};
   try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(_){}
-  AU.ready=true;applyAudioLevels();
+  AU.ready=true;applyAudioLevels();auTrack(ctx);
   return ctx;
+}
+/* Limpieza de notas terminadas. Cada nota crea varios nodos (oscilador, filtro, volumen…): unos 8.000 por minuto.
+   Chrome los libera solos, pero Safari (sobre todo en iPhone) puede retenerlos si siguen conectados, y en partidas
+   largas la memoria crece hasta que el navegador recarga la página. Por eso, cuando una nota termina, se desconectan
+   sus nodos. Los nodos fijos (creados al iniciar el audio) nunca se tocan; si un nodo desconectado vuelve a recibir
+   una nota, se reconecta solo. */
+const AUT={on:false,live:0};
+function auTrack(ctx){
+  if(AUT.on)return;AUT.on=true;
+  const isSrc=x=>x instanceof AudioScheduledSourceNode;
+  for(const k of ['createOscillator','createBufferSource','createGain','createBiquadFilter','createWaveShaper','createDelay','createStereoPanner','createConstantSource','createDynamicsCompressor','createConvolver']){
+    const f=ctx[k];if(typeof f!=='function')continue;
+    ctx[k]=function(){const node=f.apply(ctx,arguments);node.__t=true;node.__s=new Set();node.__o=[];
+      if(isSrc(node)){node.__s.add(node);node.addEventListener('ended',()=>setTimeout(()=>auRelease(node),300),{once:true});AUT.live++;}
+      return node;};
+  }
+  const oc=AudioNode.prototype.connect;
+  AudioNode.prototype.connect=function(dst,...rest){
+    const r=oc.call(this,dst,...rest);
+    if(this.__t){this.__o.push([dst,rest]);if(this.__off){this.__off=false;}
+      if(dst&&dst.__t)auAddSrc(dst,this.__s,oc);}
+    return r;
+  };
+}
+function auAddSrc(node,srcs,oc,depth=0){
+  if(depth>12||!srcs.size)return;
+  if(node.__off){node.__off=false;for(const [d,rest] of node.__o){try{oc.call(node,d,...rest);}catch(_){}}}
+  let grew=false;for(const x of srcs)if(!node.__s.has(x)){node.__s.add(x);grew=true;}
+  if(grew)for(const [d] of node.__o)if(d&&d.__t)auAddSrc(d,srcs,oc,depth+1);
+}
+function auRelease(src){
+  AUT.live--;
+  const seen=new Set(),walk=(node,depth)=>{
+    if(depth>12||seen.has(node))return;seen.add(node);
+    node.__s.delete(src);if(node.__s.size)return;// todavía suena otra nota por acá
+    const outs=node.__o;try{node.disconnect();}catch(_){}node.__off=true;
+    for(const [d] of outs)if(d&&d.__t)walk(d,depth+1);
+  };
+  walk(src,0);
 }
 const CURVES=new Map();function curveOf(k){if(!CURVES.has(k))CURVES.set(k,distCurve(k));return CURVES.get(k);}
 // Cambios suaves de parámetros sin acumular eventos: sólo se programa algo si el valor cambia de verdad,
@@ -4345,15 +4499,15 @@ function snare(t,vel=1){
   s.connect(bp).connect(g);o.connect(og);for(const x of [g,og]){x.connect(AU.nodes.music);const r=c.createGain();r.gain.value=.65;x.connect(r).connect(AU.nodes.rev);}o.start(t);o.stop(t+.2);
 }
 function noiseHit(t,vel=1){
-  const c=AU.ctx,s=noiseSrc(t,.2),sh=c.createWaveShaper(),bp=c.createBiquadFilter(),g=c.createGain();sh.curve=distCurve(8);
+  const c=AU.ctx,s=noiseSrc(t,.2),sh=c.createWaveShaper(),bp=c.createBiquadFilter(),g=c.createGain();sh.curve=curveOf(8);
   bp.type='bandpass';bp.frequency.setValueAtTime(rnd(900,3000),t);bp.frequency.exponentialRampToValueAtTime(400,t+.15);bp.Q.value=2;env(g,t,.002,.64*vel,.14);
   s.connect(sh).connect(bp).connect(g).connect(AU.nodes.music);const r=c.createGain();r.gain.value=.4;g.connect(r).connect(AU.nodes.rev);
 }
 // Stab de rave: acorde de sierras que cae de altura (el "hoover" de las raves duras).
 function rave(t,notes,vel=1,dur=.32){
-  const c=AU.ctx,f=c.createBiquadFilter(),g=c.createGain(),sh=c.createWaveShaper();sh.curve=distCurve(2.5);f.type='lowpass';f.Q.value=2;
+  const c=AU.ctx,f=c.createBiquadFilter(),g=c.createGain(),sh=c.createWaveShaper();sh.curve=curveOf(2.5);f.type='lowpass';f.Q.value=2;
   f.frequency.setValueAtTime(6000,t);f.frequency.exponentialRampToValueAtTime(1400,t+dur);
-  for(const m of notes)for(const det of [-18,-6,6,18]){const o=c.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(mtof(m+5),t);o.frequency.exponentialRampToValueAtTime(mtof(m),t+.07);o.detune.value=det;o.connect(f);o.start(t);o.stop(t+dur+.1);}
+  for(const m of notes)for(const det of (AU_MOBILE?[-12,12]:[-18,-6,6,18])){const o=c.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(mtof(m+5),t);o.frequency.exponentialRampToValueAtTime(mtof(m),t+.07);o.detune.value=det;o.connect(f);o.start(t);o.stop(t+dur+.1);}
   env(g,t,.003,.29*vel,dur);f.connect(sh).connect(g).connect(AU.nodes.duck);const r=c.createGain();r.gain.value=.35;g.connect(r).connect(AU.nodes.rev);const d=c.createGain();d.gain.value=.2;g.connect(d).connect(AU.nodes.dly);
 }
 
@@ -5177,7 +5331,7 @@ function audioEvent(name,data={}){
       // Apertura de filtro: la música "respira" al limpiar.
       if(AU.running){const f=AU.nodes.swell.frequency,now=ctx.currentTime;f.cancelScheduledValues(now);f.setValueAtTime(20000,now);f.setValueAtTime(2200,t);f.exponentialRampToValueAtTime(20000,t+.6+n*.15);}
       break;}
-    case 'garbage':{const t=ctx.currentTime;const o=ctx.createOscillator(),g=ctx.createGain(),sh=ctx.createWaveShaper();sh.curve=distCurve(4);o.type='sawtooth';o.frequency.setValueAtTime(70,t);o.frequency.exponentialRampToValueAtTime(40,t+.3);env(g,t,.003,.35,.32);o.connect(sh).connect(g).connect(bus);o.start(t);o.stop(t+.4);break;}
+    case 'garbage':{const t=ctx.currentTime;const o=ctx.createOscillator(),g=ctx.createGain(),sh=ctx.createWaveShaper();sh.curve=curveOf(4);o.type='sawtooth';o.frequency.setValueAtTime(70,t);o.frequency.exponentialRampToValueAtTime(40,t+.3);env(g,t,.003,.35,.32);o.connect(sh).connect(g).connect(bus);o.start(t);o.stop(t+.4);break;}
     case 'levelup':{const t=gridTime(4);riser(t,.5,.6,2600);pluck(t+.5,scaleNote(10),.8,bus,.3,'sawtooth',.3,2200);break;}
     case 'over':{const t=ctx.currentTime;const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(220,t);o.frequency.exponentialRampToValueAtTime(35,t+1.2);env(g,t,.01,.3,1.2);const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=1200;o.connect(f).connect(g).connect(bus);o.start(t);o.stop(t+1.4);musicGameOver();break;}
     case 'start':{const t=ctx.currentTime;pluck(t,scaleNote(5),.7,bus,.3,'sawtooth',.25,2200);break;}
@@ -5255,7 +5409,9 @@ function soloReadyOverlay(){
   if(CH.active&&soloKind===CH.modo){chReadyOverlay();return;}
   if(soloKind==='fiesta'){partyOverlay();return;}
   const kind=soloKindIntro();
-  const touchHint=(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\nDeslizá para mover, tocá para girar y deslizá hacia abajo para bajar.':'\nDeslizá para mover · tocá para girar · abajo un poco baja rápido, rápido la suelta · arriba la guarda.'):'';
+  // La ayuda de gestos se muestra en las primeras partidas; después el cartel queda más limpio.
+  const hintN=Number(storageGet('bloques-hint-n')||0);if(hintN<4)storageSet('bloques-hint-n',String(hintN+1));
+  const touchHint=hintN<4&&(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\nDeslizá para mover, tocá para girar y deslizá hacia abajo para bajar.':'\nDeslizá para mover · tocá para girar · abajo un poco baja rápido, rápido la suelta · arriba la guarda.'):'';
   solo.showOverlay(kind?SOLO_KINDS[soloKind].toUpperCase():'¿LISTO PARA\nJUGAR?',(kind||(mode==='classic'?'Clásico: sin reserva ni caída instantánea. La pieza queda fija al apoyarse.':'Completá líneas, usá la reserva y superá tu récord.'))+touchHint,'JUGAR');
   byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';
 }
@@ -5330,6 +5486,8 @@ function advanceMatch(now,dt){
 /* Acciones principales, iguales para teclado, mando, toque y menú */
 function primaryAction(){
   if(performance.now()<endGuardUntil)return;
+  hideA2hs();
+  if(resumeOffer)resumeOffer=null;
   if(confirmReset){pauseOrResume();return;}// el botón grande es «Seguir jugando»
   if(menuOpen)closeMenu();
   lastFrame=performance.now();
@@ -5471,8 +5629,9 @@ function refreshTop(){
     const M=net.m;
     if(!net.hello)title=net.step==='lost'?'DESCONECTADO':'SIN CONECTAR';
     else if(M.phase==='playing'||M.phase==='finishing')title=(M.bo3?`SERIE ${M.ser.me}-${M.ser.them} · `:'')+(M.kind==='versus'?`VERSUS · ENTRAN ${solo.state.incoming.length}`:`VOS ${fmt(solo.state.score)} · AMIGO ${fmt(M.peerScore)}`);
+    if(M.catchup&&M.phase==='playing'){const C=M.catchup;title=C.who===net.role?`¡ALCANZALO! TE FALTAN ${fmt(Math.max(0,C.target-solo.state.score+1))}`:`TU AMIGO TIENE QUE PASAR ${fmt(C.target)} · VA ${fmt(M.peerScore)}`;}
     else title=({ready:'CONECTADO',countdown:'PREPÁRENSE…',paused:'EN PAUSA',finished:'RONDA TERMINADA'})[M.phase]||'';
-    clock=M.kind==='score'&&M.duration?timeLabel(M.remaining):timeLabel(M.elapsed);
+    clock=M.catchup||(M.kind==='score'&&M.duration)?timeLabel(M.remaining):timeLabel(M.elapsed);
     const badge=byId('net-badge');badge.hidden=!net.hello;
     const ms=net.rtt!==null?`${Math.round(net.rtt)} ms`:'',path=pathLabel();
     const t=net.unstable?'Conexión inestable':net.peerAway?'Tu amigo salió de la pantalla':[path,ms].filter(Boolean).join(' · ')||'Conectado';
@@ -5512,6 +5671,7 @@ function closeMenu(){
 function onlineReadyNotice(){if(session==='online'&&net.hello)netSend({t:'away',on:!onlineVisible()});}
 function renderMenu(){
   document.querySelectorAll('[data-session]').forEach(b=>{const on=b.dataset.session===session;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+  {const two=session==='local'||session==='versus';document.querySelectorAll('[data-two]').forEach(b=>{b.classList.toggle('active',two);b.setAttribute('aria-pressed',String(two));});byId('two-kind-row').hidden=!two;}
   const locked=session==='online'&&(net.role==='guest'&&net.hello||['countdown','playing','paused','finishing'].includes(net.m.phase));
   document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=locked;});
   byId('rules-note').textContent=mode==='classic'?'Clásico, al estilo de los 80: sin reserva ni sombra de caída; la pieza se fija apenas se apoya.':'Moderno: con reserva, sombra de caída, caída instantánea y 5 siguientes.';
@@ -5523,6 +5683,7 @@ function renderMenu(){
   const showDuration=session==='local'||(online&&net.m.kind==='score');
   byId('duration-row').hidden=!showDuration;byId('match-duration').disabled=locked||(session==='local'&&['countdown','playing','paused'].includes(match.phase));
   if(online)byId('match-duration').value=String(net.m.duration/1000);
+  byId('catchup-hint').hidden=!(online&&showDuration&&!net.m.duration);
   byId('solo-kind-row').hidden=session!=='solo';byId('cpu-level-row').hidden=session!=='cpu';
   document.querySelectorAll('[data-solokind]').forEach(b=>{const on=b.dataset.solokind===soloKind;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   document.querySelectorAll('[data-cpulevel]').forEach(b=>{const on=b.dataset.cpulevel===cpuLevel;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=session==='cpu'&&['countdown','playing','paused'].includes(cpuM.phase);});
@@ -5886,7 +6047,8 @@ window.addEventListener('keydown',e=>{
     // Con el foco en un botón, Espacio/Enter no deben activarlo en lugar de mover la pieza.
     if(!gameIsLive(route.game)&&tag==='BUTTON'&&(e.code==='Space'||e.code==='Enter'))return;
     e.preventDefault();if(e.repeat)return;
-    if(!gameIsLive(route.game)){if(e.code==='Space'&&route.game===solo&&session==='solo'&&solo.state.status!=='playing')primaryAction();return;}
+    if(!gameIsLive(route.game)){// Espacio (que también hace caer la pieza) sólo empieza o continúa; después de perder hay que usar Enter o el botón.
+      if(e.code==='Space'&&route.game===solo&&session==='solo'&&['ready','paused'].includes(solo.state.status))primaryAction();return;}
     route.game.holdInput(route.action,'key:'+e.code);return;
   }
   if(tag==='BUTTON'&&(e.code==='Enter'||e.code==='Space'))return;
@@ -6066,10 +6228,11 @@ function init(){
   byId('menu-close').addEventListener('click',closeMenu);
   byId('menu-play').addEventListener('click',()=>{if(session==='online'&&!net.hello){closeMenu();return;}primaryAction();});
   // «Cambiar modo» despliega el menú contextual; «Menú» (en pausa o en línea conectado) abre el menú completo.
-  byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){confirmReset=false;restart();return;}const t=e.currentTarget.textContent;if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
+  byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){confirmReset=false;restart();return;}const t=e.currentTarget.textContent;if(t==='Empezar una nueva'){resumeDiscard();return;}if(t==='Jugar Maratón'){setSoloKind('marathon');return;}if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
   byId('pause-btn').addEventListener('click',pauseOrResume);
   for(const id of ['restart-btn','tool-restart'])byId(id).addEventListener('click',e=>{askRestart();e.currentTarget.blur();});
   document.querySelectorAll('[data-session]').forEach(b=>b.addEventListener('click',()=>changeSession(b.dataset.session)));
+  document.querySelectorAll('[data-two]').forEach(b=>b.addEventListener('click',()=>{if(session!=='local'&&session!=='versus')changeSession('local');}));
   document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>changeMode(b.dataset.mode)));
   byId('match-duration').addEventListener('change',()=>{
     if(session==='online'){if(net.role==='guest'&&net.hello)return;net.m.duration=durationValue();net.m.remaining=net.m.duration;netSendConfig();refreshTop();refreshOnlineOverlay();return;}
@@ -6089,7 +6252,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();setupZoomGuard();setupAmigos();
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();setupZoomGuard();setupAmigos();setTimeout(setupResume,30);
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
@@ -6139,7 +6302,7 @@ function init(){
 }
 init();
 if(location.hash==='#diagnostico'||/[?&]diagnostico\b/.test(location.search)){
-  window.BLOQUES_DIAGNOSTICO={amPollNow:()=>{AM.lastPoll=0;amPoll();},solo,players,rival,match,net,netHooks,settings,controls:()=>controls,getSession:()=>session,getMode:()=>mode,
+  window.BLOQUES_DIAGNOSTICO={AUT,amPollNow:()=>{AM.lastPoll=0;amPoll();},solo,players,rival,match,net,netHooks,settings,controls:()=>controls,getSession:()=>session,getMode:()=>mode,
     changeSession,changeMode,primaryAction,pauseOrResume,autoPause,restart,startMatch,finishMatch,pauseMatch,resumeMatch,advanceMatch,
     encodeCode,decodeCode,findCode,packBody,unpackBody,crc32,parseIPv6,formatIPv6,netCreate,netUseFriendCode,netReset,netLeave,netSend,
     openMenu,closeMenu,openControls,closeControls,fitArena,attackFor,configureKey,routeKey,iceServers,GATHER,menuOpen:()=>menuOpen,
