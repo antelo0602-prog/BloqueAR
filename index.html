@@ -15,7 +15,7 @@
 <style>
 :root{--theme:#7ce9e5;--pulse:0;color-scheme:dark;--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--p1:#7ce9e5;--p2:#c7a5ff;--cell:24px;--rail:72px;--gap:8px;--btn:56px;--padw:130px;--next-h:5}
 *{box-sizing:border-box}
-html{background:var(--bg);height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{background:var(--bg);height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;min-height:100%;font:500 14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(ellipse at 50% -25%,#202c41 0,transparent 62%),var(--bg);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
 button,select,textarea,input{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -409,6 +409,12 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .overlay[data-ov="end"] :is(.overlay-foot,.overlay-sign,.overlay-mark,.overlay-level,#overlay-share,#overlay-install){display:none}
 .lb-open{width:100%;min-height:44px}
 @media (max-width:600px){.head-pills{display:none}}
+.menu-me{display:flex;align-items:center;gap:7px;margin-left:auto;min-height:38px;padding:3px 10px 3px 4px;border:1px solid var(--line);border-radius:999px;background:#0f1724;color:var(--ink);font:inherit;min-width:0;cursor:pointer}
+.menu-me .av{width:28px;height:28px;font-size:15px}.menu-me>span{display:flex;flex-direction:column;gap:3px;align-items:flex-start}.menu-me b{font-size:12px;white-space:nowrap}.menu-me .xpbar.mini{width:56px;margin:0;height:4px}
+.menu-lb{white-space:nowrap;padding:0 11px}.head-pills+.menu-me{margin-left:6px}
+@media (max-width:360px){.menu-me .xpbar.mini{width:40px}}
+.sheet-head{justify-content:flex-start}@media (max-width:600px){.head-pills+.menu-me{margin-left:auto}}
+.menu-me b{font-size:13px}
 .overlay[data-ov="end"]:has(#lb-box) #overlay-lb{display:none}
 .party{width:min(100%,320px);margin:4px auto 10px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .party-names{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -568,7 +574,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
   </div>
 
   <section class="sheet" id="menu" hidden aria-labelledby="menu-title">
-    <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><span class="head-pills"><button class="pill share-pill" id="menu-share" type="button">📲 Pasar<span class="wide-only"> el juego</span></button><button class="pill share-pill" id="menu-install" type="button">⬇ Instalar</button></span><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
+    <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><span class="head-pills"><button class="pill share-pill" id="menu-share" type="button">📲 Pasar<span class="wide-only"> el juego</span></button><button class="pill share-pill" id="menu-install" type="button">⬇ Instalar</button></span><button type="button" class="menu-me" id="menu-me" aria-label="Tu progreso"></button><button type="button" class="pill menu-lb" id="menu-lb" aria-label="Ver la tabla">🏆<span class="wide-only"> Tabla</span></button><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
     <div class="menu-tabs" role="tablist" aria-label="Secciones del menú"><button type="button" role="tab" data-mtab="partida">🎮 Jugar</button><button type="button" role="tab" data-mtab="progreso">👤 Yo</button><button type="button" role="tab" data-mtab="ajustes">⚙️ Ajustes</button></div>
 
     <div class="block" data-tab="partida"><h3>MODO</h3>
@@ -709,7 +715,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">31</span></p>
+      <p class="hint">Versión <span class="app-ver">34</span></p>
     </div>
     </div></details>
     </div>
@@ -742,7 +748,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
             <button type="button" id="overlay-alt" class="linkish">Cambiar modo</button>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v31</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v34</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -926,11 +932,13 @@ function storageSet(key,value){try{localStorage.setItem(key,value);return true;}
 for(const [key,field] of RECORD_KEYS){try{const r=JSON.parse(storageGet(key)||'{}');for(const m of ['classic','modern'])if(Number.isFinite(r?.[m])&&r[m]>=0)settings[field][m]=Math.floor(r[m]);}catch(_){}}
 settings.sound=storageGet('bloques-sound-v1')==='on';
 /* Sensación de los controles: repetición al mantener, sensibilidad del arrastre, toque por lados y vibración. */
-const FEEL_DEFAULT={das:155,arr:42,sens:6,tapSides:false,haptics:true,swipe:'auto'};
+// v33: la sensibilidad del arrastre baja de 6 a 4 (en el celular resultaba demasiado sensible).
+const FEEL_DEFAULT={das:155,arr:42,sens:4,tapSides:false,haptics:true,swipe:'auto'};
 const FEEL={...FEEL_DEFAULT};
 try{const f=JSON.parse(storageGet('bloques-feel-v1')||'null');
-  if(f&&f.das>=60&&f.das<=300&&f.arr>=0&&f.arr<=100&&f.sens>=1&&f.sens<=10)Object.assign(FEEL,{das:+f.das,arr:+f.arr,sens:+f.sens,tapSides:Boolean(f.tapSides),haptics:f.haptics!==false,swipe:['auto','hard','soft'].includes(f.swipe)?f.swipe:'auto'});}catch(_){}
-function applyFeel(){TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;storageSet('bloques-feel-v1',JSON.stringify(FEEL));}
+  if(f&&f.das>=60&&f.das<=300&&f.arr>=0&&f.arr<=100&&f.sens>=1&&f.sens<=10)Object.assign(FEEL,{das:+f.das,arr:+f.arr,sens:+f.sens,tapSides:Boolean(f.tapSides),haptics:f.haptics!==false,swipe:['auto','hard','soft'].includes(f.swipe)?f.swipe:'auto'});
+  if(f&&!f.v33&&+f.sens===6)FEEL.sens=4;}catch(_){}// quien tenía la de antes sin tocarla pasa a la nueva
+function applyFeel(){TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;storageSet('bloques-feel-v1',JSON.stringify({...FEEL,v33:true}));}
 TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;
 const dragFactor=()=>1.5-FEEL.sens*.1;// dedo recorrido (en celdas) por cada celda que se mueve la pieza
 // Vibración breve: Android usa vibrate(); en iPhone (iOS 18+) Safari vibra al tocar un interruptor nativo,
@@ -1446,6 +1454,7 @@ function createGame(root,prefix,options){
     touchStart={id:e.pointerId,x0:e.clientX,y0:e.clientY,sx:e.clientX,sy:e.clientY,t0:now,piece:state.pieceId,mx:0,my:0,acted:false,multi:false,axis:null,done:false,peakDown:0,peakUp:0,trail:[[now,e.clientX,e.clientY]]};
   });
   // Velocidad vertical reciente (px/ms) con los últimos ~60 ms del recorrido.
+  const recentVx=(g,now)=>{let k=g.trail.length-1;while(k>0&&now-g.trail[k][0]<60)k--;const a=g.trail[k],b=g.trail[g.trail.length-1];return (b[1]-a[1])/Math.max(16,b[0]-a[0]);};
   const recentVy=(g,now)=>{let k=g.trail.length-1;while(k>0&&now-g.trail[k][0]<60)k--;const a=g.trail[k],b=g.trail[g.trail.length-1];return (b[2]-a[2])/Math.max(16,b[0]-a[0]);};
   function gestureSoft(g,on){
     if(on&&!g.soft){g.soft=true;g.acted=true;holdInput('down','gesture');}
@@ -1466,9 +1475,23 @@ function createGame(root,prefix,options){
     if(!g.axis){if(Math.hypot(dx,dy)<u*.5)return;g.axis=Math.abs(dy)>=Math.abs(dx)?'y':'x';}
     if(g.axis==='y'&&Math.abs(dx)>Math.max(step*1.6,Math.abs(dy)*1.2)){g.axis='x';}
     if(g.axis==='x'){
-      const tx=Math.sign(dx)*Math.floor(Math.max(0,Math.abs(dx)+step*.35)/step);
-      while(g.mx!==tx&&state.pieceId===g.piece){const d=Math.sign(tx-g.mx);if(!move(d))break;g.mx+=d;g.acted=true;buzz();}
-      if(g.mx!==tx)g.x0+=(tx-g.mx)*step;// contra la pared: no acumular movimiento pendiente
+      // Arrastre lateral más preciso:
+      // · se acumula el recorrido del dedo en «celdas» y la pieza cambia de columna al pasar 0,65 de celda;
+      //   para volver hay que retroceder un poco más (histéresis), así el temblor del dedo no la hace ir y venir;
+      // · despacio va 1 a 1 y un deslizamiento rápido llega un poco más lejos;
+      // · contra la pared no se acumula movimiento pendiente.
+      if(g.acc===undefined){g.acc=dx/step;g.lx=e.clientX;}
+      const ddx=e.clientX-g.lx;g.lx=e.clientX;
+      const vx=Math.abs(recentVx(g,now)),gain=Math.min(1.35,Math.max(1,1+(vx-.45)*.5));
+      g.acc+=ddx/step*gain;
+      const TH=.65;
+      while(state.pieceId===g.piece&&(g.acc-g.mx>=TH||g.acc-g.mx<=-TH)){
+        const d=g.acc>g.mx?1:-1;
+        if(!move(d)){g.acc=g.mx;break;}
+        // ¿El dedo venía quieto y este cambio lo provocó un movimiento chiquito? (típico del dedo que rueda al levantarlo)
+        let still=false;{const pts=g.trail.slice(0,-1).filter(t=>now-t[0]<150);if(pts.length>=2){let lo=1e9,hi=-1e9;for(const t of pts){lo=Math.min(lo,t[1]);hi=Math.max(hi,t[1]);}still=hi-lo<step*.2&&Math.abs(ddx)<step*.4;}}
+        g.mx+=d;g.acted=true;g.lastMoveT=now;g.lastStill=still;g.lastMoveD=d;buzz();
+      }
       return;
     }
     const mode=FEEL.swipe;
@@ -1487,6 +1510,7 @@ function createGame(root,prefix,options){
     const now=performance.now(),u=cellPx(),dy=e.clientY-g.y0,dur=now-g.t0;
     if(g.multi){if(!g.acted){rotate(-1);buzz();}return;}
     if(g.piece!==state.pieceId)return;
+    if(g.axis==='x'&&g.lastMoveT&&now-g.lastMoveT<50&&g.lastStill&&Math.abs(g.mx)>1){move(-g.lastMoveD);return;}
     if(g.axis==='y'){
       // Gesto decidido aunque frene al final: velocidad máxima alta o gesto corto.
       if(!wasSoft&&dy>=u*1.2&&FEEL.swipe!=='soft'&&(FEEL.swipe==='hard'||(dy>=u*1.5&&(g.peakDown>=.5||dur<=320)))){dropNow(g);return;}
@@ -3207,7 +3231,15 @@ function showSummary(o){
   if(o.after.lv>o.before.lv)callout('¡NIVEL DE JUGADOR '+o.after.lv+'!','medal');
 }
 let summaryKeep=false;
+// Progreso chico en la cabecera del menú (toca y te lleva a «Yo»).
+function renderMenuMe(){
+  const el=byId('menu-me');if(!el)return;const L=levelInfo(PRG.xp),a=typeof acct!=='undefined'&&acct;
+  el.innerHTML=`${a?avHtml(a.avatar,a.color):'<span class="av" style="--avc:#93a1b6">👤</span>'}<span><b>Nivel ${L.lv}</b><span class="xpbar mini"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></span></span>`;
+  el.title=a?`${a.usuario} · nivel ${L.lv}`:`Nivel ${L.lv}`;
+  if(!el.dataset.on){el.dataset.on='1';el.addEventListener('click',()=>setMenuTab('progreso'));byId('menu-lb').addEventListener('click',()=>lbOpenPanel());}
+}
 function renderOverlayLevel(){
+  renderMenuMe();
   const L=levelInfo(PRG.xp),el=byId('overlay-level');
   const a=typeof acct!=='undefined'&&acct;
   el.innerHTML=`${a?avHtml(a.avatar,a.color):'<span class="av" style="--avc:#93a1b6">👤</span>'}<span class="ol-txt"><b>${a?escHtml(a.usuario):'Tu perfil'}</b><small>Nivel ${L.lv}${a?'':' · creá tu cuenta'}</small><span class="xpbar mini"><i style="width:${(L.into/L.need*100).toFixed(1)}%"></i></span></span><span class="ol-go" aria-hidden="true">›</span>`;
@@ -3598,7 +3630,30 @@ function resetZoom(){
   m.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
   setTimeout(()=>{m.setAttribute('content',c);window.scrollTo(0,0);},60);
 }
+/* Safari (iPhone) recarga la página si arrastrás hacia abajo estando arriba de todo («tirar para recargar»).
+   Jugando, un deslizamiento hacia abajo que empieza fuera del tablero, o abrir el menú y arrastrar hacia abajo,
+   recargaba el juego. Acá se frena ese arrastre, pero se deja desplazar lo que de verdad tiene para desplazar. */
+function scrollParent(el){
+  for(let n=el;n&&n!==document.body&&n!==document.documentElement;n=n.parentElement){
+    if(n.nodeType!==1)continue;const oy=getComputedStyle(n).overflowY;
+    if((oy==='auto'||oy==='scroll')&&n.scrollHeight>n.clientHeight+1)return n;
+  }
+  return null;
+}
+function setupPullGuard(){
+  let y0=0;
+  document.addEventListener('touchstart',e=>{if(e.touches.length===1)y0=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(e.touches.length!==1||!e.cancelable)return;
+    const t=e.target;if(t.closest?.('input,textarea,select'))return;
+    const dy=e.touches[0].clientY-y0,box=scrollParent(t);
+    if(box&&!(dy>0&&box.scrollTop<=0))return;// el panel todavía puede desplazarse en esa dirección
+    const root=document.scrollingElement||document.documentElement,canScroll=root.scrollHeight>window.innerHeight+1;
+    if(!canScroll||(dy>0&&root.scrollTop<=0))e.preventDefault();
+  },{passive:false});
+}
 function setupZoomGuard(){
+  setupPullGuard();
   // Pellizcar o hacer doble toque sobre el juego no agranda la página (Safari no respeta el «maximum-scale»).
   for(const ev of ['gesturestart','gesturechange'])document.addEventListener(ev,e=>{if(!e.target.closest?.('input,textarea'))e.preventDefault();},{passive:false});
   document.addEventListener('focusout',e=>{if(e.target.matches?.('input,textarea,select'))setTimeout(resetZoom,120);});
@@ -3685,7 +3740,10 @@ function lbOffer(r,result){
 let lbFormOpen=false;
 function lbOfferActions(){
   const a=byId('lb-act');if(!a)return;
-  if(acct){a.innerHTML=`<button type="button" class="primary lb-send" id="lb-send">Cargar como ${avHtml(acct.avatar,acct.color)} ${escHtml(acct.usuario)}</button>`;byId('lb-send').onclick=lbSend;return;}
+  if(acct){a.innerHTML=`<button type="button" class="primary lb-send" id="lb-send">Cargar como ${avHtml(acct.avatar,acct.color)} ${escHtml(acct.usuario)}</button>`;byId('lb-send').onclick=lbSend;
+    // Con cuenta, el puntaje se sube solo al terminar (el botón queda sólo para reintentar si falla).
+    if(lbPending&&!lbPending.sent&&!lbPending.auto){lbPending.auto=true;lbSend();}
+    return;}
   // Sin cuenta: primero un solo botón; el formulario aparece al tocarlo (así el final de la partida queda limpio).
   if(!lbFormOpen){a.innerHTML=`<button type="button" class="pill lb-open" id="lb-open">Subir mis puntos a la tabla</button>`;byId('lb-open').onclick=()=>{lbFormOpen=true;lbOfferActions();byId('lb-user')?.focus();};return;}
   a.innerHTML=`<p class="lb-need">Entrá con tu usuario o creá uno (es un toque).</p>
@@ -3702,14 +3760,15 @@ function lbOfferActions(){
   for(const id of ['lb-user','lb-pin'])byId(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();go(false);}});
 }
 async function lbSend(){
-  const P=lbPending,btn=byId('lb-send'),msg=byId('lb-msg');if(!P||!btn||P.sent||!acct)return;
+  const P=lbPending,btn=byId('lb-send'),msg=byId('lb-msg');if(!P||!btn||P.sent||P.busy||!acct)return;
+  P.busy=true;
   const nombre=acct.usuario;
   btn.disabled=true;btn.textContent='Cargando…';msg.textContent='Mandando tu récord a la tabla…';
   const per=P.modo==='daily'?'dia':'semana';
   try{
     const j=await lbPost({accion:'cargar',usuario:nombre,token:acct.token,modo:P.modo,reglas:P.reglas,puntos:P.puntos,lineas:P.lineas,ms:P.ms,dia:P.dia,semilla:P.semilla,disp:lbDev(),v:'26',racha:lbStreak(),periodo:per,
       firma:lbFirma([LB_CLAVE,nombre,P.modo,P.reglas,P.puntos,P.lineas,P.ms,P.dia,P.semilla].join('|'))});
-    P.sent=true;LB.cache[`${P.modo}:${P.reglas}:${j.periodo||'siempre'}`]={j,t:Date.now()};
+    P.sent=true;P.busy=false;LB.cache[`${P.modo}:${P.reglas}:${j.periodo||'siempre'}`]={j,t:Date.now()};
     btn.hidden=true;
     const x=j.top[j.puesto-1],mine=x&&(LB_TIME[P.modo]?Math.abs(x.s*1000-P.ms)<150:x.puntos===P.puntos);
     const when=j.periodo&&j.periodo!=='siempre'?' '+LB_PER_TXT[j.periodo]:'';
@@ -3720,6 +3779,7 @@ async function lbSend(){
     const ol=byId('lb-list');ol.innerHTML=lbListHtml(j,nombre);ol.hidden=false;
     if(j.puesto===1)callout(j.periodo==='semana'?'¡PRIMERO DE LA SEMANA!':'¡PRIMERO EN LA TABLA!','medal');
   }catch(e){
+    P.busy=false;
     if(!acct){lbOfferActions();msg.textContent=e.message;return;}
     btn.disabled=false;btn.textContent='Reintentar';msg.textContent='No se pudo cargar: '+e.message;
   }
@@ -5656,6 +5716,7 @@ function openMenu(focus){
   closeModePop();
   if(configOpen)closeControls();
   if(!menuOpen){autoPause();menuOpen=true;}
+  try{renderMenuMe();}catch(_){}
   byId('menu').hidden=false;app.classList.add('menu-open');byId('menu-btn').setAttribute('aria-expanded','true');
   if(focus==='online'||session==='online')setMenuTab('partida',false);
   renderMenu();if(menuTab==='progreso')renderProgress();window.scrollTo(0,0);
