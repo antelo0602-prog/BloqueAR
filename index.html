@@ -408,6 +408,9 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .overlay[data-ov="min"] :is(.overlay-level,.overlay-links,.overlay-foot,.overlay-sign,.overlay-mark){display:none}
 .overlay[data-ov="end"] :is(.overlay-foot,.overlay-sign,.overlay-mark,.overlay-level,#overlay-share,#overlay-install){display:none}
 .lb-open{width:100%;min-height:44px}
+.overlay-tip{display:flex;gap:8px;align-items:flex-start;max-width:300px;margin:10px auto 0;padding:8px 12px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff14;color:#b9c6d6;font-size:12.5px;line-height:1.4;text-align:left}
+.overlay-tip b{color:#e8eef6;font-weight:750}.overlay-tip .tip-go{background:none;border:0;padding:0 2px;color:#9fd8d2;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.overlay[data-ov="min"] .overlay-tip,.overlay[data-ov="home"] .overlay-tip{display:none}
 @media (max-width:600px){.head-pills{display:none}}
 .menu-me{display:flex;align-items:center;gap:7px;margin-left:auto;min-height:38px;padding:3px 10px 3px 4px;border:1px solid var(--line);border-radius:999px;background:#0f1724;color:var(--ink);font:inherit;min-width:0;cursor:pointer}
 .menu-me .av{width:28px;height:28px;font-size:15px}.menu-me>span{display:flex;flex-direction:column;gap:3px;align-items:flex-start}.menu-me b{font-size:12px;white-space:nowrap}.menu-me .xpbar.mini{width:56px;margin:0;height:4px}
@@ -715,7 +718,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">34</span></p>
+      <p class="hint">Versión <span class="app-ver">36</span></p>
     </div>
     </div></details>
     </div>
@@ -746,9 +749,10 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
             <div class="overlay-extra" id="overlay-extra" hidden></div>
             <button type="button" id="overlay-btn" class="primary big">JUGAR</button>
             <button type="button" id="overlay-alt" class="linkish">Cambiar modo</button>
+            <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v34</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v36</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -932,13 +936,13 @@ function storageSet(key,value){try{localStorage.setItem(key,value);return true;}
 for(const [key,field] of RECORD_KEYS){try{const r=JSON.parse(storageGet(key)||'{}');for(const m of ['classic','modern'])if(Number.isFinite(r?.[m])&&r[m]>=0)settings[field][m]=Math.floor(r[m]);}catch(_){}}
 settings.sound=storageGet('bloques-sound-v1')==='on';
 /* Sensación de los controles: repetición al mantener, sensibilidad del arrastre, toque por lados y vibración. */
-// v33: la sensibilidad del arrastre baja de 6 a 4 (en el celular resultaba demasiado sensible).
-const FEEL_DEFAULT={das:155,arr:42,sens:4,tapSides:false,haptics:true,swipe:'auto'};
+// v36: sensibilidad del arrastre en 5 (la 6 resultaba nerviosa y la 4, pesada).
+const FEEL_DEFAULT={das:155,arr:42,sens:5,tapSides:false,haptics:true,swipe:'auto'};
 const FEEL={...FEEL_DEFAULT};
 try{const f=JSON.parse(storageGet('bloques-feel-v1')||'null');
   if(f&&f.das>=60&&f.das<=300&&f.arr>=0&&f.arr<=100&&f.sens>=1&&f.sens<=10)Object.assign(FEEL,{das:+f.das,arr:+f.arr,sens:+f.sens,tapSides:Boolean(f.tapSides),haptics:f.haptics!==false,swipe:['auto','hard','soft'].includes(f.swipe)?f.swipe:'auto'});
-  if(f&&!f.v33&&+f.sens===6)FEEL.sens=4;}catch(_){}// quien tenía la de antes sin tocarla pasa a la nueva
-function applyFeel(){TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;storageSet('bloques-feel-v1',JSON.stringify({...FEEL,v33:true}));}
+  if(f&&!f.v36&&((!f.v33&&+f.sens===6)||+f.sens===4))FEEL.sens=5;}catch(_){}// quien tenía un valor predeterminado viejo pasa al nuevo
+function applyFeel(){TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;storageSet('bloques-feel-v1',JSON.stringify({...FEEL,v33:true,v36:true}));}
 TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;
 const dragFactor=()=>1.5-FEEL.sens*.1;// dedo recorrido (en celdas) por cada celda que se mueve la pieza
 // Vibración breve: Android usa vibrate(); en iPhone (iOS 18+) Safari vibra al tocar un interruptor nativo,
@@ -1472,7 +1476,7 @@ function createGame(root,prefix,options){
     const u=cellPx(),step=u*dragFactor(),dx=e.clientX-g.x0,dy=e.clientY-g.y0,vy=recentVy(g,now);
     g.peakDown=Math.max(g.peakDown,vy);g.peakUp=Math.min(g.peakUp,vy);
     // La dirección se decide al principio; deslizando hacia abajo se ignora el desvío lateral del dedo.
-    if(!g.axis){if(Math.hypot(dx,dy)<u*.5)return;g.axis=Math.abs(dy)>=Math.abs(dx)?'y':'x';}
+    if(!g.axis){if(Math.hypot(dx,dy)<u*.35)return;g.axis=Math.abs(dy)>=Math.abs(dx)?'y':'x';}
     if(g.axis==='y'&&Math.abs(dx)>Math.max(step*1.6,Math.abs(dy)*1.2)){g.axis='x';}
     if(g.axis==='x'){
       // Arrastre lateral más preciso:
@@ -1482,15 +1486,16 @@ function createGame(root,prefix,options){
       // · contra la pared no se acumula movimiento pendiente.
       if(g.acc===undefined){g.acc=dx/step;g.lx=e.clientX;}
       const ddx=e.clientX-g.lx;g.lx=e.clientX;
-      const vx=Math.abs(recentVx(g,now)),gain=Math.min(1.35,Math.max(1,1+(vx-.45)*.5));
+      const vx=Math.abs(recentVx(g,now)),gain=Math.min(1.5,Math.max(1,1+(vx-.3)*.6));
       g.acc+=ddx/step*gain;
-      const TH=.65;
-      while(state.pieceId===g.piece&&(g.acc-g.mx>=TH||g.acc-g.mx<=-TH)){
+      // Seguir en la misma dirección es liviano (0,55 de celda); volver para atrás pide un poco más (0,8): así no tiembla.
+      const thr=d=>!g.dir||d===g.dir?.55:.8;
+      while(state.pieceId===g.piece&&(g.acc-g.mx>=thr(1)||g.acc-g.mx<=-thr(-1))){
         const d=g.acc>g.mx?1:-1;
         if(!move(d)){g.acc=g.mx;break;}
         // ¿El dedo venía quieto y este cambio lo provocó un movimiento chiquito? (típico del dedo que rueda al levantarlo)
         let still=false;{const pts=g.trail.slice(0,-1).filter(t=>now-t[0]<150);if(pts.length>=2){let lo=1e9,hi=-1e9;for(const t of pts){lo=Math.min(lo,t[1]);hi=Math.max(hi,t[1]);}still=hi-lo<step*.2&&Math.abs(ddx)<step*.4;}}
-        g.mx+=d;g.acted=true;g.lastMoveT=now;g.lastStill=still;g.lastMoveD=d;buzz();
+        g.mx+=d;g.dir=d;g.acted=true;g.lastMoveT=now;g.lastStill=still;g.lastMoveD=d;buzz();
       }
       return;
     }
@@ -3327,7 +3332,10 @@ function setupProgress(){
   solo.setPlaying=()=>{const was=solo.state.status;_setPlaying();if((session==='cpu'||session==='online')&&was==='ready')runStart();};
   solo.showOverlay=(...a)=>{_show(...a);
     // Qué se ve en el cartel: todo en la pantalla de inicio; en pausa y en línea, sólo lo justo.
-    {const st=solo.state.status,ov=session==='solo'&&st==='ready'&&!confirmReset?'home':session==='solo'&&['over','frozen'].includes(st)?'end':'min';byId('overlay').dataset.ov=ov;}
+    {const st=solo.state.status,ov=session==='solo'&&st==='ready'&&!confirmReset?'home':session==='solo'&&['over','frozen'].includes(st)?'end':'min';byId('overlay').dataset.ov=ov;
+      // Un consejo nuevo cada vez que termina una partida (en la fiesta y el tutorial, no).
+      const tip=byId('overlay-tip'),gk=String(PRG.games)+':'+solo.state.pieceId;
+      if(ov==='end'&&tip.dataset.g!==gk&&soloKind!=='fiesta'&&!TUT.active&&!resumeOffer){tip.dataset.g=gk;showTip();}else if(ov!=='end')tip.hidden=true;}
     const st=solo.state.status;if(!summaryKeep||!['over','frozen'].includes(st)){byId('overlay-extra').hidden=true;summaryKeep=false;}
     renderOverlayLevel();};
   byId('overlay-share').addEventListener('click',()=>openShareGame());
@@ -4287,6 +4295,58 @@ function setupResume(){
 // El botón grande sigue la partida (está en pausa); el link de abajo la descarta.
 function resumeAccept(){if(!resumeOffer)return false;resumeOffer=null;return false;}
 function resumeDiscard(){resumeClear();RUN=null;soloTimer.elapsed=0;solo.reset(false);soloReadyOverlay();refreshTop();}
+/* Consejos chiquitos al terminar una partida («¿Sabías que…?»), para que se enteren de lo que se puede hacer.
+   Uno por partida, sin repetir hasta haberlos visto todos, y sólo los que tienen sentido en ese dispositivo. */
+const TIPS=[
+  {id:'sens',when:'touch',txt:'¿Sabías que podés cambiar la <b>sensibilidad del arrastre</b>?',go:'tacto'},
+  {id:'pad',when:'touch',txt:'¿Sabías que podés <b>agregar botones en pantalla</b> y acomodarlos a tu gusto?',go:'controles'},
+  {id:'soft',when:'touch',txt:'Deslizá <b>un poquito hacia abajo y mantené</b>: la pieza baja rápido sin soltarse.'},
+  {id:'hold',when:'touch-modern',txt:'Deslizá <b>hacia arriba</b> para guardar la pieza y usarla después.'},
+  {id:'two',when:'touch',txt:'Tocá con <b>dos dedos</b> y la pieza gira para el otro lado.'},
+  {id:'keys',when:'keys',txt:'¿Sabías que podés <b>cambiar las teclas</b> a tu gusto?',go:'controles'},
+  {id:'keyhold',when:'keys-modern',txt:'<b>C</b> o <b>Shift</b> guardan la pieza y <b>Z</b> la gira para el otro lado.'},
+  {id:'acct',when:'noacct',txt:'Con una <b>cuenta</b> tu progreso pasa del celu a la compu y tus puntos van solos a la tabla.',go:'progreso'},
+  {id:'daily',txt:'Hay un <b>Desafío del día</b>: 2 minutos con las mismas piezas para todos.',go:'progreso'},
+  {id:'online',txt:'Podés jugar <b>en línea</b> con un amigo: lo invitás desde la lista o con un QR.',go:'online'},
+  {id:'gfx',when:'touch',txt:'Si el juego va lento en tu celu, probá <b>Gráficos › Liviano</b>.',go:'graficos'},
+  {id:'music',txt:'¿Sabías que podés <b>cambiar la música</b> o elegir otro estilo?',go:'sonido'},
+  {id:'install',when:'noinstall',txt:'<b>Instalalo como app</b>: se abre más rápido y sin las barras del navegador.',go:'mas'},
+  {id:'giros',when:'modern',txt:'Los <b>Desafíos de giro</b> te enseñan a meter la T en los huecos.',go:'progreso'},
+  {id:'look',txt:'Al subir de nivel desbloqueás <b>colores, bloques y fondos</b>. Elegilos en Yo › Apariencia.',go:'progreso'},
+  {id:'cpu',txt:'¿Querés práctica? Jugá <b>contra la compu</b> en tres dificultades.',go:'jugar'},
+];
+function tipOk(t){
+  const touch=app.classList.contains('touch')||matchMedia('(pointer: coarse)').matches;
+  switch(t.when){
+    case 'touch':return touch;case 'touch-modern':return touch&&mode==='modern';
+    case 'keys':return !touch;case 'keys-modern':return !touch&&mode==='modern';
+    case 'noacct':return !acct&&!!LB.url;case 'noinstall':return !IS_STANDALONE;case 'modern':return mode==='modern';
+    default:return true;
+  }
+}
+function nextTip(){
+  let S;try{S=JSON.parse(storageGet('bloques-tips-v1')||'null')||{};}catch(_){S={};}
+  S.seen=Array.isArray(S.seen)?S.seen:[];
+  const ok=TIPS.filter(tipOk);if(!ok.length)return null;
+  let pool=ok.filter(t=>!S.seen.includes(t.id));
+  if(!pool.length){S.seen=S.last?[S.last]:[];pool=ok.filter(t=>t.id!==S.last);}
+  const t=pool[0];S.seen.push(t.id);S.last=t.id;storageSet('bloques-tips-v1',JSON.stringify(S));return t;
+}
+function tipGo(go){
+  if(go==='online'){if(session!=='online')changeSession('online');openMenu('online');return;}
+  openMenu();
+  if(go==='tacto'){setMenuTab('controles');setTimeout(()=>{const f=document.querySelector('[data-sect="controles"] details.fine');if(f){f.open=true;f.scrollIntoView({block:'center'});}},80);return;}
+  setMenuTab(go==='jugar'?'partida':go);
+}
+function showTip(){
+  const el=byId('overlay-tip');if(!el)return;
+  const t=nextTip();if(!t){el.hidden=true;return;}
+  el.innerHTML=`<span aria-hidden="true">💡</span><span>${t.txt}${t.go?` <button type="button" class="tip-go" data-go="${t.go}">Ver ›</button>`:''}</span>`;
+  el.hidden=false;
+}
+function setupTips(){
+  byId('overlay-tip')?.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){e.stopPropagation();tipGo(b.dataset.go);}});
+}
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
@@ -6313,7 +6373,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();setupZoomGuard();setupAmigos();setTimeout(setupResume,30);
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();setupZoomGuard();setupAmigos();setupTips();setTimeout(setupResume,30);
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
