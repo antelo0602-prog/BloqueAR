@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b1019">
 <title>PoblAR</title>
 <style>
-:root{--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--me:#7ce9e5;--cpu:#ff8a6b;--gold:#f6c453}
+:root{--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--me:#4fc3f7;--cpu:#e5383b;--gold:#f6c453}
 *{box-sizing:border-box}
 html{background:var(--bg);height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 body{margin:0;min-height:100%;font:500 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(ellipse at 50% -20%,#1f2b40 0,transparent 60%),var(--bg);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;overscroll-behavior:none}
@@ -17,22 +17,26 @@ button{font:inherit;color:inherit}
 .tag{font-size:10px;font-weight:800;letter-spacing:.08em;color:#0b1019;background:var(--gold);border-radius:6px;padding:2px 6px}
 .icon-btn{margin-left:auto;min-width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:#121b29;font-size:17px;cursor:pointer}
 .icon-btn+.icon-btn{margin-left:0}
+.games-btn{margin-left:0;display:grid;grid-template-columns:repeat(2,7px);grid-template-rows:repeat(2,7px);gap:3px;place-content:center;padding:0;min-width:40px;box-sizing:border-box}
+.games-btn i{background:var(--aqua);border-radius:2px}.games-btn i:nth-child(4){background:var(--gold)}
 .score{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pl{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:14px;background:#111a27;transition:border-color .2s,box-shadow .2s}
 .pl.turn{border-color:var(--pc);box-shadow:0 0 0 1px var(--pc) inset,0 0 18px color-mix(in srgb,var(--pc) 25%,transparent)}
 .pl i{width:12px;height:12px;border-radius:50%;background:var(--pc);flex:none}
 .pl b{font-size:13px}.pl small{display:block;color:var(--dim);font-size:11px}
 .pl .vp{margin-left:auto;font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}.pl .vp small{display:inline;font-size:11px;color:var(--dim);font-weight:700}
-.boardwrap{position:relative;border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#215a78,#123447 70%);border:1px solid #2b4b5d}
+.boardwrap{position:relative;border-radius:18px;overflow:hidden;background:#0b3044;border:2px solid #2a2118;box-shadow:0 0 0 1px #3a5a68,0 10px 30px #0008}
 svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .hex{stroke:#0e2a38;stroke-width:3}
-.num{font-weight:900;font-size:23px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
-.hico{font-size:30px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.ptxt{font-size:12px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.pico{font-size:12px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.hname{font-size:10px;font-weight:900;letter-spacing:.12em;fill:#8a7b58;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.num{font-weight:900;font-size:22px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.hico{font-size:17px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .port text{font-size:11px;font-weight:800;fill:#e9f3f8;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .spot{fill:#fff;fill-opacity:.0;stroke:none;cursor:pointer}
-.spot.on{fill-opacity:1;fill:#f6c453;stroke:#0b1019;stroke-width:3;animation:pulse 1s ease-in-out infinite alternate}
-.espot{stroke:#ffffff;stroke-opacity:0;stroke-width:14;stroke-linecap:round;cursor:pointer}
-.espot.on{stroke:#f6c453;stroke-opacity:.95;animation:pulse 1s ease-in-out infinite alternate}
+.spot.on{fill-opacity:1;fill:#f2c14e;stroke:#2a2118;stroke-width:3.5;animation:pulse 1s ease-in-out infinite alternate}
+.espot{stroke:#ffffff;stroke-opacity:0;stroke-width:11;stroke-linecap:round;cursor:pointer}
+.espot.on{stroke:#f2c14e;stroke-opacity:.95;animation:pulse 1s ease-in-out infinite alternate}
 .hexhit.on{fill:#fff;fill-opacity:.0;stroke:#f6c453;stroke-width:5;stroke-dasharray:10 8;animation:pulse 1s ease-in-out infinite alternate;cursor:pointer}
 @keyframes pulse{from{opacity:.65}to{opacity:1}}
 .status{min-height:22px;font-size:14px;font-weight:700;text-align:center;color:#dfe8f3}
@@ -101,6 +105,7 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 <body>
 <div class="app" id="app">
   <div class="top">
+    <a class="icon-btn games-btn" id="btn-games" href="./#juegos" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i></a>
     <div class="brand">POBL<span>AR</span></div><span class="tag">BETA</span>
     <button class="icon-btn" id="btn-log" aria-label="Historial">📜</button>
     <button class="icon-btn" id="btn-help" aria-label="Cómo se juega">?</button>
@@ -461,49 +466,93 @@ function onBoardTap(kind,i){
   if(mode&&(kind==='v'||kind==='e')){const m=mode;mode=null;build(0,m,i);}
 }
 
-/* ── Dibujo ── */
+/* ── Dibujo del tablero ──
+   Cada terreno tiene su color y su dibujo (arbolitos, ladrillos, ovejas, surcos, cerros, grietas de sal),
+   así se distinguen aunque se vean chiquitos. Lo que no cambia (mar, isla, terrenos, números y puertos)
+   se arma una sola vez por tablero; en cada jugada sólo se redibujan las piezas. */
 const NS='http://www.w3.org/2000/svg';
 function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
-const PC=['#7ce9e5','#ff8a6b'];
+const PC=['#4fc3f7','#e5383b'],PCD=['#0d5f86','#7d1216'];
+const TERR={
+  madera:{base:'#2f7d43',dark:'#1d5230',pat:`<pattern id="p-madera" width="26" height="24" patternUnits="userSpaceOnUse"><path d="M7 19 l6-12 l6 12z" fill="#1c5a30"/><path d="M8.5 13 l4.5-8 l4.5 8z" fill="#2a8a45"/><rect x="12" y="19" width="2" height="3" fill="#5b3a1e"/></pattern>`},
+  ladrillo:{base:'#c4602f',dark:'#7f3416',pat:`<pattern id="p-ladrillo" width="22" height="12" patternUnits="userSpaceOnUse"><path d="M0 0.75H22M0 6.75H22M5 0v6M16 6v6" stroke="#8c3a17" stroke-width="1.6" fill="none"/></pattern>`},
+  lana:{base:'#a3d16e',dark:'#5f8f33',pat:`<pattern id="p-lana" width="30" height="26" patternUnits="userSpaceOnUse"><ellipse cx="11" cy="12" rx="6.5" ry="4.5" fill="#f7f7ef"/><circle cx="17.5" cy="10.5" r="2.6" fill="#3b3b3b"/><path d="M8 16v3M13 16v3" stroke="#3b3b3b" stroke-width="1.4"/></pattern>`},
+  trigo:{base:'#ecc04a',dark:'#a9811b',pat:`<pattern id="p-trigo" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><path d="M0 3H12" stroke="#c99a22" stroke-width="2.6"/><circle cx="3" cy="8.5" r="1.2" fill="#fff3b0"/></pattern>`},
+  mineral:{base:'#7f889c',dark:'#4a5163',pat:`<pattern id="p-mineral" width="34" height="26" patternUnits="userSpaceOnUse"><path d="M3 23 L13 7 L23 23z" fill="#5d6577"/><path d="M13 7 L9.8 12.2 L16.2 12.2z" fill="#eef1f6"/><path d="M17 23 L24 13 L31 23z" fill="#6b7386"/></pattern>`},
+  salitral:{base:'#eee7d6',dark:'#b8ab8c',pat:`<pattern id="p-salitral" width="34" height="30" patternUnits="userSpaceOnUse"><path d="M2 8 L12 12 L10 22 M12 12 L24 9 L31 15 M24 9 L22 2" stroke="#c9bc9b" stroke-width="1.4" fill="none"/></pattern>`}
+};
+let staticKey='',staticSvg='';
+function hexPts(h,k=1){return h.v.map(v=>{const p=B.verts[v];return `${(h.x+(p.x-h.x)*k).toFixed(1)},${(h.y+(p.y-h.y)*k).toFixed(1)}`;}).join(' ');}
+function buildStatic(W,H){
+  let s=`<defs>${Object.values(TERR).map(t=>t.pat).join('')}
+    <radialGradient id="g-mar" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#1f6f8f"/><stop offset=".7" stop-color="#134a63"/><stop offset="1" stop-color="#0b3044"/></radialGradient>
+    <pattern id="p-ola" width="46" height="22" patternUnits="userSpaceOnUse"><path d="M2 12 q5.5-6 11 0 t11 0" stroke="#ffffff" stroke-opacity=".09" stroke-width="2" fill="none"/></pattern>
+    <radialGradient id="g-luz" cx="35%" cy="25%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient>
+    <filter id="f-sombra" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000" flood-opacity=".45"/></filter>
+  </defs>
+  <rect x="${-W/2}" y="${-H/2}" width="${W}" height="${H}" fill="url(#g-mar)"/><rect x="${-W/2}" y="${-H/2}" width="${W}" height="${H}" fill="url(#p-ola)"/>`;
+  // Costa: arena alrededor de la isla
+  for(const h of B.hexes)s+=`<polygon points="${hexPts(h,1.13)}" fill="#e3c98f"/>`;
+  for(const h of B.hexes)s+=`<polygon points="${hexPts(h,1.06)}" fill="#cfae6a"/>`;
+  // Puertos: muelle de madera y cartel con lo que se cambia
+  for(const pt of B.ports){const e=B.edges[pt.edge],A=B.verts[e.a],C=B.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),ux=mx/len,uy=my/len,px=mx+ux*S*.62,py=my+uy*S*.62;
+    for(const P of [A,C])s+=`<line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#6b4a2b" stroke-width="5" stroke-linecap="round"/><line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#a87b4f" stroke-width="2.5" stroke-linecap="round"/>`;
+    const gen=pt.type==='3:1',fill=gen?'#fbf1d6':TERR[pt.type].base,ink=gen||pt.type==='trigo'||pt.type==='lana'||pt.type==='salitral'?'#2a2118':'#fff';
+    s+=`<g filter="url(#f-sombra)"><rect x="${px-21}" y="${py-12}" width="42" height="24" rx="12" fill="${fill}" stroke="#2a2118" stroke-width="2"/></g>`;
+    s+=gen?`<text x="${px}" y="${py+1}" class="ptxt" fill="${ink}">3:1</text>`:`<text x="${px-8}" y="${py+1}" class="ptxt" fill="${ink}">2:1</text><text x="${px+11}" y="${py+1}" class="pico">${RI[pt.type].e}</text>`;}
+  // Terrenos
+  for(const h of B.hexes){const t=TERR[h.res];
+    s+=`<polygon points="${hexPts(h,.985)}" fill="${t.base}" stroke="#2a2118" stroke-width="3" stroke-linejoin="round"/>`;
+    s+=`<polygon points="${hexPts(h,.93)}" fill="url(#p-${h.res})" opacity=".85"/>`;
+    s+=`<polygon points="${hexPts(h,.985)}" fill="url(#g-luz)"/>`;
+    s+=`<polygon points="${hexPts(h,.9)}" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="2"/>`;
+    // Medalla del recurso (arriba) y número (abajo)
+    const iy=h.num?h.y-22:h.y-6;
+    s+=`<circle cx="${h.x}" cy="${iy}" r="15" fill="${t.dark}" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><text x="${h.x}" y="${iy+1}" class="hico">${RI[h.res].e}</text>`;
+    if(h.num){const hot=h.num===6||h.num===8,ink=hot?'#c62828':'#2a2118';
+      s+=`<g filter="url(#f-sombra)"><circle cx="${h.x}" cy="${h.y+14}" r="20" fill="#fbf1d6" stroke="${hot?'#c62828':'#2a2118'}" stroke-width="${hot?3:2}"/></g><text x="${h.x}" y="${h.y+11}" class="num" fill="${ink}">${h.num}</text>`;
+      const k=pips(h.num);for(let i=0;i<k;i++)s+=`<circle cx="${(h.x+(i-(k-1)/2)*4.6).toFixed(1)}" cy="${h.y+26}" r="1.8" fill="${ink}"/>`;}
+    else s+=`<text x="${h.x}" y="${h.y+18}" class="hname">SALITRAL</text>`;
+  }
+  return s;
+}
 function drawBoard(){
-  const svg=$('board');svg.innerHTML='';const pad=S*1.05,W=S*SQ*5+pad*2,H=S*8+pad*2;
+  const svg=$('board'),pad=S*.92,W=S*SQ*5+pad*2,H=S*8+pad*2;
   svg.setAttribute('viewBox',`${-W/2} ${-H/2} ${W} ${H}`);
-  const T=targets();
-  // Puertos (en la costa)
-  for(const pt of B.ports){const e=B.edges[pt.edge],A=B.verts[e.a],C=B.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),ox=mx/len*S*.62,oy=my/len*S*.62;
-    const g=el('g',{class:'port'},svg);
-    el('line',{x1:A.x,y1:A.y,x2:mx+ox,y2:my+oy,stroke:'#d9c9a3','stroke-width':4,'stroke-linecap':'round'},g);el('line',{x1:C.x,y1:C.y,x2:mx+ox,y2:my+oy,stroke:'#d9c9a3','stroke-width':4,'stroke-linecap':'round'},g);
-    el('circle',{cx:mx+ox,cy:my+oy,r:17,fill:'#0e2a38',stroke:'#d9c9a3','stroke-width':2},g);
-    const t=el('text',{x:mx+ox,y:my+oy},g);t.textContent=pt.type==='3:1'?'3:1':'2:1'+RI[pt.type].e;if(pt.type!=='3:1')t.setAttribute('style','font-size:10px');}
-  // Hexágonos
-  B.hexes.forEach((h,hi)=>{
-    const pts=h.v.map(v=>`${B.verts[v].x},${B.verts[v].y}`).join(' ');
-    el('polygon',{points:pts,class:'hex',fill:RI[h.res].c},svg);
-    const ic=el('text',{x:h.x,y:h.y-(h.num?19:0),class:'hico'},svg);ic.textContent=RI[h.res].e;
-    if(h.num){el('circle',{cx:h.x,cy:h.y+15,r:19,fill:'#f6efdc',stroke:'#0e2a38','stroke-width':1.5},svg);
-      const t=el('text',{x:h.x,y:h.y+13,class:'num',fill:(h.num===6||h.num===8)?'#c0392b':'#1b2433'},svg);t.textContent=h.num;
-      const k=pips(h.num);for(let i=0;i<k;i++)el('circle',{cx:h.x+(i-(k-1)/2)*4.4,cy:h.y+27,r:1.6,fill:(h.num===6||h.num===8)?'#c0392b':'#1b2433'},svg);}
-    if(hi===G.robber){const g=el('g',{},svg);el('circle',{cx:h.x+(h.num?26:0),cy:h.y+(h.num?-6:18),r:14,fill:'#1b1b1f',stroke:'#f6c453','stroke-width':2},g);const t=el('text',{x:h.x+(h.num?26:0),y:h.y+(h.num?-6:18),class:'hico',style:'font-size:16px'},g);t.textContent='🤠';}
-  });
-  // Caminos
-  B.edges.forEach((e,i)=>{const A=B.verts[e.a],C=B.verts[e.b];
-    if(G.road[i]!==null){el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:'#0b1019','stroke-width':11,'stroke-linecap':'round'},svg);el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:PC[G.road[i]],'stroke-width':7,'stroke-linecap':'round'},svg);}
-  });
+  if(staticKey!==String(G.seed)){staticKey=String(G.seed);staticSvg=buildStatic(W,H);}
+  svg.innerHTML=staticSvg;
+  const T=targets(),top=el('g',{},svg);
+  // El cuatrero: sombrero negro con cinta dorada
+  {const h=B.hexes[G.robber];el('polygon',{points:hexPts(h,.985),fill:'#000','fill-opacity':.32,'pointer-events':'none'},top);// el terreno bloqueado se oscurece
+    const x=h.x+31,y=h.y-4,g=el('g',{filter:'url(#f-sombra)'},top);
+    el('ellipse',{cx:x,cy:y+8,rx:19,ry:6,fill:'#111',stroke:'#fff','stroke-width':2},g);
+    el('path',{d:`M${x-10},${y+7} q1-15 10-15 q9 0 10 15 z`,fill:'#111',stroke:'#fff','stroke-width':2},g);
+    el('rect',{x:x-10,y:y+1,width:20,height:3.5,fill:'#f2c14e'},g);}
+  // Caminos (con borde oscuro y uno claro para que se lean sobre cualquier terreno)
+  B.edges.forEach((e,i)=>{if(G.road[i]===null)return;const A=B.verts[e.a],C=B.verts[e.b],o=G.road[i];
+    const ax=A.x+(C.x-A.x)*.14,ay=A.y+(C.y-A.y)*.14,cx=C.x+(A.x-C.x)*.14,cy=C.y+(A.y-C.y)*.14;
+    el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:'#fff','stroke-width':14,'stroke-linecap':'round'},top);
+    el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PCD[o],'stroke-width':10,'stroke-linecap':'round'},top);
+    el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PC[o],'stroke-width':6,'stroke-linecap':'round'},top);});
   // Ranchos y pueblos
-  B.verts.forEach((v,i)=>{const o=G.owner[i];if(o===null)return;
-    if(G.town[i])el('path',{d:`M${v.x-13},${v.y+10} v-12 l7,-7 l7,7 v-6 h6 v18 z`,fill:PC[o],stroke:'#0b1019','stroke-width':2.5},svg);
-    else el('path',{d:`M${v.x-9},${v.y+8} v-9 l9,-8 l9,8 v9 z`,fill:PC[o],stroke:'#0b1019','stroke-width':2.5},svg);
+  B.verts.forEach((v,i)=>{const o=G.owner[i];if(o===null)return;const g=el('g',{filter:'url(#f-sombra)'},top),x=v.x,y=v.y;
+    if(G.town[i]){el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PC[o],stroke:'#fff','stroke-width':5,'stroke-linejoin':'round'},g);
+      el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PC[o],stroke:PCD[o],'stroke-width':2.2,'stroke-linejoin':'round'},g);
+      el('rect',{x:x-11,y:y+2,width:5,height:6,fill:PCD[o]},g);el('rect',{x:x+3,y:y-6,width:4,height:5,fill:PCD[o]},g);}
+    else{el('path',{d:`M${x-11},${y+10} v-10 l11,-10 l11,10 v10 z`,fill:PC[o],stroke:'#fff','stroke-width':5,'stroke-linejoin':'round'},g);
+      el('path',{d:`M${x-11},${y+10} v-10 l11,-10 l11,10 v10 z`,fill:PC[o],stroke:PCD[o],'stroke-width':2.2,'stroke-linejoin':'round'},g);
+      el('rect',{x:x-3,y:y+2,width:6,height:8,fill:PCD[o]},g);}
   });
   // Lugares que se pueden tocar
-  T.h.forEach(hi=>{const h=B.hexes[hi];const p=el('polygon',{points:h.v.map(v=>`${B.verts[v].x},${B.verts[v].y}`).join(' '),class:'hexhit on'},svg);p.addEventListener('click',()=>onBoardTap('h',hi));});
-  T.e.forEach(ei=>{const e=B.edges[ei],A=B.verts[e.a],C=B.verts[e.b];const l=el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,class:'espot on'},svg);l.addEventListener('click',()=>onBoardTap('e',ei));
-    const hit=el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:'transparent','stroke-width':30},svg);hit.addEventListener('click',()=>onBoardTap('e',ei));});
-  T.v.forEach(vi=>{const v=B.verts[vi];el('circle',{cx:v.x,cy:v.y,r:12,class:'spot on'},svg);const hit=el('circle',{cx:v.x,cy:v.y,r:24,fill:'transparent'},svg);hit.addEventListener('click',()=>onBoardTap('v',vi));});
+  T.h.forEach(hi=>{const h=B.hexes[hi];const p=el('polygon',{points:hexPts(h,.93),class:'hexhit on'},top);p.addEventListener('click',()=>onBoardTap('h',hi));});
+  T.e.forEach(ei=>{const e=B.edges[ei],A=B.verts[e.a],C=B.verts[e.b];el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,class:'espot on'},top);
+    const hit=el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:'transparent','stroke-width':30},top);hit.addEventListener('click',()=>onBoardTap('e',ei));});
+  T.v.forEach(vi=>{const v=B.verts[vi];el('circle',{cx:v.x,cy:v.y,r:11,class:'spot on'},top);const hit=el('circle',{cx:v.x,cy:v.y,r:24,fill:'transparent'},top);hit.addEventListener('click',()=>onBoardTap('v',vi));});
 }
 function render(rolled=false){
   if(!G)return;drawBoard();
   $('pn1').textContent=G.p[1].name;$('pn0').textContent=G.p[0].name;
-  for(const p of [0,1]){$('vp'+p).textContent=p===0?vp(0):shown(1);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
+  for(const p of [0,1]){$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(1);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
     const bits=[`${cards(p)} cartas`];if(G.p[p].dev.length&&p===1)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(' · ');}
   const h=G.p[0].hand;$('hand').innerHTML=RES.map(r=>`<div class="card${h[r]?'':' zero'}" id="c-${r}"><span class="e">${RI[r].e}</span><span class="n">${h[r]}</span><span class="l">${RI[r].n}</span></div>`).join('');
   const mine=G.turn===0&&G.phase==='main';
@@ -651,13 +700,13 @@ function showEnd(){
   const w=G.winner===0;
   openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
     <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
-  $('e-see').onclick=closeModal;$('e-new').onclick=()=>{closeModal();if(ON&&ON.state==='on')onlineNewGame();else newGame();};
+  $('e-see').onclick=closeModal;$('e-new').onclick=()=>{closeModal();playAgain();};
 }
 
 /* ── Botones ── */
 document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;mode=mode===b.dataset.build?null:b.dataset.build;render();}));
 $('b-main').addEventListener('click',()=>{
-  if(G.phase==='over'){newGame();return;}
+  if(G.phase==='over'){playAgain();return;}
   if(G.turn!==0)return;
   if(G.phase==='roll'){roll();return;}
   if(G.phase==='discard'){openDiscard();return;}
@@ -669,14 +718,24 @@ $('btn-help').addEventListener('click',openHelp);
 $('btn-log').addEventListener('click',()=>$('log').classList.toggle('open'));
 $('btn-menu').addEventListener('click',openMenu);
 $('btn-friend').addEventListener('click',openFriends);
+// Ir al menú de juegos. Si hay una partida en línea, primero se pregunta (se cortaría).
+function goGames(e){
+  if(!(ON&&ON.state==='on'))return;
+  e.preventDefault();
+  openModal(`<h2>¿Salir de la partida?</h2><p>Si vas al menú de juegos se corta la partida con ${escHtml(rivalName())}.</p>
+    <div class="row"><button class="pill" id="gg-no">Seguir jugando</button><button class="pill" id="gg-yes" style="background:var(--aqua);color:#062a2a;border:0">Salir</button></div>`);
+  $('gg-no').onclick=closeModal;$('gg-yes').onclick=()=>{netLeave();location.href='./#juegos';};
+}
+$('btn-games').addEventListener('click',goGames);
 function openMenu(){
   openModal(`<h2>Menú</h2><div class="menu-list">
     <button id="m-new">🎲 Partida nueva contra la compu</button>
     <button id="m-friend">👥 Jugar con un amigo <small>con tu cuenta</small></button>
     <button id="m-help">❓ Cómo se juega</button>
-    <a href="./">🧱 Cambiar de juego: BloqueAR</a>
+    <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
     ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>
     <div class="row"><button class="pill" id="m-x">Volver</button></div>`);
+  $('m-games').onclick=goGames;
   $('m-x').onclick=closeModal;$('m-new').onclick=()=>{if(ON)netLeave();openNew(false);};$('m-friend').onclick=openFriends;$('m-help').onclick=openHelp;
   if($('m-leave'))$('m-leave').onclick=()=>{netLeave();closeModal();};
 }
@@ -738,6 +797,11 @@ function attach(ch){
   ch.onclose=()=>onLost();
   ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}onMsg(m);};
 }
+// Otra partida: en línea la arma siempre el que invitó (así los dos quedan con la misma).
+function playAgain(){
+  if(ON&&ON.state==='on'){if(ON.role==='host')onlineNewGame();else{netSend({t:'again'});banner(`⏳ LE PEDISTE LA REVANCHA A ${ON.peer.usuario.toUpperCase()}`);}return;}
+  newGame();
+}
 function onlineNewGame(){
   newGame();G.p[1].bot=false;G.p[1].name=ON.peer.usuario;G.diff='normal';
   G.log=[];addLog(`Partida en línea con ${ON.peer.usuario}. Empieza ${G.first===0?'vos':ON.peer.usuario}.`);
@@ -759,6 +823,7 @@ function onMsg(m){
       <div class="row"><button class="pill" id="fo-no">No</button><button class="primary" id="fo-yes" ${RES.every(r=>G.p[0].hand[r]>=m.want[r])?'':'disabled'}>ACEPTAR</button></div>`);
     $('fo-no').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:false});};$('fo-yes').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:true});};return;}
   if(m.t==='offer-reply'&&UIQ.pending&&UIQ.pending.id===m.id){UIQ.pending.res(!!m.ok);UIQ.pending=null;return;}
+  if(m.t==='again'&&ON.role==='host'){banner(`🔁 ${ON.peer.usuario.toUpperCase()} QUIERE LA REVANCHA`);onlineNewGame();return;}
   if(m.t==='bye'){onLost('salió de la partida');}
 }
 function closeModalIfGame(){const s=$('sheet');if(s&&!$('modal').hidden&&/Jugar con un amigo|Te invitan/.test(s.textContent))closeModal();}
@@ -874,9 +939,11 @@ let FAST=false,AUTO=false;
 (function start(){
   // Para las pruebas: #auto hace que la compu juegue también por vos (#auto-rapido, sin esperas).
   if(/[#&]auto/.test(location.hash)){FAST=/rapido/.test(location.hash);AUTO=true;newGame(Number((location.hash.match(/semilla=(\d+)/)||[])[1])||undefined);return;}
+  try{localStorage.setItem('bloques-ultimo-juego','poblar');localStorage.setItem('bloques-hub-v1','1');}catch(_){}
   let saved=null;try{saved=JSON.parse(localStorage.getItem(SAVE)||'null');}catch(_){}
   if(saved&&saved.v===2&&saved.phase!=='over'){G=saved;B=buildBoard(G.seed);render();renderLog();next();if(G.phase==='discard'&&G.turn!==0||G.phase==='discard')openDiscard();}
   else{G=null;openNew(true);}
+  if(/^#amigos/.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}setTimeout(openFriends,200);}
 })();
 window.POBLAR={pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
 </script>

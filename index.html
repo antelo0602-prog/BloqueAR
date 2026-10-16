@@ -12,6 +12,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="description" content="BloqueAR: juego de piezas en un solo archivo. Solo y local sin internet; dos dispositivos por conexión directa.">
 <title>BloqueAR</title>
+<script>(function(){try{if(!/^https?:$/.test(location.protocol)||location.hash)return;if(navigator.webdriver&&!localStorage.getItem('bloques-hub-force'))return;var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type&&n.type!=='navigate')return;if(document.referrer&&new URL(document.referrer).origin===location.origin)return;if(sessionStorage.getItem('blq-accept'))return;if(localStorage.getItem('bloques-hub-v1')&&localStorage.getItem('bloques-ultimo-juego')==='poblar'){document.documentElement.style.background='#0b1019';location.replace('poblar.html');}}catch(e){}})();</script>
 <style>
 :root{--theme:#7ce9e5;--pulse:0;color-scheme:dark;--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--p1:#7ce9e5;--p2:#c7a5ff;--cell:24px;--rail:72px;--gap:8px;--btn:56px;--padw:130px;--next-h:5}
 *{box-sizing:border-box}
@@ -478,7 +479,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .rail-tools{display:grid!important;grid-template-columns:1fr 1fr}
 .tool-restart{display:flex;align-items:center;justify-content:center}.tool-restart small{display:none}
 .tool-restart[hidden]{display:none}
-@media (orientation:landscape) and (max-height:520px){.rail-tools{grid-template-columns:repeat(4,1fr)}}
+@media (orientation:landscape) and (max-height:520px){.rail-tools{grid-template-columns:repeat(5,1fr)}}
 
 /* Récord: barrita bajo el puntaje */
 .rec-bar{height:4px;border-radius:3px;background:#24324a;margin-top:4px;overflow:hidden}
@@ -554,11 +555,155 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .ios-share{display:inline-block;width:12px;height:14px;border:1.6px solid currentColor;border-top:0;border-radius:0 0 2px 2px;position:relative;vertical-align:-2px;margin:0 2px}
 .ios-share::before{content:"";position:absolute;left:50%;top:-6px;width:1.6px;height:10px;background:currentColor;transform:translateX(-50%)}
 .ios-share::after{content:"";position:absolute;left:50%;top:-6px;width:6px;height:6px;border-left:1.6px solid currentColor;border-top:1.6px solid currentColor;transform:translateX(-50%) rotate(45deg)}
+/* ── Menú de juegos y bienvenida ── */
+.games-btn{display:grid;grid-template-columns:repeat(2,7px);grid-template-rows:repeat(2,7px);gap:3px;place-content:center;padding:0}
+.games-btn i{background:var(--aqua);border-radius:2px}
+.rail-tools .tool-restart{grid-column:span 2}
+@media (orientation:landscape) and (max-height:520px){.rail-tools .tool-restart{grid-column:auto}}
+.games-btn i:nth-child(4){background:#ffd166}
+.hub{position:fixed;inset:0;z-index:45;background:var(--bg);color:var(--ink);overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.hub[hidden]{display:none}
+.hub-in{max-width:520px;margin:0 auto;min-height:100%;box-sizing:border-box;padding:calc(16px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:20px}
+.hub button{font:inherit;color:inherit;cursor:pointer}
+.hub-top{display:flex;align-items:center;gap:10px}
+.hub-av{width:46px;height:46px;border-radius:50%;border:0;padding:0;background:none;display:grid;place-items:center;flex:none}
+.hub-av .av{width:46px;height:46px;font-size:24px}
+.hub-me{flex:1;min-width:0;height:46px;border-radius:23px;background:var(--panel);border:1px solid var(--line);padding:0 16px;display:flex;flex-direction:column;justify-content:center;gap:5px;text-align:left}
+.hub-me-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;font-weight:800;min-width:0}
+.hub-me-row b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hub-me-row small{font-size:12px;font-weight:700;color:var(--dim);flex:none}
+.hub-xp{display:block;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.hub-xp i{display:block;height:100%;background:var(--aqua);border-radius:3px}
+.hub-icon{width:46px;height:46px;border-radius:14px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;flex:none;padding:0}
+.hub-title{margin:6px 0 0;font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.5px}
+.hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.hub-game{display:flex;flex-direction:column;border-radius:22px;background:var(--panel);border:2px solid var(--line);overflow:hidden;padding:0;text-align:left;transition:transform .12s}
+.hub-game:active{transform:scale(.97)}
+.hub-game.last{border-color:var(--aqua)}
+.hub-game:focus-visible,.hub button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.hub-art{display:block;position:relative;aspect-ratio:17/15;background:#0f1826}
+.hub-art svg{display:block;width:100%;height:100%}
+.hub-game[data-game=poblar] .hub-art{background:#17507a}
+.hub-badge{position:absolute;top:10px;left:10px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:10px;background:var(--aqua);color:#062a2a}
+.hub-badge.new{background:#ffd166;color:#3a2a00}
+.hub-badge[hidden]{display:none}
+.hub-txt{display:flex;flex-direction:column;gap:3px;padding:12px 14px 14px}
+.hub-txt b{font-size:17px;font-weight:800}.hub-txt b span{color:var(--aqua)}
+.hub-game[data-game=poblar] .hub-txt b span{color:#ffd166}
+.hub-txt small{font-size:12.5px;line-height:1.35;color:var(--dim)}
+.hub-friends{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:56px;border-radius:18px;background:var(--panel);border:1px solid var(--line);text-align:left}
+.hub-friends .fr-txt{flex:1;font-size:14px;font-weight:700}
+.hub-friends .fr-cta{font-size:13px;font-weight:800;color:#c7a5ff}
+.hub-friends .fr-avs{display:flex}
+.hub-friends .fr-avs .av{width:28px;height:28px;font-size:15px;box-shadow:0 0 0 2px var(--panel)}
+.hub-friends .fr-avs .av+.av{margin-left:-8px}
+/* Panel del ☰ */
+.hub-side{position:fixed;inset:0;z-index:46;display:flex;justify-content:flex-end;background:#05080dd9}
+.hub-side[hidden]{display:none}
+.hub-panel{width:min(318px,86vw);height:100%;box-sizing:border-box;background:#111a27;border-left:1px solid var(--line);padding:calc(16px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px;overflow-y:auto;animation:hubIn .18s ease-out}
+@keyframes hubIn{from{transform:translateX(30px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.hub-panel{animation:none}.hub-game{transition:none}}
+.hub-panel .x{align-self:flex-end;width:44px;height:44px;border-radius:14px;background:#1a2536;border:0;display:grid;place-items:center}
+.hub-card{padding:16px;border-radius:20px;background:#1a2536;display:flex;flex-direction:column;gap:14px}
+.hub-card-me{display:flex;align-items:center;gap:12px}
+.hub-card-me .av{width:52px;height:52px;font-size:28px;flex:none}
+.hub-card-me b{display:block;font-size:18px;font-weight:800;overflow-wrap:anywhere}
+.hub-card-me small{display:block;font-size:13px;color:var(--dim);margin-top:2px}
+.hub-card .hub-xp{height:7px}
+.hub-card-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hub-card-btns button{height:44px;border-radius:12px;border:0;background:var(--line);font-size:14px;font-weight:800}
+.hub-card-btns button:first-child{background:var(--aqua);color:#062a2a}
+.hub-list{display:flex;flex-direction:column}
+.hub-list button{display:flex;align-items:center;gap:14px;height:54px;padding:0 6px;border:0;border-bottom:1px solid #1f2a3b;background:none;font-size:16px;font-weight:700;text-align:left}
+.hub-list button[hidden]{display:none}
+.hub-list svg{flex:none}
+/* Elegir juego para invitar */
+.hub-pick{position:fixed;inset:0;z-index:47;display:flex;align-items:flex-end;justify-content:center;background:#05080dd9}
+.hub-pick[hidden]{display:none}
+.hub-pick>div{width:100%;max-width:520px;box-sizing:border-box;background:#111a27;border-top:1px solid var(--line);border-radius:24px 24px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+.hub-pick h2{margin:0 0 4px;font-size:20px;font-weight:800}
+.hub-pick button{height:54px;border-radius:16px;border:1px solid var(--line);background:var(--panel);font-size:16px;font-weight:800}
+.hub-pick button.alt{background:none;border:0;color:var(--dim);font-size:14px;height:44px}
+/* Bienvenida */
+.welcome .hub-in{justify-content:flex-end;gap:18px;padding-left:24px;padding-right:24px}
+.wel-emblem{flex:1;min-height:180px;display:grid;place-items:center}
+.wel-emblem>div{display:grid;grid-template-columns:repeat(3,46px);grid-auto-rows:46px;gap:8px;transform:rotate(-6deg)}
+.wel-emblem i{border-radius:10px;background:#1c2738}
+.wel-emblem i.a{background:var(--aqua)}.wel-emblem i.v{background:#c7a5ff}.wel-emblem i.y{background:#ffd166}
+.welcome h1{margin:0;font-size:40px;line-height:1;font-weight:900;letter-spacing:2px}.welcome h1 span{color:var(--aqua)}
+.welcome p{margin:0;font-size:18px;line-height:1.4;color:#c9d3e2}
+.wel-box{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--panel);border:1px solid var(--line)}
+.wel-row{display:flex;align-items:center;gap:12px;font-size:14px;line-height:1.35}
+.wel-row>span:first-child{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
+.wel-row small{display:block;color:var(--dim);font-size:14px}
+.wel-box p{font-size:13px;color:var(--dim);margin-top:4px}
+.hub .wel-go{height:58px;border-radius:18px;border:0;background:var(--aqua);color:#062a2a!important;font-size:18px!important;font-weight:800}
+.hub .wel-login{align-self:center;background:none;border:0;color:var(--aqua)!important;font-size:14px;font-weight:700;padding:8px 12px}
 </style>
 </head>
 <body>
+<section class="hub welcome" id="welcome" hidden aria-labelledby="wel-title">
+  <div class="hub-in">
+    <div class="wel-emblem" aria-hidden="true"><div><i class="a"></i><i class="a"></i><i></i><i></i><i class="a"></i><i class="v"></i><i class="y"></i><i class="v"></i><i class="v"></i></div></div>
+    <h1 id="wel-title">BLOQUE<span>AR</span></h1>
+    <p>¡Mini juegos para compartir con tus amigos!</p>
+    <div class="wel-box">
+      <div class="wel-row"><span style="background:#0f1826"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="10" width="7.5" height="7.5" rx="2" fill="#7ce9e5"/><rect x="10.5" y="10" width="7.5" height="7.5" rx="2" fill="#c7a5ff"/><rect x="10.5" y="1.5" width="7.5" height="7.5" rx="2" fill="#7ce9e5"/></svg></span><span><b>BloqueAR</b><small>Encajá piezas y borrá líneas.</small></span></div>
+      <div class="wel-row"><span style="background:#17507a"><svg width="22" height="22" viewBox="-12 -12 24 24" aria-hidden="true"><polygon points="0,-10 8.7,-5 8.7,5 0,10 -8.7,5 -8.7,-5" fill="#e8c14a" stroke="#e9d9a8" stroke-width="1.6"/></svg></span><span><b>PoblAR</b><small>Poblá la pampa, 1 contra 1.</small></span></div>
+      <p>Tu cuenta, tu nivel y tus amigos sirven en todos los juegos.</p>
+    </div>
+    <button type="button" class="wel-go" id="wel-go">Empezar</button>
+    <button type="button" class="wel-login" id="wel-login">Ya tengo cuenta: entrar</button>
+  </div>
+</section>
+<section class="hub" id="hub" hidden aria-labelledby="hub-title">
+  <div class="hub-in">
+    <div class="hub-top">
+      <button type="button" class="hub-av" id="hub-av" aria-label="Mi cuenta"></button>
+      <button type="button" class="hub-me" id="hub-me"><span class="hub-me-row"><b id="hub-name">Invitado</b><small id="hub-lv">Nivel 1</small></span><span class="hub-xp"><i id="hub-xp" style="width:0"></i></span></button>
+      <button type="button" class="hub-icon" id="hub-menu" aria-label="Abrir menú" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+    </div>
+    <h1 class="hub-title" id="hub-title">¿A qué jugamos?</h1>
+    <div class="hub-grid">
+      <button type="button" class="hub-game" data-game="bloquear">
+        <span class="hub-art"><svg viewBox="0 0 170 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g stroke="#1c2738" stroke-width="1"><path d="M34 0V150M51 0V150M68 0V150M85 0V150M102 0V150M119 0V150M136 0V150"/><path d="M17 16H153M17 33H153M17 50H153M17 67H153M17 84H153M17 101H153M17 118H153M17 135H153"/></g><g class="hub-fall" transform="translate(68,16)" fill="#c7a5ff"><rect x="17" y="0" width="16" height="16" rx="3"/><rect x="0" y="17" width="16" height="16" rx="3"/><rect x="17" y="17" width="16" height="16" rx="3"/><rect x="34" y="17" width="16" height="16" rx="3"/></g><g fill="#7ce9e5"><rect x="17" y="84" width="16" height="16" rx="3"/><rect x="17" y="101" width="16" height="16" rx="3"/><rect x="17" y="118" width="16" height="16" rx="3"/><rect x="17" y="135" width="16" height="16" rx="3"/></g><g fill="#ff7a8a"><rect x="34" y="118" width="16" height="16" rx="3"/><rect x="51" y="118" width="16" height="16" rx="3"/><rect x="51" y="135" width="16" height="16" rx="3"/><rect x="68" y="135" width="16" height="16" rx="3"/></g><g fill="#5fd3a0"><rect x="34" y="135" width="16" height="16" rx="3"/><rect x="85" y="118" width="16" height="16" rx="3"/><rect x="85" y="135" width="16" height="16" rx="3"/><rect x="102" y="135" width="16" height="16" rx="3"/></g><g fill="#ffa25e"><rect x="119" y="101" width="16" height="16" rx="3"/><rect x="119" y="118" width="16" height="16" rx="3"/><rect x="119" y="135" width="16" height="16" rx="3"/><rect x="136" y="135" width="16" height="16" rx="3"/></g><g fill="#7c97ff"><rect x="102" y="118" width="16" height="16" rx="3"/><rect x="68" y="118" width="16" height="16" rx="3"/></g></svg><span class="hub-badge" hidden></span></span>
+        <span class="hub-txt"><b>Bloque<span>AR</span></b><small>Encajá piezas y borrá líneas</small></span>
+      </button>
+      <button type="button" class="hub-game" data-game="poblar">
+        <span class="hub-art"><svg viewBox="0 0 170 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g stroke="#e9d9a8" stroke-width="3" stroke-linejoin="round"><polygon transform="translate(85,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#e8c14a"/><polygon transform="translate(43.4,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#3f8a4a"/><polygon transform="translate(126.6,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#9ccc65"/><polygon transform="translate(64.2,39)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#c2593a"/><polygon transform="translate(105.8,39)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#8d97a8"/><polygon transform="translate(64.2,111)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#9ccc65"/><polygon transform="translate(105.8,111)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#3f8a4a"/></g><g font-family="system-ui,sans-serif" font-weight="800" font-size="11" text-anchor="middle"><circle cx="85" cy="75" r="9" fill="#fbf3dc"/><text x="85" y="79" fill="#c81d25">6</text><circle cx="64.2" cy="39" r="9" fill="#fbf3dc"/><text x="64.2" y="43" fill="#1b1b1b">9</text><circle cx="126.6" cy="75" r="9" fill="#fbf3dc"/><text x="126.6" y="79" fill="#1b1b1b">4</text><circle cx="64.2" cy="111" r="9" fill="#fbf3dc"/><text x="64.2" y="115" fill="#c81d25">8</text></g><path d="M79 99L85 93L91 99V105H79Z" fill="#4fc3f7" stroke="#fff" stroke-width="1.5"/><path d="M43.4 99L64.2 87" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M43.4 99L64.2 87" stroke="#e5383b" stroke-width="3.5" stroke-linecap="round"/></svg><span class="hub-badge" hidden></span></span>
+        <span class="hub-txt"><b>Pobl<span>AR</span></b><small>Poblá la pampa, 1 contra 1</small></span>
+      </button>
+    </div>
+    <button type="button" class="hub-friends" id="hub-friends"><span class="fr-avs" id="hub-fr-avs"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#c7a5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M2.5 18c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="15.5" cy="7" r="2.6"/><path d="M15 12.6c2.4 0 4 1.3 4.5 3.9"/></svg></span><span class="fr-txt" id="hub-fr-txt">Jugá con tus amigos</span><span class="fr-cta" id="hub-fr-cta">Invitar</span></button>
+  </div>
+  <div class="hub-side" id="hub-side" hidden>
+    <div class="hub-panel" role="dialog" aria-modal="true" aria-label="Menú">
+      <button type="button" class="x" id="hub-side-x" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 4l10 10M14 4L4 14"/></svg></button>
+      <div class="hub-card">
+        <div class="hub-card-me" id="hub-card-me"></div>
+        <span class="hub-xp"><i id="hub-card-xp" style="width:0"></i></span>
+        <div class="hub-card-btns"><button type="button" id="hub-lb">Ver tabla</button><button type="button" id="hub-medals">Medallas</button></div>
+      </div>
+      <nav class="hub-list" aria-label="Opciones">
+        <button type="button" id="hub-acct"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#7ce9e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="7.5" r="3.5"/><path d="M4 19c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg><span id="hub-acct-txt">Crear cuenta o entrar</span></button>
+        <button type="button" id="hub-inv"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#c7a5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M2.5 18c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="15.5" cy="7" r="2.6"/><path d="M15 12.6c2.4 0 4 1.3 4.5 3.9"/></svg><span>Jugar con un amigo</span></button>
+        <button type="button" id="hub-share"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#7ce9e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 13V3M7 6.5L11 2.5l4 4"/><path d="M5 10H4v9h14v-9h-1"/></svg><span>Pasarle la app a alguien</span></button>
+        <button type="button" id="hub-install"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#7ce9e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3v11M6.5 9.5L11 14l4.5-4.5"/><path d="M4 16v2.5h14V16"/></svg><span>Instalar la app</span></button>
+      </nav>
+    </div>
+  </div>
+  <div class="hub-pick" id="hub-pick" hidden>
+    <div role="dialog" aria-modal="true" aria-labelledby="hub-pick-t">
+      <h2 id="hub-pick-t">¿A qué juego?</h2>
+      <button type="button" data-pick="bloquear">BloqueAR</button>
+      <button type="button" data-pick="poblar">PoblAR</button>
+      <button type="button" class="alt" data-pick="">Cancelar</button>
+    </div>
+  </div>
+</section>
 <div class="app" id="app">
   <header class="topbar" id="topbar">
+    <button class="icon-btn games-btn" id="games-btn" type="button" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i></button>
     <button class="pill menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span><span class="label">Menú</span></button>
     <div class="identity"><div class="emblem" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="brand">BLOQUE<span>AR</span></div></div>
     <button class="chip" id="mode-chip" type="button" aria-label="Cambiar modo de juego">SOLO · MODERNO</button>
@@ -581,7 +726,6 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><span class="head-pills"><button class="pill share-pill" id="menu-share" type="button">📲 Pasar<span class="wide-only"> el juego</span></button><button class="pill share-pill" id="menu-install" type="button">⬇ Instalar</button></span><button type="button" class="menu-me" id="menu-me" aria-label="Tu progreso"></button><button type="button" class="pill menu-lb" id="menu-lb" aria-label="Ver la tabla">🏆<span class="wide-only"> Tabla</span></button><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
     <div class="menu-tabs" role="tablist" aria-label="Secciones del menú"><button type="button" role="tab" data-mtab="partida">🎮 Jugar</button><button type="button" role="tab" data-mtab="progreso">👤 Yo</button><button type="button" role="tab" data-mtab="ajustes">⚙️ Ajustes</button></div>
 
-    <div class="block game-pick" data-tab="partida"><h3>JUEGO</h3><div class="seg" role="group" aria-label="Juego"><button type="button" class="active" aria-pressed="true">🧱 BloqueAR</button><a class="seg-link" href="poblar.html">🏘️ PoblAR <small>nuevo</small></a></div></div>
     <div class="block" data-tab="partida"><h3>MODO</h3>
       <div class="tiles" role="group" aria-label="Modo de juego">
         <button type="button" class="tile" data-session="solo"><b>Solo</b><span>Un jugador</span></button>
@@ -720,7 +864,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">39</span></p>
+      <p class="hint">Versión <span class="app-ver">41</span></p>
     </div>
     </div></details>
     </div>
@@ -733,7 +877,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <section class="arena" id="solo-area" aria-label="Tu tablero">
       <div class="field">
         <aside class="rail rail-l">
-          <section class="card rail-tools" id="rail-tools" hidden aria-label="Menú y pausa"><button type="button" class="tool-btn" id="tool-menu" aria-label="Menú">☰</button><button type="button" class="tool-btn" id="tool-pause" aria-label="Pausar">Ⅱ</button><button type="button" class="tool-btn q-sound" id="tool-sound" aria-label="Sonido" aria-haspopup="dialog">🔊</button><button type="button" class="tool-btn tool-restart" id="tool-restart" aria-label="Empezar de nuevo" hidden>↻<small>REINICIAR</small></button></section>
+          <section class="card rail-tools" id="rail-tools" hidden aria-label="Menú y pausa"><button type="button" class="tool-btn games-btn" id="tool-games" aria-label="Menú de juegos"><i></i><i></i><i></i><i></i></button><button type="button" class="tool-btn" id="tool-menu" aria-label="Menú">☰</button><button type="button" class="tool-btn" id="tool-pause" aria-label="Pausar">Ⅱ</button><button type="button" class="tool-btn q-sound" id="tool-sound" aria-label="Sonido" aria-haspopup="dialog">🔊</button><button type="button" class="tool-btn tool-restart" id="tool-restart" aria-label="Empezar de nuevo" hidden>↻<small>REINICIAR</small></button></section>
           <section class="card stats" id="card-stats" aria-label="Puntaje"><div class="eyebrow">PUNTOS</div><strong class="big-num" id="score">0</strong>
             <div class="mini-stats"><span>LÍNEAS<b id="lines">0</b></span><span>NIVEL<b id="level">1</b></span></div>
             <div class="record"><span id="record-label">RÉCORD</span> <b id="record">0</b></div><div class="rec-bar" id="rec-bar" hidden><i></i></div></section>
@@ -754,7 +898,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
             <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v39</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v41</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -4357,6 +4501,116 @@ function setupTips(){
   byId('overlay-tip')?.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){e.stopPropagation();tipGo(b.dataset.go);}});
 }
 
+/* ── Menú de juegos ──
+   La primera vez sale la bienvenida; después, el menú con los juegos. Al abrir la app se entra
+   directo al último juego (la redirección a PoblAR está al principio del <head>). */
+const HUB={open:false,back:false,timer:0};
+const HUB_AUTO=!navigator.webdriver||storageGet('bloques-hub-force')==='1';
+const hubLast=()=>storageGet('bloques-ultimo-juego')==='poblar'?'poblar':'bloquear';
+function hubSetLast(g){storageSet('bloques-ultimo-juego',g);}
+function hubAv(){const a=typeof acct!=='undefined'&&acct;return a?avHtml(a.avatar,a.color,true):'<span class="av big" style="--avc:#93a1b6" aria-hidden="true">👤</span>';}
+function hubRender(){
+  const L=levelInfo(PRG.xp),a=typeof acct!=='undefined'&&acct,pct=(L.into/L.need*100).toFixed(1)+'%';
+  byId('hub-av').innerHTML=hubAv();
+  byId('hub-name').textContent=a?a.usuario:'Invitado';
+  byId('hub-lv').textContent='Nivel '+L.lv;
+  byId('hub-xp').style.width=pct;byId('hub-card-xp').style.width=pct;
+  byId('hub-card-me').innerHTML=`${hubAv()}<span><b>${escHtml(a?a.usuario:'Invitado')}</b><small>Nivel ${L.lv}, faltan ${fmt(L.need-L.into)} XP para el ${L.lv+1}</small></span>`;
+  byId('hub-acct-txt').textContent=a?'Mi cuenta':'Crear cuenta o entrar';
+  byId('hub-install').hidden=IS_STANDALONE;
+  const last=hubLast(),newP=!storageGet('poblar-ayuda')&&!storageGet('poblar-partida-v2');
+  document.querySelectorAll('.hub-game').forEach(b=>{
+    const g=b.dataset.game,isLast=g===last&&storageGet('bloques-hub-played'),badge=b.querySelector('.hub-badge');
+    b.classList.toggle('last',Boolean(isLast));
+    if(isLast){badge.hidden=false;badge.className='hub-badge';badge.textContent='Último jugado';}
+    else if(g==='poblar'&&newP){badge.hidden=false;badge.className='hub-badge new';badge.textContent='Nuevo';}
+    else badge.hidden=true;
+  });
+  hubRenderFriends();
+}
+function hubRenderFriends(){
+  const a=typeof acct!=='undefined'&&acct,txt=byId('hub-fr-txt'),cta=byId('hub-fr-cta'),avs=byId('hub-fr-avs');
+  const icon='<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#c7a5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M2.5 18c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="15.5" cy="7" r="2.6"/><path d="M15 12.6c2.4 0 4 1.3 4.5 3.9"/></svg>';
+  if(!a){avs.innerHTML=icon;txt.textContent='Jugá con tus amigos';cta.textContent='Crear cuenta';return;}
+  const on=(AM.users||[]).filter(u=>u.enLinea&&u.usuario.toLowerCase()!==a.usuario.toLowerCase());
+  avs.innerHTML=on.length?on.slice(0,3).map(u=>avHtml(u.avatar,u.color)).join(''):icon;
+  txt.textContent=on.length===1?`${on[0].usuario} está conectado`:on.length?`${on.length} amigos conectados`:'Invitá a un amigo';
+  cta.textContent='Invitar';
+}
+function hubLoadFriends(){if(typeof acct!=='undefined'&&acct&&amOn())amLoadUsers(true).then(()=>{if(HUB.open)hubRenderFriends();}).catch(()=>{});}
+function openHub(){
+  if(menuOpen){HUB.back=false;closeMenu();}
+  try{closeModePop();}catch(_){}
+  autoPause();HUB.open=true;
+  byId('welcome').hidden=true;byId('hub').hidden=false;app.setAttribute('aria-hidden','true');
+  hubRender();hubLoadFriends();
+  clearInterval(HUB.timer);HUB.timer=setInterval(hubLoadFriends,25000);
+  byId('hub').scrollTop=0;
+}
+function closeHub(){
+  if(!HUB.open)return;HUB.open=false;clearInterval(HUB.timer);
+  byId('hub').hidden=true;byId('hub-side').hidden=true;byId('hub-pick').hidden=true;app.removeAttribute('aria-hidden');
+  fitArena(true);
+}
+function hubPlay(g){
+  hubSetLast(g);storageSet('bloques-hub-played','1');
+  if(g==='poblar'){location.href='poblar.html';return;}
+  closeHub();
+}
+// Abre el menú de BloqueAR desde el menú de juegos: al cerrarlo, se vuelve acá.
+function hubToMenu(tab,after){
+  closeHub();HUB.back=true;openMenu(tab==='online'?'online':undefined);
+  if(tab&&tab!=='online')setMenuTab(tab);
+  if(after)setTimeout(after,50);
+}
+function hubSide(open){byId('hub-side').hidden=!open;byId('hub-menu').setAttribute('aria-expanded',String(open));if(open){hubRender();byId('hub-side-x').focus({preventScroll:true});}}
+function hubInvite(){
+  if(!(typeof acct!=='undefined'&&acct)){hubToMenu('progreso');return;}
+  byId('hub-pick').hidden=false;byId('hub-pick').querySelector('button').focus({preventScroll:true});
+}
+function hubInviteIn(g){
+  byId('hub-pick').hidden=true;if(!g)return;
+  hubSetLast(g);storageSet('bloques-hub-played','1');
+  if(g==='poblar'){location.href='poblar.html#amigos';return;}
+  if(session!=='online')changeSession('online');
+  closeHub();HUB.back=false;openMenu('online');
+}
+function hubEscape(){
+  if(!byId('hub-pick').hidden)hubInviteIn('');else if(!byId('hub-side').hidden)hubSide(false);
+  else if(!byId('hub').hidden){hubSetLast('bloquear');closeHub();}
+}
+function openWelcome(){HUB.open=true;autoPause();byId('welcome').hidden=false;app.setAttribute('aria-hidden','true');}
+function setupHub(){
+  for(const id of ['games-btn','tool-games'])byId(id).addEventListener('click',e=>{e.currentTarget.blur();openHub();});
+  byId('wel-go').addEventListener('click',openHub);
+  byId('wel-login').addEventListener('click',()=>{byId('welcome').hidden=true;HUB.open=true;hubToMenu('progreso');});
+  document.querySelectorAll('.hub-game').forEach(b=>b.addEventListener('click',()=>hubPlay(b.dataset.game)));
+  byId('hub-menu').addEventListener('click',()=>hubSide(true));
+  byId('hub-side-x').addEventListener('click',()=>hubSide(false));
+  byId('hub-side').addEventListener('click',e=>{if(e.target===e.currentTarget)hubSide(false);});
+  for(const id of ['hub-av','hub-me'])byId(id).addEventListener('click',()=>hubSide(true));
+  byId('hub-lb').addEventListener('click',()=>{closeHub();HUB.back=true;lbOpenPanel();});
+  byId('hub-medals').addEventListener('click',()=>hubToMenu('progreso'));
+  byId('hub-acct').addEventListener('click',()=>hubToMenu('progreso',()=>byId('acct-panel')?.scrollIntoView({block:'start'})));
+  byId('hub-inv').addEventListener('click',()=>{hubSide(false);hubInvite();});
+  byId('hub-share').addEventListener('click',()=>{hubSide(false);openShareGame();});
+  byId('hub-install').addEventListener('click',()=>{hubSide(false);closeHub();installClick();});
+  byId('hub-friends').addEventListener('click',hubInvite);
+  byId('hub-pick').addEventListener('click',e=>{if(e.target===e.currentTarget){hubInviteIn('');return;}const b=e.target.closest('[data-pick]');if(b)hubInviteIn(b.dataset.pick);});
+  const wantHub=/^#juegos/.test(location.hash);
+  if(wantHub){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
+  window.addEventListener('hashchange',()=>{if(/^#juegos/.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}openHub();}});
+  if(wantHub){storageSet('bloques-hub-v1','1');openHub();return;}
+  if(!storageGet('bloques-hub-v1')&&HUB_AUTO&&!location.hash&&!sessionGet('blq-accept')){
+    storageSet('bloques-hub-v1','1');
+    // Quien ya jugaba antes no necesita la presentación: va directo al menú de juegos.
+    const veterano=PRG.games>0||storageGet('bloques-tut-v1')||(typeof acct!=='undefined'&&acct)||storageGet('poblar-ayuda');
+    if(veterano)openHub();else openWelcome();
+    return;
+  }
+  hubSetLast('bloquear');
+}
+
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
    Cada etapa tiene su tonalidad, tempo, patrones y capas. La energía sube con el nivel y con tus jugadas;
@@ -5797,6 +6051,7 @@ function closeMenu(){
   if(!menuOpen)return;menuOpen=false;byId('menu').hidden=true;app.classList.remove('menu-open');byId('menu-btn').setAttribute('aria-expanded','false');
   document.activeElement?.blur?.();fitArena(true);onlineReadyNotice();refreshOnlineOverlay();
   if(session==='online'&&net.role==='host')onlineMaybeStart();
+  HUB.back=false;
 }
 function onlineReadyNotice(){if(session==='online'&&net.hello)netSend({t:'away',on:!onlineVisible()});}
 function renderMenu(){
@@ -6168,8 +6423,9 @@ window.addEventListener('keydown',e=>{
   if(scan){if(e.code==='Escape'){e.preventDefault();closeScanner();}return;}
   if(editing){if(e.code==='Escape'){e.preventDefault();closeEditor();}return;}
   if(!byId('share-modal').hidden){if(e.code==='Escape'){e.preventDefault();closeShareGame();}return;}
+  if(HUB.open){if(e.code==='Escape'){e.preventDefault();hubEscape();}return;}
   if(popOpen){if(e.code==='Escape'){e.preventDefault();closeModePop();}return;}
-  if(menuOpen){if(e.code==='Escape'){e.preventDefault();closeMenu();}return;}
+  if(menuOpen){if(e.code==='Escape'){e.preventDefault();const b=HUB.back;closeMenu();if(b)openHub();}return;}
   const tag=e.target?.tagName;
   if(tag==='TEXTAREA'||tag==='INPUT'||tag==='SELECT')return;
   const route=routeKey(e.code);
@@ -6355,7 +6611,7 @@ function init(){
   byId('share-copy').addEventListener('click',shareGameCopy);
   byId('share-base-save').addEventListener('click',shareSaveBase);
   window.addEventListener('resize',()=>{if(popOpen)placeModePop();});
-  byId('menu-close').addEventListener('click',closeMenu);
+  byId('menu-close').addEventListener('click',()=>{const b=HUB.back;closeMenu();if(b)openHub();});
   byId('menu-play').addEventListener('click',()=>{if(session==='online'&&!net.hello){closeMenu();return;}primaryAction();});
   // «Cambiar modo» despliega el menú contextual; «Menú» (en pausa o en línea conectado) abre el menú completo.
   byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){confirmReset=false;restart();return;}const t=e.currentTarget.textContent;if(t==='Empezar una nueva'){resumeDiscard();return;}if(t==='Jugar Maratón'){setSoloKind('marathon');return;}if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
@@ -6382,7 +6638,7 @@ function init(){
   document.querySelectorAll('[data-cpulevel]').forEach(b=>b.addEventListener('click',()=>setCpuLevel(b.dataset.cpulevel)));
   byId('tool-menu').addEventListener('click',()=>openMenu(session==='online'?'online':undefined));
   byId('tool-pause').addEventListener('click',pauseOrResume);
-  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();setupZoomGuard();setupAmigos();setupTips();setTimeout(setupResume,30);
+  setupEditor();setupNearMiss();setupFeel();setupScanner();setupAudioUI();setupProgress();setupInstall();setupExtra();setupSoundPop();setupGfx();setupTabla();setupCuenta();setupZoomGuard();setupAmigos();setupTips();setTimeout(setupHub,0);setTimeout(setupResume,30);
   byId('menu-share').addEventListener('click',openShareGame);
   byId('touch-option').addEventListener('change',()=>fitArena(true));
   byId('net-create').addEventListener('click',netCreate);
