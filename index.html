@@ -40,7 +40,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 /* ── Estructura ── */
 .app{display:flex;flex-direction:column;gap:6px;height:100vh;height:100dvh;max-width:1500px;margin:0 auto;overflow:hidden;
   padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
-.app.menu-open{height:auto;min-height:100dvh;overflow:visible}
+.app.menu-open:has(#controls-panel:not([hidden])){height:auto;min-height:100dvh;overflow:visible}
 .topbar{display:flex;align-items:center;gap:8px;min-height:42px;flex:none}
 .identity{display:flex;align-items:center;gap:9px;min-width:0}
 .emblem{width:30px;height:30px;border-radius:9px;background:#283c50;display:grid;grid-template-columns:repeat(3,6px);grid-template-rows:repeat(3,6px);gap:2px;place-content:center;transform:rotate(-9deg);box-shadow:0 0 0 1px #52687b77 inset;flex:none}
@@ -64,7 +64,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .net-badge.warn{color:#ffcf8a}
 .stage{flex:1 1 auto;min-height:0;display:flex}
 .stage>*{margin:auto}
-.menu-open .stage,.menu-open .matchbar,.menu-open #controls-panel:not([hidden])~.stage{display:none}
+.menu-open:has(#controls-panel:not([hidden])) .stage,.menu-open:has(#controls-panel:not([hidden])) .matchbar{display:none}
 
 /* ── Tableros ── */
 .arena{display:flex;flex-direction:column;align-items:center;gap:var(--gap)}
@@ -142,7 +142,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .feel{display:grid;gap:2px;margin-top:12px}.feel label{font-size:12px;color:#b8c9da;font-weight:750;margin-top:8px;display:flex;justify-content:space-between;gap:8px}
 .feel output{color:#a6f4e8;font-variant-numeric:tabular-nums}.feel input[type=range]{width:100%;accent-color:#7ce9e5;min-height:30px}
 .classic .touch-layer .modern-only{display:none!important}
-.free-touch:not(.menu-open) .topbar{display:none}
+
 .rail-tools{display:flex;gap:4px;padding:3px!important}
 .tool-btn{flex:1;min-width:0;min-height:38px;border:1px solid #3a4a60;background:#1c2a3c;color:var(--ink);border-radius:9px;font-size:16px;padding:0}
 .tool-btn:active{background:#405878}
@@ -557,7 +557,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .ios-share::after{content:"";position:absolute;left:50%;top:-6px;width:6px;height:6px;border-left:1.6px solid currentColor;border-top:1.6px solid currentColor;transform:translateX(-50%) rotate(45deg)}
 /* ── Menú de juegos y bienvenida ── */
 .games-btn{display:grid;grid-template-columns:repeat(2,7px);grid-template-rows:repeat(2,7px);gap:3px;place-content:center;padding:0}
-.games-btn i{background:var(--aqua);border-radius:2px}
+.games-btn i{width:7px;height:7px;background:var(--aqua);border-radius:2px}
 .rail-tools .tool-restart{grid-column:span 2}
 @media (orientation:landscape) and (max-height:520px){.rail-tools .tool-restart{grid-column:auto}}
 .games-btn i:nth-child(4){background:#ffd166}
@@ -639,6 +639,20 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .wel-box p{font-size:13px;color:var(--dim);margin-top:4px}
 .hub .wel-go{height:58px;border-radius:18px;border:0;background:var(--aqua);color:#062a2a!important;font-size:18px!important;font-weight:800}
 .hub .wel-login{align-self:center;background:none;border:0;color:var(--aqua)!important;font-size:14px;font-weight:700;padding:8px 12px}
+
+/* Menú de BloqueAR: panel que se abre desde la derecha (misma norma que el menú de juegos y PoblAR) */
+.menu-scrim{position:fixed;inset:0;z-index:41;background:#05080dcc;display:none}
+.menu-scrim:has(+#menu:not([hidden])){display:block}
+#menu.sheet{position:fixed;top:0;right:0;bottom:0;z-index:42;width:min(460px,92vw);max-width:none;margin:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--bg);border-left:1px solid var(--line);box-shadow:-24px 0 60px #000b;padding:calc(4px + env(safe-area-inset-top)) 14px 0;box-sizing:border-box;animation:menuIn .2s ease-out}
+@keyframes menuIn{from{transform:translateX(40px);opacity:.3}}
+@media (prefers-reduced-motion:reduce){#menu.sheet{animation:none}}
+.free-touch .topbar{min-height:40px}
+.free-touch .stage>.arena{margin-top:0}
+.rail-tools[hidden],.free-touch .rail-tools{display:none!important}
+#menu .head-pills{display:none}
+#menu .head-pills+.menu-me{margin-left:auto}
+.short-board .overlay-mark,.short-board #overlay-description,.short-board .overlay-level,.short-board .overlay-links,.short-board .overlay-foot,.short-board .overlay-sign,.short-board .overlay-tip{display:none!important}
+.topbar .identity .emblem{display:none}
 </style>
 </head>
 <body>
@@ -704,7 +718,6 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 <div class="app" id="app">
   <header class="topbar" id="topbar">
     <button class="icon-btn games-btn" id="games-btn" type="button" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i></button>
-    <button class="pill menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span><span class="label">Menú</span></button>
     <div class="identity"><div class="emblem" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="brand">BLOQUE<span>AR</span></div></div>
     <button class="chip" id="mode-chip" type="button" aria-label="Cambiar modo de juego">SOLO · MODERNO</button>
     <div class="spacer"></div>
@@ -713,6 +726,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
       <button class="icon-btn" id="fullscreen-btn" type="button" aria-label="Pantalla completa" hidden>⛶</button>
       <button class="icon-btn" id="restart-btn" type="button" aria-label="Empezar de nuevo" title="Empezar de nuevo" hidden>↻</button>
       <button class="icon-btn" id="pause-btn" type="button" aria-label="Pausar">Ⅱ</button>
+      <button class="pill menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span><span class="label">Menú</span></button>
     </div>
   </header>
 
@@ -722,6 +736,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <strong id="match-clock" aria-label="Tiempo">03:00</strong>
   </div>
 
+  <div class="menu-scrim" id="menu-scrim"></div>
   <section class="sheet" id="menu" hidden aria-labelledby="menu-title">
     <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><span class="head-pills"><button class="pill share-pill" id="menu-share" type="button">📲 Pasar<span class="wide-only"> el juego</span></button><button class="pill share-pill" id="menu-install" type="button">⬇ Instalar</button></span><button type="button" class="menu-me" id="menu-me" aria-label="Tu progreso"></button><button type="button" class="pill menu-lb" id="menu-lb" aria-label="Ver la tabla">🏆<span class="wide-only"> Tabla</span></button><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
     <div class="menu-tabs" role="tablist" aria-label="Secciones del menú"><button type="button" role="tab" data-mtab="partida">🎮 Jugar</button><button type="button" role="tab" data-mtab="progreso">👤 Yo</button><button type="button" role="tab" data-mtab="ajustes">⚙️ Ajustes</button></div>
@@ -864,7 +879,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">41</span></p>
+      <p class="hint">Versión <span class="app-ver">42</span></p>
     </div>
     </div></details>
     </div>
@@ -898,7 +913,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
             <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v41</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v42</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -6221,7 +6236,7 @@ function fitArena(force=false){
   app.classList.toggle('touch',touch);app.classList.toggle('side',side);app.classList.toggle('free-touch',free);
   const oneRail=Boolean(free&&(L.rails==='one'||padHidden(L)));
   app.classList.toggle('one-rail',oneRail);
-  byId('rail-tools').hidden=!free;byId('touch-block').hidden=!free;
+  byId('rail-tools').hidden=true;byId('touch-block').hidden=!free;
   arrangeRails(oneRail);
   if(menuOpen||configOpen)return;
   const cs=getComputedStyle(app);
@@ -6232,7 +6247,8 @@ function fitArena(force=false){
   if(free){
     const layer=byId('touch-layer');
     for(const [k,v] of [['--lt',pt],['--ll',pl],['--lr',pr],['--lb',pb]])layer.style.setProperty(k,v+'px');
-    const LW=vw-padX,LH=vh-padY,bar=byId('matchbar').hidden?0:(byId('matchbar').offsetHeight||30)+6;
+    const topH=(byId('topbar').offsetHeight||40)+gap;layer.style.setProperty('--lt',(pt+topH)+'px');
+    const LW=vw-padX,LH=vh-padY-topH,bar=byId('matchbar').hidden?0:(byId('matchbar').offsetHeight||30)+6;
     const hiddenPad=padHidden(L);
     const resPx=hiddenPad?0:Math.round(L.reserve*(land?LW:LH));
     if(land)stage.style.padding=`0 ${resPx}px`;else stage.style.paddingBottom=resPx+'px';
@@ -6243,7 +6259,7 @@ function fitArena(force=false){
     cell=Math.max(8,cell);
     // Si sobra ancho, los paneles crecen hasta un máximo.
     rail=one?clamp(Math.floor(regionW-cell*10-gap),56,110):clamp(Math.floor((regionW-cell*10-2*gap)/2),54,140);
-    app.classList.toggle('compact-rail',cell*20<330);
+    app.classList.toggle('compact-rail',cell*20<330);app.classList.toggle('short-board',cell*20<370);
     app.style.setProperty('--cell',cell+'px');app.style.setProperty('--rail',rail+'px');app.style.setProperty('--gap',gap+'px');
     for(const g of [solo,...players])g.resize();rival.resize();
     fitRails();renderPad();if(editing)renderEditor();
@@ -6267,7 +6283,7 @@ function fitArena(force=false){
     cell=Math.max(8,Math.floor(Math.min(cellH,cellW,dual?34:38)));
   }
   if(touch&&dual&&!side){const spare=availH-heading-cell*20-padH;if(spare>10)btn=Math.min(60,btn+Math.floor(spare/1.9));}
-  app.classList.toggle('compact-rail',cell*20<330);
+  app.classList.toggle('compact-rail',cell*20<330);app.classList.toggle('short-board',cell*20<370);
   app.style.setProperty('--cell',cell+'px');app.style.setProperty('--rail',rail+'px');app.style.setProperty('--gap',gap+'px');
   app.style.setProperty('--btn',btn+'px');app.style.setProperty('--padw',padW+'px');
   for(const g of [solo,...players])g.resize();rival.resize();
@@ -6612,6 +6628,7 @@ function init(){
   byId('share-base-save').addEventListener('click',shareSaveBase);
   window.addEventListener('resize',()=>{if(popOpen)placeModePop();});
   byId('menu-close').addEventListener('click',()=>{const b=HUB.back;closeMenu();if(b)openHub();});
+  byId('menu-scrim').addEventListener('click',()=>{const b=HUB.back;closeMenu();if(b)openHub();});
   byId('menu-play').addEventListener('click',()=>{if(session==='online'&&!net.hello){closeMenu();return;}primaryAction();});
   // «Cambiar modo» despliega el menú contextual; «Menú» (en pausa o en línea conectado) abre el menú completo.
   byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){confirmReset=false;restart();return;}const t=e.currentTarget.textContent;if(t==='Empezar una nueva'){resumeDiscard();return;}if(t==='Jugar Maratón'){setSoloKind('marathon');return;}if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});

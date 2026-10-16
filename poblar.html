@@ -100,6 +100,44 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .float{position:absolute;pointer-events:none;font-weight:900;font-size:16px;animation:floatup 1.2s ease-out forwards;text-shadow:0 2px 6px #000}
 @keyframes floatup{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-40px)}}
 .banner{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0b1019e6;border:1px solid #3a4a60;border-radius:999px;padding:6px 14px;font-weight:800;font-size:13px;white-space:nowrap;pointer-events:none}
+
+/* Distribución: el tablero ocupa el lugar que queda; en pantallas anchas va al costado del panel */
+.app{height:100vh;height:100dvh;min-height:0;max-width:640px}
+.main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
+.panel{display:contents}
+.score{order:0}.boardcol{order:1}.status{order:2;min-height:40px}.log{order:3}.hand{order:4}.actions{order:5}.wide{order:6}
+.boardcol{flex:1 1 0;min-height:150px;display:flex;align-items:center;justify-content:center}
+.boardwrap{flex:none;max-width:100%}
+@media (min-width:760px) and (min-aspect-ratio:1/1),(orientation:landscape) and (max-height:560px){
+  .app{max-width:1400px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .main{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,30vw,400px);grid-template-rows:minmax(0,1fr);gap:16px}
+  .boardcol{height:100%;min-height:0;order:0}
+  .panel{order:1}
+  .panel{display:flex;flex-direction:column;justify-content:center;gap:10px;min-height:0;overflow-y:auto}
+}
+@media (orientation:landscape) and (max-height:560px){
+  .app{gap:6px;padding-top:max(6px,env(safe-area-inset-top));padding-bottom:max(6px,env(safe-area-inset-bottom))}
+  .icon-btn{height:36px;min-width:36px}
+  .panel{gap:6px}
+  .pl{padding:4px 10px}.pl .vp{font-size:19px}
+  .status{min-height:32px;font-size:13px}
+  .card{padding:3px 2px}.card .e{font-size:17px}.card .n{font-size:15px}
+  .act{min-height:42px}.pill,.primary{min-height:44px}
+}
+/* Menú lateral (misma norma en todos los juegos: se abre desde la derecha) */
+.side{position:fixed;inset:0;z-index:19;display:flex;justify-content:flex-end;background:#05080dcc}
+.side[hidden]{display:none}
+.side-panel{width:min(340px,88vw);height:100%;overflow-y:auto;background:#111a27;border-left:1px solid var(--line);box-shadow:-24px 0 60px #000b;padding:calc(12px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;animation:sideIn .2s ease-out}
+@keyframes sideIn{from{transform:translateX(36px);opacity:.3}}
+@media (prefers-reduced-motion:reduce){.side-panel{animation:none}}
+.side-head{display:flex;align-items:center;justify-content:space-between}
+.side-head h2{margin:0;font-size:20px}
+.side-x{width:44px;height:44px;border-radius:14px;border:0;background:#1a2536;font-size:18px;cursor:pointer}
+.side .menu-list{margin-top:0}
+.mode-pick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
+.mode-pick button{min-height:64px;border-radius:14px;border:1px solid var(--line);background:#0f1724;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:15px}
+.mode-pick button small{font-size:11px;color:var(--dim);font-weight:600}
+.mode-pick button.on{border-color:var(--aqua);background:#173540}
 </style>
 </head>
 <body>
@@ -113,11 +151,15 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
     <button class="icon-btn" id="btn-menu" aria-label="Menú">☰</button>
   </div>
   <div class="onl" id="onl"></div>
+  <div class="main" id="main">
+    <div class="boardcol" id="boardcol">
+    <div class="boardwrap" id="boardwrap"><svg id="board" role="img" aria-label="Tablero"></svg></div>
+    </div>
+    <div class="panel" id="panel">
   <div class="score">
     <div class="pl" id="pl0" style="--pc:var(--me)"><i></i><div><b id="pn0">Vos</b><small id="ps0"></small></div><div class="vp"><span id="vp0">0</span><small>/8</small></div></div>
     <div class="pl" id="pl1" style="--pc:var(--cpu)"><i></i><div><b id="pn1">La compu</b><small id="ps1"></small></div><div class="vp"><span id="vp1">0</span><small>/8</small></div></div>
   </div>
-  <div class="boardwrap" id="boardwrap"><svg id="board" role="img" aria-label="Tablero"></svg></div>
   <div class="status" id="status"></div>
   <div class="log" id="log"></div>
   <div class="hand" id="hand"></div>
@@ -131,8 +173,11 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
     <button class="pill" id="b-dev">🃏 Cartas</button>
     <button class="primary" id="b-main">TIRAR DADOS</button>
   </div>
+    </div>
+  </div>
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
+<div class="side" id="side" hidden><div class="side-panel" id="side-panel" role="dialog" aria-modal="true" aria-label="Menú"></div></div>
 <script>
 'use strict';
 /* ───────── PoblAR · prueba ─────────
@@ -550,7 +595,7 @@ function drawBoard(){
   T.v.forEach(vi=>{const v=B.verts[vi];el('circle',{cx:v.x,cy:v.y,r:11,class:'spot on'},top);const hit=el('circle',{cx:v.x,cy:v.y,r:24,fill:'transparent'},top);hit.addEventListener('click',()=>onBoardTap('v',vi));});
 }
 function render(rolled=false){
-  if(!G)return;drawBoard();
+  if(!G)return;drawBoard();fitBoard();
   $('pn1').textContent=G.p[1].name;$('pn0').textContent=G.p[0].name;
   for(const p of [0,1]){$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(1);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
     const bits=[`${cards(p)} cartas`];if(G.p[p].dev.length&&p===1)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(' · ');}
@@ -588,10 +633,22 @@ function floatGains(n,got){
   B.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=((h.x-vb.x)*sc)+'px';f.style.top=((h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
   setTimeout(()=>{for(const r of RES)if(got[0][r])$('c-'+r)?.classList.add('bump');},30);
 }
-function banner(t){const b=document.createElement('div');b.className='banner';b.textContent=t;$('boardwrap').appendChild(b);setTimeout(()=>b.remove(),2200);}
+function banner(t){const w=$('boardwrap'),n=w.querySelectorAll('.banner').length;const b=document.createElement('div');b.className='banner';b.textContent=t;b.style.top=(12+n*38)+'px';w.appendChild(b);setTimeout(()=>b.remove(),2200);}
 
 /* ── Ventanas: cambiar, ayuda, final ── */
 function openModal(html){$('sheet').innerHTML=html;$('modal').hidden=false;}
+function openSide(html){$('side-panel').innerHTML=html;$('side').hidden=false;}
+function closeSide(){$('side').hidden=true;}
+$('side').addEventListener('click',e=>{if(e.target.id==='side')closeSide();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('side').hidden)closeSide();else if(!$('modal').hidden&&$('sheet').querySelector('#fl-x,#m-x,#n-no'))closeModal();}});
+// El tablero toma el lugar que queda libre, sin pasarse de ancho ni de alto (nada de scrollear para jugar).
+function fitBoard(){
+  const col=$('boardcol'),bw=$('boardwrap'),vb=$('board').viewBox.baseVal;if(!vb||!vb.width)return;
+  const ar=vb.width/vb.height,w=Math.floor(Math.min(col.clientWidth,col.clientHeight*ar));
+  if(w>0&&bw.style.width!==w+'px')bw.style.width=w+'px';
+}
+if(window.ResizeObserver)new ResizeObserver(()=>fitBoard()).observe($('boardcol'));
+window.addEventListener('resize',fitBoard);
 function closeModal(){$('modal').hidden=true;}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
 function openTrade(tab='banco'){
@@ -671,16 +728,25 @@ function openDiscard(){
     $('dc-ok').onclick=()=>{for(const r of RES)G.p[0].hand[r]-=out[r];finish();};
   };draw();
 }
-function openNew(first=false){
+function openNew(first=false,kind='compu'){
   if(ON&&ON.state==='on'){openModal(`<h2>Estás jugando en línea</h2><p>Para empezar otra contra la compu, primero salí de la partida en línea (Menú › Salir).</p><div class="row"><button class="primary" id="x1">OK</button></div>`);$('x1').onclick=closeModal;return;}
   let d=(()=>{try{return localStorage.getItem('poblar-dificultad')||'normal';}catch(_){return 'normal';}})();
-  const draw=()=>{openModal(`<h2>${first?'PoblAR':'¿Partida nueva?'}</h2>${first?'':'<p>Se pierde la que estás jugando.</p>'}<b>Dificultad de la compu</b>
+  const draw=()=>{
+    const compu=kind==='compu';
+    openModal(`<h2>${first?'PoblAR':'Partida nueva'}</h2>${first||!G||G.phase==='over'?'':'<p class="note">Si empezás otra, se pierde la que estás jugando.</p>'}
+    <div class="mode-pick" id="mk"><button data-k="compu" class="${compu?'on':''}">🤖 Con la compu<small>Cuando quieras</small></button><button data-k="online" class="${compu?'':'on'}">👥 En línea<small>Con un amigo</small></button></div>
+    ${compu?`<b>Dificultad</b>
     <div class="diff" id="df">${Object.entries(DIFF).map(([k,n])=>`<button data-d="${k}" class="${d===k?'on':''}">${n}</button>`).join('')}</div>
-    <p class="note">${d==='facil'?'Juega más relajada: no compra cartas ni te ofrece cambios.':d==='dificil'?'Cambia más, compra cartas y no te regala nada.':'Juega bien, compra cartas y a veces te ofrece cambios.'}</p>
-    <div class="row">${first?'':'<button class="pill" id="n-no">Seguir</button>'}<button class="primary" id="n-yes">JUGAR</button></div>`);
-    $('df').onclick=e=>{const b=e.target.closest('button');if(b){d=b.dataset.d;draw();}};
+    <p class="note">${d==='facil'?'Juega más relajada: no compra cartas ni te ofrece cambios.':d==='dificil'?'Cambia más, compra cartas y no te regala nada.':'Juega bien, compra cartas y a veces te ofrece cambios.'}</p>`
+    :`<p>Jugás contra un amigo, cada uno en su celular o compu. Usás tu cuenta de BloqueAR: elegís a tu amigo y le llega la invitación.</p>`}
+    <div class="row">${first?'':'<button class="pill" id="n-no">Volver</button>'}<button class="primary" id="n-yes">${compu?'JUGAR':'ELEGIR AMIGO'}</button></div>`);
+    $('mk').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!==kind){kind=b.dataset.k;draw();}};
+    if(compu)$('df').onclick=e=>{const b=e.target.closest('button');if(b){d=b.dataset.d;draw();}};
     if(!first)$('n-no').onclick=closeModal;
-    $('n-yes').onclick=()=>{try{localStorage.setItem('poblar-dificultad',d);}catch(_){}closeModal();newGame();if(first&&!localStorage.getItem('poblar-ayuda'))openHelp();try{localStorage.setItem('poblar-ayuda','1');}catch(_){}};};draw();
+    $('n-yes').onclick=()=>{
+      if(!compu){openFriends();return;}
+      try{localStorage.setItem('poblar-dificultad',d);}catch(_){}closeModal();newGame();if(first&&!localStorage.getItem('poblar-ayuda'))openHelp();try{localStorage.setItem('poblar-ayuda','1');}catch(_){}};
+  };draw();
 }
 function openHelp(){
   openModal(`<h2>Cómo se juega</h2>
@@ -728,16 +794,17 @@ function goGames(e){
 }
 $('btn-games').addEventListener('click',goGames);
 function openMenu(){
-  openModal(`<h2>Menú</h2><div class="menu-list">
-    <button id="m-new">🎲 Partida nueva contra la compu</button>
-    <button id="m-friend">👥 Jugar con un amigo <small>con tu cuenta</small></button>
+  openSide(`<div class="side-head"><h2>Menú</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div><div class="menu-list">
+    <button id="m-new">🎲 Partida nueva</button>
+    <button id="m-friend">👥 Jugar en línea <small>con un amigo</small></button>
     <button id="m-help">❓ Cómo se juega</button>
+    <button id="m-log">📜 Lo que pasó</button>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>
-    <div class="row"><button class="pill" id="m-x">Volver</button></div>`);
-  $('m-games').onclick=goGames;
-  $('m-x').onclick=closeModal;$('m-new').onclick=()=>{if(ON)netLeave();openNew(false);};$('m-friend').onclick=openFriends;$('m-help').onclick=openHelp;
-  if($('m-leave'))$('m-leave').onclick=()=>{netLeave();closeModal();};
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>`);
+  const go=f=>()=>{closeSide();f();};
+  $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};
+  $('m-new').onclick=go(()=>{if(ON)netLeave();openNew(false);});$('m-friend').onclick=go(openFriends);$('m-help').onclick=go(openHelp);$('m-log').onclick=go(()=>$('btn-log').click());
+  if($('m-leave'))$('m-leave').onclick=go(netLeave);
 }
 
 /* ── Sonidos cortitos ── */
@@ -881,9 +948,9 @@ async function acceptInvite(inv){
 function failOnline(msg,show=true){
   const o=ON;if(o&&o.id&&o.role==='host'&&o.state==='waiting'){const a=acct();if(a)lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:o.id}).catch(()=>{});}
   try{o&&o.pc&&o.pc.close();}catch(_){}ON=null;renderOnline();
-  if(!show){closeModal();return;}
+  if(!show){closeModal();if(!G)openNew(true,'online');return;}
   openModal(`<h2>👥 Jugar con un amigo</h2><p>${escHtml(msg)}</p><div class="row"><button class="pill" id="fw-x">Cerrar</button><button class="primary" id="fw-again">PROBAR DE NUEVO</button></div>`);
-  $('fw-x').onclick=closeModal;$('fw-again').onclick=openFriends;
+  $('fw-x').onclick=()=>{closeModal();if(!G)openNew(true,'online');};$('fw-again').onclick=openFriends;
 }
 function friendsWait(){
   if(!ON)return;openModal(`<h2>👥 Jugar con un amigo</h2><div style="display:flex;align-items:center;gap:12px;margin:10px 0">${avHtml(ON.peer.avatar,ON.peer.color)}<b style="font-size:18px">${escHtml(ON.peer.usuario)}</b></div>
@@ -896,12 +963,12 @@ async function openFriends(){
   if(ON&&ON.state!=='on'){friendsWait();return;}
   if(ON&&ON.state==='on'){openModal(`<h2>👥 En línea</h2><p>Estás jugando con <b>${escHtml(ON.peer.usuario)}</b>.</p><div class="row"><button class="pill" id="fx-leave">Salir de la partida</button><button class="primary" id="fx-x">SEGUIR</button></div>`);$('fx-x').onclick=closeModal;$('fx-leave').onclick=()=>{netLeave();closeModal();};return;}
   if(!a){openModal(`<h2>👥 Jugar con un amigo</h2><p>Para invitar a un amigo usás tu <b>cuenta de BloqueAR</b> (es la misma). Creala o entrá en BloqueAR › Yo, y volvé.</p>
-    <div class="row"><button class="pill" id="fa-x">Cerrar</button><a class="primary" href="./" style="display:grid;place-items:center;text-decoration:none">IR A BLOQUEAR</a></div>`);$('fa-x').onclick=closeModal;return;}
+    <div class="row"><button class="pill" id="fa-x">Cerrar</button><a class="primary" href="./" style="display:grid;place-items:center;text-decoration:none">IR A BLOQUEAR</a></div>`);$('fa-x').onclick=()=>{closeModal();if(!G)openNew(true,'online');};return;}
   const draw=()=>{const list=(UIQ.users||[]).filter(u=>u.usuario.toLowerCase()!==a.usuario.toLowerCase());
     openModal(`<h2>👥 Jugar con un amigo</h2><p class="note">Elegí a quién invitar. El punto verde es que tiene BloqueAR o PoblAR abierto.</p>
       ${UIQ.err?`<p>${escHtml(UIQ.err)}</p>`:''}${UIQ.users?`<ul class="ulist">${list.map(u=>`<li>${avHtml(u.avatar,u.color)}<span class="nm">${escHtml(u.usuario)}${u.enLinea?'<i class="dot"></i>':''}</span><button data-u="${escHtml(u.usuario)}">Invitar</button></li>`).join('')||'<li>Todavía no hay otras cuentas.</li>'}</ul>`:(UIQ.err?'':'<p><span class="busy"></span>Cargando…</p>')}
       <div class="row"><button class="pill" id="fl-x">Cerrar</button></div>`);
-    $('fl-x').onclick=closeModal;document.querySelectorAll('.ulist button[data-u]').forEach(b=>b.onclick=()=>{const u=list.find(x=>x.usuario===b.dataset.u);if(u)inviteFriend(u);});};
+    $('fl-x').onclick=()=>{closeModal();if(!G)openNew(true,'online');};document.querySelectorAll('.ulist button[data-u]').forEach(b=>b.onclick=()=>{const u=list.find(x=>x.usuario===b.dataset.u);if(u)inviteFriend(u);});};
   draw();
   try{const j=await lbCall({accion:'usuarios'},false);if(!Array.isArray(j.usuarios))throw new Error('Hay que actualizar el código de la planilla (versión 4).');UIQ.users=j.usuarios;UIQ.err='';}catch(e){UIQ.err=e.message;}
   if(!ON&&!$('modal').hidden&&/Elegí a quién invitar/.test($('sheet').textContent))draw();
