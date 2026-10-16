@@ -718,7 +718,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">36</span></p>
+      <p class="hint">Versión <span class="app-ver">38</span></p>
     </div>
     </div></details>
     </div>
@@ -752,7 +752,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
             <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v36</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v38</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -936,13 +936,13 @@ function storageSet(key,value){try{localStorage.setItem(key,value);return true;}
 for(const [key,field] of RECORD_KEYS){try{const r=JSON.parse(storageGet(key)||'{}');for(const m of ['classic','modern'])if(Number.isFinite(r?.[m])&&r[m]>=0)settings[field][m]=Math.floor(r[m]);}catch(_){}}
 settings.sound=storageGet('bloques-sound-v1')==='on';
 /* Sensación de los controles: repetición al mantener, sensibilidad del arrastre, toque por lados y vibración. */
-// v36: sensibilidad del arrastre en 5 (la 6 resultaba nerviosa y la 4, pesada).
+// v38: sensibilidad del arrastre en 5, con el arrastre preciso de la v34/v37.
 const FEEL_DEFAULT={das:155,arr:42,sens:5,tapSides:false,haptics:true,swipe:'auto'};
 const FEEL={...FEEL_DEFAULT};
 try{const f=JSON.parse(storageGet('bloques-feel-v1')||'null');
   if(f&&f.das>=60&&f.das<=300&&f.arr>=0&&f.arr<=100&&f.sens>=1&&f.sens<=10)Object.assign(FEEL,{das:+f.das,arr:+f.arr,sens:+f.sens,tapSides:Boolean(f.tapSides),haptics:f.haptics!==false,swipe:['auto','hard','soft'].includes(f.swipe)?f.swipe:'auto'});
-  if(f&&!f.v36&&((!f.v33&&+f.sens===6)||+f.sens===4))FEEL.sens=5;}catch(_){}// quien tenía un valor predeterminado viejo pasa al nuevo
-function applyFeel(){TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;storageSet('bloques-feel-v1',JSON.stringify({...FEEL,v33:true,v36:true}));}
+  if(f&&!f.v38)FEEL.sens=5;}catch(_){}// v38: una sola vez, todos pasan a 5; después se respeta lo que cada uno elija
+function applyFeel(){TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;storageSet('bloques-feel-v1',JSON.stringify({...FEEL,v33:true,v36:true,v37:true,v38:true}));}
 TIMING.modern.das=FEEL.das;TIMING.modern.arr=FEEL.arr;
 const dragFactor=()=>1.5-FEEL.sens*.1;// dedo recorrido (en celdas) por cada celda que se mueve la pieza
 // Vibración breve: Android usa vibrate(); en iPhone (iOS 18+) Safari vibra al tocar un interruptor nativo,
@@ -1476,7 +1476,7 @@ function createGame(root,prefix,options){
     const u=cellPx(),step=u*dragFactor(),dx=e.clientX-g.x0,dy=e.clientY-g.y0,vy=recentVy(g,now);
     g.peakDown=Math.max(g.peakDown,vy);g.peakUp=Math.min(g.peakUp,vy);
     // La dirección se decide al principio; deslizando hacia abajo se ignora el desvío lateral del dedo.
-    if(!g.axis){if(Math.hypot(dx,dy)<u*.35)return;g.axis=Math.abs(dy)>=Math.abs(dx)?'y':'x';}
+    if(!g.axis){if(Math.hypot(dx,dy)<u*.5)return;g.axis=Math.abs(dy)>=Math.abs(dx)?'y':'x';}
     if(g.axis==='y'&&Math.abs(dx)>Math.max(step*1.6,Math.abs(dy)*1.2)){g.axis='x';}
     if(g.axis==='x'){
       // Arrastre lateral más preciso:
@@ -1486,16 +1486,15 @@ function createGame(root,prefix,options){
       // · contra la pared no se acumula movimiento pendiente.
       if(g.acc===undefined){g.acc=dx/step;g.lx=e.clientX;}
       const ddx=e.clientX-g.lx;g.lx=e.clientX;
-      const vx=Math.abs(recentVx(g,now)),gain=Math.min(1.5,Math.max(1,1+(vx-.3)*.6));
+      const vx=Math.abs(recentVx(g,now)),gain=Math.min(1.35,Math.max(1,1+(vx-.45)*.5));
       g.acc+=ddx/step*gain;
-      // Seguir en la misma dirección es liviano (0,55 de celda); volver para atrás pide un poco más (0,8): así no tiembla.
-      const thr=d=>!g.dir||d===g.dir?.55:.8;
-      while(state.pieceId===g.piece&&(g.acc-g.mx>=thr(1)||g.acc-g.mx<=-thr(-1))){
+      const TH=.65;
+      while(state.pieceId===g.piece&&(g.acc-g.mx>=TH||g.acc-g.mx<=-TH)){
         const d=g.acc>g.mx?1:-1;
         if(!move(d)){g.acc=g.mx;break;}
         // ¿El dedo venía quieto y este cambio lo provocó un movimiento chiquito? (típico del dedo que rueda al levantarlo)
         let still=false;{const pts=g.trail.slice(0,-1).filter(t=>now-t[0]<150);if(pts.length>=2){let lo=1e9,hi=-1e9;for(const t of pts){lo=Math.min(lo,t[1]);hi=Math.max(hi,t[1]);}still=hi-lo<step*.2&&Math.abs(ddx)<step*.4;}}
-        g.mx+=d;g.dir=d;g.acted=true;g.lastMoveT=now;g.lastStill=still;g.lastMoveD=d;buzz();
+        g.mx+=d;g.acted=true;g.lastMoveT=now;g.lastStill=still;g.lastMoveD=d;buzz();
       }
       return;
     }
