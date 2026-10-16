@@ -1,7 +1,7 @@
 /* BLOQUES: guarda el juego en el dispositivo para abrirlo sin señal.
    Con internet siempre intenta la versión publicada más nueva; sin internet usa la guardada. */
-const CACHE='bloques-v38';
-const FILES=['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
+const CACHE='bloques-v39';
+const FILES=['./','./index.html','./poblar.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil((async()=>{
     const c=await caches.open(CACHE);
@@ -22,14 +22,16 @@ self.addEventListener('fetch',e=>{
   const url=new URL(req.url);
   if(url.origin!==self.location.origin)return;
   const nav=req.mode==='navigate';
+  // Cada página (BloqueAR y PoblAR) se guarda por su dirección, sin el #… ni el ?….
+  const page=nav?(/\/(index\.html)?$/.test(url.pathname)?'./':url.origin+url.pathname):null;
   e.respondWith((async()=>{
     const c=await caches.open(CACHE);
     try{
       const res=await Promise.race([fetch(req,{cache:'no-cache'}),new Promise((_,no)=>setTimeout(()=>no(Error('lento')),nav?3500:6000))]);
-      if(res.ok&&!res.redirected)c.put(nav?'./':req,res.clone()).catch(()=>{});
+      if(res.ok&&!res.redirected)c.put(nav?page:req,res.clone()).catch(()=>{});
       return res;
     }catch(err){
-      const hit=(nav?await c.match('./')||await c.match('./index.html'):await c.match(req,{ignoreSearch:true}));
+      const hit=(nav?await c.match(page,{ignoreSearch:true})||await c.match('./')||await c.match('./index.html'):await c.match(req,{ignoreSearch:true}));
       if(hit)return hit;
       throw err;
     }

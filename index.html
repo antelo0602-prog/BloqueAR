@@ -408,6 +408,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .overlay[data-ov="min"] :is(.overlay-level,.overlay-links,.overlay-foot,.overlay-sign,.overlay-mark){display:none}
 .overlay[data-ov="end"] :is(.overlay-foot,.overlay-sign,.overlay-mark,.overlay-level,#overlay-share,#overlay-install){display:none}
 .lb-open{width:100%;min-height:44px}
+.game-pick .seg{display:grid;grid-template-columns:1fr 1fr}.seg-link{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;border-radius:10px;color:var(--ink);text-decoration:none;font-weight:800;font-size:14px}.seg-link small{font-size:10px;font-weight:900;color:#0b1019;background:#f6c453;border-radius:6px;padding:1px 5px}
 .overlay-tip{display:flex;gap:8px;align-items:flex-start;max-width:300px;margin:10px auto 0;padding:8px 12px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff14;color:#b9c6d6;font-size:12.5px;line-height:1.4;text-align:left}
 .overlay-tip b{color:#e8eef6;font-weight:750}.overlay-tip .tip-go{background:none;border:0;padding:0 2px;color:#9fd8d2;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .overlay[data-ov="min"] .overlay-tip,.overlay[data-ov="home"] .overlay-tip{display:none}
@@ -580,6 +581,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="sheet-head"><h2 id="menu-title">MENÚ</h2><span class="head-pills"><button class="pill share-pill" id="menu-share" type="button">📲 Pasar<span class="wide-only"> el juego</span></button><button class="pill share-pill" id="menu-install" type="button">⬇ Instalar</button></span><button type="button" class="menu-me" id="menu-me" aria-label="Tu progreso"></button><button type="button" class="pill menu-lb" id="menu-lb" aria-label="Ver la tabla">🏆<span class="wide-only"> Tabla</span></button><button class="pill" id="menu-close" type="button">Volver ✕</button></div>
     <div class="menu-tabs" role="tablist" aria-label="Secciones del menú"><button type="button" role="tab" data-mtab="partida">🎮 Jugar</button><button type="button" role="tab" data-mtab="progreso">👤 Yo</button><button type="button" role="tab" data-mtab="ajustes">⚙️ Ajustes</button></div>
 
+    <div class="block game-pick" data-tab="partida"><h3>JUEGO</h3><div class="seg" role="group" aria-label="Juego"><button type="button" class="active" aria-pressed="true">🧱 BloqueAR</button><a class="seg-link" href="poblar.html">🏘️ PoblAR <small>nuevo</small></a></div></div>
     <div class="block" data-tab="partida"><h3>MODO</h3>
       <div class="tiles" role="group" aria-label="Modo de juego">
         <button type="button" class="tile" data-session="solo"><b>Solo</b><span>Un jugador</span></button>
@@ -718,7 +720,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">38</span></p>
+      <p class="hint">Versión <span class="app-ver">39</span></p>
     </div>
     </div></details>
     </div>
@@ -752,7 +754,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
             <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v38</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v39</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -4155,7 +4157,9 @@ async function amPoll(){
   try{
     const j=await lbPost({accion:'buzon',usuario:acct.usuario,token:acct.token},12000);
     const inv=j.invitacion;
-    if(inv&&!AM.dismissed.has(inv.id))amOffer(inv);else if(!inv)amClosePop();
+    // Si venís de aceptar esta invitación desde PoblAR, se acepta sola.
+    if(inv&&sessionGet('blq-accept')===inv.id){sessionSet('blq-accept','');invAccept(inv);}
+    else if(inv&&!AM.dismissed.has(inv.id))amOffer(inv);else if(!inv)amClosePop();
   }catch(e){amUnsupported(e);}
   AM.polling=false;
 }
@@ -4166,7 +4170,7 @@ function amOffer(inv){
   if(AM.pop&&AM.pop.id===inv.id&&!AM.pop.toast)return;
   amClosePop();
   const pop=document.createElement('div');pop.className='inv-pop';pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Invitación para jugar');
-  pop.innerHTML=`<div class="inv-card">${avHtml(inv.avatar,inv.color,true)}<div><b>${escHtml(inv.de)}</b><span>te invita a jugar en línea</span></div></div>
+  pop.innerHTML=`<div class="inv-card">${avHtml(inv.avatar,inv.color,true)}<div><b>${escHtml(inv.de)}</b><span>${isPoblar(inv)?'te invita a jugar <b>PoblAR</b> 🏘️':'te invita a jugar en línea'}</span></div></div>
     <div class="row"><button type="button" class="primary" data-a="si">Aceptar</button><button type="button" class="pill" data-a="no">Ahora no</button></div>`;
   pop.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='si')invAccept(inv);else if(a==='no')invDecline(inv);});
   document.body.appendChild(pop);AM.pop={id:inv.id,el:pop};
@@ -4176,7 +4180,7 @@ function amOffer(inv){
 function amToast(inv){
   if(AM.pop&&AM.pop.id===inv.id)return;amClosePop();
   const t=document.createElement('button');t.type='button';t.className='inv-toast';
-  t.innerHTML=`${avHtml(inv.avatar,inv.color)} <span><b>${escHtml(inv.de)}</b> te invita a jugar · <u>Ver</u></span>`;
+  t.innerHTML=`${avHtml(inv.avatar,inv.color)} <span><b>${escHtml(inv.de)}</b> te invita a ${isPoblar(inv)?'PoblAR 🏘️':'jugar'} · <u>Ver</u></span>`;
   t.addEventListener('click',()=>{amClosePop();try{if(solo.state.status==='playing')autoPause();}catch(_){}amOffer(inv);});
   document.body.appendChild(t);AM.pop={id:inv.id,el:t,toast:true};
 }
@@ -4185,7 +4189,12 @@ function invDecline(inv){
   AM.dismissed.add(inv.id);amClosePop();
   if(acct)lbPost({accion:'rechazar',usuario:acct.usuario,token:acct.token,id:inv.id}).catch(()=>{});
 }
+// Las invitaciones de PoblAR se abren en su página (la conexión la arma PoblAR).
+const isPoblar=inv=>String(inv.oferta||'').startsWith('POBLAR:');
+function sessionGet(k){try{return sessionStorage.getItem(k);}catch(_){return null;}}
+function sessionSet(k,v){try{v?sessionStorage.setItem(k,v):sessionStorage.removeItem(k);}catch(_){}}
 async function invAccept(inv){
+  if(isPoblar(inv)){sessionSet('poblar-accept',inv.id);location.href='poblar.html';return;}
   AM.dismissed.add(inv.id);amClosePop();
   if(INV)invEnd('',true);
   INVG={de:inv.de,avatar:inv.avatar,color:inv.color,id:inv.id,t0:Date.now(),phase:'preparando'};
@@ -4242,6 +4251,7 @@ function renderFriends(){
     <p class="hint">El punto verde es que tiene el juego abierto. Si no lo tiene, le aparece cuando lo abra.</p>`;
 }
 function setupAmigos(){
+  if(sessionGet('blq-accept'))setTimeout(()=>{AM.lastPoll=0;amPoll();},1200);
   const box=byId('net-friends');if(!box)return;
   box.addEventListener('click',e=>{
     const b=e.target.closest('[data-am]');if(!b)return;const a=b.dataset.am;

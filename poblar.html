@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1019">
+<title>PoblAR</title>
+<style>
+:root{--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--me:#7ce9e5;--cpu:#ff8a6b;--gold:#f6c453}
+*{box-sizing:border-box}
+html{background:var(--bg);height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100%;font:500 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(ellipse at 50% -20%,#1f2b40 0,transparent 60%),var(--bg);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;overscroll-behavior:none}
+button{font:inherit;color:inherit}
+.app{max-width:560px;margin:0 auto;padding:max(8px,env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;min-height:100vh;min-height:100dvh}
+.top{display:flex;align-items:center;gap:8px}
+.brand{font-weight:900;letter-spacing:.12em;font-size:15px}.brand span{color:var(--aqua)}
+.tag{font-size:10px;font-weight:800;letter-spacing:.08em;color:#0b1019;background:var(--gold);border-radius:6px;padding:2px 6px}
+.icon-btn{margin-left:auto;min-width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:#121b29;font-size:17px;cursor:pointer}
+.icon-btn+.icon-btn{margin-left:0}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pl{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:14px;background:#111a27;transition:border-color .2s,box-shadow .2s}
+.pl.turn{border-color:var(--pc);box-shadow:0 0 0 1px var(--pc) inset,0 0 18px color-mix(in srgb,var(--pc) 25%,transparent)}
+.pl i{width:12px;height:12px;border-radius:50%;background:var(--pc);flex:none}
+.pl b{font-size:13px}.pl small{display:block;color:var(--dim);font-size:11px}
+.pl .vp{margin-left:auto;font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}.pl .vp small{display:inline;font-size:11px;color:var(--dim);font-weight:700}
+.boardwrap{position:relative;border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#215a78,#123447 70%);border:1px solid #2b4b5d}
+svg{display:block;width:100%;height:auto;touch-action:manipulation}
+.hex{stroke:#0e2a38;stroke-width:3}
+.num{font-weight:900;font-size:23px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.hico{font-size:30px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.port text{font-size:11px;font-weight:800;fill:#e9f3f8;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.spot{fill:#fff;fill-opacity:.0;stroke:none;cursor:pointer}
+.spot.on{fill-opacity:1;fill:#f6c453;stroke:#0b1019;stroke-width:3;animation:pulse 1s ease-in-out infinite alternate}
+.espot{stroke:#ffffff;stroke-opacity:0;stroke-width:14;stroke-linecap:round;cursor:pointer}
+.espot.on{stroke:#f6c453;stroke-opacity:.95;animation:pulse 1s ease-in-out infinite alternate}
+.hexhit.on{fill:#fff;fill-opacity:.0;stroke:#f6c453;stroke-width:5;stroke-dasharray:10 8;animation:pulse 1s ease-in-out infinite alternate;cursor:pointer}
+@keyframes pulse{from{opacity:.65}to{opacity:1}}
+.status{min-height:22px;font-size:14px;font-weight:700;text-align:center;color:#dfe8f3}
+.status small{display:block;font-weight:600;color:var(--dim);font-size:12px}
+.hand{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.card{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px 5px;border-radius:12px;background:#121b29;border:1px solid var(--line)}
+.card .e{font-size:22px;line-height:1.1}.card .n{font-size:18px;font-weight:900;font-variant-numeric:tabular-nums}.card .l{font-size:10px;color:var(--dim);font-weight:700}
+.card.zero{opacity:.45}.card.bump{animation:bump .5s ease-out}
+@keyframes bump{0%{transform:scale(1);border-color:var(--gold)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.act{min-height:54px;border-radius:14px;border:1px solid var(--line);background:#142133;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:4px}
+.act b{font-size:13px}.act small{font-size:11px;color:var(--dim);letter-spacing:.02em}
+.act:disabled{opacity:.38;cursor:default}
+.act.sel{border-color:var(--aqua);background:#173540}
+.wide{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:6px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.tabs button{min-height:40px;border-radius:12px;border:1px solid var(--line);background:#0f1724;font-weight:800;cursor:pointer}.tabs button.on{border-color:var(--aqua);background:#173540}
+.cnt{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.cnt>div{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:12px;border:1px solid var(--line);background:#0f1724}
+.cnt .e{font-size:20px}.cnt .n{font-weight:900;font-size:16px}.cnt small{font-size:10px;color:var(--dim)}
+.cnt .pm{display:flex;gap:4px}.cnt .pm button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:#1a2638;font-weight:900;cursor:pointer}
+.cnt .pm button:disabled{opacity:.3}
+.devlist{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.dev{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:#0f1724}
+.dev .e{font-size:26px}.dev div{flex:1}.dev b{display:block}.dev small{color:var(--dim);font-size:12px}
+.dev button{min-height:38px;padding:0 14px;border-radius:10px;border:0;background:var(--aqua);color:#08262a;font-weight:900;cursor:pointer}.dev button:disabled{opacity:.35}
+.diff{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.diff button{min-height:44px;border-radius:12px;border:1px solid var(--line);background:#0f1724;font-weight:800;cursor:pointer}.diff button.on{border-color:var(--aqua);background:#173540}
+.note{font-size:12px;color:var(--dim)}
+.menu-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}.menu-list button,.menu-list a{display:flex;align-items:center;gap:10px;min-height:50px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:#0f1724;font-weight:800;text-decoration:none;color:var(--ink);cursor:pointer;font-size:15px}
+.menu-list small{margin-left:auto;color:var(--dim);font-weight:600;font-size:12px}
+.ulist{list-style:none;margin:8px 0;padding:0;max-height:300px;overflow:auto}.ulist li{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid #1d2838}.ulist li:first-child{border-top:0}
+.av{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;border:2px solid var(--avc,#7ce9e5);background:color-mix(in srgb,var(--avc,#7ce9e5) 25%,#0c131e);font-size:17px;flex:none}
+.ulist .nm{flex:1;font-weight:800}.ulist .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#57d49b;box-shadow:0 0 6px #57d49b;margin-left:6px}
+.ulist button{min-height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#1a2638;font-weight:800;cursor:pointer}
+.busy{display:inline-block;width:14px;height:14px;border:2px solid #7ce9e555;border-top-color:#7ce9e5;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes spin{to{transform:rotate(360deg)}}
+.onl{display:none;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#57d49b}.onl.on{display:flex}.onl.off{display:flex;color:#ff8a6b}
+.primary{min-height:54px;border-radius:14px;border:0;background:var(--aqua);color:#08262a;font-weight:900;font-size:15px;letter-spacing:.03em;line-height:1.1;cursor:pointer}
+.primary:disabled{opacity:.35}
+.pill{min-height:54px;border-radius:14px;border:1px solid var(--line);background:#121b29;font-weight:800;cursor:pointer}
+.pill:disabled{opacity:.38}
+.dice{display:inline-flex;gap:6px;vertical-align:middle;margin-right:6px}
+.die{width:30px;height:30px;border-radius:8px;background:#f4f7fe;color:#0b1019;display:inline-grid;place-items:center;font-weight:900;font-size:17px}
+.die.roll{animation:roll .45s ease-out}
+@keyframes roll{0%{transform:rotate(-200deg) scale(.6)}100%{transform:none}}
+.log{font-size:12px;color:var(--dim);max-height:0;overflow:hidden;transition:max-height .25s}
+.log.open{max-height:180px;overflow:auto}
+.log p{margin:2px 0}
+.modal[hidden]{display:none}
+.modal{position:fixed;inset:0;z-index:20;background:#05080ecc;display:grid;place-items:center;padding:16px}
+.sheet{width:min(440px,100%);max-height:90vh;overflow:auto;background:#121b29;border:1px solid #3a4a60;border-radius:18px;padding:16px;box-shadow:0 18px 60px #000c}
+.sheet h2{margin:0 0 6px;font-size:22px;letter-spacing:.02em}
+.sheet p{color:#cbd6e3;margin:6px 0}
+.sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.sheet .row>*{flex:1}
+.pick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.pick button{padding:8px 0;border-radius:12px;border:1px solid var(--line);background:#0f1724;display:flex;flex-direction:column;align-items:center;font-size:20px;cursor:pointer}
+.pick button small{font-size:10px;color:var(--dim);font-weight:700}
+.pick button.on{border-color:var(--aqua);background:#173540}
+.pick button:disabled{opacity:.3}
+.cost{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:#cbd6e3}
+.cost b{color:#fff}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px;margin-top:8px;color:#cbd6e3}
+.float{position:absolute;pointer-events:none;font-weight:900;font-size:16px;animation:floatup 1.2s ease-out forwards;text-shadow:0 2px 6px #000}
+@keyframes floatup{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-40px)}}
+.banner{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0b1019e6;border:1px solid #3a4a60;border-radius:999px;padding:6px 14px;font-weight:800;font-size:13px;white-space:nowrap;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="top">
+    <div class="brand">POBL<span>AR</span></div><span class="tag">BETA</span>
+    <button class="icon-btn" id="btn-log" aria-label="Historial">📜</button>
+    <button class="icon-btn" id="btn-help" aria-label="Cómo se juega">?</button>
+    <button class="icon-btn" id="btn-friend" aria-label="Jugar con un amigo">👥</button>
+    <button class="icon-btn" id="btn-menu" aria-label="Menú">☰</button>
+  </div>
+  <div class="onl" id="onl"></div>
+  <div class="score">
+    <div class="pl" id="pl0" style="--pc:var(--me)"><i></i><div><b id="pn0">Vos</b><small id="ps0"></small></div><div class="vp"><span id="vp0">0</span><small>/8</small></div></div>
+    <div class="pl" id="pl1" style="--pc:var(--cpu)"><i></i><div><b id="pn1">La compu</b><small id="ps1"></small></div><div class="vp"><span id="vp1">0</span><small>/8</small></div></div>
+  </div>
+  <div class="boardwrap" id="boardwrap"><svg id="board" role="img" aria-label="Tablero"></svg></div>
+  <div class="status" id="status"></div>
+  <div class="log" id="log"></div>
+  <div class="hand" id="hand"></div>
+  <div class="actions">
+    <button class="act" id="b-road" data-build="road"><b>Camino</b><small>🌳🧱</small></button>
+    <button class="act" id="b-ranch" data-build="ranch"><b>Rancho</b><small>🌳🧱🐑🌾</small></button>
+    <button class="act" id="b-town" data-build="town"><b>Pueblo</b><small>🌾🌾⛰️⛰️⛰️</small></button>
+  </div>
+  <div class="wide">
+    <button class="pill" id="b-trade">🔁 Cambiar</button>
+    <button class="pill" id="b-dev">🃏 Cartas</button>
+    <button class="primary" id="b-main">TIRAR DADOS</button>
+  </div>
+</div>
+<div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
+<script>
+'use strict';
+/* ───────── PoblAR · prueba ─────────
+   Juego de colonizar para 2 (vos contra la compu), con onda argentina:
+   monte (madera), horno (ladrillo), estancia (lana), pampa (trigo), cerro (mineral) y el salitral.
+   Ganás con 8 puntos: rancho 1, pueblo 2 y el camino más largo (5 o más) 2. Con un 7 aparece el cuatrero. */
+const RES=['madera','ladrillo','lana','trigo','mineral'];
+const RI={madera:{e:'🌳',n:'Madera',hex:'Monte',c:'#2f7a46'},ladrillo:{e:'🧱',n:'Ladrillo',hex:'Horno',c:'#b8613f'},lana:{e:'🐑',n:'Lana',hex:'Estancia',c:'#8fc96b'},trigo:{e:'🌾',n:'Trigo',hex:'Pampa',c:'#e0b54a'},mineral:{e:'⛰️',n:'Mineral',hex:'Cerro',c:'#8b92a3'},salitral:{e:'🧂',n:'',hex:'Salitral',c:'#e8e3d3'}};
+const COST={road:{madera:1,ladrillo:1},ranch:{madera:1,ladrillo:1,lana:1,trigo:1},town:{trigo:2,mineral:3},dev:{lana:1,trigo:1,mineral:1}};
+const DEV={gaucho:{e:'🐎',n:'Gaucho',d:'Mové al cuatrero y robale una carta al rival. Con 3 gauchos o más tenés la tropilla más grande (+2 puntos).'},
+  obra:{e:'🛤️',n:'Obra pública',d:'Construí 2 caminos gratis.'},
+  cosecha:{e:'🧺',n:'Buena cosecha',d:'Tomá 2 recursos a elección.'},
+  acopio:{e:'🏚️',n:'Acopio',d:'Elegí un recurso: el rival te da todos los que tenga.'},
+  procer:{e:'🏛️',n:'Prócer',d:'1 punto escondido. Se suma solo.'}};
+const DIFF={facil:'Fácil',normal:'Normal',dificil:'Difícil'};
+const LIMIT={road:15,ranch:5,town:4};
+const GOAL=8;
+const SAVE='poblar-partida-v2';
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const pips=n=>n?6-Math.abs(7-n):0;
+function rng(seed){let a=seed>>>0||1;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+function shuffle(a,R){for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ── Tablero: 19 hexágonos, vértices (donde van ranchos) y lados (donde van caminos) ── */
+const S=60,SQ=Math.sqrt(3);
+function buildBoard(seed){
+  const R=rng(seed),hexes=[];
+  for(let q=-2;q<=2;q++)for(let r=Math.max(-2,-q-2);r<=Math.min(2,-q+2);r++)hexes.push({q,r,x:S*SQ*(q+r/2),y:S*1.5*r});
+  const kinds=shuffle([...Array(4).fill('madera'),...Array(3).fill('ladrillo'),...Array(4).fill('lana'),...Array(4).fill('trigo'),...Array(3).fill('mineral'),'salitral'],R);
+  hexes.forEach((h,i)=>h.res=kinds[i]);
+  const near=(a,b)=>{const dq=a.q-b.q,dr=a.r-b.r;return Math.abs(dq)+Math.abs(dr)+Math.abs(dq+dr)===2;};
+  // Números: el 6 y el 8 (los que más salen) nunca juntos.
+  for(let tries=0;tries<500;tries++){
+    const nums=shuffle([2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12],R);let k=0;
+    for(const h of hexes)h.num=h.res==='salitral'?0:nums[k++];
+    const hot=hexes.filter(h=>h.num===6||h.num===8);
+    if(!hot.some(a=>hot.some(b=>a!==b&&near(a,b))))break;
+  }
+  const verts=[],vkey=new Map(),edges=[],ekey=new Map();
+  const vid=(x,y)=>{const k=Math.round(x)+','+Math.round(y);if(!vkey.has(k)){vkey.set(k,verts.length);verts.push({x,y,hexes:[],adj:[],edges:[],port:null});}return vkey.get(k);};
+  hexes.forEach((h,hi)=>{
+    h.v=[];for(let i=0;i<6;i++){const a=Math.PI/180*(60*i-30);h.v.push(vid(h.x+S*Math.cos(a),h.y+S*Math.sin(a)));}
+    for(const v of h.v)verts[v].hexes.push(hi);
+    for(let i=0;i<6;i++){const a=h.v[i],b=h.v[(i+1)%6],k=Math.min(a,b)+'-'+Math.max(a,b);
+      if(!ekey.has(k)){ekey.set(k,edges.length);edges.push({a,b,hexes:[]});verts[a].adj.push(b);verts[b].adj.push(a);verts[a].edges.push(edges.length-1);verts[b].edges.push(edges.length-1);}
+      edges[ekey.get(k)].hexes.push(hi);}
+  });
+  // Puertos: 9 sobre la costa (4 de 3:1 y uno 2:1 de cada recurso).
+  const coast=edges.map((e,i)=>({i,e,ang:Math.atan2((verts[e.a].y+verts[e.b].y)/2,(verts[e.a].x+verts[e.b].x)/2)})).filter(o=>o.e.hexes.length===1).sort((a,b)=>a.ang-b.ang);
+  const ptypes=shuffle(['3:1','3:1','3:1','3:1',...RES],R),ports=[];
+  for(let k=0;k<9;k++){const o=coast[Math.floor(k*coast.length/9)];ports.push({edge:o.i,type:ptypes[k]});verts[o.e.a].port=ptypes[k];verts[o.e.b].port=ptypes[k];}
+  return {hexes,verts,edges,ports};
+}
+
+/* ── Estado de la partida ── */
+let B=null,G=null;
+function newGame(seed=(Math.random()*2**32)>>>0){
+  B=buildBoard(seed);
+  const first=Math.random()<.5?0:1;
+  const deck=shuffle([...Array(14).fill('gaucho'),...Array(5).fill('procer'),'obra','obra','cosecha','cosecha','acopio','acopio'],Math.random);
+  G={seed,v:2,deck,turnNo:0,devUsed:false,free:0,after:null,army:null,offers:0,diff:(()=>{try{return localStorage.getItem('poblar-dificultad')||'normal';}catch(_){return 'normal';}})(),owner:B.verts.map(()=>null),town:B.verts.map(()=>false),road:B.edges.map(()=>null),
+    robber:B.hexes.findIndex(h=>h.res==='salitral'),
+    p:[{name:'Vos',bot:AUTO,hand:hand0(),ranch:0,town:0,road:0,dev:[],gauchos:0},{name:'La compu',bot:true,hand:hand0(),ranch:0,town:0,road:0,dev:[],gauchos:0}],
+    longest:null,longLen:[0,0],turn:first,first,setup:[first,1-first,1-first,first],setupStep:0,setupPhase:'ranch',lastRanch:null,
+    phase:'setup',dice:null,winner:null,log:[],rolls:0};
+  addLog(`Empieza ${first===0?'vos':G.p[1].name}.`);
+  save();render();next();
+}
+function hand0(){return {madera:0,ladrillo:0,lana:0,trigo:0,mineral:0};}
+const cards=p=>RES.reduce((s,r)=>s+G.p[p].hand[r],0);
+const hidden=p=>G.p[p].dev.filter(c=>c.k==='procer').length;
+const shown=p=>G.p[p].ranch+2*G.p[p].town+(G.longest===p?2:0)+(G.army===p?2:0);
+const vp=p=>shown(p)+hidden(p);
+const can=(p,what)=>Object.entries(COST[what]).every(([r,n])=>G.p[p].hand[r]>=n);
+function pay(p,what){for(const [r,n] of Object.entries(COST[what]))G.p[p].hand[r]-=n;}
+function addLog(t){G.log.push(t);if(G.log.length>60)G.log.shift();renderLog();}
+function save(){if(ON&&ON.state==='on'){netSend({t:'state',G:flip(G)});return;}if(ON)return;try{localStorage.setItem(SAVE,JSON.stringify(G));}catch(_){}}
+
+/* ── Reglas de dónde se puede construir ── */
+function freeSpot(v){return G.owner[v]===null&&B.verts[v].adj.every(a=>G.owner[a]===null);}
+function touchesOwnRoad(p,v){return B.verts[v].edges.some(e=>G.road[e]===p);}
+function ranchSpots(p,setup=false){
+  const out=[];for(let v=0;v<B.verts.length;v++)if(freeSpot(v)&&(setup||touchesOwnRoad(p,v)))out.push(v);return out;
+}
+function roadSpots(p,fromVert=null){
+  const out=[];
+  for(let e=0;e<B.edges.length;e++){
+    if(G.road[e]!==null)continue;const {a,b}=B.edges[e];
+    if(fromVert!==null){if(a===fromVert||b===fromVert)out.push(e);continue;}
+    const ok=v=>G.owner[v]===p||(G.owner[v]===null&&B.verts[v].edges.some(x=>x!==e&&G.road[x]===p));
+    if(ok(a)||ok(b))out.push(e);
+  }
+  return out;
+}
+function townSpots(p){const out=[];for(let v=0;v<B.verts.length;v++)if(G.owner[v]===p&&!G.town[v])out.push(v);return out;}
+function rate(p,r){let best=4;for(let v=0;v<B.verts.length;v++)if(G.owner[v]===p&&B.verts[v].port){const t=B.verts[v].port;if(t==='3:1')best=Math.min(best,3);else if(t===r)best=2;}return best;}
+// Camino más largo: recorrido sin repetir caminos; un rancho del rival corta el camino.
+function longestRoad(p){
+  let best=0;const mine=B.edges.map((_,i)=>G.road[i]===p);
+  const dfs=(v,used,len)=>{best=Math.max(best,len);if(len>0&&G.owner[v]!==null&&G.owner[v]!==p)return;
+    for(const e of B.verts[v].edges)if(mine[e]&&!used.has(e)){used.add(e);const {a,b}=B.edges[e];dfs(a===v?b:a,used,len+1);used.delete(e);}};
+  for(let v=0;v<B.verts.length;v++)if(B.verts[v].edges.some(e=>mine[e]))dfs(v,new Set(),0);
+  return best;
+}
+function updateLongest(){
+  const L=[longestRoad(0),longestRoad(1)];G.longLen=L;const prev=G.longest;
+  if(G.longest===null){const c=[0,1].filter(p=>L[p]>=5);if(c.length===1||(c.length===2&&L[0]!==L[1]))G.longest=L[0]>L[1]?0:1;}
+  else{const o=1-G.longest;if(L[o]>L[G.longest]&&L[o]>=5)G.longest=o;else if(L[G.longest]<5)G.longest=L[o]>=5?o:null;}
+  if(G.longest!==prev&&G.longest!==null){addLog(`🛣️ ${who(G.longest)} ${G.longest===0?'tenés':'tiene'} el camino más largo (+2).`);banner(`🛣️ CAMINO MÁS LARGO · ${G.p[G.longest].name.toUpperCase()}`);}
+}
+const who=p=>p===0?'Vos':G.p[1].name;
+const rivalName=()=>G?G.p[1].name:'La compu';
+
+/* ── Acciones ── */
+function place(p,kind,at){
+  if(kind==='ranch'){G.owner[at]=p;G.p[p].ranch++;}
+  else if(kind==='town'){G.town[at]=true;G.p[p].ranch--;G.p[p].town++;}
+  else{G.road[at]=p;G.p[p].road++;}
+  if(kind!=='town')updateLongest();
+  sound('build');
+}
+function build(p,kind,at){
+  if(G.phase==='setup'){
+    if(G.setupPhase==='ranch'){place(p,'ranch',at);G.lastRanch=at;G.setupPhase='road';
+      // Con el segundo rancho se cobran los recursos de alrededor.
+      if(G.setupStep>=2)for(const h of B.verts[at].hexes){const r=B.hexes[h].res;if(r!=='salitral'){G.p[p].hand[r]++;}}
+    }else{place(p,'road',at);G.setupStep++;G.setupPhase='ranch';G.lastRanch=null;
+      if(G.setupStep>=4){G.phase='roll';G.turn=G.first;addLog('¡Arranca la partida!');}else G.turn=G.setup[G.setupStep];}
+    save();render();next();return;
+  }
+  const free=kind==='road'&&G.free>0;
+  if(free)G.free--;else pay(p,kind);place(p,kind,at);
+  addLog(`${who(p)} ${p===0?'construiste':'construyó'} ${kind==='road'?'un camino':kind==='ranch'?'un rancho':'un pueblo'}${free?' (gratis)':''}.`);
+  if(G.free>0&&(!roadSpots(p).length||G.p[p].road>=LIMIT.road))G.free=0;
+  if(p===0&&G.free>0)mode='road';
+  checkWin();save();render();
+}
+function checkWin(){for(const p of [0,1])if(vp(p)>=GOAL&&G.phase!=='over'){G.phase='over';G.winner=p;addLog(p===0?'🏆 ¡Ganaste!':`${G.p[1].name} ganó.`);save();render();setTimeout(showEnd,500);}}
+async function roll(){
+  const d=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],n=d[0]+d[1];G.dice=d;G.rolls++;sound('dice');
+  addLog(`${who(G.turn)} ${G.turn===0?'sacaste':'sacó'} ${n}.`);
+  if(n===7){
+    G.phase='robber';G.after='main';
+    for(const p of [0,1]){const c=cards(p);if(c<=7)continue;const lose=Math.floor(c/2);
+      if(G.p[p].bot||p!==0){discard(p,lose);addLog(`${who(p)} perdió ${lose} cartas por tener más de 7.`);}
+      else{G.phase='discard';G.discardN=lose;}}
+    if(G.phase==='discard'){save();render(true);openDiscard();return;}
+  }else{
+    const got=[hand0(),hand0()];
+    B.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;for(const v of h.v)if(G.owner[v]!==null){const k=G.town[v]?2:1;G.p[G.owner[v]].hand[h.res]+=k;got[G.owner[v]][h.res]+=k;}});
+    for(const p of [0,1]){const t=RES.filter(r=>got[p][r]).map(r=>`${got[p][r]}${RI[r].e}`).join(' ');if(t)addLog(`${who(p)} ${p===0?'recibís':'recibe'} ${t}`);}
+    floatGains(n,got);
+    G.phase='main';
+  }
+  save();render(true);
+}
+// Descartar la mitad: se van las cartas de lo que más tenés.
+function discard(p,n){const h=G.p[p].hand;for(let i=0;i<n;i++){const r=RES.reduce((a,b)=>h[b]>h[a]?b:a);h[r]--;}}
+function moveRobber(p,hex){
+  G.robber=hex;const victims=new Set(B.hexes[hex].v.map(v=>G.owner[v]).filter(o=>o!==null&&o!==p));
+  let txt=`${who(p)} ${p===0?'mandaste':'mandó'} al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()}`;
+  for(const o of victims){const pool=RES.flatMap(r=>Array(G.p[o].hand[r]).fill(r));if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;txt+=p===0?` y le robaste ${RI[r].e}`:` y te robó ${RI[r].e}`;}}
+  addLog(txt+'.');sound('robber');G.byGaucho=false;G.phase=G.after||'main';G.after=null;checkWin();save();render();
+}
+function trade(p,give,get){const n=rate(p,give);if(G.p[p].hand[give]<n)return false;G.p[p].hand[give]-=n;G.p[p].hand[get]++;addLog(`${who(p)} ${p===0?'cambiaste':'cambió'} ${n}${RI[give].e} por 1${RI[get].e}.`);save();render();return true;}
+function endTurn(){if(G.phase!=='main')return;G.free=0;G.turn=1-G.turn;G.turnNo++;G.devUsed=false;G.offers=0;G.phase='roll';G.dice=null;mode=null;save();render();next();}
+/* ── Cartas de desarrollo ── */
+function buyDev(p){
+  if(!can(p,'dev')||!G.deck.length)return false;pay(p,'dev');const k=G.deck.pop();G.p[p].dev.push({k,t:G.turnNo});
+  addLog(`${who(p)} ${p===0?`compraste una carta: ${DEV[k].e} ${DEV[k].n}`:'compró una carta'}.`);sound('build');checkWin();save();render();return true;
+}
+const playable=(p,c)=>c.k!=='procer'&&c.t<G.turnNo&&!G.devUsed&&G.turn===p&&(c.k==='gaucho'?['roll','main'].includes(G.phase):G.phase==='main');
+function playDev(p,i,arg){
+  const c=G.p[p].dev[i];if(!c||!playable(p,c))return false;
+  G.p[p].dev.splice(i,1);G.devUsed=true;const o=1-p;
+  addLog(`${who(p)} ${p===0?'jugaste':'jugó'} ${DEV[c.k].e} ${DEV[c.k].n}.`);banner(`${DEV[c.k].e} ${DEV[c.k].n.toUpperCase()}`);
+  if(c.k==='gaucho'){G.p[p].gauchos++;updateArmy();G.after=G.phase;G.phase='robber';G.byGaucho=true;}
+  else if(c.k==='obra'){G.free=Math.min(2,LIMIT.road-G.p[p].road);if(!roadSpots(p).length)G.free=0;if(p===0&&G.free)mode='road';}
+  else if(c.k==='cosecha'){for(const r of arg)G.p[p].hand[r]++;addLog(`${who(p)} ${p===0?'tomaste':'tomó'} ${arg.map(r=>RI[r].e).join('')}.`);}
+  else if(c.k==='acopio'){const n=G.p[o].hand[arg];G.p[o].hand[arg]=0;G.p[p].hand[arg]+=n;addLog(`${who(p)} se ${p===0?'llevaste':'llevó'} ${n}${RI[arg].e} del rival.`);}
+  checkWin();save();render();return true;
+}
+function updateArmy(){
+  const g=[G.p[0].gauchos,G.p[1].gauchos],prev=G.army;
+  for(const p of [0,1])if(g[p]>=3&&g[p]>g[1-p]&&G.army!==p&&(G.army===null||g[p]>g[G.army]))G.army=p;
+  if(G.army!==prev){addLog(`🐎 ${who(G.army)} ${G.army===0?'tenés':'tiene'} la tropilla más grande (+2).`);banner(`🐎 TROPILLA MÁS GRANDE · ${G.p[G.army].name.toUpperCase()}`);}
+}
+/* ── Cambios con el rival ── */
+// Cuánto le sirve a la compu cada recurso según lo que le falta para construir.
+function needValue(p){
+  const h=G.p[p].hand,val={madera:1,ladrillo:1,lana:1,trigo:1,mineral:1};
+  const goals=[];if(townSpots(p).length&&G.p[p].town<LIMIT.town)goals.push('town');if(ranchSpots(p).length&&G.p[p].ranch<LIMIT.ranch)goals.push('ranch');goals.push('road');if(G.deck.length)goals.push('dev');
+  goals.forEach((g,gi)=>{for(const r of RES){const need=(COST[g][r]||0)-h[r];if(need>0)val[r]+=(gi===0?1.4:.6)*Math.min(2,need);}});
+  for(const r of RES)if(h[r]>=4)val[r]*=.6;
+  return val;
+}
+function botAcceptsOffer(give,want){// give: lo que le das a la compu; want: lo que pedís
+  const b=1;for(const r of RES)if(G.p[b].hand[r]<want[r])return {ok:false,why:'No tengo esas cartas.'};
+  if(vp(0)>=GOAL-2)return {ok:false,why:'Estás muy cerca de ganar, no te ayudo 😏'};
+  const nIn=RES.reduce((s,r)=>s+give[r],0),nOut=RES.reduce((s,r)=>s+want[r],0);
+  if(nOut>nIn+(G.diff==='facil'?1:0))return {ok:false,why:`¿${nOut} por ${nIn}? ¡Ni loco! 😂`};
+  const v=needValue(b),inV=RES.reduce((s,r)=>s+v[r]*give[r],0),outV=RES.reduce((s,r)=>s+v[r]*want[r],0);
+  const k={facil:.85,normal:1.1,dificil:1.35}[G.diff]||1.1;
+  return inV>=outV*k?{ok:true}:{ok:false,why:'Mmm, no me conviene.'};
+}
+function swapCards(give,want){for(const r of RES){G.p[0].hand[r]-=give[r];G.p[1].hand[r]+=give[r];G.p[1].hand[r]-=want[r];G.p[0].hand[r]+=want[r];}
+  const t=o=>RES.filter(r=>o[r]).map(r=>`${o[r]}${RI[r].e}`).join(' ');addLog(`🤝 Cambio con ${G.p[1].bot?'la compu':G.p[1].name}: das ${t(give)} y recibís ${t(want)}.`);save();render();}
+
+/* ── Turno de la compu ── */
+function vertValue(p,v,setup=false){
+  if(!freeSpot(v))return -1;let s=0;const have=new Set();
+  for(let x=0;x<B.verts.length;x++)if(G.owner[x]===p)for(const h of B.verts[x].hexes)have.add(B.hexes[h].res);
+  const kinds=new Set();
+  for(const h of B.verts[v].hexes){const H=B.hexes[h];if(H.res==='salitral')continue;s+=pips(H.num)*(h===G.robber?.4:1);kinds.add(H.res);}
+  for(const k of kinds)if(!have.has(k))s+=setup?2.2:1.2;
+  if(kinds.has('trigo')||kinds.has('mineral'))s+=.6;
+  if(B.verts[v].port)s+=B.verts[v].port==='3:1'?1:(kinds.has(B.verts[v].port)?2:.5);
+  return s;
+}
+// Camino que acerca a la mejor esquina libre (búsqueda en anchura desde la red propia).
+function bestRoadToward(p){
+  const start=[];for(let v=0;v<B.verts.length;v++)if(G.owner[v]===p||(G.owner[v]===null&&B.verts[v].edges.some(e=>G.road[e]===p)))start.push(v);
+  const prev=new Map(),dist=new Map(),q=[];for(const v of start){dist.set(v,0);q.push(v);}
+  let best=null,bestScore=-1;
+  while(q.length){const v=q.shift(),d=dist.get(v);if(d>=4)continue;
+    for(const e of B.verts[v].edges){if(G.road[e]!==null)continue;const {a,b}=B.edges[e],w=a===v?b:a;if(dist.has(w)||(G.owner[w]!==null&&G.owner[w]!==p))continue;
+      dist.set(w,d+1);prev.set(w,[v,e]);q.push(w);
+      const val=vertValue(p,w);if(val>0){const sc=val-d*1.6;if(sc>bestScore){bestScore=sc;best=w;}}}}
+  if(best===null)return null;let w=best,e=null;while(prev.has(w)){const [v,ee]=prev.get(w);e=ee;if(dist.get(v)===0)break;w=v;}
+  return e;
+}
+async function botTurn(){
+  const p=G.turn,o=1-p,wait=ms=>sleep(FAST?0:ms);
+  if(G.phase==='setup'){
+    await wait(500);
+    if(G.setupPhase==='ranch'){const spots=ranchSpots(p,true);spots.sort((a,b)=>vertValue(p,b,true)-vertValue(p,a,true));build(p,'ranch',spots[G.diff==='facil'?Math.floor(Math.random()*Math.min(6,spots.length)):0]);}
+    else{const opts=roadSpots(p,G.lastRanch);let best=opts[0],bs=-1;for(const e of opts){const {a,b}=B.edges[e],w=a===G.lastRanch?b:a;let sc=0;for(const x of B.verts[w].adj)sc=Math.max(sc,vertValue(p,x,true));if(sc>bs){bs=sc;best=e;}}build(p,'road',best);}
+    return;
+  }
+  // Antes de tirar: un gaucho si el cuatrero le bloquea algo o si vas ganando.
+  if(G.phase==='roll'&&G.diff!=='facil'){const i=G.p[p].dev.findIndex(c=>c.k==='gaucho'&&playable(p,c));
+    if(i>=0&&(B.hexes[G.robber].v.some(v=>G.owner[v]===p)||vp(o)>=shown(p))){await wait(500);playDev(p,i);await wait(500);}}
+  if(G.phase==='robber'&&G.after==='roll'){await botRobber(p,o);await wait(500);}
+  if(G.phase==='roll'){await wait(600);await roll();await wait(700);}
+  if(G.phase==='discard')return;// espera que descartes; después sigue sola
+  if(G.phase==='robber'){await botRobber(p,o);await wait(700);}
+  if(G.phase==='over')return;
+  for(let guard=0;guard<12&&G.phase==='main';guard++){
+    let did=false;
+    if(can(p,'town')&&G.p[p].town<LIMIT.town){const val=v=>B.verts[v].hexes.reduce((s,h)=>s+(B.hexes[h].res==='salitral'?0:pips(B.hexes[h].num)),0);const t=townSpots(p).sort((a,b)=>val(b)-val(a));if(t.length){build(p,'town',t[0]);did=true;}}
+    if(!did&&can(p,'ranch')&&G.p[p].ranch<LIMIT.ranch){const s=ranchSpots(p).sort((a,b)=>vertValue(p,b)-vertValue(p,a));if(s.length){build(p,'ranch',s[0]);did=true;}}
+    if(!did&&can(p,'road')&&G.p[p].road<LIMIT.road&&!(ranchSpots(p).length&&!can(p,'ranch')&&cards(p)>=3)){const e=bestRoadToward(p);const wantLong=G.longest!==p&&G.longLen[p]>=G.longLen[o]-1&&G.longLen[p]>=3;
+      if(e!==null||wantLong){const e2=e!==null?e:roadSpots(p)[0];if(e2!==undefined){build(p,'road',e2);did=true;}}}
+    if(!did)did=botDev(p);
+    if(G.phase==='robber'){await wait(500);await botRobber(p,o);did=true;}
+    if(!did&&G.offers<1&&G.p[o].bot===false&&G.diff!=='facil')did=await botOffer(p);
+    if(!did)did=botTrade(p);
+    if(G.phase==='over')return;
+    if(!did)break;await wait(650);
+  }
+  await wait(500);if(G.phase==='main')endTurn();
+}
+async function botRobber(p,o){
+  const opts=[];B.hexes.forEach((h,hi)=>{if(hi===G.robber)return;let s=0;for(const v of h.v){if(G.owner[v]===o)s+=pips(h.num)*(G.town[v]?2:1)+(cards(o)?.5:0);if(G.owner[v]===p)s-=pips(h.num)*2;}opts.push([s,hi]);});
+  opts.sort((a,b)=>b[0]-a[0]);const pick=G.diff==='facil'?opts[Math.floor(Math.random()*Math.min(4,opts.length))]:opts[0];
+  moveRobber(p,pick[1]);
+}
+// Cartas: compra si le sobra para eso y juega las que le sirven.
+function botDev(p){
+  const D=G.p[p].dev,o=1-p;if(G.diff==='facil')return false;
+  if(!G.devUsed){
+    let i=D.findIndex(c=>c.k==='obra'&&playable(p,c));if(i>=0&&roadSpots(p).length&&G.p[p].road<LIMIT.road-1){playDev(p,i);let n=0;while(G.free>0&&n++<2){const e=bestRoadToward(p)??roadSpots(p)[0];if(e===undefined||e===null)break;build(p,'road',e);}G.free=0;return true;}
+    i=D.findIndex(c=>c.k==='cosecha'&&playable(p,c));if(i>=0){const v=needValue(p),pick=RES.slice().sort((a,b)=>v[b]-v[a]);if(v[pick[0]]>1.5){playDev(p,i,[pick[0],v[pick[1]]>1.5?pick[1]:pick[0]]);return true;}}
+    i=D.findIndex(c=>c.k==='acopio'&&playable(p,c));if(i>=0){const r=RES.slice().sort((a,b)=>G.p[o].hand[b]-G.p[o].hand[a])[0];if(G.p[o].hand[r]>=2){playDev(p,i,r);return true;}}
+    i=D.findIndex(c=>c.k==='gaucho'&&playable(p,c));if(i>=0&&(B.hexes[G.robber].v.some(v=>G.owner[v]===p)||(G.p[p].gauchos>=2&&G.army!==p))){playDev(p,i);return true;}
+  }
+  const nothingElse=!(can(p,'ranch')&&ranchSpots(p).length)&&!(can(p,'town')&&townSpots(p).length);
+  if(can(p,'dev')&&G.deck.length&&nothingElse&&(G.diff==='dificil'||Math.random()<.6))return buyDev(p);
+  return false;
+}
+// Te ofrece un cambio 1 por 1 si le falta una sola carta para algo.
+async function botOffer(p){
+  const h=G.p[p].hand,o=1-p,goals=[];if(townSpots(p).length&&G.p[p].town<LIMIT.town)goals.push('town');if(ranchSpots(p).length&&G.p[p].ranch<LIMIT.ranch)goals.push('ranch');
+  for(const g of goals){const need=RES.filter(r=>(COST[g][r]||0)>h[r]);const miss=need.reduce((s,r)=>s+(COST[g][r]-h[r]),0);if(miss!==1)continue;
+    const want=need[0];if(!G.p[o].hand[want])continue;
+    const spare=RES.filter(r=>r!==want&&h[r]-(COST[g][r]||0)>=1).sort((a,b)=>h[b]-h[a]);if(!spare.length)continue;
+    G.offers++;const give=spare[0];
+    const yes=await askOffer(give,want);
+    if(yes){const gv=hand0(),wv=hand0();gv[want]=1;wv[give]=1;swapCards(gv,wv);return true;}
+    addLog('No aceptaste el cambio de la compu.');return false;}
+  return false;
+}
+// Cambia con el banco si le falta una sola carta para construir algo.
+function botTrade(p){
+  const h=G.p[p].hand,goals=[];
+  if(G.p[p].town<LIMIT.town&&townSpots(p).length)goals.push('town');
+  if(G.p[p].ranch<LIMIT.ranch&&ranchSpots(p).length)goals.push('ranch');
+  goals.push('road');
+  // Le falta poco (1 o 2 cartas) para algo: cambia lo que le sobra. Con muchas cartas (riesgo del cuatrero) es más decidida.
+  const maxMiss=G.diff==='facil'?1:cards(p)>7||G.diff==='dificil'?3:2;
+  for(const g of goals){const need=RES.filter(r=>(COST[g][r]||0)>h[r]);const miss=need.reduce((s,r)=>s+(COST[g][r]-h[r]),0);if(!miss||miss>maxMiss)continue;
+    const want=need[0];const spare=RES.filter(r=>!need.includes(r)&&h[r]-(COST[g][r]||0)>=rate(p,r)).sort((a,b)=>(h[b]-rate(p,b))-(h[a]-rate(p,a)));
+    if(spare.length){trade(p,spare[0],want);return true;}}
+  return false;
+}
+
+/* ── Turno tuyo: qué se puede tocar ── */
+let mode=null;// 'road' | 'ranch' | 'town' | 'robber' | null
+function next(){
+  if(!G||G.phase==='over')return;
+  if(G.turn===1&&!G.p[1].bot){mode=null;render();return;}// turno de tu amigo: llega por la conexión
+  if(G.p[G.turn].bot){mode=null;render();botTurn();return;}
+  if(G.phase==='setup')mode=G.setupPhase==='ranch'?'ranch':'road';
+  else if(G.phase==='robber')mode='robber';else mode=null;
+  render();
+}
+function targets(){
+  const p=0;if(G.turn!==0||G.phase==='over')return {v:[],e:[],h:[]};
+  if(G.phase==='setup')return G.setupPhase==='ranch'?{v:ranchSpots(p,true),e:[],h:[]}:{v:[],e:roadSpots(p,G.lastRanch),h:[]};
+  if(G.phase==='robber')return {v:[],e:[],h:B.hexes.map((_,i)=>i).filter(i=>i!==G.robber)};
+  if(mode==='road')return {v:[],e:roadSpots(p),h:[]};
+  if(mode==='ranch')return {v:ranchSpots(p),e:[],h:[]};
+  if(mode==='town')return {v:townSpots(p),e:[],h:[]};
+  return {v:[],e:[],h:[]};
+}
+function onBoardTap(kind,i){
+  if(G.turn!==0)return;
+  if(G.phase==='robber'&&kind==='h'){moveRobber(0,i);mode=G.free>0?'road':null;render();return;}
+  if(G.phase==='setup'){build(0,G.setupPhase,i);return;}
+  if(mode&&(kind==='v'||kind==='e')){const m=mode;mode=null;build(0,m,i);}
+}
+
+/* ── Dibujo ── */
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+const PC=['#7ce9e5','#ff8a6b'];
+function drawBoard(){
+  const svg=$('board');svg.innerHTML='';const pad=S*1.05,W=S*SQ*5+pad*2,H=S*8+pad*2;
+  svg.setAttribute('viewBox',`${-W/2} ${-H/2} ${W} ${H}`);
+  const T=targets();
+  // Puertos (en la costa)
+  for(const pt of B.ports){const e=B.edges[pt.edge],A=B.verts[e.a],C=B.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),ox=mx/len*S*.62,oy=my/len*S*.62;
+    const g=el('g',{class:'port'},svg);
+    el('line',{x1:A.x,y1:A.y,x2:mx+ox,y2:my+oy,stroke:'#d9c9a3','stroke-width':4,'stroke-linecap':'round'},g);el('line',{x1:C.x,y1:C.y,x2:mx+ox,y2:my+oy,stroke:'#d9c9a3','stroke-width':4,'stroke-linecap':'round'},g);
+    el('circle',{cx:mx+ox,cy:my+oy,r:17,fill:'#0e2a38',stroke:'#d9c9a3','stroke-width':2},g);
+    const t=el('text',{x:mx+ox,y:my+oy},g);t.textContent=pt.type==='3:1'?'3:1':'2:1'+RI[pt.type].e;if(pt.type!=='3:1')t.setAttribute('style','font-size:10px');}
+  // Hexágonos
+  B.hexes.forEach((h,hi)=>{
+    const pts=h.v.map(v=>`${B.verts[v].x},${B.verts[v].y}`).join(' ');
+    el('polygon',{points:pts,class:'hex',fill:RI[h.res].c},svg);
+    const ic=el('text',{x:h.x,y:h.y-(h.num?19:0),class:'hico'},svg);ic.textContent=RI[h.res].e;
+    if(h.num){el('circle',{cx:h.x,cy:h.y+15,r:19,fill:'#f6efdc',stroke:'#0e2a38','stroke-width':1.5},svg);
+      const t=el('text',{x:h.x,y:h.y+13,class:'num',fill:(h.num===6||h.num===8)?'#c0392b':'#1b2433'},svg);t.textContent=h.num;
+      const k=pips(h.num);for(let i=0;i<k;i++)el('circle',{cx:h.x+(i-(k-1)/2)*4.4,cy:h.y+27,r:1.6,fill:(h.num===6||h.num===8)?'#c0392b':'#1b2433'},svg);}
+    if(hi===G.robber){const g=el('g',{},svg);el('circle',{cx:h.x+(h.num?26:0),cy:h.y+(h.num?-6:18),r:14,fill:'#1b1b1f',stroke:'#f6c453','stroke-width':2},g);const t=el('text',{x:h.x+(h.num?26:0),y:h.y+(h.num?-6:18),class:'hico',style:'font-size:16px'},g);t.textContent='🤠';}
+  });
+  // Caminos
+  B.edges.forEach((e,i)=>{const A=B.verts[e.a],C=B.verts[e.b];
+    if(G.road[i]!==null){el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:'#0b1019','stroke-width':11,'stroke-linecap':'round'},svg);el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:PC[G.road[i]],'stroke-width':7,'stroke-linecap':'round'},svg);}
+  });
+  // Ranchos y pueblos
+  B.verts.forEach((v,i)=>{const o=G.owner[i];if(o===null)return;
+    if(G.town[i])el('path',{d:`M${v.x-13},${v.y+10} v-12 l7,-7 l7,7 v-6 h6 v18 z`,fill:PC[o],stroke:'#0b1019','stroke-width':2.5},svg);
+    else el('path',{d:`M${v.x-9},${v.y+8} v-9 l9,-8 l9,8 v9 z`,fill:PC[o],stroke:'#0b1019','stroke-width':2.5},svg);
+  });
+  // Lugares que se pueden tocar
+  T.h.forEach(hi=>{const h=B.hexes[hi];const p=el('polygon',{points:h.v.map(v=>`${B.verts[v].x},${B.verts[v].y}`).join(' '),class:'hexhit on'},svg);p.addEventListener('click',()=>onBoardTap('h',hi));});
+  T.e.forEach(ei=>{const e=B.edges[ei],A=B.verts[e.a],C=B.verts[e.b];const l=el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,class:'espot on'},svg);l.addEventListener('click',()=>onBoardTap('e',ei));
+    const hit=el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:'transparent','stroke-width':30},svg);hit.addEventListener('click',()=>onBoardTap('e',ei));});
+  T.v.forEach(vi=>{const v=B.verts[vi];el('circle',{cx:v.x,cy:v.y,r:12,class:'spot on'},svg);const hit=el('circle',{cx:v.x,cy:v.y,r:24,fill:'transparent'},svg);hit.addEventListener('click',()=>onBoardTap('v',vi));});
+}
+function render(rolled=false){
+  if(!G)return;drawBoard();
+  $('pn1').textContent=G.p[1].name;$('pn0').textContent=G.p[0].name;
+  for(const p of [0,1]){$('vp'+p).textContent=p===0?vp(0):shown(1);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
+    const bits=[`${cards(p)} cartas`];if(G.p[p].dev.length&&p===1)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(' · ');}
+  const h=G.p[0].hand;$('hand').innerHTML=RES.map(r=>`<div class="card${h[r]?'':' zero'}" id="c-${r}"><span class="e">${RI[r].e}</span><span class="n">${h[r]}</span><span class="l">${RI[r].n}</span></div>`).join('');
+  const mine=G.turn===0&&G.phase==='main';
+  for(const [id,k] of [['b-road','road'],['b-ranch','ranch'],['b-town','town']]){const b=$(id);
+    const spots=k==='road'?roadSpots(0):k==='ranch'?ranchSpots(0):townSpots(0);
+    b.disabled=!(mine&&(can(0,k)||(k==='road'&&G.free>0))&&G.p[0][k]<LIMIT[k]&&spots.length);b.classList.toggle('sel',mode===k);}
+  $('b-trade').disabled=!mine;
+  {const n=G.p[0].dev.length,ok=G.turn===0&&['roll','main'].includes(G.phase);$('b-dev').disabled=!ok;$('b-dev').textContent=n?`🃏 Cartas (${n})`:'🃏 Cartas';}
+  const main=$('b-main');
+  if(G.phase==='over'){main.textContent='JUGAR OTRA';main.disabled=false;}
+  else if(G.turn!==0){main.textContent=`TURNO DE ${rivalName().toUpperCase()}…`;main.disabled=true;}
+  else if(G.phase==='setup'){main.textContent=G.setupPhase==='ranch'?'ELEGÍ DÓNDE VA TU RANCHO':'AHORA TU CAMINO';main.disabled=true;}
+  else if(G.phase==='roll'){main.textContent='🎲 TIRAR DADOS';main.disabled=false;}
+  else if(G.phase==='robber'){main.textContent='MOVÉ AL CUATRERO';main.disabled=true;}
+  else if(G.phase==='discard'){main.textContent='DESCARTÁ CARTAS';main.disabled=false;}
+  else{main.textContent=mode?'CANCELAR':'TERMINAR TURNO';main.disabled=false;}
+  // Línea de estado
+  const st=$('status'),d=G.dice?`<span class="dice"><span class="die${rolled?' roll':''}">${G.dice[0]}</span><span class="die${rolled?' roll':''}">${G.dice[1]}</span></span>`:'';
+  let msg='';
+  if(G.phase==='over')msg=G.winner===0?'🏆 ¡Ganaste!':`${rivalName()} ganó esta vez.`;
+  else if(G.phase==='setup')msg=G.turn===0?(G.setupPhase==='ranch'?`Poné tu ${G.setupStep<2?'primer':'segundo'} rancho en una esquina libre.<small>${G.setupStep>=2?'Con este cobrás lo que lo rodea.':'Buscá números que salgan seguido (6, 8, 5, 9).'}</small>`:'Poné un camino pegado a tu rancho.'):`${G.p[1].bot?'La compu está eligiendo':G.p[1].name+' está eligiendo'}…`;
+  else if(G.turn!==0)msg=`${d}Juega ${G.p[1].bot?'la compu':G.p[1].name}…`;
+  else if(G.phase==='roll')msg='Tu turno: tirá los dados.';
+  else if(G.phase==='robber')msg=`${G.byGaucho?'🐎 Gaucho: ':d+'¡Salió 7! '}Tocá dónde va el cuatrero 🤠<small>Bloquea ese lugar y le robás una carta a quien esté ahí.</small>`;
+  else if(G.phase==='discard')msg=`${d}¡Salió 7! Tenés más de 7 cartas: elegí ${G.discardN} para descartar.`;
+  else if(mode)msg=`Tocá un lugar marcado para tu ${mode==='road'?'camino':mode==='ranch'?'rancho':'pueblo'}${mode==='road'&&G.free?` (gratis: ${G.free})`:''}.`;
+  else msg=`${d}Construí, cambiá o terminá tu turno.`;
+  st.innerHTML=msg;
+}
+function renderLog(){$('log').innerHTML=G?G.log.slice().reverse().map(t=>`<p>${t}</p>`).join(''):'';}
+function floatGains(n,got){
+  const wrap=$('boardwrap'),svg=$('board'),bb=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,sc=bb.width/vb.width;
+  B.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=((h.x-vb.x)*sc)+'px';f.style.top=((h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
+  setTimeout(()=>{for(const r of RES)if(got[0][r])$('c-'+r)?.classList.add('bump');},30);
+}
+function banner(t){const b=document.createElement('div');b.className='banner';b.textContent=t;$('boardwrap').appendChild(b);setTimeout(()=>b.remove(),2200);}
+
+/* ── Ventanas: cambiar, ayuda, final ── */
+function openModal(html){$('sheet').innerHTML=html;$('modal').hidden=false;}
+function closeModal(){$('modal').hidden=true;}
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+function openTrade(tab='banco'){
+  if(tab==='compu'){openOffer();return;}
+  let give=null,get=null;const h=G.p[0].hand;
+  const draw=()=>{
+    openModal(`<h2>🔁 Cambiar</h2>${tabsHtml('banco')}<p>Das varias cartas iguales y recibís una de otra. Normalmente es 4 por 1; con un puerto pegado a tu rancho, 3:1 o 2:1.</p>
+      <b>Das</b><div class="pick" id="pk-give">${RES.map(r=>{const n=rate(0,r);return `<button data-r="${r}" class="${give===r?'on':''}" ${h[r]<n?'disabled':''}>${RI[r].e}<small>${n} de ${h[r]}</small></button>`;}).join('')}</div>
+      <b style="display:block;margin-top:10px">Recibís</b><div class="pick" id="pk-get">${RES.map(r=>`<button data-r="${r}" class="${get===r?'on':''}" ${r===give?'disabled':''}>${RI[r].e}<small>${RI[r].n}</small></button>`).join('')}</div>
+      <div class="row"><button class="pill" id="tr-x">Cancelar</button><button class="primary" id="tr-ok" ${give&&get?'':'disabled'}>CAMBIAR</button></div>`);
+    bindTabs();$('pk-give').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled){give=b.dataset.r;if(get===give)get=null;draw();}};
+    $('pk-get').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled){get=b.dataset.r;draw();}};
+    $('tr-x').onclick=closeModal;$('tr-ok').onclick=()=>{trade(0,give,get);closeModal();};
+  };draw();
+}
+function tabsHtml(on){return `<div class="tabs"><button data-tab="banco" class="${on==='banco'?'on':''}">Con el banco</button><button data-tab="compu" class="${on==='compu'?'on':''}">Con ${G.p[1].bot?'la compu':G.p[1].name} ${G.offers>=3?'(ya no)':''}</button></div>`;}
+function bindTabs(){document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.onclick=()=>openTrade(b.dataset.tab));}
+// Ofrecerle un cambio a la compu: elegís cuánto das y cuánto pedís.
+function openOffer(){
+  const give=hand0(),want=hand0();let msg='';
+  const draw=()=>{
+    const h=G.p[0].hand,rh=G.p[1].hand,tg=RES.reduce((s,r)=>s+give[r],0),tw=RES.reduce((s,r)=>s+want[r],0);
+    const row=(o,lim,id)=>`<div class="cnt" id="${id}">${RES.map(r=>`<div><span class="e">${RI[r].e}</span><span class="n">${o[r]}</span><span class="pm"><button data-r="${r}" data-d="-1" ${o[r]?'':'disabled'}>−</button><button data-r="${r}" data-d="1" ${o[r]<lim(r)?'':'disabled'}>+</button></span></div>`).join('')}</div>`;
+    openModal(`<h2>🔁 Cambiar</h2>${tabsHtml('compu')}<p class="note">Proponele un cambio. ${G.p[1].bot?'La compu':G.p[1].name} tiene ${cards(1)} cartas${G.p[1].bot?'; acepta si le conviene':''}. Hasta 3 propuestas por turno.</p>
+      <b>Das</b>${row(give,r=>h[r],'o-give')}<b style="display:block;margin-top:10px">Pedís</b>${row(want,r=>4,'o-want')}
+      ${msg?`<p><b>${msg}</b></p>`:''}
+      <div class="row"><button class="pill" id="of-x">Cerrar</button><button class="primary" id="of-ok" ${tg&&tw&&G.offers<3?'':'disabled'}>PROPONER</button></div>`);
+    bindTabs();
+    const pm=(o,id)=>{$(id).onclick=e=>{const b=e.target.closest('button[data-r]');if(!b||b.disabled)return;const r=b.dataset.r;o[r]=Math.max(0,o[r]+Number(b.dataset.d));if(o===give)want[r]=0;else give[r]=0;msg='';draw();};};
+    pm(give,'o-give');pm(want,'o-want');
+    $('of-x').onclick=closeModal;
+    $('of-ok').onclick=()=>{
+      if(!G.p[1].bot){G.offers++;msg='<span class="busy"></span>Esperando qué dice '+G.p[1].name+'…';draw();friendOffer(give,want).then(ok=>{if(ok){swapCards(give,want);closeModal();banner('🤝 '+G.p[1].name.toUpperCase()+' ACEPTÓ');}else{msg=`${G.p[1].name} dijo que no.`;draw();}});return;}
+      G.offers++;const r=botAcceptsOffer(give,want);if(r.ok){swapCards(give,want);closeModal();banner('🤝 LA COMPU ACEPTÓ');}else{msg=`🤖 «${r.why}»`;addLog('La compu no aceptó tu cambio.');save();draw();}};
+  };draw();
+}
+// La compu te ofrece un cambio en su turno.
+function askOffer(give,want,from='La compu'){
+  if(G.p[0].bot)return Promise.resolve(false);
+  return new Promise(res=>{
+    openModal(`<h2>🤝 ${escHtml(from)} te propone</h2><p style="font-size:18px">Te da <b>1 ${RI[give].e} ${RI[give].n}</b> y te pide <b>1 ${RI[want].e} ${RI[want].n}</b>.</p><p class="note">Tenés ${G.p[0].hand[want]} ${RI[want].e}.</p>
+      <div class="row"><button class="pill" id="ao-no">No, gracias</button><button class="primary" id="ao-yes">ACEPTAR</button></div>`);
+    $('ao-no').onclick=()=>{closeModal();res(false);};$('ao-yes').onclick=()=>{closeModal();res(true);};
+  });
+}
+// Cartas de desarrollo: las tuyas y comprar.
+function openDev(){
+  const D=G.p[0].dev,mine=G.turn===0;
+  const list=D.map((c,i)=>{const ok=playable(0,c),why=c.k==='procer'?'Ya suma':c.t>=G.turnNo?'Nueva (desde tu próximo turno)':G.devUsed?'Ya jugaste una este turno':c.k!=='gaucho'&&G.phase!=='main'?'Después de tirar':'';
+    return `<div class="dev"><span class="e">${DEV[c.k].e}</span><div><b>${DEV[c.k].n}</b><small>${DEV[c.k].d}</small>${why?`<small style="display:block;color:#f6c453">${why}</small>`:''}</div>${c.k==='procer'?'':`<button data-i="${i}" ${ok?'':'disabled'}>Jugar</button>`}</div>`;}).join('');
+  openModal(`<h2>🃏 Cartas</h2><p class="note">Una carta cuesta 🐑🌾⛰️. Podés jugar una por turno (no la que compraste en este turno). Quedan ${G.deck.length} en el mazo.</p>
+    <div class="devlist">${list||'<p>Todavía no tenés cartas.</p>'}</div>
+    <div class="row"><button class="pill" id="dv-x">Cerrar</button><button class="primary" id="dv-buy" ${mine&&G.phase==='main'&&can(0,'dev')&&G.deck.length?'':'disabled'}>COMPRAR CARTA</button></div>`);
+  $('dv-x').onclick=closeModal;
+  $('dv-buy').onclick=()=>{buyDev(0);openDev();};
+  document.querySelectorAll('.dev button[data-i]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i),k=D[i].k;
+    if(k==='cosecha')pickRes(2,'🧺 Buena cosecha: elegí 2 recursos',rs=>{playDev(0,i,rs);});
+    else if(k==='acopio')pickRes(1,'🏚️ Acopio: ¿qué recurso le sacás al rival?',rs=>{playDev(0,i,rs[0]);});
+    else{closeModal();playDev(0,i);next();}});
+}
+function pickRes(n,title,done){
+  const sel=[];const draw=()=>{openModal(`<h2>${title}</h2><div class="pick" id="pr">${RES.map(r=>`<button data-r="${r}">${RI[r].e}<small>${RI[r].n}</small></button>`).join('')}</div>
+    <p>${sel.map(r=>RI[r].e).join(' ')||'&nbsp;'}</p><div class="row"><button class="pill" id="pr-x">Cancelar</button><button class="primary" id="pr-ok" ${sel.length===n?'':'disabled'}>LISTO</button></div>`);
+    $('pr').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(sel.length>=n)sel.shift();sel.push(b.dataset.r);draw();};
+    $('pr-x').onclick=closeModal;$('pr-ok').onclick=()=>{closeModal();done(sel.slice());};};draw();
+}
+// Con un 7 y más de 7 cartas: elegís cuáles descartar.
+function openDiscard(){
+  const out=hand0();
+  const draw=()=>{const h=G.p[0].hand,t=RES.reduce((s,r)=>s+out[r],0);
+    openModal(`<h2>🤠 ¡Salió 7!</h2><p>Tenés ${cards(0)} cartas: descartá <b>${G.discardN}</b>.</p>
+      <div class="cnt" id="dc">${RES.map(r=>`<div><span class="e">${RI[r].e}</span><span class="n">${out[r]}</span><small>de ${h[r]}</small><span class="pm"><button data-r="${r}" data-d="-1" ${out[r]?'':'disabled'}>−</button><button data-r="${r}" data-d="1" ${out[r]<h[r]&&t<G.discardN?'':'disabled'}>+</button></span></div>`).join('')}</div>
+      <div class="row"><button class="pill" id="dc-auto">Que elija el juego</button><button class="primary" id="dc-ok" ${t===G.discardN?'':'disabled'}>DESCARTAR</button></div>`);
+    $('dc').onclick=e=>{const b=e.target.closest('button[data-r]');if(!b||b.disabled)return;out[b.dataset.r]+=Number(b.dataset.d);draw();};
+    const finish=()=>{addLog(`Descartaste ${G.discardN} cartas.`);G.phase='robber';G.discardN=0;closeModal();save();next();};
+    $('dc-auto').onclick=()=>{discard(0,G.discardN);finish();};
+    $('dc-ok').onclick=()=>{for(const r of RES)G.p[0].hand[r]-=out[r];finish();};
+  };draw();
+}
+function openNew(first=false){
+  if(ON&&ON.state==='on'){openModal(`<h2>Estás jugando en línea</h2><p>Para empezar otra contra la compu, primero salí de la partida en línea (Menú › Salir).</p><div class="row"><button class="primary" id="x1">OK</button></div>`);$('x1').onclick=closeModal;return;}
+  let d=(()=>{try{return localStorage.getItem('poblar-dificultad')||'normal';}catch(_){return 'normal';}})();
+  const draw=()=>{openModal(`<h2>${first?'PoblAR':'¿Partida nueva?'}</h2>${first?'':'<p>Se pierde la que estás jugando.</p>'}<b>Dificultad de la compu</b>
+    <div class="diff" id="df">${Object.entries(DIFF).map(([k,n])=>`<button data-d="${k}" class="${d===k?'on':''}">${n}</button>`).join('')}</div>
+    <p class="note">${d==='facil'?'Juega más relajada: no compra cartas ni te ofrece cambios.':d==='dificil'?'Cambia más, compra cartas y no te regala nada.':'Juega bien, compra cartas y a veces te ofrece cambios.'}</p>
+    <div class="row">${first?'':'<button class="pill" id="n-no">Seguir</button>'}<button class="primary" id="n-yes">JUGAR</button></div>`);
+    $('df').onclick=e=>{const b=e.target.closest('button');if(b){d=b.dataset.d;draw();}};
+    if(!first)$('n-no').onclick=closeModal;
+    $('n-yes').onclick=()=>{try{localStorage.setItem('poblar-dificultad',d);}catch(_){}closeModal();newGame();if(first&&!localStorage.getItem('poblar-ayuda'))openHelp();try{localStorage.setItem('poblar-ayuda','1');}catch(_){}};};draw();
+}
+function openHelp(){
+  openModal(`<h2>Cómo se juega</h2>
+    <p>Cada uno arranca con <b>2 ranchos y 2 caminos</b>. En tu turno tirás los dados: cada terreno con ese número le da su recurso a los ranchos pegados (1) y a los pueblos (2).</p>
+    <div class="legend"><span>🌳 Monte</span><span>Madera</span><span>🧱 Horno</span><span>Ladrillo</span><span>🐑 Estancia</span><span>Lana</span><span>🌾 Pampa</span><span>Trigo</span><span>⛰️ Cerro</span><span>Mineral</span><span>🧂 Salitral</span><span>No da nada</span></div>
+    <p><b>Construir</b></p><div class="cost"><span><b>Camino</b> 🌳🧱</span><span><b>Rancho</b> 🌳🧱🐑🌾 (1 punto)</span><span><b>Pueblo</b> 🌾🌾⛰️⛰️⛰️ (mejora un rancho: 2 puntos)</span></div>
+    <p>Los ranchos van en esquinas libres pegadas a tus caminos, y nunca al lado de otro rancho.</p>
+    <p><b>🤠 El cuatrero:</b> con un 7, quien tenga más de 7 cartas pierde la mitad. El que tiró lo mueve a un terreno: ese terreno no produce y le roba una carta al rival que esté ahí.</p>
+    <p><b>🛣️ Camino más largo:</b> 5 caminos seguidos o más dan 2 puntos (si el rival hace uno más largo, se los lleva).</p>
+    <p><b>🔁 Cambiar:</b> 4 iguales por 1 con el banco; los puertos de la costa dan 3:1 o 2:1. También podés proponerle cambios a la compu (y ella a vos).</p>
+    <p><b>🃏 Cartas</b> (🐑🌾⛰️): 🐎 Gaucho (mueve al cuatrero; con 3 o más tenés la tropilla más grande, +2), 🛤️ Obra pública (2 caminos gratis), 🧺 Buena cosecha (2 recursos), 🏚️ Acopio (te llevás todo un recurso del rival) y 🏛️ Prócer (1 punto escondido).</p>
+    <p>Gana el primero en llegar a <b>${GOAL} puntos</b>.</p>
+    <div class="row"><button class="primary" id="h-ok">ENTENDIDO</button></div>`);
+  $('h-ok').onclick=closeModal;
+}
+function showEnd(){
+  const w=G.winner===0;
+  openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
+    <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
+  $('e-see').onclick=closeModal;$('e-new').onclick=()=>{closeModal();if(ON&&ON.state==='on')onlineNewGame();else newGame();};
+}
+
+/* ── Botones ── */
+document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;mode=mode===b.dataset.build?null:b.dataset.build;render();}));
+$('b-main').addEventListener('click',()=>{
+  if(G.phase==='over'){newGame();return;}
+  if(G.turn!==0)return;
+  if(G.phase==='roll'){roll();return;}
+  if(G.phase==='discard'){openDiscard();return;}
+  if(G.phase==='main'){if(mode){mode=null;if(G.free)G.free=0;render();}else endTurn();}
+});
+$('b-trade').addEventListener('click',()=>{if(G.turn===0&&G.phase==='main')openTrade();});
+$('b-dev').addEventListener('click',()=>{if(G.turn===0)openDev();});
+$('btn-help').addEventListener('click',openHelp);
+$('btn-log').addEventListener('click',()=>$('log').classList.toggle('open'));
+$('btn-menu').addEventListener('click',openMenu);
+$('btn-friend').addEventListener('click',openFriends);
+function openMenu(){
+  openModal(`<h2>Menú</h2><div class="menu-list">
+    <button id="m-new">🎲 Partida nueva contra la compu</button>
+    <button id="m-friend">👥 Jugar con un amigo <small>con tu cuenta</small></button>
+    <button id="m-help">❓ Cómo se juega</button>
+    <a href="./">🧱 Cambiar de juego: BloqueAR</a>
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>
+    <div class="row"><button class="pill" id="m-x">Volver</button></div>`);
+  $('m-x').onclick=closeModal;$('m-new').onclick=()=>{if(ON)netLeave();openNew(false);};$('m-friend').onclick=openFriends;$('m-help').onclick=openHelp;
+  if($('m-leave'))$('m-leave').onclick=()=>{netLeave();closeModal();};
+}
+
+/* ── Sonidos cortitos ── */
+let AC=null;
+function sound(k){
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+    const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g).connect(AC.destination);
+    const f={build:[520,780],dice:[220,330],robber:[180,120]}[k]||[440,440];o.type=k==='dice'?'triangle':'sine';
+    o.frequency.setValueAtTime(f[0],t);o.frequency.exponentialRampToValueAtTime(f[1],t+.12);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.start(t);o.stop(t+.2);
+    o.onended=()=>{try{o.disconnect();g.disconnect();}catch(_){}};
+  }catch(_){}
+}
+
+/* ───────── En línea con un amigo ─────────
+   Usa la cuenta de BloqueAR (mismo sitio, misma cuenta) y la misma planilla para pasarse los datos de conexión.
+   Después la partida va directo entre los dos celulares (WebRTC), como en BloqueAR.
+   Cada uno se ve a sí mismo como «jugador 0»: al mandar la partida se dan vuelta los lados. */
+const LB_DEFAULT='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';
+const lbUrl=()=>{try{return localStorage.getItem('bloques-lb-url-v1')||LB_DEFAULT;}catch(_){return LB_DEFAULT;}};
+const acct=()=>{try{const o=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');return o&&o.usuario&&o.token?o:null;}catch(_){return null;}};
+const escHtml=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const avHtml=(a,c)=>`<span class="av" style="--avc:${/^#[0-9a-f]{6}$/i.test(c||'')?c:'#7ce9e5'}">${escHtml(a||'🙂')}</span>`;
+async function lbCall(params,post=true,ms=15000){
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
+  try{let r;
+    if(post)r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(params),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
+    else{const u=new URL(lbUrl());for(const [k,v] of Object.entries(params))u.searchParams.set(k,String(v));u.searchParams.set('_',Date.now());r=await fetch(u,{cache:'no-store',signal:ctl.signal,redirect:'follow'});}
+    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');return j;
+  }catch(e){if(e.name==='AbortError')throw new Error('La planilla tardó demasiado.');if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');throw e;}
+  finally{clearTimeout(to);}
+}
+const ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:['turn:eu-0.turn.peerjs.com:3478','turn:us-0.turn.peerjs.com:3478'],username:'peerjs',credential:'peerjsp'}];
+async function iceServers(){
+  const list=ICE.map(s=>({...s}));
+  try{const te=new TextEncoder(),user=`${Math.floor(Date.now()/1000)+86400}:bloques`;
+    const key=await crypto.subtle.importKey('raw',te.encode('openrelayprojectsecret'),{name:'HMAC',hash:'SHA-1'},false,['sign']);
+    const sig=new Uint8Array(await crypto.subtle.sign('HMAC',key,te.encode(user)));
+    list.push({urls:['turn:staticauth.openrelay.metered.ca:80','turn:staticauth.openrelay.metered.ca:443?transport=tcp'],username:user,credential:btoa(String.fromCharCode(...sig))});}catch(_){}
+  return list;
+}
+// Espera a juntar los caminos de conexión (máximo unos segundos).
+function gathered(pc){return new Promise(res=>{if(pc.iceGatheringState==='complete')return res();const t=setTimeout(res,6000);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res();}});});}
+let ON=null;// {role,peer:{usuario,avatar,color},pc,ch,state:'preparing'|'waiting'|'connecting'|'on'|'lost',id,msg}
+const UIQ={users:null,err:'',dismissed:new Set(),pending:null};
+function flip(g){// la misma partida vista desde el otro lado
+  const x=JSON.parse(JSON.stringify(g)),sw=v=>v===0?1:v===1?0:v;
+  x.owner=x.owner.map(sw);x.road=x.road.map(sw);x.p.reverse();x.turn=sw(x.turn);x.first=sw(x.first);x.setup=x.setup.map(sw);
+  x.longest=sw(x.longest);x.army=sw(x.army);x.winner=sw(x.winner);x.longLen=x.longLen.slice().reverse();
+  for(const pl of x.p)pl.bot=false;return x;
+}
+function netSend(m){try{if(ON&&ON.ch&&ON.ch.readyState==='open')ON.ch.send(JSON.stringify(m));}catch(_){}}
+const me=()=>{const a=acct();return {usuario:a?a.usuario:'Vos',avatar:a?a.avatar:'🙂',color:a?a.color:'#7ce9e5'};};
+function attach(ch){
+  ON.ch=ch;
+  ch.onopen=()=>{ON.state='on';renderOnline();closeModal();banner('🔗 CONECTADOS');sound('build');
+    netSend({t:'hola',yo:me()});if(ON.role==='host')onlineNewGame();};
+  ch.onclose=()=>onLost();
+  ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}onMsg(m);};
+}
+function onlineNewGame(){
+  newGame();G.p[1].bot=false;G.p[1].name=ON.peer.usuario;G.diff='normal';
+  G.log=[];addLog(`Partida en línea con ${ON.peer.usuario}. Empieza ${G.first===0?'vos':ON.peer.usuario}.`);
+  save();render();next();
+}
+function onMsg(m){
+  if(m.t==='hola'){if(m.yo)ON.peer={...ON.peer,...m.yo};renderOnline();return;}
+  if(m.t==='state'&&m.G){
+    const g=m.G;g.p[0].bot=false;// ya viene dada vuelta (desde tu lado)
+   g.p[1].bot=false;g.p[1].name=ON.peer.usuario;g.p[0].name='Vos';
+    const fresh=!G||!B||G.seed!==g.seed;G=g;if(fresh)B=buildBoard(G.seed);closeModalIfGame();
+    mode=null;render(true);renderLog();
+    if(G.phase==='over'&&G.winner!==null)setTimeout(showEnd,400);else next();return;
+  }
+  if(m.t==='offer-n'){// propuesta de tu amigo
+    const t=o=>RES.filter(r=>o[r]).map(r=>`${o[r]} ${RI[r].e}`).join(' ');
+    openModal(`<h2>🤝 ${escHtml(ON.peer.usuario)} te propone</h2><p style="font-size:18px">Te da <b>${t(m.give)}</b> y te pide <b>${t(m.want)}</b>.</p>
+      ${RES.every(r=>G.p[0].hand[r]>=m.want[r])?'':'<p class="note">No tenés esas cartas.</p>'}
+      <div class="row"><button class="pill" id="fo-no">No</button><button class="primary" id="fo-yes" ${RES.every(r=>G.p[0].hand[r]>=m.want[r])?'':'disabled'}>ACEPTAR</button></div>`);
+    $('fo-no').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:false});};$('fo-yes').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:true});};return;}
+  if(m.t==='offer-reply'&&UIQ.pending&&UIQ.pending.id===m.id){UIQ.pending.res(!!m.ok);UIQ.pending=null;return;}
+  if(m.t==='bye'){onLost('salió de la partida');}
+}
+function closeModalIfGame(){const s=$('sheet');if(s&&!$('modal').hidden&&/Jugar con un amigo|Te invitan/.test(s.textContent))closeModal();}
+function friendOffer(give,want){
+  return new Promise(res=>{const id=Math.random().toString(36).slice(2);UIQ.pending={id,res};netSend({t:'offer-n',id,give,want});
+    setTimeout(()=>{if(UIQ.pending&&UIQ.pending.id===id){UIQ.pending=null;res(false);}},60000);});
+}
+function onLost(why='se desconectó'){
+  if(!ON||ON.state==='lost')return;const was=ON.state==='on';ON.state='lost';
+  if(G&&was&&G.phase!=='over'){G.p[1].bot=true;addLog(`⚠️ ${G.p[1].name} ${why}. Sigue la compu en su lugar.`);G.p[1].name='La compu';banner('⚠️ SE CORTÓ: SIGUE LA COMPU');}
+  try{ON.pc.close();}catch(_){}ON=null;renderOnline();if(G){render();next();}
+}
+function netLeave(){netSend({t:'bye'});const o=ON;ON=null;try{o&&o.pc&&o.pc.close();}catch(_){}if(G&&G.phase!=='over'){G.p[1].bot=true;G.p[1].name='La compu';}renderOnline();if(G){render();next();}}
+function renderOnline(){
+  const el=$('onl');if(!ON){el.className='onl';el.textContent='';return;}
+  el.className='onl '+(ON.state==='on'?'on':'off');
+  el.innerHTML=ON.state==='on'?`● En línea con ${escHtml(ON.peer.usuario)}`:`<span class="busy"></span>${escHtml(ON.msg||'Conectando…')}`;
+}
+// Invitar: se prepara la conexión y se deja en el buzón del amigo.
+async function inviteFriend(u){
+  const a=acct();if(!a)return;
+  ON={role:'host',peer:{usuario:u.usuario,avatar:u.avatar,color:u.color},state:'preparing',msg:'Preparando la invitación…'};renderOnline();friendsWait();
+  const me0=ON;
+  try{
+    const pc=new RTCPeerConnection({iceServers:await iceServers()});ON.pc=pc;attach(pc.createDataChannel('poblar',{ordered:true}));
+    pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))onLost();};
+    await pc.setLocalDescription(await pc.createOffer());await gathered(pc);if(ON!==me0)return;
+    const j=await lbCall({accion:'invitar',usuario:a.usuario,token:a.token,para:u.usuario,oferta:'POBLAR:'+JSON.stringify({sdp:pc.localDescription.sdp})});
+    if(ON!==me0)return;ON.id=j.id;ON.state='waiting';ON.msg=`Esperando que ${u.usuario} acepte…`;renderOnline();friendsWait();
+    const t0=Date.now();
+    while(ON===me0&&ON.state==='waiting'&&Date.now()-t0<300000){
+      await sleep(2000);if(ON!==me0)return;
+      let r;try{r=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token,id:ON.id});}catch(_){continue;}
+      if(ON!==me0)return;
+      if(r.estado==='aceptada'&&r.respuesta){ON.state='connecting';ON.msg='Conectando…';renderOnline();friendsWait();await pc.setRemoteDescription({type:'answer',sdp:JSON.parse(r.respuesta).sdp});
+        setTimeout(()=>{if(ON===me0&&ON.state!=='on')failOnline('No se pudieron conectar. Prueben con datos móviles en uno de los dos.');},45000);return;}
+      if(r.estado==='rechazada'){failOnline(`${u.usuario} dijo «ahora no».`);return;}
+      if(r.estado==='vencida'||r.estado==='cancelada'){failOnline('La invitación venció.');return;}
+    }
+    if(ON===me0&&ON.state==='waiting')failOnline(`${u.usuario} no respondió.`);
+  }catch(e){if(ON===me0)failOnline(e.message||'No se pudo preparar la conexión.');}
+}
+async function acceptInvite(inv){
+  const a=acct();if(!a)return;UIQ.dismissed.add(inv.id);
+  ON={role:'guest',peer:{usuario:inv.de,avatar:inv.avatar,color:inv.color},state:'connecting',msg:`Conectando con ${inv.de}…`,id:inv.id};renderOnline();friendsWait();
+  const me0=ON;
+  try{
+    const off=JSON.parse(String(inv.oferta).slice(7));const pc=new RTCPeerConnection({iceServers:await iceServers()});ON.pc=pc;
+    pc.ondatachannel=e=>attach(e.channel);pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))onLost();};
+    await pc.setRemoteDescription({type:'offer',sdp:off.sdp});await pc.setLocalDescription(await pc.createAnswer());await gathered(pc);
+    await lbCall({accion:'responder',usuario:a.usuario,token:a.token,id:inv.id,respuesta:JSON.stringify({sdp:pc.localDescription.sdp})});
+    setTimeout(()=>{if(ON===me0&&ON.state!=='on')failOnline('No se pudieron conectar. Prueben con datos móviles en uno de los dos.');},45000);
+  }catch(e){if(ON===me0)failOnline(e.message||'No se pudo conectar.');}
+}
+function failOnline(msg,show=true){
+  const o=ON;if(o&&o.id&&o.role==='host'&&o.state==='waiting'){const a=acct();if(a)lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:o.id}).catch(()=>{});}
+  try{o&&o.pc&&o.pc.close();}catch(_){}ON=null;renderOnline();
+  if(!show){closeModal();return;}
+  openModal(`<h2>👥 Jugar con un amigo</h2><p>${escHtml(msg)}</p><div class="row"><button class="pill" id="fw-x">Cerrar</button><button class="primary" id="fw-again">PROBAR DE NUEVO</button></div>`);
+  $('fw-x').onclick=closeModal;$('fw-again').onclick=openFriends;
+}
+function friendsWait(){
+  if(!ON)return;openModal(`<h2>👥 Jugar con un amigo</h2><div style="display:flex;align-items:center;gap:12px;margin:10px 0">${avHtml(ON.peer.avatar,ON.peer.color)}<b style="font-size:18px">${escHtml(ON.peer.usuario)}</b></div>
+    <p><span class="busy"></span>${escHtml(ON.msg||'')}</p>${ON.role==='host'&&ON.state==='waiting'?'<p class="note">Le llega la invitación en BloqueAR o en PoblAR. Si no tiene el juego abierto, le aparece cuando lo abra (dura 5 minutos).</p>':''}
+    <div class="row"><button class="pill" id="fw-cancel">Cancelar</button></div>`);
+  $('fw-cancel').onclick=()=>failOnline('',false);
+}
+async function openFriends(){
+  const a=acct();
+  if(ON&&ON.state!=='on'){friendsWait();return;}
+  if(ON&&ON.state==='on'){openModal(`<h2>👥 En línea</h2><p>Estás jugando con <b>${escHtml(ON.peer.usuario)}</b>.</p><div class="row"><button class="pill" id="fx-leave">Salir de la partida</button><button class="primary" id="fx-x">SEGUIR</button></div>`);$('fx-x').onclick=closeModal;$('fx-leave').onclick=()=>{netLeave();closeModal();};return;}
+  if(!a){openModal(`<h2>👥 Jugar con un amigo</h2><p>Para invitar a un amigo usás tu <b>cuenta de BloqueAR</b> (es la misma). Creala o entrá en BloqueAR › Yo, y volvé.</p>
+    <div class="row"><button class="pill" id="fa-x">Cerrar</button><a class="primary" href="./" style="display:grid;place-items:center;text-decoration:none">IR A BLOQUEAR</a></div>`);$('fa-x').onclick=closeModal;return;}
+  const draw=()=>{const list=(UIQ.users||[]).filter(u=>u.usuario.toLowerCase()!==a.usuario.toLowerCase());
+    openModal(`<h2>👥 Jugar con un amigo</h2><p class="note">Elegí a quién invitar. El punto verde es que tiene BloqueAR o PoblAR abierto.</p>
+      ${UIQ.err?`<p>${escHtml(UIQ.err)}</p>`:''}${UIQ.users?`<ul class="ulist">${list.map(u=>`<li>${avHtml(u.avatar,u.color)}<span class="nm">${escHtml(u.usuario)}${u.enLinea?'<i class="dot"></i>':''}</span><button data-u="${escHtml(u.usuario)}">Invitar</button></li>`).join('')||'<li>Todavía no hay otras cuentas.</li>'}</ul>`:(UIQ.err?'':'<p><span class="busy"></span>Cargando…</p>')}
+      <div class="row"><button class="pill" id="fl-x">Cerrar</button></div>`);
+    $('fl-x').onclick=closeModal;document.querySelectorAll('.ulist button[data-u]').forEach(b=>b.onclick=()=>{const u=list.find(x=>x.usuario===b.dataset.u);if(u)inviteFriend(u);});};
+  draw();
+  try{const j=await lbCall({accion:'usuarios'},false);if(!Array.isArray(j.usuarios))throw new Error('Hay que actualizar el código de la planilla (versión 4).');UIQ.users=j.usuarios;UIQ.err='';}catch(e){UIQ.err=e.message;}
+  if(!ON&&!$('modal').hidden&&/Elegí a quién invitar/.test($('sheet').textContent))draw();
+}
+// Buzón: te avisa si alguien te invita (a PoblAR o a BloqueAR).
+let pollAt=0,polling=false;
+async function pollInbox(force=false){
+  const a=acct();if(!a||polling||document.hidden||ON)return;
+  const gap=G&&G.turn===0&&G.phase!=='over'?20000:12000;if(!force&&Date.now()-pollAt<gap)return;
+  polling=true;pollAt=Date.now();
+  try{const j=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token});const inv=j.invitacion;
+    if(inv&&!UIQ.dismissed.has(inv.id)&&!ON){
+      const pob=String(inv.oferta||'').startsWith('POBLAR:');
+      let want='';try{want=sessionStorage.getItem('poblar-accept')||'';}catch(_){}
+      if(pob&&want===inv.id){try{sessionStorage.removeItem('poblar-accept');}catch(_){}acceptInvite(inv);}
+      else showInvite(inv,pob);
+    }}catch(_){}
+  polling=false;
+}
+function showInvite(inv,pob){
+  UIQ.dismissed.add(inv.id);
+  openModal(`<h2>🤝 Te invitan</h2><div style="display:flex;align-items:center;gap:12px;margin:10px 0">${avHtml(inv.avatar,inv.color)}<div><b style="font-size:18px">${escHtml(inv.de)}</b><div class="note">te invita a jugar ${pob?'<b>PoblAR</b> 🏘️':'<b>BloqueAR</b> 🧱'}</div></div></div>
+    <div class="row"><button class="pill" id="iv-no">Ahora no</button><button class="primary" id="iv-yes">ACEPTAR</button></div>`);
+  $('iv-no').onclick=()=>{closeModal();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
+  $('iv-yes').onclick=()=>{closeModal();if(pob)acceptInvite(inv);else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
+}
+if(!/[#&]auto/.test(location.hash)){
+  setInterval(()=>pollInbox(),5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>pollInbox(true),500);});
+  setTimeout(()=>pollInbox(true),1500);
+}
+window.addEventListener('pagehide',()=>{if(ON&&ON.state==='on')netSend({t:'bye'});});
+
+/* ── Inicio: seguir la partida guardada o empezar ── */
+let FAST=false,AUTO=false;
+(function start(){
+  // Para las pruebas: #auto hace que la compu juegue también por vos (#auto-rapido, sin esperas).
+  if(/[#&]auto/.test(location.hash)){FAST=/rapido/.test(location.hash);AUTO=true;newGame(Number((location.hash.match(/semilla=(\d+)/)||[])[1])||undefined);return;}
+  let saved=null;try{saved=JSON.parse(localStorage.getItem(SAVE)||'null');}catch(_){}
+  if(saved&&saved.v===2&&saved.phase!=='over'){G=saved;B=buildBoard(G.seed);render();renderLog();next();if(G.phase==='discard'&&G.turn!==0||G.phase==='discard')openDiscard();}
+  else{G=null;openNew(true);}
+})();
+window.POBLAR={pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
+</script>
+</body>
+</html>
