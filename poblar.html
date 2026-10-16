@@ -32,7 +32,7 @@ button{font:inherit;color:inherit}
 .boardwrap{position:relative;border-radius:18px;overflow:hidden;background:#0b3044;border:2px solid #2a2118;box-shadow:0 0 0 1px #3a5a68,0 10px 30px #0008}
 svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .hex{stroke:#0e2a38;stroke-width:3}
-.ptxt{font-size:12px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.pico{font-size:12px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.ptxt{font-size:11px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.pico{font-size:11px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .hname{font-size:10px;font-weight:900;letter-spacing:.12em;fill:#8a7b58;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .num{font-weight:900;font-size:22px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .hico{font-size:17px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
@@ -107,7 +107,8 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 
 /* Distribución: el tablero ocupa el lugar que queda; en pantallas anchas va al costado del panel */
 /* Pantalla completa sin depender de 100vh/100dvh: en el iPhone con la app instalada calcula mal el alto y quedaba aire abajo */
-.app{position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;height:auto;min-height:0;max-width:640px;overflow-y:auto;overscroll-behavior:contain}
+.app{position:fixed;top:0;left:0;right:0;margin:0 auto;height:var(--app-h,100%);min-height:0;max-width:640px;overflow-y:auto;overscroll-behavior:contain}
+@media (max-width:520px) and (orientation:portrait){.app{padding-left:6px;padding-right:6px}.boardwrap{border-width:1px;border-radius:14px}}
 .main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
 .panel{display:contents}
 .score{order:0}.boardcol{order:1}.status{order:2;min-height:40px}.log{order:3}.hand{order:4}.actions{order:5}.wide{order:6}
@@ -532,26 +533,26 @@ const TERR={
   salitral:{base:'#eee7d6',dark:'#b8ab8c',pat:`<pattern id="p-salitral" width="34" height="30" patternUnits="userSpaceOnUse"><path d="M2 8 L12 12 L10 22 M12 12 L24 9 L31 15 M24 9 L22 2" stroke="#c9bc9b" stroke-width="1.4" fill="none"/></pattern>`}
 };
 let staticKey='',staticSvg='';
-function hexPts(h,k=1){return h.v.map(v=>{const p=B.verts[v];return `${(h.x+(p.x-h.x)*k).toFixed(1)},${(h.y+(p.y-h.y)*k).toFixed(1)}`;}).join(' ');}
-function buildStatic(W,H){
+function hexPts(h,k=1){return h.v.map(v=>{const p=RB.verts[v];return `${(h.x+(p.x-h.x)*k).toFixed(1)},${(h.y+(p.y-h.y)*k).toFixed(1)}`;}).join(' ');}
+function buildStatic(W,H,X,Y){
   let s=`<defs>${Object.values(TERR).map(t=>t.pat).join('')}
     <radialGradient id="g-mar" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#1f6f8f"/><stop offset=".7" stop-color="#134a63"/><stop offset="1" stop-color="#0b3044"/></radialGradient>
     <pattern id="p-ola" width="46" height="22" patternUnits="userSpaceOnUse"><path d="M2 12 q5.5-6 11 0 t11 0" stroke="#ffffff" stroke-opacity=".09" stroke-width="2" fill="none"/></pattern>
     <radialGradient id="g-luz" cx="35%" cy="25%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient>
     <filter id="f-sombra" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000" flood-opacity=".45"/></filter>
   </defs>
-  <rect x="${-W/2}" y="${-H/2}" width="${W}" height="${H}" fill="url(#g-mar)"/><rect x="${-W/2}" y="${-H/2}" width="${W}" height="${H}" fill="url(#p-ola)"/>`;
+  <rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#g-mar)"/><rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#p-ola)"/>`;
   // Costa: arena alrededor de la isla
-  for(const h of B.hexes)s+=`<polygon points="${hexPts(h,1.13)}" fill="#e3c98f"/>`;
-  for(const h of B.hexes)s+=`<polygon points="${hexPts(h,1.06)}" fill="#cfae6a"/>`;
+  for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.13)}" fill="#e3c98f"/>`;
+  for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.06)}" fill="#cfae6a"/>`;
   // Puertos: muelle de madera y cartel con lo que se cambia
-  for(const pt of B.ports){const e=B.edges[pt.edge],A=B.verts[e.a],C=B.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),ux=mx/len,uy=my/len,px=mx+ux*S*.62,py=my+uy*S*.62;
+  for(const pt of RB.ports){const e=RB.edges[pt.edge],A=RB.verts[e.a],C=RB.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),ux=mx/len,uy=my/len,px=mx+ux*S*PORT_OFF,py=my+uy*S*PORT_OFF;
     for(const P of [A,C])s+=`<line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#6b4a2b" stroke-width="5" stroke-linecap="round"/><line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#a87b4f" stroke-width="2.5" stroke-linecap="round"/>`;
     const gen=pt.type==='3:1',fill=gen?'#fbf1d6':TERR[pt.type].base,ink=gen||pt.type==='trigo'||pt.type==='lana'||pt.type==='salitral'?'#2a2118':'#fff';
-    s+=`<g filter="url(#f-sombra)"><rect x="${px-21}" y="${py-12}" width="42" height="24" rx="12" fill="${fill}" stroke="#2a2118" stroke-width="2"/></g>`;
-    s+=gen?`<text x="${px}" y="${py+1}" class="ptxt" fill="${ink}">3:1</text>`:`<text x="${px-8}" y="${py+1}" class="ptxt" fill="${ink}">2:1</text><text x="${px+11}" y="${py+1}" class="pico">${RI[pt.type].e}</text>`;}
+    s+=`<g filter="url(#f-sombra)"><rect x="${px-19}" y="${py-11}" width="38" height="22" rx="11" fill="${fill}" stroke="#2a2118" stroke-width="2"/></g>`;
+    s+=gen?`<text x="${px}" y="${py+1}" class="ptxt" fill="${ink}">3:1</text>`:`<text x="${px-7}" y="${py+1}" class="ptxt" fill="${ink}">2:1</text><text x="${px+10}" y="${py+1}" class="pico">${RI[pt.type].e}</text>`;}
   // Terrenos
-  for(const h of B.hexes){const t=TERR[h.res];
+  for(const h of RB.hexes){const t=TERR[h.res];
     s+=`<polygon points="${hexPts(h,.985)}" fill="${t.base}" stroke="#2a2118" stroke-width="3" stroke-linejoin="round"/>`;
     s+=`<polygon points="${hexPts(h,.93)}" fill="url(#p-${h.res})" opacity=".85"/>`;
     s+=`<polygon points="${hexPts(h,.985)}" fill="url(#g-luz)"/>`;
@@ -566,26 +567,44 @@ function buildStatic(W,H){
   }
   return s;
 }
+// Recorte justo: la isla, la costa y los carteles de los puertos, con un margen chico de mar (el tablero se ve más grande).
+let boxCache=null;const PORT_OFF=.44;
+// En el celular parado conviene la isla girada 90° (queda más alta que ancha y entra más grande).
+// Sólo cambia el dibujo: las esquinas y los caminos son los mismos, así que en línea no importa cómo lo vea cada uno.
+let ROT=false,RB=null;
+function setRB(){
+  if(RB&&RB.src===B&&RB.rot===ROT)return;
+  if(!ROT){RB={src:B,rot:false,hexes:B.hexes,verts:B.verts,edges:B.edges,ports:B.ports};return;}
+  RB={src:B,rot:true,hexes:B.hexes.map(h=>({...h,x:-h.y,y:h.x})),verts:B.verts.map(v=>({...v,x:-v.y,y:v.x})),edges:B.edges,ports:B.ports};
+}
+function boardBox(){
+  setRB();
+  if(boxCache&&boxCache.seed===G.seed&&boxCache.rot===ROT)return boxCache;
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const add=(x,y)=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);};
+  for(const h of RB.hexes)for(const vi of h.v){const p=RB.verts[vi];add(h.x+(p.x-h.x)*1.13,h.y+(p.y-h.y)*1.13);}
+  for(const pt of RB.ports){const e=RB.edges[pt.edge],A=RB.verts[e.a],C=RB.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),px=mx+mx/len*S*PORT_OFF,py=my+my/len*S*PORT_OFF;add(px-20,py-12);add(px+20,py+12);}
+  const m=4;boxCache={seed:G.seed,rot:ROT,x:Math.floor(x0-m),y:Math.floor(y0-m),w:Math.ceil(x1-x0+2*m),h:Math.ceil(y1-y0+2*m)};return boxCache;
+}
 function drawBoard(){
-  const svg=$('board'),pad=S*.92,W=S*SQ*5+pad*2,H=S*8+pad*2;
-  svg.setAttribute('viewBox',`${-W/2} ${-H/2} ${W} ${H}`);
-  if(staticKey!==String(G.seed)){staticKey=String(G.seed);staticSvg=buildStatic(W,H);}
+  setRB();const svg=$('board'),V=boardBox();
+  svg.setAttribute('viewBox',`${V.x} ${V.y} ${V.w} ${V.h}`);
+  if(staticKey!==G.seed+'|'+ROT){staticKey=G.seed+'|'+ROT;staticSvg=buildStatic(V.w,V.h,V.x,V.y);}
   svg.innerHTML=staticSvg;
   const T=targets(),top=el('g',{},svg);
   // El cuatrero: sombrero negro con cinta dorada
-  {const h=B.hexes[G.robber];el('polygon',{points:hexPts(h,.985),fill:'#000','fill-opacity':.32,'pointer-events':'none'},top);// el terreno bloqueado se oscurece
+  {const h=RB.hexes[G.robber];el('polygon',{points:hexPts(h,.985),fill:'#000','fill-opacity':.32,'pointer-events':'none'},top);// el terreno bloqueado se oscurece
     const x=h.x+31,y=h.y-4,g=el('g',{filter:'url(#f-sombra)'},top);
     el('ellipse',{cx:x,cy:y+8,rx:19,ry:6,fill:'#111',stroke:'#fff','stroke-width':2},g);
     el('path',{d:`M${x-10},${y+7} q1-15 10-15 q9 0 10 15 z`,fill:'#111',stroke:'#fff','stroke-width':2},g);
     el('rect',{x:x-10,y:y+1,width:20,height:3.5,fill:'#f2c14e'},g);}
   // Caminos (con borde oscuro y uno claro para que se lean sobre cualquier terreno)
-  B.edges.forEach((e,i)=>{if(G.road[i]===null)return;const A=B.verts[e.a],C=B.verts[e.b],o=G.road[i];
+  RB.edges.forEach((e,i)=>{if(G.road[i]===null)return;const A=RB.verts[e.a],C=RB.verts[e.b],o=G.road[i];
     const ax=A.x+(C.x-A.x)*.14,ay=A.y+(C.y-A.y)*.14,cx=C.x+(A.x-C.x)*.14,cy=C.y+(A.y-C.y)*.14;
     el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:'#fff','stroke-width':14,'stroke-linecap':'round'},top);
     el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PCD[o],'stroke-width':10,'stroke-linecap':'round'},top);
     el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PC[o],'stroke-width':6,'stroke-linecap':'round'},top);});
   // Ranchos y pueblos
-  B.verts.forEach((v,i)=>{const o=G.owner[i];if(o===null)return;const g=el('g',{filter:'url(#f-sombra)'},top),x=v.x,y=v.y;
+  RB.verts.forEach((v,i)=>{const o=G.owner[i];if(o===null)return;const g=el('g',{filter:'url(#f-sombra)'},top),x=v.x,y=v.y;
     if(G.town[i]){el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PC[o],stroke:'#fff','stroke-width':5,'stroke-linejoin':'round'},g);
       el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PC[o],stroke:PCD[o],'stroke-width':2.2,'stroke-linejoin':'round'},g);
       el('rect',{x:x-11,y:y+2,width:5,height:6,fill:PCD[o]},g);el('rect',{x:x+3,y:y-6,width:4,height:5,fill:PCD[o]},g);}
@@ -594,10 +613,10 @@ function drawBoard(){
       el('rect',{x:x-3,y:y+2,width:6,height:8,fill:PCD[o]},g);}
   });
   // Lugares que se pueden tocar
-  T.h.forEach(hi=>{const h=B.hexes[hi];const p=el('polygon',{points:hexPts(h,.93),class:'hexhit on'},top);p.addEventListener('click',()=>onBoardTap('h',hi));});
-  T.e.forEach(ei=>{const e=B.edges[ei],A=B.verts[e.a],C=B.verts[e.b];el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,class:'espot on'},top);
+  T.h.forEach(hi=>{const h=RB.hexes[hi];const p=el('polygon',{points:hexPts(h,.93),class:'hexhit on'},top);p.addEventListener('click',()=>onBoardTap('h',hi));});
+  T.e.forEach(ei=>{const e=RB.edges[ei],A=RB.verts[e.a],C=RB.verts[e.b];el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,class:'espot on'},top);
     const hit=el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:'transparent','stroke-width':30},top);hit.addEventListener('click',()=>onBoardTap('e',ei));});
-  T.v.forEach(vi=>{const v=B.verts[vi];el('circle',{cx:v.x,cy:v.y,r:11,class:'spot on'},top);const hit=el('circle',{cx:v.x,cy:v.y,r:24,fill:'transparent'},top);hit.addEventListener('click',()=>onBoardTap('v',vi));});
+  T.v.forEach(vi=>{const v=RB.verts[vi];el('circle',{cx:v.x,cy:v.y,r:11,class:'spot on'},top);const hit=el('circle',{cx:v.x,cy:v.y,r:24,fill:'transparent'},top);hit.addEventListener('click',()=>onBoardTap('v',vi));});
 }
 function render(rolled=false){
   if(!G)return;drawBoard();fitBoard();
@@ -635,7 +654,7 @@ function render(rolled=false){
 function renderLog(){$('log').innerHTML=G?G.log.slice().reverse().map(t=>`<p>${t}</p>`).join(''):'';}
 function floatGains(n,got){
   const wrap=$('boardwrap'),svg=$('board'),bb=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,sc=bb.width/vb.width;
-  B.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=((h.x-vb.x)*sc)+'px';f.style.top=((h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
+  RB.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=((h.x-vb.x)*sc)+'px';f.style.top=((h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
   setTimeout(()=>{for(const r of RES)if(got[0][r])$('c-'+r)?.classList.add('bump');},30);
 }
 function banner(t){const w=$('boardwrap'),n=w.querySelectorAll('.banner').length;const b=document.createElement('div');b.className='banner';b.textContent=t;b.style.top=(12+n*38)+'px';w.appendChild(b);setTimeout(()=>b.remove(),2200);}
@@ -648,10 +667,25 @@ $('side').addEventListener('click',e=>{if(e.target.id==='side')closeSide();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('side').hidden)closeSide();else if(!$('modal').hidden&&$('sheet').querySelector('#fl-x,#m-x,#n-no'))closeModal();}});
 // El tablero toma el lugar que queda libre, sin pasarse de ancho ni de alto (nada de scrollear para jugar).
 function fitBoard(){
-  const col=$('boardcol'),bw=$('boardwrap'),vb=$('board').viewBox.baseVal;if(!vb||!vb.width)return;
+  const col=$('boardcol'),bw=$('boardwrap');
+  if(G&&B&&col.clientWidth&&col.clientHeight){
+    const cw=col.clientWidth,ch=col.clientHeight,keep=ROT;
+    ROT=false;const a=boardBox();const s0=Math.min(cw/a.w,ch/a.h);ROT=true;const b=boardBox();const s1=Math.min(cw/b.w,ch/b.h);
+    ROT=keep;setRB();const want=keep?s0<s1*1.03?true:false:s1>s0*1.04;
+    if(want!==ROT){ROT=want;drawBoard();}
+  }
+  const vb=$('board').viewBox.baseVal;if(!vb||!vb.width)return;
   const ar=vb.width/vb.height,w=Math.floor(Math.min(col.clientWidth,col.clientHeight*ar));
   if(w>0&&bw.style.width!==w+'px')bw.style.width=w+'px';
 }
+// Alto real de la pantalla. En el iPhone con la app instalada, el navegador informa la pantalla
+// sin la barra de arriba y quedaba aire abajo: ahí se usa el alto completo de la pantalla.
+function fitScreen(){
+  let h=window.innerHeight;
+  if(navigator.standalone===true&&screen&&screen.height){const port=window.innerHeight>=window.innerWidth,sh=port?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);if(sh>h)h=sh;}
+  document.documentElement.style.setProperty('--app-h',h+'px');
+}
+fitScreen();window.addEventListener('resize',fitScreen);window.addEventListener('orientationchange',()=>setTimeout(fitScreen,300));
 if(window.ResizeObserver)new ResizeObserver(()=>fitBoard()).observe($('boardcol'));
 window.addEventListener('resize',fitBoard);
 function closeModal(){$('modal').hidden=true;}
@@ -805,7 +839,7 @@ function openMenu(){
     <button id="m-help">❓ Cómo se juega</button>
     <button id="m-log">📜 Lo que pasó</button>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 44</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};
   $('m-new').onclick=go(()=>{if(ON)netLeave();openNew(false);});$('m-friend').onclick=go(openFriends);$('m-help').onclick=go(openHelp);$('m-log').onclick=go(()=>$('btn-log').click());
