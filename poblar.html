@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1019">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BloqueAR">
 <title>PoblAR</title>
 <style>
 :root{--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--me:#4fc3f7;--cpu:#e5383b;--gold:#f6c453}
@@ -102,7 +106,8 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .banner{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0b1019e6;border:1px solid #3a4a60;border-radius:999px;padding:6px 14px;font-weight:800;font-size:13px;white-space:nowrap;pointer-events:none}
 
 /* Distribución: el tablero ocupa el lugar que queda; en pantallas anchas va al costado del panel */
-.app{height:100vh;height:100dvh;min-height:0;max-width:640px}
+/* Pantalla completa sin depender de 100vh/100dvh: en el iPhone con la app instalada calcula mal el alto y quedaba aire abajo */
+.app{position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;height:auto;min-height:0;max-width:640px;overflow-y:auto;overscroll-behavior:contain}
 .main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
 .panel{display:contents}
 .score{order:0}.boardcol{order:1}.status{order:2;min-height:40px}.log{order:3}.hand{order:4}.actions{order:5}.wide{order:6}
