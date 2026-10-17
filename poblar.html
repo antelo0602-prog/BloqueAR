@@ -116,7 +116,9 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .zoom-btn{position:absolute;right:8px;bottom:8px;z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid #ffffff38;background:#0b1019b8;color:#fff;font-size:16px;display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 4px 12px #0006;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .zoom-btn:active{transform:scale(.94)}
 .boardwrap.zoomed{cursor:grab}
-.banner{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0b1019e6;border:1px solid #3a4a60;border-radius:999px;padding:6px 14px;font-weight:800;font-size:13px;white-space:nowrap;pointer-events:none}
+.banners{position:absolute;left:8px;right:8px;top:10px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:3}
+.banner{max-width:100%;background:#0b1019eb;border:1px solid #3a4a60;border-radius:16px;padding:6px 14px;font-weight:800;font-size:13px;line-height:1.25;text-align:center;pointer-events:none;animation:bIn .18s ease-out}
+@keyframes bIn{from{opacity:0;transform:translateY(-6px)}}
 
 /* Distribución: el tablero ocupa el lugar que queda; en pantallas anchas va al costado del panel */
 /* Pantalla completa sin depender de 100vh/100dvh: en el iPhone con la app instalada calcula mal el alto y quedaba aire abajo */
@@ -188,7 +190,7 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR'};
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
 const RKEY='bloques-rangos-v1',XKEY='bloques-xpjuegos-v1',PKEY='bloques-progress-v1',DONE='bloques-rangos-hechas-v1';
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
@@ -233,11 +235,17 @@ function premio(de,xp){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
   const p={de,trigo:0,pesos:Math.min(1000,Math.round(n*2)),t:Date.now()};
   const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
-  // La Gran Pampa: cada partida terminada da una tirada extra ese día (hasta 3).
-  const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,X=ls.json('pampa-extra',{}),n2=(X.dia===dia?X.n||0:0)+1;
-  ls.set('pampa-extra',JSON.stringify({dia,n:n2}));
+  return {...p,leguas:pampaAct(de==='PoblAR'?'p':de==='TrucAR'?'t':'b')};
+}
+// La Gran Pampa: lo que jugás cada día da leguas para el mapa (las cobra el mapa al abrirse; la planilla pone los topes).
+// Por día: BloqueAR 1 por partida (hasta 4), PoblAR y TrucAR 2 por partida (hasta 2) y EstanciAR 1 por cosecha (hasta 4).
+const PAMPA_ACT={b:{tope:4,v:1},p:{tope:2,v:2},e:{tope:4,v:1},t:{tope:2,v:2}};
+function pampaAct(q){
+  const A=PAMPA_ACT[q];if(!A)return 0;
+  const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,X=ls.json('pampa-act',{}),o=X.d===dia?X:{d:dia,b:0,p:0,e:0,t:0};
+  o[q]=(o[q]||0)+1;ls.set('pampa-act',JSON.stringify(o));
   const a=ls.json('bloques-acct-v1',null);
-  return {...p,tirada:n2<=3&&!!(a&&a.usuario)};
+  return o[q]<=A.tope&&a&&a.usuario?A.v:0;
 }
 function levelInfo(x){let lv=1,acc=0,need=120;while(x>=acc+need){acc+=need;lv++;need=120+60*(lv-1);}return {lv,into:x-acc,need};}
 function general(){
@@ -267,7 +275,7 @@ const CSS=`.rk-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 
 .rk-bar{height:6px;border-radius:3px;background:#283345;overflow:hidden;margin-top:4px}.rk-bar i{display:block;height:100%;background:var(--rk,#7ce9e5)}`;
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
-window.RANGOS={TIERS,GAMES,info,get,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,DIV};
+window.RANGOS={TIERS,GAMES,info,get,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,pampaAct,PAMPA_ACT,DIV};
 })();
 
 </script>
@@ -291,7 +299,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -553,7 +561,7 @@ function renderProfile(p){
     <div class="cx-list">${body}${me?'':`<div class="cx-pact"><button type="button" class="cx-primary" data-con="${esc(S.prof)}">💬 Escribirle</button>${H.invite?`<button type="button" class="cx-sec" data-a="invitar" data-u="${esc(S.prof)}">🎮 Invitar a jugar</button>`:''}</div>`}</div>
     ${S.invFor?invSheet():''}`;
 }
-function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
+function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="truco">🃏 TrucAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
 /* Compartir una partida: elegís a quién y le llega como tarjeta con un botón para jugar. */
 function shareRows(){return convList().map(({u})=>`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(u.usuario)}"${u.pub?'':' disabled'}>${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}"></i></b><small>${u.pub?esc(estTxt(u)):'Todavía no puede leer mensajes'}</small></span></button>`).join('');}
 function renderShare(p){
@@ -562,7 +570,7 @@ function renderShare(p){
     <input id="cx-snote" maxlength="200" placeholder="Agregale algo (opcional): ¿me superás?"></div>
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
-function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️'}[c.j]||'🎮';
+function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏'}[c.j]||'🎮';
   return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&H.play?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">▶ Jugar</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
@@ -788,6 +796,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 })();
 
 </script>
+<style id="sin-estancia">.hub-game[data-game=estancia],.hub-game[data-game=pampa],a[href^="estancia.html"],a[href^="pampa.html"],[data-g=estancia],[data-pick=estancia]{display:none!important}</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -842,6 +851,12 @@ const DEV={gaucho:{e:'🐎',n:'Gaucho',d:'Mové al cuatrero y robale una carta a
   acopio:{e:'🏚️',n:'Acopio',d:'Elegí un recurso: el rival te da todos los que tenga.'},
   procer:{e:'🏛️',n:'Prócer',d:'1 punto escondido. Se suma solo.'}};
 const DIFF={facil:'Fácil',normal:'Normal',dificil:'Difícil'};
+// Cuánto afina la compu: lugar inicial (entre cuántos de los mejores elige), cuántas cartas le pueden faltar para cambiar con el banco,
+// entre cuántos lugares elige para el cuatrero, si compra cartas y cuántas cosas construye por turno como mucho
+// (calm: chance de que ese turno se conforme con una sola).
+const AI={facil:{top:10,miss:0,miss7:1,rob:-1,buy:0,cap:1,calm:1},normal:{top:5,miss:1,miss7:2,rob:3,buy:.2,cap:2,calm:.5},dificil:{top:1,miss:3,miss7:3,rob:1,buy:1,cap:99,calm:0}};
+const ai=()=>AI[G&&G.diff]||AI.normal;
+const pickTop=k=>{if(k<=1)return 0;if(k===3){const r=Math.random();return r<.5?0:r<.8?1:2;}return Math.floor(Math.random()*k);};// k=-1: cualquiera
 const LIMIT={road:15,ranch:5,town:4};
 const GOAL=8;
 const SAVE='poblar-partida-v2';
@@ -948,7 +963,16 @@ function place(p,kind,at){
   else{G.road[at]=p;G.p[p].road++;}
   if(kind!=='town')updateLongest();
 }
+// Sólo vale lo que se puede hacer de verdad: tu turno, la fase justa, un lugar libre y las cartas para pagarlo.
+function legal(p,kind,at){
+  if(!G||G.turn!==p||!['road','ranch','town'].includes(kind))return false;
+  if(G.phase==='setup')return kind===G.setupPhase&&(kind==='ranch'?ranchSpots(p,true):roadSpots(p,G.lastRanch)).includes(at);
+  if(G.phase!=='main'||G.p[p][kind]>=LIMIT[kind])return false;
+  if(!(kind==='road'&&G.free>0)&&!can(p,kind))return false;
+  return (kind==='road'?roadSpots(p):kind==='ranch'?ranchSpots(p):townSpots(p)).includes(at);
+}
 function build(p,kind,at){
+  if(!legal(p,kind,at))return false;
   if(G.phase==='setup'){
     if(G.setupPhase==='ranch'){place(p,'ranch',at);G.lastRanch=at;G.setupPhase='road';
       // Con el segundo rancho se cobran los recursos de alrededor.
@@ -966,13 +990,18 @@ function build(p,kind,at){
 }
 function checkWin(){for(const p of [0,1])if(vp(p)>=GOAL&&G.phase!=='over'){G.phase='over';G.winner=p;addLog(p===0?'🏆 ¡Ganaste!':`${G.p[1].name} ganó.`);save();render();setTimeout(showEnd,500);}}
 async function roll(){
+  if(!G||G.phase!=='roll')return;
   const d=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],n=d[0]+d[1];G.dice=d;G.diceBy=G.turn;G.rolls++;
   addLog(`${who(G.turn)} ${G.turn===0?'sacaste':'sacó'} ${n}.`);
   if(n===7){
     G.phase='robber';G.after='main';
-    for(const p of [0,1]){const c=cards(p);if(c<=7)continue;const lose=Math.floor(c/2);
-      if(G.p[p].bot||p!==0){discard(p,lose);addLog(`${who(p)} perdió ${lose} cartas por tener más de 7.`);}
+    let rival='';
+    for(const p of [0,1]){const c=cards(p);
+      if(c<=7){if(p===1){rival=`${G.p[1].name} no descarta (tiene ${c})`;addLog(`${G.p[1].name} tiene ${c} cartas: no descarta.`);}continue;}
+      const lose=Math.floor(c/2);
+      if(G.p[p].bot||p!==0){discard(p,lose);if(p===1){rival=`${G.p[1].name} descarta ${lose} de ${c}`;addLog(`${G.p[1].name} tenía ${c} cartas y descartó ${lose}.`);}else addLog(`Tenías ${c} cartas y descartaste ${lose}.`);}
       else{G.phase='discard';G.discardN=lose;}}
+    banner(`🤠 7 · ${rival.toUpperCase()}`);
     if(G.phase==='discard'){save();render(true);openDiscard();return;}
   }else{
     const got=[hand0(),hand0()];
@@ -986,23 +1015,28 @@ async function roll(){
 // Descartar la mitad: se van las cartas de lo que más tenés.
 function discard(p,n){const h=G.p[p].hand;for(let i=0;i<n;i++){const r=RES.reduce((a,b)=>h[b]>h[a]?b:a);h[r]--;}}
 function moveRobber(p,hex){
+  if(!G||G.phase!=='robber'||G.turn!==p||hex===G.robber||!B.hexes[hex])return;
   G.robber=hex;const victims=new Set(B.hexes[hex].v.map(v=>G.owner[v]).filter(o=>o!==null&&o!==p));
   let txt=`${who(p)} ${p===0?'mandaste':'mandó'} al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()}`;
-  for(const o of victims){const pool=RES.flatMap(r=>Array(G.p[o].hand[r]).fill(r));if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;txt+=p===0?` y le robaste ${RI[r].e}`:` y te robó ${RI[r].e}`;}}
+  for(const o of victims){const pool=RES.flatMap(r=>Array(Math.max(0,G.p[o].hand[r])).fill(r));if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;txt+=p===0?` y le robaste ${RI[r].e}`:` y te robó ${RI[r].e}`;
+    banner(p===0?`🤠 LE ROBASTE 1 ${RI[r].e} A ${G.p[1].name.toUpperCase()}`:`🤠 ${G.p[1].name.toUpperCase()} TE ROBÓ 1 ${RI[r].e}`);}
+    else txt+=p===0?' (no tenía cartas para robarle)':' (no tenías cartas)';}
   addLog(txt+'.');G.byGaucho=false;G.phase=G.after||'main';G.after=null;checkWin();save();render();
 }
-function trade(p,give,get){const n=rate(p,give);if(G.p[p].hand[give]<n)return false;G.p[p].hand[give]-=n;G.p[p].hand[get]++;addLog(`${who(p)} ${p===0?'cambiaste':'cambió'} ${n}${RI[give].e} por 1${RI[get].e}.`);save();render();return true;}
+function trade(p,give,get){if(!G||G.phase!=='main'||G.turn!==p||give===get)return false;const n=rate(p,give);if(G.p[p].hand[give]<n)return false;G.p[p].hand[give]-=n;G.p[p].hand[get]++;addLog(`${who(p)} ${p===0?'cambiaste':'cambió'} ${n}${RI[give].e} por 1${RI[get].e}.`);save();render();return true;}
 function endTurn(){if(G.phase!=='main')return;G.free=0;G.turn=1-G.turn;G.turnNo++;G.devUsed=false;G.offers=0;G.phase='roll';G.dice=null;mode=null;save();render();next();}
 /* ── Cartas de desarrollo ── */
 function buyDev(p){
-  if(!can(p,'dev')||!G.deck.length)return false;pay(p,'dev');const k=G.deck.pop();G.p[p].dev.push({k,t:G.turnNo});
+  if(!G||G.phase!=='main'||G.turn!==p||!can(p,'dev')||!G.deck.length)return false;pay(p,'dev');const k=G.deck.pop();G.p[p].dev.push({k,t:G.turnNo});
   addLog(`${who(p)} ${p===0?`compraste una carta: ${DEV[k].e} ${DEV[k].n}`:'compró una carta'}.`);checkWin();save();render();return true;
 }
 const playable=(p,c)=>c.k!=='procer'&&c.t<G.turnNo&&!G.devUsed&&G.turn===p&&(c.k==='gaucho'?['roll','main'].includes(G.phase):G.phase==='main');
 function playDev(p,i,arg){
   const c=G.p[p].dev[i];if(!c||!playable(p,c))return false;
   G.p[p].dev.splice(i,1);G.devUsed=true;const o=1-p;
-  addLog(`${who(p)} ${p===0?'jugaste':'jugó'} ${DEV[c.k].e} ${DEV[c.k].n}.`);banner(`${DEV[c.k].e} ${DEV[c.k].n.toUpperCase()}`);
+  addLog(`${who(p)} ${p===0?'jugaste':'jugó'} ${DEV[c.k].e} ${DEV[c.k].n}.`);
+  const fx=c.k==='gaucho'?'mueve al cuatrero':c.k==='obra'?'2 caminos gratis':c.k==='cosecha'?(Array.isArray(arg)?'toma '+arg.map(r=>RI[r].e).join(''):'2 recursos'):c.k==='acopio'&&RI[arg]?(p===0?'te llevás sus '+RI[arg].e:'se lleva tus '+RI[arg].e):'';
+  banner(`${DEV[c.k].e} ${p===0?'':G.p[1].name.toUpperCase()+' JUGÓ '}${DEV[c.k].n.toUpperCase()}${fx?' · '+fx.toUpperCase():''}`);
   if(c.k==='gaucho'){G.p[p].gauchos++;updateArmy();G.after=G.phase;G.phase='robber';G.byGaucho=true;}
   else if(c.k==='obra'){G.free=Math.min(2,LIMIT.road-G.p[p].road);if(!roadSpots(p).length)G.free=0;if(p===0&&G.free)mode='road';}
   else if(c.k==='cosecha'){for(const r of arg)G.p[p].hand[r]++;addLog(`${who(p)} ${p===0?'tomaste':'tomó'} ${arg.map(r=>RI[r].e).join('')}.`);}
@@ -1058,32 +1092,41 @@ function bestRoadToward(p){
   if(best===null)return null;let w=best,e=null;while(prev.has(w)){const [v,ee]=prev.get(w);e=ee;if(dist.get(v)===0)break;w=v;}
   return e;
 }
+// Cada jugada de la compu tiene su ficha: si mientras espera empieza otra partida (o arranca otra jugada),
+// la vieja se corta en la próxima espera y no toca nada más.
+let BOTTOK=0;const STOP={};
 async function botTurn(){
-  const p=G.turn,o=1-p,wait=ms=>sleep(FAST?0:ms);
+  const g0=G,p=G.turn,o=1-p,tok=++BOTTOK;
+  const alive=()=>G===g0&&BOTTOK===tok&&G.turn===p&&G.p[p].bot&&G.phase!=='over';
+  const wait=async ms=>{await sleep(FAST?0:ms);if(!alive()){if(window.BOTDBG)console.log('STOP',G===g0,BOTTOK,tok,G.turn,p,G.p[p].bot,G.phase,new Error().stack.split('\n').slice(1,4).join('|'));throw STOP;}};
+  try{await botPlay(p,o,wait,alive);}catch(e){if(e!==STOP)throw e;}
+}
+async function botPlay(p,o,wait,alive){
   if(G.phase==='setup'){
     await wait(500);
-    if(G.setupPhase==='ranch'){const spots=ranchSpots(p,true);spots.sort((a,b)=>vertValue(p,b,true)-vertValue(p,a,true));build(p,'ranch',spots[G.diff==='facil'?Math.floor(Math.random()*Math.min(6,spots.length)):0]);}
+    if(G.setupPhase==='ranch'){const spots=ranchSpots(p,true);spots.sort((a,b)=>vertValue(p,b,true)-vertValue(p,a,true));build(p,'ranch',spots[Math.min(spots.length-1,pickTop(ai().top))]);}
     else{const opts=roadSpots(p,G.lastRanch);let best=opts[0],bs=-1;for(const e of opts){const {a,b}=B.edges[e],w=a===G.lastRanch?b:a;let sc=0;for(const x of B.verts[w].adj)sc=Math.max(sc,vertValue(p,x,true));if(sc>bs){bs=sc;best=e;}}build(p,'road',best);}
     return;
   }
   // Antes de tirar: un gaucho si el cuatrero le bloquea algo o si vas ganando.
   if(G.phase==='roll'&&G.diff!=='facil'){const i=G.p[p].dev.findIndex(c=>c.k==='gaucho'&&playable(p,c));
-    if(i>=0&&(B.hexes[G.robber].v.some(v=>G.owner[v]===p)||vp(o)>=shown(p))){await wait(500);playDev(p,i);await wait(500);}}
+    if(i>=0&&(B.hexes[G.robber].v.some(v=>G.owner[v]===p)||(G.diff==='dificil'&&vp(o)>=shown(p)))){await wait(500);playDev(p,i);await wait(500);}}
   if(G.phase==='robber'&&G.after==='roll'){await botRobber(p,o);await wait(500);}
   if(G.phase==='roll'){await wait(600);await roll();await wait(700);}
   if(G.phase==='discard')return;// espera que descartes; después sigue sola
   if(G.phase==='robber'){await botRobber(p,o);await wait(700);}
   if(G.phase==='over')return;
+  let built=0;const cap=Math.random()<ai().calm?1:ai().cap;
   for(let guard=0;guard<12&&G.phase==='main';guard++){
-    let did=false;
-    if(can(p,'town')&&G.p[p].town<LIMIT.town){const val=v=>B.verts[v].hexes.reduce((s,h)=>s+(B.hexes[h].res==='salitral'?0:pips(B.hexes[h].num)),0);const t=townSpots(p).sort((a,b)=>val(b)-val(a));if(t.length){build(p,'town',t[0]);did=true;}}
-    if(!did&&can(p,'ranch')&&G.p[p].ranch<LIMIT.ranch){const s=ranchSpots(p).sort((a,b)=>vertValue(p,b)-vertValue(p,a));if(s.length){build(p,'ranch',s[0]);did=true;}}
-    if(!did&&can(p,'road')&&G.p[p].road<LIMIT.road&&!(ranchSpots(p).length&&!can(p,'ranch')&&cards(p)>=3)){const e=bestRoadToward(p);const wantLong=G.longest!==p&&G.longLen[p]>=G.longLen[o]-1&&G.longLen[p]>=3;
-      if(e!==null||wantLong){const e2=e!==null?e:roadSpots(p)[0];if(e2!==undefined){build(p,'road',e2);did=true;}}}
+    let did=false;const room=built<cap;
+    if(room&&can(p,'town')&&G.p[p].town<LIMIT.town){const val=v=>B.verts[v].hexes.reduce((s,h)=>s+(B.hexes[h].res==='salitral'?0:pips(B.hexes[h].num)),0);const t=townSpots(p).sort((a,b)=>val(b)-val(a));if(t.length){build(p,'town',t[0]);did=true;built++;}}
+    if(room&&!did&&can(p,'ranch')&&G.p[p].ranch<LIMIT.ranch){const s=ranchSpots(p).sort((a,b)=>vertValue(p,b)-vertValue(p,a));if(s.length){build(p,'ranch',s[0]);did=true;built++;}}
+    if(room&&!did&&can(p,'road')&&G.p[p].road<LIMIT.road&&!(ranchSpots(p).length&&!can(p,'ranch')&&cards(p)>=3)){const e=bestRoadToward(p);const wantLong=G.longest!==p&&G.longLen[p]>=G.longLen[o]-1&&G.longLen[p]>=3;
+      if(e!==null||wantLong){const e2=e!==null?e:roadSpots(p)[0];if(e2!==undefined){build(p,'road',e2);did=true;built++;}}}
     if(!did)did=botDev(p);
     if(G.phase==='robber'){await wait(500);await botRobber(p,o);did=true;}
-    if(!did&&G.offers<1&&G.p[o].bot===false&&G.diff!=='facil')did=await botOffer(p);
-    if(!did)did=botTrade(p);
+    if(!did&&G.offers<1&&G.p[o].bot===false&&G.diff!=='facil'){did=await botOffer(p,alive);if(!alive())throw STOP;}
+    if(!did&&room)did=botTrade(p);
     if(G.phase==='over')return;
     if(!did)break;await wait(650);
   }
@@ -1091,7 +1134,8 @@ async function botTurn(){
 }
 async function botRobber(p,o){
   const opts=[];B.hexes.forEach((h,hi)=>{if(hi===G.robber)return;let s=0;for(const v of h.v){if(G.owner[v]===o)s+=pips(h.num)*(G.town[v]?2:1)+(cards(o)?.5:0);if(G.owner[v]===p)s-=pips(h.num)*2;}opts.push([s,hi]);});
-  opts.sort((a,b)=>b[0]-a[0]);const pick=G.diff==='facil'?opts[Math.floor(Math.random()*Math.min(4,opts.length))]:opts[0];
+  opts.sort((a,b)=>b[0]-a[0]);const k=ai().rob,hit=opts.filter(x=>B.hexes[x[1]].v.some(v=>G.owner[v]===o));
+  const pick=k<0?opts[Math.floor(Math.random()*opts.length)]:k===0?(hit.length?hit[Math.floor(Math.random()*hit.length)]:opts[0]):opts[Math.min(opts.length-1,pickTop(k))];
   moveRobber(p,pick[1]);
 }
 // Cartas: compra si le sobra para eso y juega las que le sirven.
@@ -1100,21 +1144,25 @@ function botDev(p){
   if(!G.devUsed){
     let i=D.findIndex(c=>c.k==='obra'&&playable(p,c));if(i>=0&&roadSpots(p).length&&G.p[p].road<LIMIT.road-1){playDev(p,i);let n=0;while(G.free>0&&n++<2){const e=bestRoadToward(p)??roadSpots(p)[0];if(e===undefined||e===null)break;build(p,'road',e);}G.free=0;return true;}
     i=D.findIndex(c=>c.k==='cosecha'&&playable(p,c));if(i>=0){const v=needValue(p),pick=RES.slice().sort((a,b)=>v[b]-v[a]);if(v[pick[0]]>1.5){playDev(p,i,[pick[0],v[pick[1]]>1.5?pick[1]:pick[0]]);return true;}}
-    i=D.findIndex(c=>c.k==='acopio'&&playable(p,c));if(i>=0){const r=RES.slice().sort((a,b)=>G.p[o].hand[b]-G.p[o].hand[a])[0];if(G.p[o].hand[r]>=2){playDev(p,i,r);return true;}}
-    i=D.findIndex(c=>c.k==='gaucho'&&playable(p,c));if(i>=0&&(B.hexes[G.robber].v.some(v=>G.owner[v]===p)||(G.p[p].gauchos>=2&&G.army!==p))){playDev(p,i);return true;}
+    i=D.findIndex(c=>c.k==='acopio'&&playable(p,c));if(i>=0){
+      const prod=r=>{let s=0;for(let v=0;v<B.verts.length;v++)if(G.owner[v]===o)for(const h of B.verts[v].hexes)if(B.hexes[h].res===r&&h!==G.robber)s+=pips(B.hexes[h].num)*(G.town[v]?2:1);return s;};
+      const r=G.diff==='dificil'?RES.slice().sort((a,b)=>G.p[o].hand[b]-G.p[o].hand[a])[0]:RES.slice().sort((a,b)=>prod(b)-prod(a))[0];
+      if(G.diff!=='dificil'?cards(o)>=4:G.p[o].hand[r]>=2){playDev(p,i,r);return true;}}
+    i=D.findIndex(c=>c.k==='gaucho'&&playable(p,c));if(i>=0&&(B.hexes[G.robber].v.some(v=>G.owner[v]===p)||(G.diff==='dificil'&&G.p[p].gauchos>=2&&G.army!==p))){playDev(p,i);return true;}
   }
   const nothingElse=!(can(p,'ranch')&&ranchSpots(p).length)&&!(can(p,'town')&&townSpots(p).length);
-  if(can(p,'dev')&&G.deck.length&&nothingElse&&(G.diff==='dificil'||Math.random()<.6))return buyDev(p);
+  if(can(p,'dev')&&G.deck.length&&nothingElse&&Math.random()<ai().buy)return buyDev(p);
   return false;
 }
 // Te ofrece un cambio 1 por 1 si le falta una sola carta para algo.
-async function botOffer(p){
+async function botOffer(p,alive=()=>true){
   const h=G.p[p].hand,o=1-p,goals=[];if(townSpots(p).length&&G.p[p].town<LIMIT.town)goals.push('town');if(ranchSpots(p).length&&G.p[p].ranch<LIMIT.ranch)goals.push('ranch');
   for(const g of goals){const need=RES.filter(r=>(COST[g][r]||0)>h[r]);const miss=need.reduce((s,r)=>s+(COST[g][r]-h[r]),0);if(miss!==1)continue;
     const want=need[0];if(!G.p[o].hand[want])continue;
     const spare=RES.filter(r=>r!==want&&h[r]-(COST[g][r]||0)>=1).sort((a,b)=>h[b]-h[a]);if(!spare.length)continue;
     G.offers++;const give=spare[0];
-    const yes=await askOffer(give,want);
+    const yes=await askOffer(give,want,'La compu',g);
+    if(!alive())return false;
     if(yes){const gv=hand0(),wv=hand0();gv[want]=1;wv[give]=1;swapCards(gv,wv);return true;}
     addLog('No aceptaste el cambio de la compu.');return false;}
   return false;
@@ -1126,7 +1174,7 @@ function botTrade(p){
   if(G.p[p].ranch<LIMIT.ranch&&ranchSpots(p).length)goals.push('ranch');
   goals.push('road');
   // Le falta poco (1 o 2 cartas) para algo: cambia lo que le sobra. Con muchas cartas (riesgo del cuatrero) es más decidida.
-  const maxMiss=G.diff==='facil'?1:cards(p)>7||G.diff==='dificil'?3:2;
+  const maxMiss=cards(p)>7?ai().miss7:ai().miss;
   for(const g of goals){const need=RES.filter(r=>(COST[g][r]||0)>h[r]);const miss=need.reduce((s,r)=>s+(COST[g][r]-h[r]),0);if(!miss||miss>maxMiss)continue;
     const want=need[0];const spare=RES.filter(r=>!need.includes(r)&&h[r]-(COST[g][r]||0)>=rate(p,r)).sort((a,b)=>(h[b]-rate(p,b))-(h[a]-rate(p,a)));
     if(spare.length){trade(p,spare[0],want);return true;}}
@@ -1319,7 +1367,8 @@ function floatGains(n,got){
   RB.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=(bb.left-wr.left+(h.x-vb.x)*sc)+'px';f.style.top=(bb.top-wr.top+(h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
   setTimeout(()=>{for(const r of RES)if(got[0][r])$('c-'+r)?.classList.add('bump');},30);
 }
-function banner(t){const w=$('boardwrap'),n=w.querySelectorAll('.banner').length;const b=document.createElement('div');b.className='banner';b.textContent=t;b.style.top=(12+n*38)+'px';w.appendChild(b);setTimeout(()=>b.remove(),2200);}
+function banner(t){const w=$('boardwrap');let box=w.querySelector('.banners');if(!box){box=document.createElement('div');box.className='banners';w.appendChild(box);}
+  const b=document.createElement('div');b.className='banner';b.textContent=t;box.appendChild(b);while(box.children.length>3)box.firstChild.remove();setTimeout(()=>b.remove(),2600);}
 
 /* ── Ventanas: cambiar, ayuda, final ── */
 function openModal(html){$('sheet').innerHTML=html;$('modal').hidden=false;}
@@ -1410,10 +1459,12 @@ function openOffer(){
   };draw();
 }
 // La compu te ofrece un cambio en su turno.
-function askOffer(give,want,from='La compu'){
+function askOffer(give,want,from='La compu',goal=''){
   if(G.p[0].bot)return Promise.resolve(false);
+  // Se dice para qué lo quiere: así sabés si la estás ayudando a sumar un punto.
+  const para=goal==='town'?'Con eso arma un pueblo (+1 punto).':goal==='ranch'?'Con eso arma un rancho (+1 punto).':'';
   return new Promise(res=>{
-    openModal(`<h2>🤝 ${escHtml(from)} te propone</h2><p style="font-size:18px">Te da <b>1 ${RI[give].e} ${RI[give].n}</b> y te pide <b>1 ${RI[want].e} ${RI[want].n}</b>.</p><p class="note">Tenés ${G.p[0].hand[want]} ${RI[want].e}.</p>
+    openModal(`<h2>🤝 ${escHtml(from)} te propone</h2><p style="font-size:18px">Te da <b>1 ${RI[give].e} ${RI[give].n}</b> y te pide <b>1 ${RI[want].e} ${RI[want].n}</b>.</p>${para?`<p><b>${para}</b></p>`:''}<p class="note">Tenés ${G.p[0].hand[want]} ${RI[want].e}.</p>
       <div class="row"><button class="pill" id="ao-no">No, gracias</button><button class="primary" id="ao-yes">ACEPTAR</button></div>`);
     $('ao-no').onclick=()=>{closeModal();res(false);};$('ao-yes').onclick=()=>{closeModal();res(true);};
   });
@@ -1443,13 +1494,13 @@ function pickRes(n,title,done){
 function openDiscard(){
   const out=hand0();
   const draw=()=>{const h=G.p[0].hand,t=RES.reduce((s,r)=>s+out[r],0);
-    openModal(`<h2>🤠 ¡Salió 7!</h2><p>Tenés ${cards(0)} cartas: descartá <b>${G.discardN}</b>.</p>
+    openModal(`<h2>🤠 ¡Salió 7!</h2><p>Tenés ${cards(0)} cartas (más de 7): descartá la mitad, <b>${G.discardN}</b>.</p>
       <div class="cnt" id="dc">${RES.map(r=>`<div><span class="e">${RI[r].e}</span><span class="n">${out[r]}</span><small>de ${h[r]}</small><span class="pm"><button data-r="${r}" data-d="-1" ${out[r]?'':'disabled'}>−</button><button data-r="${r}" data-d="1" ${out[r]<h[r]&&t<G.discardN?'':'disabled'}>+</button></span></div>`).join('')}</div>
       <div class="row"><button class="pill" id="dc-auto">Que elija el juego</button><button class="primary" id="dc-ok" ${t===G.discardN?'':'disabled'}>DESCARTAR</button></div>`);
     $('dc').onclick=e=>{const b=e.target.closest('button[data-r]');if(!b||b.disabled)return;out[b.dataset.r]+=Number(b.dataset.d);draw();};
-    const finish=()=>{addLog(`Descartaste ${G.discardN} cartas.`);G.phase='robber';G.discardN=0;closeModal();save();next();};
-    $('dc-auto').onclick=()=>{discard(0,G.discardN);finish();};
-    $('dc-ok').onclick=()=>{for(const r of RES)G.p[0].hand[r]-=out[r];finish();};
+    const finish=()=>{if(G.phase!=='discard'){closeModal();return;}addLog(`Descartaste ${G.discardN} cartas.`);G.phase='robber';G.discardN=0;closeModal();save();next();};
+    $('dc-auto').onclick=()=>{if(G.phase==='discard')discard(0,G.discardN);finish();};
+    $('dc-ok').onclick=()=>{if(G.phase==='discard'&&RES.reduce((s,r)=>s+out[r],0)===G.discardN&&RES.every(r=>out[r]<=G.p[0].hand[r]))for(const r of RES)G.p[0].hand[r]-=out[r];else if(G.phase==='discard'){draw();return;}finish();};
   };draw();
 }
 function rankedRow(facil){
@@ -1466,7 +1517,7 @@ function openNew(first=false,kind='compu'){
     <div class="mode-pick" id="mk"><button data-k="compu" class="${compu?'on':''}">🤖 Con la compu<small>Cuando quieras</small></button><button data-k="online" class="${compu?'':'on'}">👥 En línea<small>Con un amigo</small></button></div>
     ${compu?`<b>Dificultad</b>
     <div class="diff" id="df">${Object.entries(DIFF).map(([k,n])=>`<button data-d="${k}" class="${d===k?'on':''}">${n}</button>`).join('')}</div>
-    <p class="note">${d==='facil'?'Juega más relajada: no compra cartas ni te ofrece cambios.':d==='dificil'?'Cambia más, compra cartas y no te regala nada.':'Juega bien, compra cartas y a veces te ofrece cambios.'}</p>${rankedRow(d==='facil')}`
+    <p class="note">${d==='facil'?'Para aprender: construye de a una cosa por turno, no compra cartas y casi no cambia con el banco.':d==='dificil'?'A fondo: elige los mejores lugares, cambia mucho, compra cartas y no te regala nada.':'Pareja: juega bien, pero se le puede ganar.'}</p>${rankedRow(d==='facil')}`
     :`<p>Jugás contra un amigo, cada uno en su celular o compu. Usás tu cuenta de BloqueAR: elegís a tu amigo y le llega la invitación.</p>${rankedRow(false)}`}
     <div class="row">${first?'':'<button class="pill" id="n-no">Volver</button>'}<button class="primary" id="n-yes">${compu?'JUGAR':'ELEGIR AMIGO'}</button></div>`);
     $('mk').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!==kind){kind=b.dataset.k;draw();}};
@@ -1488,20 +1539,20 @@ function openHelp(){
       <div class="hrow"><b>Rancho <small>1 punto</small></b><span>🌳🧱🐑🌾</span></div>
       <div class="hrow"><b>Pueblo <small>2 puntos, mejora un rancho</small></b><span>🌾🌾⛰️⛰️⛰️</span></div>
       <p>Los ranchos van en esquinas libres pegadas a tus caminos, y nunca al lado de otro rancho.</p></div>
-    <div class="hcard"><h4>🤠 El cuatrero (cuando sale 7)</h4><p>Quien tenga más de 7 cartas pierde la mitad. El que tiró pone al cuatrero en un terreno: ese terreno no produce y le roba una carta al rival que esté ahí.</p></div>
+    <div class="hcard"><h4>🤠 El cuatrero (cuando sale 7)</h4><p>Quien tenga más de 7 cartas descarta la mitad (con 8 o 9, 4; con 10 u 11, 5). Después, el que tiró pone al cuatrero en un terreno: ese terreno no produce y le roba una carta al rival que esté ahí. Por eso, si te sale el 7 al otro, podés perder la mitad y una más.</p></div>
     <div class="hcard"><h4>🔁 Cambiar</h4><p>4 iguales por 1 con el banco. Con un rancho en un puerto: 3:1 o 2:1. También podés proponerle cambios ${ON?'a tu amigo':'a la compu'}.</p></div>
-    <div class="hcard"><h4>🃏 Cartas <small>🐑🌾⛰️</small></h4><div class="hlist">${Object.values(DEV).map(d=>`<span><b>${d.e} ${d.n}</b><small>${d.d}</small></span>`).join('')}</div></div>
+    <div class="hcard"><h4>🃏 Cartas <small>🐑🌾⛰️</small></h4><p>${ON?'Tu amigo':'La compu'} también las compra y las juega: cuando usa una, aparece un cartel que dice qué hace (por ejemplo, 2 caminos gratis).</p><div class="hlist">${Object.values(DEV).map(d=>`<span><b>${d.e} ${d.n}</b><small>${d.d}</small></span>`).join('')}</div></div>
     <div class="hcard"><h4>⭐ Puntos extra</h4><p>🛣️ <b>Camino más largo</b> (5 o más seguidos): +2. 🐎 <b>Tropilla más grande</b> (3 gauchos o más): +2. Si el rival te supera, se los lleva.</p></div>
     <div class="row hfoot"><button class="primary" id="h-ok">ENTENDIDO</button></div>`);
   $('h-ok').onclick=closeModal;
 }
-let RK_LAST=null;const OVER={k:'',t:0};
+let RK_LAST=null;const OVER={k:'',t:0,leguas:null};
 function rankEnd(){
   if(!window.RANGOS||AUTO||!G||G.phase!=='over')return null;
   const key='p'+G.seed+'-'+G.rolls+'-'+(G.p[1].name||'');if(RK_LAST&&RK_LAST.key===key)return RK_LAST.r;
   const w=G.winner===0,amigo=!G.p[1].bot&&!!ON,kind=amigo?'amigo':G.diff==='facil'?null:'compu-'+G.diff;
   const done=(()=>{try{return JSON.parse(localStorage.getItem('poblar-xp-hechas')||'[]');}catch(_){return [];}})();
-  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{const pr=RANGOS.premio('PoblAR',xp);if(pr&&pr.tirada)OVER.tirada=key;}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
+  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{const pr=RANGOS.premio('PoblAR',xp);if(pr&&pr.leguas)OVER.leguas={key,n:pr.leguas};}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
   const r=kind?RANGOS.apply('poblar',{key,win:w,kind}):null;
   RK_LAST={key,r,xp};return r;
 }
@@ -1509,7 +1560,7 @@ function showEnd(){
   if(!G||G.phase!=='over'||G.winner==null)return;// (si ya se empezó otra partida, no mostrar un final viejo)
   const w=G.winner===0,rk=rankEnd(),xp=RK_LAST&&RK_LAST.xp,lvl=window.RANGOS?RANGOS.levelInfo(RANGOS.xp('poblar')):null;
   openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
-    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP · 🎁 +${Math.min(1000,xp*2)} 🪙 para tu estancia${OVER.tirada===(RK_LAST&&RK_LAST.key)?' · 🎲 +1 tirada en La Gran Pampa':''}`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
+    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP${OVER.leguas&&OVER.leguas.key===(RK_LAST&&RK_LAST.key)?` · 🚩 +${OVER.leguas.n} leguas en La Gran Pampa`:''}`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
     ${window.CHAT&&acct()?'<button class="pill" id="e-share" style="width:100%;margin-top:10px;min-height:44px">💬 Compartir con un amigo</button>':''}
     <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
   if($('e-share'))$('e-share').onclick=()=>{closeModal();CHAT.share({j:'poblar',t:w?'Gané en PoblAR':'Perdí en PoblAR',d:`${vp(0)} a ${vp(1)} contra ${G.p[1].bot?'la compu ('+DIFF[G.diff]+')':G.p[1].name} · ${G.rolls} tiradas`,r:rk&&rk.after?rk.after.label:''});};
@@ -1548,7 +1599,7 @@ function openMenu(){
     <button id="m-log">📜 Lo que pasó</button>
     <button id="m-snd">${SND_ON?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 51</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 54</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};
@@ -1787,19 +1838,19 @@ async function pollInbox(force=false){
   polling=true;pollAt=Date.now();
   try{const j=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token});const inv=j.invitacion;
     if(inv&&!UIQ.dismissed.has(inv.id)&&!ON){
-      const pob=String(inv.oferta||'').startsWith('POBLAR:');
+      const pob=String(inv.oferta||'').startsWith('POBLAR:'),tru=String(inv.oferta||'').startsWith('TRUCO:');
       let want='';try{want=sessionStorage.getItem('poblar-accept')||'';}catch(_){}
       if(pob&&want===inv.id){try{sessionStorage.removeItem('poblar-accept');}catch(_){}acceptInvite(inv);}
-      else showInvite(inv,pob);
+      else showInvite(inv,pob,tru);
     }}catch(_){}
   polling=false;
 }
-function showInvite(inv,pob){
+function showInvite(inv,pob,tru=false){
   UIQ.dismissed.add(inv.id);
-  openModal(`<h2>🤝 Te invitan</h2><div style="display:flex;align-items:center;gap:12px;margin:10px 0">${avHtml(inv.avatar,inv.color)}<div><b style="font-size:18px">${escHtml(inv.de)}</b><div class="note">te invita a jugar ${pob?'<b>PoblAR</b> 🏘️':'<b>BloqueAR</b> 🧱'}</div></div></div>
+  openModal(`<h2>🤝 Te invitan</h2><div style="display:flex;align-items:center;gap:12px;margin:10px 0">${avHtml(inv.avatar,inv.color)}<div><b style="font-size:18px">${escHtml(inv.de)}</b><div class="note">te invita a jugar ${pob?'<b>PoblAR</b> 🏘️':tru?'<b>TrucAR</b> 🃏':'<b>BloqueAR</b> 🧱'}</div></div></div>
     <div class="row"><button class="pill" id="iv-no">Ahora no</button><button class="primary" id="iv-yes">ACEPTAR</button></div>`);
   $('iv-no').onclick=()=>{closeModal();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
-  $('iv-yes').onclick=()=>{closeModal();if(pob)acceptInvite(inv);else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
+  $('iv-yes').onclick=()=>{closeModal();if(pob)acceptInvite(inv);else if(tru){try{sessionStorage.setItem('truco-accept',inv.id);}catch(_){}location.href='truco.html';}else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
 }
 if(!/[#&]auto/.test(location.hash)){
   setInterval(()=>pollInbox(),5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>pollInbox(true),500);});
@@ -1821,12 +1872,18 @@ let FAST=false,AUTO=false;
 // Chat (viene con el sitio; si se abre este archivo suelto, no está).
 if(window.RANGOS)RANGOS.css();
 if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{location.href='./#cuenta';},game:()=>'poblar',
-  invite:(g,u)=>{if(g==='estancia'){location.href='estancia.html#malon';return;}if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
+  invite:(g,u)=>{if(g==='estancia'){location.href='estancia.html#malon';return;}if(g==='truco'){location.href='truco.html#invitar='+encodeURIComponent(u);return;}if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
     if(ON){openFriends();return;}const x=(UIQ.users||[]).find(y=>y.usuario.toLowerCase()===String(u).toLowerCase())||{usuario:u,avatar:'🙂',color:'#7ce9e5'};inviteFriend(x);},
-  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':'./';}});
+  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':c.j==='truco'?'truco.html':'./';}});
 {const m=/^#invitar=([^&]+)/.exec(location.hash);if(m&&acct()){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
   const u=decodeURIComponent(m[1]);setTimeout(()=>{closeModal();inviteFriend((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#7ce9e5'});},400);}}
 window.POBLAR={showEnd,rankEnd,pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
+</script>
+<script>/* Paquete sin EstanciAR ni La Gran Pampa */
+(function(){try{if(window.RANGOS)RANGOS.premio=function(){return null;};}catch(e){}
+function limpiar(){document.querySelectorAll('.wel-row').forEach(function(r){if(/EstanciAR|La Gran Pampa/.test(r.textContent))r.remove();});}
+limpiar();document.addEventListener('DOMContentLoaded',limpiar);
+try{var u=localStorage.getItem('bloques-ultimo-juego');if(u==='estancia'||u==='pampa')localStorage.setItem('bloques-ultimo-juego','bloquear');}catch(e){}})();
 </script>
 </body>
 </html>
