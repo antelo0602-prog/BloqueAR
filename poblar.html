@@ -32,10 +32,10 @@ button{font:inherit;color:inherit}
 .boardwrap{position:relative;border-radius:18px;overflow:hidden;background:#0b3044;border:2px solid #2a2118;box-shadow:0 0 0 1px #3a5a68,0 10px 30px #0008}
 svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .hex{stroke:#0e2a38;stroke-width:3}
-.ptxt{font-size:11px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.pico{font-size:11px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.ptxt{font-size:10.5px;font-weight:900;text-anchor:middle;dominant-baseline:central;pointer-events:none}.pico{font-size:11px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .hname{font-size:10px;font-weight:900;letter-spacing:.12em;fill:#8a7b58;text-anchor:middle;dominant-baseline:central;pointer-events:none}
-.num{font-weight:900;font-size:22px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
-.hico{font-size:17px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.num{font-weight:900;font-size:24px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.hico{font-size:18px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .port text{font-size:11px;font-weight:800;fill:#e9f3f8;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .spot{fill:#fff;fill-opacity:.0;stroke:none;cursor:pointer}
 .spot.on{fill-opacity:1;fill:#f2c14e;stroke:#2a2118;stroke-width:3.5;animation:pulse 1s ease-in-out infinite alternate}
@@ -101,14 +101,27 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .cost{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:#cbd6e3}
 .cost b{color:#fff}
 .legend{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px;margin-top:8px;color:#cbd6e3}
+.hgoal{margin:0 0 6px!important;color:#dfe8f3!important}
+.hcard{background:#0f1724;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:8px}
+.hcard h4{margin:0 0 4px;font-size:15px}.hcard h4 small{color:var(--dim);font-weight:700;font-size:12px}
+.hcard p{margin:4px 0 0!important;font-size:13.5px;line-height:1.45}
+.hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:4px}.hgrid span{display:flex;flex-direction:column;padding:6px 8px;border-radius:10px;background:#141f2f}.hgrid b{font-size:13px}.hgrid small{color:var(--dim);font-size:12px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #1d2838}.hrow b{font-size:14px}.hrow b small{display:block;color:var(--dim);font-size:11.5px;font-weight:700}.hrow span{font-size:17px;letter-spacing:1px;white-space:nowrap}
+.hlist{display:flex;flex-direction:column;gap:6px;margin-top:4px}.hlist span{display:flex;flex-direction:column}.hlist b{font-size:13.5px}.hlist small{color:#b9c6d6;font-size:12.5px;line-height:1.35}
+.hfoot{position:sticky;bottom:-16px;background:linear-gradient(transparent,#121b29 30%);padding:14px 0 2px;margin-top:4px}
 .float{position:absolute;pointer-events:none;font-weight:900;font-size:16px;animation:floatup 1.2s ease-out forwards;text-shadow:0 2px 6px #000}
 @keyframes floatup{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-40px)}}
+.boardwrap{touch-action:none}
+#board{transform-origin:0 0}
+.zoom-btn{position:absolute;right:8px;bottom:8px;z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid #ffffff38;background:#0b1019b8;color:#fff;font-size:16px;display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 4px 12px #0006;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.zoom-btn:active{transform:scale(.94)}
+.boardwrap.zoomed{cursor:grab}
 .banner{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0b1019e6;border:1px solid #3a4a60;border-radius:999px;padding:6px 14px;font-weight:800;font-size:13px;white-space:nowrap;pointer-events:none}
 
 /* Distribución: el tablero ocupa el lugar que queda; en pantallas anchas va al costado del panel */
 /* Pantalla completa sin depender de 100vh/100dvh: en el iPhone con la app instalada calcula mal el alto y quedaba aire abajo */
 .app{position:fixed;top:0;left:0;right:0;margin:0 auto;height:var(--app-h,100%);min-height:0;max-width:640px;overflow-y:auto;overscroll-behavior:contain}
-@media (max-width:520px) and (orientation:portrait){.app{padding-left:6px;padding-right:6px}.boardwrap{border-width:1px;border-radius:14px}}
+
 .main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
 .panel{display:contents}
 .score{order:0}.boardcol{order:1}.status{order:2;min-height:40px}.log{order:3}.hand{order:4}.actions{order:5}.wide{order:6}
@@ -151,6 +164,16 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .card.lost{border-color:#ff7b6b}
 .card .dl{position:absolute;top:-8px;right:-4px;min-width:22px;padding:1px 6px;border-radius:10px;font-size:12px;font-weight:900;background:#57d49b;color:#062a1a;box-shadow:0 2px 6px #0008;animation:bump .5s ease-out}
 .card.lost .dl{background:#ff7b6b;color:#2a0705}
+@media (max-width:520px) and (orientation:portrait){
+  .app{padding-left:4px;padding-right:4px;gap:6px}.main{gap:6px}.top{padding:0 2px}
+  .boardwrap{border-width:1px;border-radius:12px}
+  .score{gap:6px}.pl{padding:4px 10px;border-radius:12px}.pl .vp{font-size:20px}
+  .status{min-height:36px;font-size:13.5px;line-height:1.3}.status small{font-size:11.5px}
+  .hand{gap:4px}
+  .card{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:4px;row-gap:0;padding:5px 2px 4px;border-radius:11px}
+  .card .e{font-size:19px;line-height:1.15}.card .n{font-size:19px;line-height:1.15}.card .l{grid-column:1/-1;text-align:center;line-height:1.2}
+  .actions,.wide{gap:5px}.act{min-height:46px;border-radius:12px}.pill,.primary{min-height:48px;border-radius:12px}
+}
 </style>
 <script>
 /* ───────── Rangos y niveles de todos los juegos ─────────
@@ -208,8 +231,13 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 // Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
 function premio(de,xp){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
-  const p={de,trigo:Math.min(800,n*2),pesos:Math.min(600,Math.round(n*1.5)),t:Date.now()};
-  const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));return p;
+  const p={de,trigo:0,pesos:Math.min(1000,Math.round(n*2)),t:Date.now()};
+  const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
+  // La Gran Pampa: cada partida terminada da una tirada extra ese día (hasta 3).
+  const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,X=ls.json('pampa-extra',{}),n2=(X.dia===dia?X.n||0:0)+1;
+  ls.set('pampa-extra',JSON.stringify({dia,n:n2}));
+  const a=ls.json('bloques-acct-v1',null);
+  return {...p,tirada:n2<=3&&!!(a&&a.usuario)};
 }
 function levelInfo(x){let lv=1,acc=0,need=120;while(x>=acc+need){acc+=need;lv++;need=120+60*(lv-1);}return {lv,into:x-acc,need};}
 function general(){
@@ -263,7 +291,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -534,7 +562,7 @@ function renderShare(p){
     <input id="cx-snote" maxlength="200" placeholder="Agregale algo (opcional): ¿me superás?"></div>
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
-function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎'}[c.j]||'🎮';
+function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️'}[c.j]||'🎮';
   return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&H.play?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">▶ Jugar</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
@@ -765,7 +793,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 <div class="app" id="app">
   <div class="top">
     <a class="icon-btn games-btn" id="btn-games" href="./#juegos" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i></a>
-    <div class="brand">POBL<span>AR</span></div><span class="tag">BETA</span>
+    <div class="brand">POBL<span>AR</span></div>
     <button class="icon-btn" id="btn-chat" aria-label="Chat" title="Chat" data-chat-btn>💬</button>
     <button class="icon-btn" id="btn-help" aria-label="Cómo se juega">?</button>
     <button class="icon-btn" id="btn-friend" aria-label="Jugar con un amigo">👥</button>
@@ -774,7 +802,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
   <div class="onl" id="onl"></div>
   <div class="main" id="main">
     <div class="boardcol" id="boardcol">
-    <div class="boardwrap" id="boardwrap"><svg id="board" role="img" aria-label="Tablero"></svg></div>
+    <div class="boardwrap" id="boardwrap"><svg id="board" role="img" aria-label="Tablero"></svg><button class="zoom-btn" id="b-zoom" type="button" aria-label="Acercar el tablero" title="Acercar (también podés pellizcar)">🔍</button></div>
     </div>
     <div class="panel" id="panel">
   <div class="score">
@@ -1157,14 +1185,11 @@ function buildStatic(W,H,X,Y){
   </defs>
   <rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#g-mar)"/><rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#p-ola)"/>`;
   // Costa: arena alrededor de la isla
-  for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.13)}" fill="#e3c98f"/>`;
-  for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.06)}" fill="#cfae6a"/>`;
+  for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.08)}" fill="#e3c98f"/>`;
+  for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.04)}" fill="#cfae6a"/>`;
   // Puertos: muelle de madera y cartel con lo que se cambia
-  for(const pt of RB.ports){const e=RB.edges[pt.edge],A=RB.verts[e.a],C=RB.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),ux=mx/len,uy=my/len,px=mx+ux*S*PORT_OFF,py=my+uy*S*PORT_OFF;
-    for(const P of [A,C])s+=`<line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#6b4a2b" stroke-width="5" stroke-linecap="round"/><line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#a87b4f" stroke-width="2.5" stroke-linecap="round"/>`;
-    const gen=pt.type==='3:1',fill=gen?'#fbf1d6':TERR[pt.type].base,ink=gen||pt.type==='trigo'||pt.type==='lana'||pt.type==='salitral'?'#2a2118':'#fff';
-    s+=`<g filter="url(#f-sombra)"><rect x="${px-19}" y="${py-11}" width="38" height="22" rx="11" fill="${fill}" stroke="#2a2118" stroke-width="2"/></g>`;
-    s+=gen?`<text x="${px}" y="${py+1}" class="ptxt" fill="${ink}">3:1</text>`:`<text x="${px-7}" y="${py+1}" class="ptxt" fill="${ink}">2:1</text><text x="${px+10}" y="${py+1}" class="pico">${RI[pt.type].e}</text>`;}
+  for(const pt of RB.ports){const {A,C,px,py}=portPos(pt);
+    for(const P of [A,C])s+=`<line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#6b4a2b" stroke-width="5" stroke-linecap="round"/><line x1="${P.x}" y1="${P.y}" x2="${px}" y2="${py}" stroke="#a87b4f" stroke-width="2.5" stroke-linecap="round"/>`;}
   // Terrenos
   for(const h of RB.hexes){const t=TERR[h.res];
     s+=`<polygon points="${hexPts(h,.985)}" fill="${t.base}" stroke="#2a2118" stroke-width="3" stroke-linejoin="round"/>`;
@@ -1172,17 +1197,30 @@ function buildStatic(W,H,X,Y){
     s+=`<polygon points="${hexPts(h,.985)}" fill="url(#g-luz)"/>`;
     s+=`<polygon points="${hexPts(h,.9)}" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="2"/>`;
     // Medalla del recurso (arriba) y número (abajo)
-    const iy=h.num?h.y-22:h.y-6;
-    s+=`<circle cx="${h.x}" cy="${iy}" r="15" fill="${t.dark}" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><text x="${h.x}" y="${iy+1}" class="hico">${RI[h.res].e}</text>`;
+    const iy=h.num?h.y-24:h.y-6;
+    s+=`<circle cx="${h.x}" cy="${iy}" r="16" fill="${t.dark}" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><text x="${h.x}" y="${iy+1}" class="hico">${RI[h.res].e}</text>`;
     if(h.num){const hot=h.num===6||h.num===8,ink=hot?'#c62828':'#2a2118';
-      s+=`<g filter="url(#f-sombra)"><circle cx="${h.x}" cy="${h.y+14}" r="20" fill="#fbf1d6" stroke="${hot?'#c62828':'#2a2118'}" stroke-width="${hot?3:2}"/></g><text x="${h.x}" y="${h.y+11}" class="num" fill="${ink}">${h.num}</text>`;
-      const k=pips(h.num);for(let i=0;i<k;i++)s+=`<circle cx="${(h.x+(i-(k-1)/2)*4.6).toFixed(1)}" cy="${h.y+26}" r="1.8" fill="${ink}"/>`;}
+      s+=`<g filter="url(#f-sombra)"><circle cx="${h.x}" cy="${h.y+15}" r="22" fill="#fbf1d6" stroke="${hot?'#c62828':'#2a2118'}" stroke-width="${hot?3:2}"/></g><text x="${h.x}" y="${h.y+12}" class="num" fill="${ink}">${h.num}</text>`;
+      const k=pips(h.num);for(let i=0;i<k;i++)s+=`<circle cx="${(h.x+(i-(k-1)/2)*4.6).toFixed(1)}" cy="${h.y+28}" r="1.9" fill="${ink}"/>`;}
     else s+=`<text x="${h.x}" y="${h.y+18}" class="hname">SALITRAL</text>`;
   }
+  for(const pt of RB.ports){const {px,py}=portPos(pt);
+    const gen=pt.type==='3:1',fill=gen?'#fbf1d6':TERR[pt.type].base,ink=gen||pt.type==='trigo'||pt.type==='lana'||pt.type==='salitral'?'#2a2118':'#fff';
+    s+=`<g filter="url(#f-sombra)"><rect x="${px-PW}" y="${py-PH}" width="${2*PW}" height="${2*PH}" rx="${PH}" fill="${fill}" stroke="#2a2118" stroke-width="2"/></g>`;
+    s+=gen?`<text x="${px}" y="${py+1}" class="ptxt" fill="${ink}">3:1</text>`:`<text x="${px-6}" y="${py+1}" class="ptxt" fill="${ink}">2:1</text><text x="${px+9}" y="${py+1}" class="pico">${RI[pt.type].e}</text>`;}
   return s;
 }
 // Recorte justo: la isla, la costa y los carteles de los puertos, con un margen chico de mar (el tablero se ve más grande).
-let boxCache=null;const PORT_OFF=.44;
+let boxCache=null;const PORT_OFF=.34,PW=17,PH=10;
+// Dónde va el cartel de cada puerto: afuera de la costa, pero sin agrandar el recorte (así el tablero entra más grande).
+let coastC=null;
+function coastBox(){if(coastC&&coastC.rb===RB)return coastC;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const h of RB.hexes)for(const vi of h.v){const p=RB.verts[vi],x=h.x+(p.x-h.x)*1.08,y=h.y+(p.y-h.y)*1.08;x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}
+  return coastC={rb:RB,x0,y0,x1,y1};}
+function portPos(pt){const e=RB.edges[pt.edge],A=RB.verts[e.a],C=RB.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my)||1,ux=mx/len,uy=my/len,c=coastBox();
+  let off=S*PORT_OFF;const ok=o=>{const x=mx+ux*o,y=my+uy*o;return x-PW>=c.x0-6&&x+PW<=c.x1+6&&y-PH>=c.y0-6&&y+PH<=c.y1+6;};
+  while(off>S*.04&&!ok(off))off-=1;
+  return {A,C,px:mx+ux*off,py:my+uy*off};}
 // En el celular parado conviene la isla girada 90° (queda más alta que ancha y entra más grande).
 // Sólo cambia el dibujo: las esquinas y los caminos son los mismos, así que en línea no importa cómo lo vea cada uno.
 let ROT=false,RB=null;
@@ -1195,14 +1233,14 @@ function boardBox(){
   setRB();
   if(boxCache&&boxCache.seed===G.seed&&boxCache.rot===ROT)return boxCache;
   let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const add=(x,y)=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);};
-  for(const h of RB.hexes)for(const vi of h.v){const p=RB.verts[vi];add(h.x+(p.x-h.x)*1.13,h.y+(p.y-h.y)*1.13);}
-  for(const pt of RB.ports){const e=RB.edges[pt.edge],A=RB.verts[e.a],C=RB.verts[e.b],mx=(A.x+C.x)/2,my=(A.y+C.y)/2,len=Math.hypot(mx,my),px=mx+mx/len*S*PORT_OFF,py=my+my/len*S*PORT_OFF;add(px-20,py-12);add(px+20,py+12);}
-  const m=4;boxCache={seed:G.seed,rot:ROT,x:Math.floor(x0-m),y:Math.floor(y0-m),w:Math.ceil(x1-x0+2*m),h:Math.ceil(y1-y0+2*m)};return boxCache;
+  for(const h of RB.hexes)for(const vi of h.v){const p=RB.verts[vi];add(h.x+(p.x-h.x)*1.08,h.y+(p.y-h.y)*1.08);}
+  for(const pt of RB.ports){const {px,py}=portPos(pt);add(px-PW-1,py-PH-1);add(px+PW+1,py+PH+1);}
+  const m=3;boxCache={seed:G.seed,rot:ROT,x:Math.floor(x0-m),y:Math.floor(y0-m),w:Math.ceil(x1-x0+2*m),h:Math.ceil(y1-y0+2*m)};return boxCache;
 }
 function drawBoard(){
   setRB();const svg=$('board'),V=boardBox();
   svg.setAttribute('viewBox',`${V.x} ${V.y} ${V.w} ${V.h}`);
-  if(staticKey!==G.seed+'|'+ROT){staticKey=G.seed+'|'+ROT;staticSvg=buildStatic(V.w,V.h,V.x,V.y);}
+  if(staticKey!==G.seed+'|'+ROT){staticKey=G.seed+'|'+ROT;staticSvg=buildStatic(V.w,V.h,V.x,V.y);zReset();}
   svg.innerHTML=staticSvg;
   const T=targets(),top=el('g',{},svg);
   // El cuatrero: sombrero negro con cinta dorada
@@ -1277,8 +1315,8 @@ function render(rolled=false){
 }
 function renderLog(){$('log').innerHTML=G?G.log.slice().reverse().map(t=>`<p>${t}</p>`).join(''):'';}
 function floatGains(n,got){
-  const wrap=$('boardwrap'),svg=$('board'),bb=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,sc=bb.width/vb.width;
-  RB.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=((h.x-vb.x)*sc)+'px';f.style.top=((h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
+  const wrap=$('boardwrap'),svg=$('board'),bb=svg.getBoundingClientRect(),wr=wrap.getBoundingClientRect(),vb=svg.viewBox.baseVal,sc=bb.width/vb.width;
+  RB.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=(bb.left-wr.left+(h.x-vb.x)*sc)+'px';f.style.top=(bb.top-wr.top+(h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
   setTimeout(()=>{for(const r of RES)if(got[0][r])$('c-'+r)?.classList.add('bump');},30);
 }
 function banner(t){const w=$('boardwrap'),n=w.querySelectorAll('.banner').length;const b=document.createElement('div');b.className='banner';b.textContent=t;b.style.top=(12+n*38)+'px';w.appendChild(b);setTimeout(()=>b.remove(),2200);}
@@ -1300,9 +1338,33 @@ function fitBoard(){
   }
   const vb=$('board').viewBox.baseVal;if(!vb||!vb.width)return;
   const ar=vb.width/vb.height,w=Math.floor(Math.min(col.clientWidth,col.clientHeight*ar));
-  if(w>0&&bw.style.width!==w+'px')bw.style.width=w+'px';
+  if(w>0&&bw.style.width!==w+'px'){bw.style.width=w+'px';zApply();}
 }
 // Alto real de la pantalla (sin depender de 100vh, que en el iPhone instalado calculaba mal).
+/* ── Acercar el tablero: pellizcar, la lupa o la ruedita del mouse; con el tablero acercado, se arrastra para moverlo ── */
+const ZM={s:1,x:0,y:0},ZMAX=2.6;
+function zApply(){const w=$('boardwrap'),W=w.clientWidth,H=w.clientHeight,on=ZM.s>1.001;
+  ZM.s=Math.max(1,Math.min(ZMAX,ZM.s));ZM.x=Math.min(0,Math.max(W-W*ZM.s,ZM.x));ZM.y=Math.min(0,Math.max(H-H*ZM.s,ZM.y));
+  $('board').style.transform=on?`translate(${ZM.x.toFixed(1)}px,${ZM.y.toFixed(1)}px) scale(${ZM.s.toFixed(3)})`:'';
+  const b=$('b-zoom');if(b){b.textContent=on?'⤢':'🔍';b.setAttribute('aria-label',on?'Ver el tablero entero':'Acercar el tablero');}w.classList.toggle('zoomed',on);}
+function zTo(s,cx,cy){const k=s/ZM.s;ZM.x=cx-(cx-ZM.x)*k;ZM.y=cy-(cy-ZM.y)*k;ZM.s=s;zApply();}
+function zReset(){ZM.s=1;ZM.x=0;ZM.y=0;zApply();}
+{const w=$('boardwrap'),P=new Map();let g=null,swallow=0;
+  w.addEventListener('pointerdown',e=>{if(e.target.closest('#b-zoom'))return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(P.size===2){const [a,b]=[...P.values()],r=w.getBoundingClientRect();g={pinch:Math.hypot(a.x-b.x,a.y-b.y)||1,s:ZM.s,mx:(a.x+b.x)/2-r.left,my:(a.y+b.y)/2-r.top,x:ZM.x,y:ZM.y};}
+    else if(P.size===1)g={sx:e.clientX,sy:e.clientY,x:ZM.x,y:ZM.y,moved:false};});
+  w.addEventListener('pointermove',e=>{if(!P.has(e.pointerId)||!g)return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(g.pinch){if(P.size<2)return;const [a,b]=[...P.values()],r=w.getBoundingClientRect(),d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2-r.left,my=(a.y+b.y)/2-r.top;
+      const s=Math.max(1,Math.min(ZMAX,g.s*d/g.pinch)),cx=(g.mx-g.x)/g.s,cy=(g.my-g.y)/g.s;ZM.s=s;ZM.x=mx-cx*s;ZM.y=my-cy*s;zApply();swallow=Date.now();return;}
+    if(ZM.s<=1.001)return;const dx=e.clientX-g.sx,dy=e.clientY-g.sy;if(!g.moved&&Math.hypot(dx,dy)<8)return;g.moved=true;ZM.x=g.x+dx;ZM.y=g.y+dy;zApply();});
+  const up=e=>{if(!P.has(e.pointerId))return;P.delete(e.pointerId);if(g&&(g.moved||g.pinch))swallow=Date.now();
+    if(!P.size)g=null;else if(g&&g.pinch){const [a]=[...P.values()];g={sx:a.x,sy:a.y,x:ZM.x,y:ZM.y,moved:true};}};
+  w.addEventListener('pointerup',up);w.addEventListener('pointercancel',up);
+  // Después de arrastrar o pellizcar, soltar el dedo no cuenta como jugada.
+  w.addEventListener('click',e=>{if(Date.now()-swallow<350&&!e.target.closest('#b-zoom')){e.stopPropagation();e.preventDefault();}},true);
+  w.addEventListener('wheel',e=>{e.preventDefault();const r=w.getBoundingClientRect();zTo(Math.max(1,Math.min(ZMAX,ZM.s*(e.deltaY<0?1.15:1/1.15))),e.clientX-r.left,e.clientY-r.top);},{passive:false});
+  $('b-zoom').addEventListener('click',e=>{e.stopPropagation();const r=w.getBoundingClientRect();if(ZM.s>1.001)zReset();else zTo(1.8,r.width/2,r.height/2);});
+}
 function fitScreen(){
   // La barra de arriba del iPhone ya no es transparente: la página empieza debajo de la hora y el alto real es innerHeight.
   const h=window.innerHeight;
@@ -1417,17 +1479,20 @@ function openNew(first=false,kind='compu'){
   };draw();
 }
 function openHelp(){
-  openModal(`<h2>Cómo se juega</h2>
-    <p>Cada uno arranca con <b>2 ranchos y 2 caminos</b>. En tu turno tirás los dados: cada terreno con ese número le da su recurso a los ranchos pegados (1) y a los pueblos (2).</p>
-    <div class="legend"><span>🌳 Monte</span><span>Madera</span><span>🧱 Horno</span><span>Ladrillo</span><span>🐑 Estancia</span><span>Lana</span><span>🌾 Pampa</span><span>Trigo</span><span>⛰️ Cerro</span><span>Mineral</span><span>🧂 Salitral</span><span>No da nada</span></div>
-    <p><b>Construir</b></p><div class="cost"><span><b>Camino</b> 🌳🧱</span><span><b>Rancho</b> 🌳🧱🐑🌾 (1 punto)</span><span><b>Pueblo</b> 🌾🌾⛰️⛰️⛰️ (mejora un rancho: 2 puntos)</span></div>
-    <p>Los ranchos van en esquinas libres pegadas a tus caminos, y nunca al lado de otro rancho.</p>
-    <p><b>🤠 El cuatrero:</b> con un 7, quien tenga más de 7 cartas pierde la mitad. El que tiró lo mueve a un terreno: ese terreno no produce y le roba una carta al rival que esté ahí.</p>
-    <p><b>🛣️ Camino más largo:</b> 5 caminos seguidos o más dan 2 puntos (si el rival hace uno más largo, se los lleva).</p>
-    <p><b>🔁 Cambiar:</b> 4 iguales por 1 con el banco; los puertos de la costa dan 3:1 o 2:1. También podés proponerle cambios a la compu (y ella a vos).</p>
-    <p><b>🃏 Cartas</b> (🐑🌾⛰️): 🐎 Gaucho (mueve al cuatrero; con 3 o más tenés la tropilla más grande, +2), 🛤️ Obra pública (2 caminos gratis), 🧺 Buena cosecha (2 recursos), 🏚️ Acopio (te llevás todo un recurso del rival) y 🏛️ Prócer (1 punto escondido).</p>
-    <p>Gana el primero en llegar a <b>${GOAL} puntos</b>.</p>
-    <div class="row"><button class="primary" id="h-ok">ENTENDIDO</button></div>`);
+  const chip=(e,t)=>`<span class="hchip">${e} ${t}</span>`;
+  openModal(`<h2>Cómo se juega</h2><p class="hgoal">Gana el primero en llegar a <b>${GOAL} puntos</b>.</p>
+    <div class="hcard"><h4>🎲 Tu turno</h4><p>Tirás los dados: cada terreno con ese número le da su recurso a los ranchos pegados (1 carta) y a los pueblos (2). Después construís, cambiás o jugás una carta.</p></div>
+    <div class="hcard"><h4>🗺️ Qué da cada terreno</h4><div class="hgrid">${['madera','ladrillo','lana','trigo','mineral'].map(r=>`<span><b>${RI[r].e} ${RI[r].hex}</b><small>${RI[r].n}</small></span>`).join('')}<span><b>🧂 Salitral</b><small>Nada</small></span></div></div>
+    <div class="hcard"><h4>🔨 Construir</h4>
+      <div class="hrow"><b>Camino</b><span>🌳🧱</span></div>
+      <div class="hrow"><b>Rancho <small>1 punto</small></b><span>🌳🧱🐑🌾</span></div>
+      <div class="hrow"><b>Pueblo <small>2 puntos, mejora un rancho</small></b><span>🌾🌾⛰️⛰️⛰️</span></div>
+      <p>Los ranchos van en esquinas libres pegadas a tus caminos, y nunca al lado de otro rancho.</p></div>
+    <div class="hcard"><h4>🤠 El cuatrero (cuando sale 7)</h4><p>Quien tenga más de 7 cartas pierde la mitad. El que tiró pone al cuatrero en un terreno: ese terreno no produce y le roba una carta al rival que esté ahí.</p></div>
+    <div class="hcard"><h4>🔁 Cambiar</h4><p>4 iguales por 1 con el banco. Con un rancho en un puerto: 3:1 o 2:1. También podés proponerle cambios ${ON?'a tu amigo':'a la compu'}.</p></div>
+    <div class="hcard"><h4>🃏 Cartas <small>🐑🌾⛰️</small></h4><div class="hlist">${Object.values(DEV).map(d=>`<span><b>${d.e} ${d.n}</b><small>${d.d}</small></span>`).join('')}</div></div>
+    <div class="hcard"><h4>⭐ Puntos extra</h4><p>🛣️ <b>Camino más largo</b> (5 o más seguidos): +2. 🐎 <b>Tropilla más grande</b> (3 gauchos o más): +2. Si el rival te supera, se los lleva.</p></div>
+    <div class="row hfoot"><button class="primary" id="h-ok">ENTENDIDO</button></div>`);
   $('h-ok').onclick=closeModal;
 }
 let RK_LAST=null;const OVER={k:'',t:0};
@@ -1436,7 +1501,7 @@ function rankEnd(){
   const key='p'+G.seed+'-'+G.rolls+'-'+(G.p[1].name||'');if(RK_LAST&&RK_LAST.key===key)return RK_LAST.r;
   const w=G.winner===0,amigo=!G.p[1].bot&&!!ON,kind=amigo?'amigo':G.diff==='facil'?null:'compu-'+G.diff;
   const done=(()=>{try{return JSON.parse(localStorage.getItem('poblar-xp-hechas')||'[]');}catch(_){return [];}})();
-  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{RANGOS.premio('PoblAR',xp);}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
+  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{const pr=RANGOS.premio('PoblAR',xp);if(pr&&pr.tirada)OVER.tirada=key;}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
   const r=kind?RANGOS.apply('poblar',{key,win:w,kind}):null;
   RK_LAST={key,r,xp};return r;
 }
@@ -1444,7 +1509,7 @@ function showEnd(){
   if(!G||G.phase!=='over'||G.winner==null)return;// (si ya se empezó otra partida, no mostrar un final viejo)
   const w=G.winner===0,rk=rankEnd(),xp=RK_LAST&&RK_LAST.xp,lvl=window.RANGOS?RANGOS.levelInfo(RANGOS.xp('poblar')):null;
   openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
-    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP · 🎁 +${Math.min(800,xp*2)} 🌾 para tu estancia`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
+    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP · 🎁 +${Math.min(1000,xp*2)} 🪙 para tu estancia${OVER.tirada===(RK_LAST&&RK_LAST.key)?' · 🎲 +1 tirada en La Gran Pampa':''}`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
     ${window.CHAT&&acct()?'<button class="pill" id="e-share" style="width:100%;margin-top:10px;min-height:44px">💬 Compartir con un amigo</button>':''}
     <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
   if($('e-share'))$('e-share').onclick=()=>{closeModal();CHAT.share({j:'poblar',t:w?'Gané en PoblAR':'Perdí en PoblAR',d:`${vp(0)} a ${vp(1)} contra ${G.p[1].bot?'la compu ('+DIFF[G.diff]+')':G.p[1].name} · ${G.rolls} tiradas`,r:rk&&rk.after?rk.after.label:''});};
@@ -1483,7 +1548,7 @@ function openMenu(){
     <button id="m-log">📜 Lo que pasó</button>
     <button id="m-snd">${SND_ON?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 48</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 51</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};
@@ -1491,55 +1556,52 @@ function openMenu(){
   if($('m-leave'))$('m-leave').onclick=go(netLeave);
 }
 
-/* ── Sonidos cortitos ── */
-let AC=null;
+/* ── Sonidos ──
+   Sencillos y bajitos: golpecitos de madera, dados de verdad y notas suaves de marimba.
+   Todo pasa por un mismo canal con un poquito de sala y un compresor, así suenan parejos y sin chasquidos. */
+let AC=null,BUS=null;
 let SND_ON=(()=>{try{return localStorage.getItem('poblar-sonido')!=='0';}catch(_){return true;}})();
 function actx(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC;}
-function tone(f1,f2,dur,type='sine',vol=.1,delay=0){const a=actx(),t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type=type;o.connect(g).connect(a.destination);
+function bus(){const a=actx();if(BUS&&BUS.ctx===a)return BUS.in;
+  const inp=a.createGain(),lp=a.createBiquadFilter(),comp=a.createDynamicsCompressor(),out=a.createGain(),d=a.createDelay(.3),fb=a.createGain(),wet=a.createGain(),dl=a.createBiquadFilter();
+  lp.type='lowpass';lp.frequency.value=7200;comp.threshold.value=-20;comp.knee.value=12;comp.ratio.value=3;comp.attack.value=.003;comp.release.value=.2;out.gain.value=.95;
+  d.delayTime.value=.07;fb.gain.value=.2;wet.gain.value=.14;dl.type='lowpass';dl.frequency.value=2200;
+  inp.connect(lp);lp.connect(comp);lp.connect(d);d.connect(dl);dl.connect(fb);fb.connect(d);dl.connect(wet);wet.connect(comp);comp.connect(out);out.connect(a.destination);
+  BUS={ctx:a,in:inp};return inp;}
+const done=(...n)=>()=>{for(const x of n)try{x.disconnect();}catch(_){}};
+function tone(f1,f2,dur,type='sine',vol=.1,delay=0){const a=actx(),t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type=type;o.connect(g).connect(bus());
   o.frequency.setValueAtTime(f1,t);if(f2!==f1)o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-  o.start(t);o.stop(t+dur+.02);o.onended=()=>{try{o.disconnect();g.disconnect();}catch(_){}};}
+  o.start(t);o.stop(t+dur+.02);o.onended=done(o,g);}
 let NOISE=null;
-function noise(dur,vol=.2,delay=0,freq=2000){const a=actx();if(!NOISE){NOISE=a.createBuffer(1,a.sampleRate*.5,a.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
-  const t=a.currentTime+delay,src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=NOISE;f.type='bandpass';f.frequency.value=freq;f.Q.value=1.2;src.connect(f).connect(g).connect(a.destination);
-  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);src.start(t);src.stop(t+dur+.02);src.onended=()=>{try{src.disconnect();f.disconnect();g.disconnect();}catch(_){}};}
-// Sonidos de campo: dados de madera, martillo, campana de estancia, cascos de caballo y guitarra criolla.
-// Todo se arma acá mismo (sin archivos), con ruido filtrado y cuerdas pulsadas (Karplus-Strong).
-const KS={};
-function pluck(freq,dur=1.4,bright=.5){
-  const a=actx(),k=Math.round(freq)+':'+bright;
-  if(!KS[k]){const sr=a.sampleRate,n=Math.floor(sr*dur),b=a.createBuffer(1,n,sr),d=b.getChannelData(0),P=Math.max(2,Math.round(sr/freq)),ring=new Float32Array(P);
-    for(let i=0;i<P;i++)ring[i]=(Math.random()*2-1)*(i<P*bright?1:.4);
-    let idx=0;for(let i=0;i<n;i++){const nx=(idx+1)%P,v=.5*(ring[idx]+ring[nx])*.996;d[i]=ring[idx];ring[idx]=v;idx=nx;}
-    KS[k]=b;}
-  return KS[k];
-}
-function play(buf,delay=0,vol=.25,rate=1){const a=actx(),t=a.currentTime+delay,src=a.createBufferSource(),g=a.createGain();src.buffer=buf;src.playbackRate.value=rate;src.connect(g).connect(a.destination);g.gain.value=vol;src.start(t);src.onended=()=>{try{src.disconnect();g.disconnect();}catch(_){}};}
-function strum(notes,delay=0,gap=.035,vol=.22){notes.forEach((f,i)=>play(pluck(f),delay+i*gap,vol));}
-function knock(delay=0,vol=.5,f=900){noise(.045,vol,delay,f);tone(f/5,f/8,.07,'sine',vol*.5,delay);}            // golpe de madera
-function clack(delay,vol){noise(.018,vol,delay,2600+Math.random()*1600);noise(.03,vol*.5,delay,900+Math.random()*400);}  // dado contra la mesa
-function bell(f,delay=0,vol=.08){[[1,1],[2.76,.5],[5.4,.25],[8.93,.12]].forEach(([r,v])=>tone(f*r,f*r,1.6/r+.3,'sine',vol*v,delay));}
-function hoof(delay,vol=.35){noise(.04,vol,delay,380);noise(.03,vol*.7,delay+.06,520);}
-function whoosh(delay=0,vol=.25){const a=actx(),t=a.currentTime+delay,src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();if(!NOISE)noise(.001,0);src.buffer=NOISE;f.type='bandpass';f.Q.value=2;
-  f.frequency.setValueAtTime(400,t);f.frequency.exponentialRampToValueAtTime(3500,t+.25);src.connect(f).connect(g).connect(a.destination);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.08);g.gain.exponentialRampToValueAtTime(.0001,t+.3);src.start(t);src.stop(t+.32);}
-const CH_E=[164.8,196,246.9,329.6],CH_G7=[196,246.9,293.7,349.2],CH_C=[130.8,164.8,196,261.6,329.6],CH_AM=[110,164.8,220,261.6];
+function noise(dur,vol=.2,delay=0,freq=2000,q=1.2){const a=actx();if(!NOISE){NOISE=a.createBuffer(1,a.sampleRate*.5,a.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+  const t=a.currentTime+delay,src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=NOISE;f.type='bandpass';f.frequency.value=freq;f.Q.value=q;src.connect(f).connect(g).connect(bus());
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);src.start(t,Math.random()*.3);src.stop(t+dur+.02);src.onended=done(src,f,g);}
+// Nota de marimba: el tono más un armónico corto arriba, que le da el golpe de madera.
+function mallet(f,delay=0,vol=.08,dec=.5){const a=actx(),t=a.currentTime+delay,o=a.createOscillator(),o2=a.createOscillator(),g=a.createGain(),g2=a.createGain();
+  o.frequency.value=f;o2.frequency.value=f*3.95;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dec);
+  g2.gain.setValueAtTime(.0001,t);g2.gain.exponentialRampToValueAtTime(vol*.32,t+.003);g2.gain.exponentialRampToValueAtTime(.0001,t+.07);
+  o.connect(g).connect(bus());o2.connect(g2).connect(bus());o.start(t);o2.start(t);o.stop(t+dec+.03);o2.stop(t+.1);o.onended=done(o,g);o2.onended=done(o2,g2);}
+function knock(delay=0,vol=.3,f=850){noise(.04,vol,delay,f,1.6);tone(f/5,f/8,.06,'sine',vol*.45,delay);}          // golpecito de madera
+function clack(delay,vol){noise(.016,vol,delay,2700+Math.random()*1500,1.4);noise(.028,vol*.45,delay,850+Math.random()*350);}  // dado contra la mesa
+const N={C4:261.6,E4:329.6,G4:392,A4:440,C5:523.3,D5:587.3,E5:659.3,G5:784,A5:880,C6:1046.5,G2:98};
 const SFX={
-  // Dos dados de madera: se sacuden en la mano y rebotan cada vez más cerca, hasta quedar quietos.
-  dice(){for(let i=0;i<4;i++)clack(i*.045+Math.random()*.015,.18);let t=.26,gap=.11,v=.55;for(let i=0;i<7;i++){clack(t,v);clack(t+.012+Math.random()*.02,v*.8);t+=gap;gap*=.72;v*=.72;}},
-  seven(){strum(CH_AM.slice().reverse(),.75,.06,.2);},
-  gain(){[523,659,784].forEach((f,i)=>play(pluck(f,.9,.3),.0+i*.07,.18));},
-  lose1(){play(pluck(196,.9,.3),0,.18);play(pluck(185,.9,.3),.12,.16);},
-  road(){knock(0,.55,850);knock(.14,.5,800);},
-  ranch(){knock(0,.55,850);knock(.13,.5,820);knock(.26,.55,780);strum([196,246.9,293.7],.42,.04,.18);},
-  town(){knock(0,.5,800);knock(.12,.5,780);bell(523,.3,.09);bell(659,.55,.07);},
-  robber(){for(let i=0;i<4;i++){hoof(i*.18);}tone(98,82,.6,'triangle',.06,.1);},
-  steal(){whoosh(0,.3);},
-  card(){noise(.05,.35,0,5200);noise(.04,.2,.06,4200);},
-  play(){strum(CH_G7,0,.03,.2);strum(CH_C,.35,.03,.2);},
-  trade(){knock(0,.4,1300);knock(.1,.4,1100);},
-  turn(){strum(CH_E,0,.05,.16);},
-  win(){strum(CH_C,0,.04,.22);strum(CH_G7,.45,.04,.22);strum(CH_C,.9,.025,.26);},
-  lose(){strum(CH_AM,0,.09,.2);play(pluck(98,1.6,.4),.5,.22);},
-  nope(){knock(0,.4,400);}
+  // Dos dados de madera que ruedan, rebotan y quedan quietos.
+  dice(){[0,.04].forEach((o,k)=>{let t=o,gap=.085+k*.012,v=.24;for(let i=0;i<4;i++){clack(t,v);t+=gap;gap*=.72;v*=.64;}});tone(150,110,.06,'sine',.045,.3);},
+  gain(){mallet(N.E5,0,.07,.35);mallet(N.A5,.075,.06,.45);},
+  lose1(){mallet(N.E4,0,.085,.32);},
+  road(){knock(0,.42,820);mallet(N.C4,.02,.035,.25);},
+  ranch(){knock(0,.28,840);knock(.1,.26,780);mallet(N.G4,.2,.05,.45);},
+  town(){knock(0,.28,820);knock(.1,.26,780);mallet(N.C5,.2,.055,.5);mallet(N.G5,.29,.05,.6);},
+  robber(){mallet(N.G2*2,0,.13,.55);noise(.14,.12,0,180,.8);},
+  steal(){mallet(N.A4,0,.05,.22);mallet(N.E4,.07,.05,.3);},
+  card(){noise(.05,.3,0,5200,.9);noise(.045,.18,.05,3800,.9);},
+  play(){mallet(N.D5,0,.06,.35);mallet(N.G5,.08,.055,.45);},
+  trade(){knock(0,.22,1250);knock(.09,.2,1050);},
+  turn(){mallet(N.E5,0,.05,.4);mallet(N.A5,.11,.045,.55);},
+  win(){[N.C5,N.E5,N.G5,N.C6].forEach((f,i)=>mallet(f,i*.11,.07,.7));},
+  lose(){[N.G4,N.E4,N.C4].forEach((f,i)=>mallet(f,i*.16,.06,.6));},
+  nope(){knock(0,.3,320);}
 };
 function sound(k){if(!SND_ON||(typeof FAST!=='undefined'&&FAST))return;try{SFX[k]&&SFX[k]();}catch(_){}}
 // Sonidos según lo que cambió desde la última vez que se dibujó (así suenan también las jugadas del amigo en línea).
@@ -1549,7 +1611,7 @@ function snapOf(){const pc=p=>G.p[p].road+G.p[p].ranch*10+G.p[p].town*100;return
 function soundDiff(){
   const n=snapOf(),o=SNAP;SNAP=n;if(!o||o.seed!==n.seed)return;
   const q=[];
-  if(n.rolls>o.rolls){q.push('dice');if(n.dice===7)q.push('seven');}
+  if(n.rolls>o.rolls)q.push('dice');
   let up=0,down=0;for(const r of RES){const d=n.hand[r]-o.hand[r];if(d>0)up+=d;else down-=d;}
   if(n.robber!==o.robber)q.push('robber');
   if(n.town[0]+n.town[1]>o.town[0]+o.town[1])q.push('town');
@@ -1559,7 +1621,7 @@ function soundDiff(){
   if(up&&down&&!q.length)q.push('trade');else if(up&&!q.includes('town')&&!q.includes('ranch')&&!q.includes('road'))q.push(n.robber!==o.robber?'steal':'gain');else if(down&&n.robber!==o.robber)q.push('lose1');
   if(n.phase==='over'&&o.phase!=='over')q.push(n.winner===0?'win':'lose');
   else if(n.turn===0&&o.turn!==0&&n.phase==='roll')q.push('turn');
-  q.slice(0,3).forEach((k,i)=>setTimeout(()=>sound(k),k==='gain'?650+i*60:i*140));
+  q.slice(0,2).forEach((k,i)=>setTimeout(()=>sound(k),k==='gain'?650+i*60:i*140));
 }
 
 /* ───────── En línea con un amigo ─────────
@@ -1761,7 +1823,7 @@ if(window.RANGOS)RANGOS.css();
 if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{location.href='./#cuenta';},game:()=>'poblar',
   invite:(g,u)=>{if(g==='estancia'){location.href='estancia.html#malon';return;}if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
     if(ON){openFriends();return;}const x=(UIQ.users||[]).find(y=>y.usuario.toLowerCase()===String(u).toLowerCase())||{usuario:u,avatar:'🙂',color:'#7ce9e5'};inviteFriend(x);},
-  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':'./';}});
+  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':'./';}});
 {const m=/^#invitar=([^&]+)/.exec(location.hash);if(m&&acct()){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
   const u=decodeURIComponent(m[1]);setTimeout(()=>{closeModal();inviteFriend((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#7ce9e5'});},400);}}
 window.POBLAR={showEnd,rankEnd,pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};

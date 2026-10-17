@@ -12,7 +12,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="description" content="BloqueAR: juego de piezas en un solo archivo. Solo y local sin internet; dos dispositivos por conexión directa.">
 <title>BloqueAR</title>
-<script>(function(){try{if(!/^https?:$/.test(location.protocol)||location.hash)return;if(navigator.webdriver&&!localStorage.getItem('bloques-hub-force'))return;var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type&&n.type!=='navigate')return;if(document.referrer&&new URL(document.referrer).origin===location.origin)return;if(sessionStorage.getItem('blq-accept'))return;if(localStorage.getItem('bloques-hub-v1')&&/^(poblar|estancia)$/.test(localStorage.getItem('bloques-ultimo-juego')||'')){document.documentElement.style.background='#0b1019';location.replace(localStorage.getItem('bloques-ultimo-juego')+'.html');}}catch(e){}})();</script>
+<script>(function(){try{if(!/^https?:$/.test(location.protocol)||location.hash)return;if(navigator.webdriver&&!localStorage.getItem('bloques-hub-force'))return;var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type&&n.type!=='navigate')return;if(document.referrer&&new URL(document.referrer).origin===location.origin)return;if(sessionStorage.getItem('blq-accept'))return;if(localStorage.getItem('bloques-hub-v1')&&/^(poblar|estancia|pampa)$/.test(localStorage.getItem('bloques-ultimo-juego')||'')){document.documentElement.style.background='#0b1019';location.replace(localStorage.getItem('bloques-ultimo-juego')+'.html');}}catch(e){}})();</script>
 <style>
 :root{--theme:#7ce9e5;--pulse:0;color-scheme:dark;--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--p1:#7ce9e5;--p2:#c7a5ff;--cell:24px;--rail:72px;--gap:8px;--btn:56px;--padw:130px;--next-h:5}
 *{box-sizing:border-box}
@@ -285,6 +285,7 @@ kbd{border:1px solid #3b485e;background:#202d3e;border-bottom-width:2px;border-r
 @media (max-width:440px){.identity{display:none}}
 @media (max-height:520px){.menu-btn .label{display:none}.menu-btn{width:38px;justify-content:center;padding:0}.identity .emblem{display:none}}
 .side .eyebrow{letter-spacing:0;font-size:8px}
+@media (max-width:400px){.top-actions{gap:5px}.topbar .icon-btn{width:39px}.topbar .menu-btn{width:39px}}
 @media (max-height:520px){.topbar{min-height:36px}.pill,.icon-btn,.chip{min-height:36px}.icon-btn{width:38px}.menu-btn{width:38px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -420,7 +421,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 @media (max-width:360px){.menu-me .xpbar.mini{width:40px}}
 .sheet-head{justify-content:flex-start}@media (max-width:600px){.head-pills+.menu-me{margin-left:auto}}
 .menu-me b{font-size:13px}
-.overlay[data-ov="end"]:has(#lb-box) #overlay-lb{display:none}
+.overlay[data-ov="end"]:has(#lb-box) #overlay-lb,.k-relampago .overlay[data-ov="end"] #overlay-lb{display:none}
 .party{width:min(100%,320px);margin:4px auto 10px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .party-names{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .party-chip{display:inline-flex;align-items:center;gap:4px;background:#1b2a3e;border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 12px;font-weight:800;font-size:13px}
@@ -586,8 +587,12 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .hub-game[data-game=poblar] .hub-art{background:#17507a}
 .hub-game.wide{grid-column:1/-1}.hub-game.wide .hub-art{aspect-ratio:34/11}
 .hub-game[data-game=estancia] .hub-txt b span{color:#e8c14a}
+.hub-game[data-game=pampa] .hub-art{aspect-ratio:34/12;background:#8fc155}.hub-game[data-game=pampa] .hub-txt b span{color:#e8c14a}
+.hub-star{transform-box:fill-box;transform-origin:center;animation:hubStar 2.4s ease-in-out infinite}@keyframes hubStar{50%{transform:scale(1.18) rotate(8deg)}}
+@media (prefers-reduced-motion:reduce){.hub-star{animation:none}}
 .hub-badge{position:absolute;top:10px;left:10px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:10px;background:var(--aqua);color:#062a2a}
 .hub-badge.new{background:#ffd166;color:#3a2a00}
+.hub-badge.ready{background:#5cb847;color:#fff;box-shadow:0 2px 8px #0006}
 .hub-badge[hidden]{display:none}
 .hub-txt{display:flex;flex-direction:column;gap:3px;padding:12px 14px 14px}
 .hub-txt b{font-size:17px;font-weight:800}.hub-txt b span{color:var(--aqua)}
@@ -635,6 +640,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .welcome h1{margin:0;font-size:40px;line-height:1;font-weight:900;letter-spacing:2px}.welcome h1 span{color:var(--aqua)}
 .welcome p{margin:0;font-size:18px;line-height:1.4;color:#c9d3e2}
 .wel-box{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--panel);border:1px solid var(--line)}
+.acct-back{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:14px;text-decoration:none;font-weight:800;margin:4px 0 10px}
 .wel-row{display:flex;align-items:center;gap:12px;font-size:14px;line-height:1.35}
 .wel-row>span:first-child{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
 .wel-row small{display:block;color:var(--dim);font-size:14px}
@@ -720,8 +726,13 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 // Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
 function premio(de,xp){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
-  const p={de,trigo:Math.min(800,n*2),pesos:Math.min(600,Math.round(n*1.5)),t:Date.now()};
-  const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));return p;
+  const p={de,trigo:0,pesos:Math.min(1000,Math.round(n*2)),t:Date.now()};
+  const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
+  // La Gran Pampa: cada partida terminada da una tirada extra ese día (hasta 3).
+  const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,X=ls.json('pampa-extra',{}),n2=(X.dia===dia?X.n||0:0)+1;
+  ls.set('pampa-extra',JSON.stringify({dia,n:n2}));
+  const a=ls.json('bloques-acct-v1',null);
+  return {...p,tirada:n2<=3&&!!(a&&a.usuario)};
 }
 function levelInfo(x){let lv=1,acc=0,need=120;while(x>=acc+need){acc+=need;lv++;need=120+60*(lv-1);}return {lv,into:x-acc,need};}
 function general(){
@@ -775,7 +786,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -1046,7 +1057,7 @@ function renderShare(p){
     <input id="cx-snote" maxlength="200" placeholder="Agregale algo (opcional): ¿me superás?"></div>
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
-function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎'}[c.j]||'🎮';
+function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️'}[c.j]||'🎮';
   return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&H.play?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">▶ Jugar</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
@@ -1282,6 +1293,8 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
     <div class="wel-box">
       <div class="wel-row"><span style="background:#0f1826"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="10" width="7.5" height="7.5" rx="2" fill="#7ce9e5"/><rect x="10.5" y="10" width="7.5" height="7.5" rx="2" fill="#c7a5ff"/><rect x="10.5" y="1.5" width="7.5" height="7.5" rx="2" fill="#7ce9e5"/></svg></span><span><b>BloqueAR</b><small>Encajá piezas y borrá líneas.</small></span></div>
       <div class="wel-row"><span style="background:#17507a"><svg width="22" height="22" viewBox="-12 -12 24 24" aria-hidden="true"><polygon points="0,-10 8.7,-5 8.7,5 0,10 -8.7,5 -8.7,-5" fill="#e8c14a" stroke="#e9d9a8" stroke-width="1.6"/></svg></span><span><b>PoblAR</b><small>Poblá la pampa, 1 contra 1.</small></span></div>
+      <div class="wel-row"><span style="background:#4d7f37;font-size:18px" aria-hidden="true">🐎</span><span><b>EstanciAR</b><small>Tu campo, tus animales y tus malones.</small></span></div>
+      <div class="wel-row"><span style="background:#8fc155;font-size:18px" aria-hidden="true">🗺️</span><span><b>La Gran Pampa</b><small>El tablero de la semana con tus amigos.</small></span></div>
       <p>Tu cuenta, tu nivel y tus amigos sirven en todos los juegos.</p>
     </div>
     <button type="button" class="wel-go" id="wel-go">Empezar</button>
@@ -1298,17 +1311,21 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
     </div>
     <h1 class="hub-title" id="hub-title">¿A qué jugamos?</h1>
     <div class="hub-grid">
+      <button type="button" class="hub-game wide" data-game="pampa">
+        <span class="hub-art"><svg viewBox="0 0 340 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="340" height="120" fill="#8fc155"/><rect x="60" y="40" width="220" height="40" rx="22" fill="#98c85c"/><g stroke="#6f9f3c" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M14 40l-2 -5M18 40l1 -6"/><path d="M320 30l-2 -5M324 30l1 -6"/><path d="M160 112l-2 -5M164 112l1 -6"/><path d="M250 8l-2 -5M254 8l1 -6"/><path d="M8 96l-2 -5M12 96l1 -6"/><path d="M330 98l-2 -5M334 98l1 -6"/><path d="M90 6l-2 -5M94 6l1 -6"/></g><rect x="34" y="20" width="272" height="80" rx="38" fill="none" stroke="#a87c49" stroke-width="19"/><rect x="34" y="20" width="272" height="80" rx="38" fill="none" stroke="#d9b37e" stroke-width="15.5"/><ellipse cx="170" cy="63" rx="44" ry="17" fill="#e6d9a6"/><ellipse cx="170" cy="62" rx="39" ry="14" fill="#4f9fd0"/><ellipse cx="160" cy="58" rx="14" ry="4" fill="#8fd3f2" opacity=".7"/><g><rect x="146" y="38" width="3" height="12" fill="#5e3b1f"/><rect x="191" y="38" width="3" height="12" fill="#5e3b1f"/><rect x="134" y="30" width="72" height="13" rx="3" fill="#9c6a3c" stroke="#6b4423" stroke-width="1.2"/><text x="170" y="39.6" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-weight="900" font-size="7.6" fill="#fff3d6">LA GRAN PAMPA</text></g><g><circle cx="88" cy="52" r="7" fill="#3d7a2c"/><circle cx="85" cy="50" r="4.5" fill="#5aa843"/></g><g><circle cx="250" cy="50" r="7" fill="#3d7a2c"/><circle cx="247" cy="48" r="4.5" fill="#5aa843"/></g><g><circle cx="110" cy="76" r="7" fill="#3d7a2c"/><circle cx="107" cy="74" r="4.5" fill="#5aa843"/></g><g><circle cx="232" cy="78" r="7" fill="#3d7a2c"/><circle cx="229" cy="76" r="4.5" fill="#5aa843"/></g><g><circle cx="72" cy="70" r="7" fill="#3d7a2c"/><circle cx="69" cy="68" r="4.5" fill="#5aa843"/></g><g transform="translate(126,52)"><rect x="-8" y="-5" width="16" height="9" fill="#f7f1e6"/><polygon points="-10,-5 0,-13 10,-5" fill="#b5523b"/><rect x="-2" y="0" width="4" height="4" fill="#7a4f27"/></g><g transform="translate(214,52)"><rect x="-8" y="-5" width="16" height="9" fill="#f7f1e6"/><polygon points="-10,-5 0,-13 10,-5" fill="#b5523b"/><rect x="-2" y="0" width="4" height="4" fill="#7a4f27"/></g><g transform="translate(278,66)"><rect x="-8" y="-5" width="16" height="9" fill="#f7f1e6"/><polygon points="-10,-5 0,-13 10,-5" fill="#b5523b"/><rect x="-2" y="0" width="4" height="4" fill="#7a4f27"/></g><circle cx="72.0" cy="21.4" r="7.4" fill="#b48650"/><circle cx="72.0" cy="20.0" r="6.6" fill="#fff1d0"/><circle cx="101.0" cy="21.4" r="7.4" fill="#2a6fae"/><circle cx="101.0" cy="20.0" r="6.6" fill="#4fa3e3"/><circle cx="130.1" cy="21.4" r="7.4" fill="#2a6fae"/><circle cx="130.1" cy="20.0" r="6.6" fill="#4fa3e3"/><circle cx="159.1" cy="21.4" r="7.4" fill="#9b2f1d"/><circle cx="159.1" cy="20.0" r="6.6" fill="#e0533d"/><circle cx="188.1" cy="21.4" r="7.4" fill="#2a6fae"/><circle cx="188.1" cy="20.0" r="6.6" fill="#4fa3e3"/><circle cx="217.2" cy="21.4" r="7.4" fill="#24794a"/><circle cx="217.2" cy="20.0" r="6.6" fill="#43b26f"/><circle cx="246.2" cy="21.4" r="7.4" fill="#56349a"/><circle cx="246.2" cy="20.0" r="6.6" fill="#8a5cd6"/><circle cx="275.2" cy="22.1" r="7.4" fill="#2a6fae"/><circle cx="275.2" cy="20.7" r="6.6" fill="#4fa3e3"/><circle cx="299.0" cy="37.4" r="7.4" fill="#b48650"/><circle cx="299.0" cy="36.0" r="6.6" fill="#fff1d0"/><circle cx="306.0" cy="65.0" r="7.4" fill="#7a4f1d"/><circle cx="306.0" cy="63.6" r="6.6" fill="#d08d3c"/><circle cx="294.3" cy="90.8" r="7.4" fill="#2a6fae"/><circle cx="294.3" cy="89.4" r="6.6" fill="#4fa3e3"/><circle cx="268.0" cy="101.4" r="7.4" fill="#2a6fae"/><circle cx="268.0" cy="100.0" r="6.6" fill="#4fa3e3"/><circle cx="239.0" cy="101.4" r="7.4" fill="#9b2f1d"/><circle cx="239.0" cy="100.0" r="6.6" fill="#e0533d"/><circle cx="209.9" cy="101.4" r="7.4" fill="#24794a"/><circle cx="209.9" cy="100.0" r="6.6" fill="#43b26f"/><circle cx="180.9" cy="101.4" r="7.4" fill="#b48650"/><circle cx="180.9" cy="100.0" r="6.6" fill="#fff1d0"/><circle cx="151.9" cy="101.4" r="7.4" fill="#2a6fae"/><circle cx="151.9" cy="100.0" r="6.6" fill="#4fa3e3"/><circle cx="122.8" cy="101.4" r="7.4" fill="#56349a"/><circle cx="122.8" cy="100.0" r="6.6" fill="#8a5cd6"/><circle cx="93.8" cy="101.4" r="7.4" fill="#2a6fae"/><circle cx="93.8" cy="100.0" r="6.6" fill="#4fa3e3"/><circle cx="64.8" cy="100.7" r="7.4" fill="#2a6fae"/><circle cx="64.8" cy="99.3" r="6.6" fill="#4fa3e3"/><circle cx="41.0" cy="85.4" r="7.4" fill="#9b2f1d"/><circle cx="41.0" cy="84.0" r="6.6" fill="#e0533d"/><circle cx="34.0" cy="57.8" r="7.4" fill="#24794a"/><circle cx="34.0" cy="56.4" r="6.6" fill="#43b26f"/><circle cx="45.7" cy="32.0" r="7.4" fill="#2a6fae"/><circle cx="45.7" cy="30.6" r="6.6" fill="#4fa3e3"/><circle cx="275.2" cy="12.7" r="12" fill="#ffe680" opacity=".55"/><polygon class="hub-star" points="275.2,3.7 277.7,9.3 283.8,9.9 279.2,14.0 280.5,20.0 275.2,16.9 269.9,20.0 271.2,14.0 266.6,9.9 272.7,9.3" fill="#ffd34d" stroke="#b07a12" stroke-width="1.6" stroke-linejoin="round"/><g class="hub-tok"><circle cx="130.1" cy="15.0" r="8.6" fill="#fff"/><circle cx="130.1" cy="15.0" r="7" fill="#7ce9e5"/><text x="130.1" y="18.0" text-anchor="middle" font-size="8.6">🦊</text></g><g class="hub-tok"><circle cx="209.9" cy="95.0" r="8.6" fill="#fff"/><circle cx="209.9" cy="95.0" r="7" fill="#ffd166"/><text x="209.9" y="98.0" text-anchor="middle" font-size="8.6">🤠</text></g><g class="hub-tok"><circle cx="93.8" cy="95.0" r="8.6" fill="#fff"/><circle cx="93.8" cy="95.0" r="7" fill="#57d49b"/><text x="93.8" y="98.0" text-anchor="middle" font-size="8.6">🧉</text></g></svg><span class="hub-badge" hidden></span></span>
+        <span class="hub-txt"><b>La Gran <span>Pampa</span></b><small id="hub-pampa-st">El tablero de la semana con tus amigos: dados todos los días, minijuegos y malones</small></span>
+      </button>
       <button type="button" class="hub-game" data-game="bloquear">
         <span class="hub-art"><svg viewBox="0 0 170 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g stroke="#1c2738" stroke-width="1"><path d="M34 0V150M51 0V150M68 0V150M85 0V150M102 0V150M119 0V150M136 0V150"/><path d="M17 16H153M17 33H153M17 50H153M17 67H153M17 84H153M17 101H153M17 118H153M17 135H153"/></g><g class="hub-fall" transform="translate(68,16)" fill="#c7a5ff"><rect x="17" y="0" width="16" height="16" rx="3"/><rect x="0" y="17" width="16" height="16" rx="3"/><rect x="17" y="17" width="16" height="16" rx="3"/><rect x="34" y="17" width="16" height="16" rx="3"/></g><g fill="#7ce9e5"><rect x="17" y="84" width="16" height="16" rx="3"/><rect x="17" y="101" width="16" height="16" rx="3"/><rect x="17" y="118" width="16" height="16" rx="3"/><rect x="17" y="135" width="16" height="16" rx="3"/></g><g fill="#ff7a8a"><rect x="34" y="118" width="16" height="16" rx="3"/><rect x="51" y="118" width="16" height="16" rx="3"/><rect x="51" y="135" width="16" height="16" rx="3"/><rect x="68" y="135" width="16" height="16" rx="3"/></g><g fill="#5fd3a0"><rect x="34" y="135" width="16" height="16" rx="3"/><rect x="85" y="118" width="16" height="16" rx="3"/><rect x="85" y="135" width="16" height="16" rx="3"/><rect x="102" y="135" width="16" height="16" rx="3"/></g><g fill="#ffa25e"><rect x="119" y="101" width="16" height="16" rx="3"/><rect x="119" y="118" width="16" height="16" rx="3"/><rect x="119" y="135" width="16" height="16" rx="3"/><rect x="136" y="135" width="16" height="16" rx="3"/></g><g fill="#7c97ff"><rect x="102" y="118" width="16" height="16" rx="3"/><rect x="68" y="118" width="16" height="16" rx="3"/></g></svg><span class="hub-badge" hidden></span></span>
         <span class="hub-txt"><b>Bloque<span>AR</span></b><small>Encajá piezas y borrá líneas</small><span class="hub-rk" data-rk="bloquear"></span></span>
       </button>
       <button type="button" class="hub-game" data-game="poblar">
         <span class="hub-art"><svg viewBox="0 0 170 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g stroke="#e9d9a8" stroke-width="3" stroke-linejoin="round"><polygon transform="translate(85,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#e8c14a"/><polygon transform="translate(43.4,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#3f8a4a"/><polygon transform="translate(126.6,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#9ccc65"/><polygon transform="translate(64.2,39)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#c2593a"/><polygon transform="translate(105.8,39)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#8d97a8"/><polygon transform="translate(64.2,111)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#9ccc65"/><polygon transform="translate(105.8,111)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#3f8a4a"/></g><g font-family="system-ui,sans-serif" font-weight="800" font-size="11" text-anchor="middle"><circle cx="85" cy="75" r="9" fill="#fbf3dc"/><text x="85" y="79" fill="#c81d25">6</text><circle cx="64.2" cy="39" r="9" fill="#fbf3dc"/><text x="64.2" y="43" fill="#1b1b1b">9</text><circle cx="126.6" cy="75" r="9" fill="#fbf3dc"/><text x="126.6" y="79" fill="#1b1b1b">4</text><circle cx="64.2" cy="111" r="9" fill="#fbf3dc"/><text x="64.2" y="115" fill="#c81d25">8</text></g><path d="M79 99L85 93L91 99V105H79Z" fill="#4fc3f7" stroke="#fff" stroke-width="1.5"/><path d="M43.4 99L64.2 87" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M43.4 99L64.2 87" stroke="#e5383b" stroke-width="3.5" stroke-linecap="round"/></svg><span class="hub-badge" hidden></span></span>
-        <span class="hub-txt"><b>Pobl<span>AR</span></b><small>Poblá la pampa, 1 contra 1</small><span class="hub-rk" data-rk="poblar"></span></span>
+        <span class="hub-txt"><b>Pobl<span>AR</span></b><small>Poblá la pampa, 1&nbsp;contra&nbsp;1</small><span class="hub-rk" data-rk="poblar"></span></span>
       </button>
       <button type="button" class="hub-game wide" data-game="estancia">
-        <span class="hub-art"><svg viewBox="0 0 340 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="340" height="120" fill="#5f9b45"/><path d="M0 84Q90 70 170 82T340 78V120H0Z" fill="#4c8538"/><g fill="#c9a23a" stroke="#9c7a22" stroke-width="2"><rect x="22" y="58" width="74" height="44" rx="8"/></g><g stroke="#9c7a22" stroke-width="2"><path d="M30 68H88M30 78H88M30 88H88"/></g><g stroke="#e8d6b0" stroke-width="3" fill="none"><path d="M226 66H312V104H226Z"/><path d="M226 85H312"/></g><rect x="122" y="40" width="76" height="56" rx="8" fill="#9b7653" stroke="#6b4a2b" stroke-width="2"/><path d="M116 46L160 18L204 46Z" fill="#c2593a" stroke="#8a3a22" stroke-width="2" stroke-linejoin="round"/><rect x="152" y="66" width="16" height="30" rx="2" fill="#4a3220"/><rect x="132" y="56" width="12" height="12" rx="2" fill="#ffd166"/><rect x="176" y="56" width="12" height="12" rx="2" fill="#ffd166"/><g stroke="#6b4a2b" stroke-width="3"><path d="M262 64L270 18M286 64L278 18M266 40H282"/></g><rect x="262" y="12" width="24" height="10" rx="2" fill="#6b4a2b"/><g font-size="20" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif"><text x="248" y="98">🐎</text><text x="292" y="98">🐂</text></g></svg><span class="hub-badge" hidden></span></span>
-        <span class="hub-txt"><b>Estanci<span>AR</span></b><small>Hacé crecer tu estancia y salí de malón contra tus amigos</small><span class="hub-rk" data-rk="estancia"></span></span>
+        <span class="hub-art"><svg viewBox="0 0 340 110" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="340" height="110" fill="#4d7f37"/><polygon points="168.0,-45.0 182.0,-38.0 168.0,-31.0 154.0,-38.0" fill="#73b852"/><polygon points="182.0,-38.0 196.0,-31.0 182.0,-24.0 168.0,-31.0" fill="#7cc35a"/><polygon points="196.0,-31.0 210.0,-24.0 196.0,-17.0 182.0,-24.0" fill="#73b852"/><polygon points="210.0,-24.0 224.0,-17.0 210.0,-10.0 196.0,-17.0" fill="#7cc35a"/><polygon points="224.0,-17.0 238.0,-10.0 224.0,-3.0 210.0,-10.0" fill="#73b852"/><polygon points="238.0,-10.0 252.0,-3.0 238.0,4.0 224.0,-3.0" fill="#7cc35a"/><polygon points="252.0,-3.0 266.0,4.0 252.0,11.0 238.0,4.0" fill="#73b852"/><polygon points="266.0,4.0 280.0,11.0 266.0,18.0 252.0,11.0" fill="#7cc35a"/><polygon points="280.0,11.0 294.0,18.0 280.0,25.0 266.0,18.0" fill="#73b852"/><polygon points="294.0,18.0 308.0,25.0 294.0,32.0 280.0,25.0" fill="#7cc35a"/><polygon points="308.0,25.0 322.0,32.0 308.0,39.0 294.0,32.0" fill="#73b852"/><polygon points="322.0,32.0 336.0,39.0 322.0,46.0 308.0,39.0" fill="#7cc35a"/><polygon points="336.0,39.0 350.0,46.0 336.0,53.0 322.0,46.0" fill="#73b852"/><polygon points="350.0,46.0 364.0,53.0 350.0,60.0 336.0,53.0" fill="#7cc35a"/><polygon points="364.0,53.0 378.0,60.0 364.0,67.0 350.0,60.0" fill="#73b852"/><polygon points="378.0,60.0 392.0,67.0 378.0,74.0 364.0,67.0" fill="#7cc35a"/><polygon points="392.0,67.0 406.0,74.0 392.0,81.0 378.0,74.0" fill="#73b852"/><polygon points="406.0,74.0 420.0,81.0 406.0,88.0 392.0,81.0" fill="#7cc35a"/><polygon points="154.0,-38.0 168.0,-31.0 154.0,-24.0 140.0,-31.0" fill="#7cc35a"/><polygon points="168.0,-31.0 182.0,-24.0 168.0,-17.0 154.0,-24.0" fill="#73b852"/><polygon points="182.0,-24.0 196.0,-17.0 182.0,-10.0 168.0,-17.0" fill="#7cc35a"/><polygon points="196.0,-17.0 210.0,-10.0 196.0,-3.0 182.0,-10.0" fill="#73b852"/><polygon points="210.0,-10.0 224.0,-3.0 210.0,4.0 196.0,-3.0" fill="#7cc35a"/><polygon points="224.0,-3.0 238.0,4.0 224.0,11.0 210.0,4.0" fill="#73b852"/><polygon points="238.0,4.0 252.0,11.0 238.0,18.0 224.0,11.0" fill="#7cc35a"/><polygon points="252.0,11.0 266.0,18.0 252.0,25.0 238.0,18.0" fill="#73b852"/><polygon points="266.0,18.0 280.0,25.0 266.0,32.0 252.0,25.0" fill="#7cc35a"/><polygon points="280.0,25.0 294.0,32.0 280.0,39.0 266.0,32.0" fill="#73b852"/><polygon points="294.0,32.0 308.0,39.0 294.0,46.0 280.0,39.0" fill="#7cc35a"/><polygon points="308.0,39.0 322.0,46.0 308.0,53.0 294.0,46.0" fill="#73b852"/><polygon points="322.0,46.0 336.0,53.0 322.0,60.0 308.0,53.0" fill="#7cc35a"/><polygon points="336.0,53.0 350.0,60.0 336.0,67.0 322.0,60.0" fill="#73b852"/><polygon points="350.0,60.0 364.0,67.0 350.0,74.0 336.0,67.0" fill="#7cc35a"/><polygon points="364.0,67.0 378.0,74.0 364.0,81.0 350.0,74.0" fill="#73b852"/><polygon points="378.0,74.0 392.0,81.0 378.0,88.0 364.0,81.0" fill="#7cc35a"/><polygon points="392.0,81.0 406.0,88.0 392.0,95.0 378.0,88.0" fill="#73b852"/><polygon points="140.0,-31.0 154.0,-24.0 140.0,-17.0 126.0,-24.0" fill="#73b852"/><polygon points="154.0,-24.0 168.0,-17.0 154.0,-10.0 140.0,-17.0" fill="#7cc35a"/><polygon points="168.0,-17.0 182.0,-10.0 168.0,-3.0 154.0,-10.0" fill="#73b852"/><polygon points="182.0,-10.0 196.0,-3.0 182.0,4.0 168.0,-3.0" fill="#7cc35a"/><polygon points="196.0,-3.0 210.0,4.0 196.0,11.0 182.0,4.0" fill="#73b852"/><polygon points="210.0,4.0 224.0,11.0 210.0,18.0 196.0,11.0" fill="#7cc35a"/><polygon points="224.0,11.0 238.0,18.0 224.0,25.0 210.0,18.0" fill="#73b852"/><polygon points="238.0,18.0 252.0,25.0 238.0,32.0 224.0,25.0" fill="#7cc35a"/><polygon points="252.0,25.0 266.0,32.0 252.0,39.0 238.0,32.0" fill="#73b852"/><polygon points="266.0,32.0 280.0,39.0 266.0,46.0 252.0,39.0" fill="#7cc35a"/><polygon points="280.0,39.0 294.0,46.0 280.0,53.0 266.0,46.0" fill="#73b852"/><polygon points="294.0,46.0 308.0,53.0 294.0,60.0 280.0,53.0" fill="#7cc35a"/><polygon points="308.0,53.0 322.0,60.0 308.0,67.0 294.0,60.0" fill="#73b852"/><polygon points="322.0,60.0 336.0,67.0 322.0,74.0 308.0,67.0" fill="#7cc35a"/><polygon points="336.0,67.0 350.0,74.0 336.0,81.0 322.0,74.0" fill="#73b852"/><polygon points="350.0,74.0 364.0,81.0 350.0,88.0 336.0,81.0" fill="#7cc35a"/><polygon points="364.0,81.0 378.0,88.0 364.0,95.0 350.0,88.0" fill="#73b852"/><polygon points="378.0,88.0 392.0,95.0 378.0,102.0 364.0,95.0" fill="#7cc35a"/><polygon points="126.0,-24.0 140.0,-17.0 126.0,-10.0 112.0,-17.0" fill="#7cc35a"/><polygon points="140.0,-17.0 154.0,-10.0 140.0,-3.0 126.0,-10.0" fill="#73b852"/><polygon points="154.0,-10.0 168.0,-3.0 154.0,4.0 140.0,-3.0" fill="#7cc35a"/><polygon points="168.0,-3.0 182.0,4.0 168.0,11.0 154.0,4.0" fill="#73b852"/><polygon points="182.0,4.0 196.0,11.0 182.0,18.0 168.0,11.0" fill="#7cc35a"/><polygon points="196.0,11.0 210.0,18.0 196.0,25.0 182.0,18.0" fill="#73b852"/><polygon points="210.0,18.0 224.0,25.0 210.0,32.0 196.0,25.0" fill="#7cc35a"/><polygon points="224.0,25.0 238.0,32.0 224.0,39.0 210.0,32.0" fill="#73b852"/><polygon points="238.0,32.0 252.0,39.0 238.0,46.0 224.0,39.0" fill="#7cc35a"/><polygon points="252.0,39.0 266.0,46.0 252.0,53.0 238.0,46.0" fill="#73b852"/><polygon points="266.0,46.0 280.0,53.0 266.0,60.0 252.0,53.0" fill="#7cc35a"/><polygon points="280.0,53.0 294.0,60.0 280.0,67.0 266.0,60.0" fill="#73b852"/><polygon points="294.0,60.0 308.0,67.0 294.0,74.0 280.0,67.0" fill="#7cc35a"/><polygon points="308.0,67.0 322.0,74.0 308.0,81.0 294.0,74.0" fill="#73b852"/><polygon points="322.0,74.0 336.0,81.0 322.0,88.0 308.0,81.0" fill="#7cc35a"/><polygon points="336.0,81.0 350.0,88.0 336.0,95.0 322.0,88.0" fill="#73b852"/><polygon points="350.0,88.0 364.0,95.0 350.0,102.0 336.0,95.0" fill="#7cc35a"/><polygon points="364.0,95.0 378.0,102.0 364.0,109.0 350.0,102.0" fill="#73b852"/><polygon points="112.0,-17.0 126.0,-10.0 112.0,-3.0 98.0,-10.0" fill="#73b852"/><polygon points="126.0,-10.0 140.0,-3.0 126.0,4.0 112.0,-3.0" fill="#7cc35a"/><polygon points="140.0,-3.0 154.0,4.0 140.0,11.0 126.0,4.0" fill="#73b852"/><polygon points="154.0,4.0 168.0,11.0 154.0,18.0 140.0,11.0" fill="#7cc35a"/><polygon points="168.0,11.0 182.0,18.0 168.0,25.0 154.0,18.0" fill="#73b852"/><polygon points="182.0,18.0 196.0,25.0 182.0,32.0 168.0,25.0" fill="#7cc35a"/><polygon points="196.0,25.0 210.0,32.0 196.0,39.0 182.0,32.0" fill="#73b852"/><polygon points="210.0,32.0 224.0,39.0 210.0,46.0 196.0,39.0" fill="#7cc35a"/><polygon points="224.0,39.0 238.0,46.0 224.0,53.0 210.0,46.0" fill="#73b852"/><polygon points="238.0,46.0 252.0,53.0 238.0,60.0 224.0,53.0" fill="#7cc35a"/><polygon points="252.0,53.0 266.0,60.0 252.0,67.0 238.0,60.0" fill="#73b852"/><polygon points="266.0,60.0 280.0,67.0 266.0,74.0 252.0,67.0" fill="#7cc35a"/><polygon points="280.0,67.0 294.0,74.0 280.0,81.0 266.0,74.0" fill="#73b852"/><polygon points="294.0,74.0 308.0,81.0 294.0,88.0 280.0,81.0" fill="#7cc35a"/><polygon points="308.0,81.0 322.0,88.0 308.0,95.0 294.0,88.0" fill="#73b852"/><polygon points="322.0,88.0 336.0,95.0 322.0,102.0 308.0,95.0" fill="#7cc35a"/><polygon points="336.0,95.0 350.0,102.0 336.0,109.0 322.0,102.0" fill="#73b852"/><polygon points="350.0,102.0 364.0,109.0 350.0,116.0 336.0,109.0" fill="#7cc35a"/><polygon points="98.0,-10.0 112.0,-3.0 98.0,4.0 84.0,-3.0" fill="#7cc35a"/><polygon points="112.0,-3.0 126.0,4.0 112.0,11.0 98.0,4.0" fill="#73b852"/><polygon points="126.0,4.0 140.0,11.0 126.0,18.0 112.0,11.0" fill="#7cc35a"/><polygon points="140.0,11.0 154.0,18.0 140.0,25.0 126.0,18.0" fill="#73b852"/><polygon points="154.0,18.0 168.0,25.0 154.0,32.0 140.0,25.0" fill="#7cc35a"/><polygon points="168.0,25.0 182.0,32.0 168.0,39.0 154.0,32.0" fill="#73b852"/><polygon points="182.0,32.0 196.0,39.0 182.0,46.0 168.0,39.0" fill="#7cc35a"/><polygon points="196.0,39.0 210.0,46.0 196.0,53.0 182.0,46.0" fill="#73b852"/><polygon points="210.0,46.0 224.0,53.0 210.0,60.0 196.0,53.0" fill="#7cc35a"/><polygon points="224.0,53.0 238.0,60.0 224.0,67.0 210.0,60.0" fill="#73b852"/><polygon points="238.0,60.0 252.0,67.0 238.0,74.0 224.0,67.0" fill="#7cc35a"/><polygon points="252.0,67.0 266.0,74.0 252.0,81.0 238.0,74.0" fill="#73b852"/><polygon points="266.0,74.0 280.0,81.0 266.0,88.0 252.0,81.0" fill="#7cc35a"/><polygon points="280.0,81.0 294.0,88.0 280.0,95.0 266.0,88.0" fill="#73b852"/><polygon points="294.0,88.0 308.0,95.0 294.0,102.0 280.0,95.0" fill="#7cc35a"/><polygon points="308.0,95.0 322.0,102.0 308.0,109.0 294.0,102.0" fill="#73b852"/><polygon points="322.0,102.0 336.0,109.0 322.0,116.0 308.0,109.0" fill="#7cc35a"/><polygon points="336.0,109.0 350.0,116.0 336.0,123.0 322.0,116.0" fill="#73b852"/><polygon points="84.0,-3.0 98.0,4.0 84.0,11.0 70.0,4.0" fill="#73b852"/><polygon points="98.0,4.0 112.0,11.0 98.0,18.0 84.0,11.0" fill="#7cc35a"/><polygon points="112.0,11.0 126.0,18.0 112.0,25.0 98.0,18.0" fill="#73b852"/><polygon points="126.0,18.0 140.0,25.0 126.0,32.0 112.0,25.0" fill="#7cc35a"/><polygon points="140.0,25.0 154.0,32.0 140.0,39.0 126.0,32.0" fill="#73b852"/><polygon points="154.0,32.0 168.0,39.0 154.0,46.0 140.0,39.0" fill="#7cc35a"/><polygon points="168.0,39.0 182.0,46.0 168.0,53.0 154.0,46.0" fill="#73b852"/><polygon points="182.0,46.0 196.0,53.0 182.0,60.0 168.0,53.0" fill="#7cc35a"/><polygon points="196.0,53.0 210.0,60.0 196.0,67.0 182.0,60.0" fill="#73b852"/><polygon points="210.0,60.0 224.0,67.0 210.0,74.0 196.0,67.0" fill="#7cc35a"/><polygon points="224.0,67.0 238.0,74.0 224.0,81.0 210.0,74.0" fill="#73b852"/><polygon points="238.0,74.0 252.0,81.0 238.0,88.0 224.0,81.0" fill="#7cc35a"/><polygon points="252.0,81.0 266.0,88.0 252.0,95.0 238.0,88.0" fill="#73b852"/><polygon points="266.0,88.0 280.0,95.0 266.0,102.0 252.0,95.0" fill="#7cc35a"/><polygon points="280.0,95.0 294.0,102.0 280.0,109.0 266.0,102.0" fill="#73b852"/><polygon points="294.0,102.0 308.0,109.0 294.0,116.0 280.0,109.0" fill="#7cc35a"/><polygon points="308.0,109.0 322.0,116.0 308.0,123.0 294.0,116.0" fill="#73b852"/><polygon points="322.0,116.0 336.0,123.0 322.0,130.0 308.0,123.0" fill="#7cc35a"/><polygon points="70.0,4.0 84.0,11.0 70.0,18.0 56.0,11.0" fill="#7cc35a"/><polygon points="84.0,11.0 98.0,18.0 84.0,25.0 70.0,18.0" fill="#73b852"/><polygon points="98.0,18.0 112.0,25.0 98.0,32.0 84.0,25.0" fill="#7cc35a"/><polygon points="112.0,25.0 126.0,32.0 112.0,39.0 98.0,32.0" fill="#73b852"/><polygon points="126.0,32.0 140.0,39.0 126.0,46.0 112.0,39.0" fill="#7cc35a"/><polygon points="140.0,39.0 154.0,46.0 140.0,53.0 126.0,46.0" fill="#73b852"/><polygon points="154.0,46.0 168.0,53.0 154.0,60.0 140.0,53.0" fill="#7cc35a"/><polygon points="168.0,53.0 182.0,60.0 168.0,67.0 154.0,60.0" fill="#73b852"/><polygon points="182.0,60.0 196.0,67.0 182.0,74.0 168.0,67.0" fill="#7cc35a"/><polygon points="196.0,67.0 210.0,74.0 196.0,81.0 182.0,74.0" fill="#73b852"/><polygon points="210.0,74.0 224.0,81.0 210.0,88.0 196.0,81.0" fill="#7cc35a"/><polygon points="224.0,81.0 238.0,88.0 224.0,95.0 210.0,88.0" fill="#73b852"/><polygon points="238.0,88.0 252.0,95.0 238.0,102.0 224.0,95.0" fill="#7cc35a"/><polygon points="252.0,95.0 266.0,102.0 252.0,109.0 238.0,102.0" fill="#73b852"/><polygon points="266.0,102.0 280.0,109.0 266.0,116.0 252.0,109.0" fill="#7cc35a"/><polygon points="280.0,109.0 294.0,116.0 280.0,123.0 266.0,116.0" fill="#73b852"/><polygon points="294.0,116.0 308.0,123.0 294.0,130.0 280.0,123.0" fill="#7cc35a"/><polygon points="308.0,123.0 322.0,130.0 308.0,137.0 294.0,130.0" fill="#73b852"/><polygon points="56.0,11.0 70.0,18.0 56.0,25.0 42.0,18.0" fill="#73b852"/><polygon points="70.0,18.0 84.0,25.0 70.0,32.0 56.0,25.0" fill="#7cc35a"/><polygon points="84.0,25.0 98.0,32.0 84.0,39.0 70.0,32.0" fill="#73b852"/><polygon points="98.0,32.0 112.0,39.0 98.0,46.0 84.0,39.0" fill="#7cc35a"/><polygon points="112.0,39.0 126.0,46.0 112.0,53.0 98.0,46.0" fill="#73b852"/><polygon points="126.0,46.0 140.0,53.0 126.0,60.0 112.0,53.0" fill="#7cc35a"/><polygon points="140.0,53.0 154.0,60.0 140.0,67.0 126.0,60.0" fill="#73b852"/><polygon points="154.0,60.0 168.0,67.0 154.0,74.0 140.0,67.0" fill="#7cc35a"/><polygon points="168.0,67.0 182.0,74.0 168.0,81.0 154.0,74.0" fill="#73b852"/><polygon points="182.0,74.0 196.0,81.0 182.0,88.0 168.0,81.0" fill="#7cc35a"/><polygon points="196.0,81.0 210.0,88.0 196.0,95.0 182.0,88.0" fill="#73b852"/><polygon points="210.0,88.0 224.0,95.0 210.0,102.0 196.0,95.0" fill="#7cc35a"/><polygon points="224.0,95.0 238.0,102.0 224.0,109.0 210.0,102.0" fill="#73b852"/><polygon points="238.0,102.0 252.0,109.0 238.0,116.0 224.0,109.0" fill="#7cc35a"/><polygon points="252.0,109.0 266.0,116.0 252.0,123.0 238.0,116.0" fill="#73b852"/><polygon points="266.0,116.0 280.0,123.0 266.0,130.0 252.0,123.0" fill="#7cc35a"/><polygon points="280.0,123.0 294.0,130.0 280.0,137.0 266.0,130.0" fill="#73b852"/><polygon points="294.0,130.0 308.0,137.0 294.0,144.0 280.0,137.0" fill="#7cc35a"/><polygon points="42.0,18.0 56.0,25.0 42.0,32.0 28.0,25.0" fill="#7cc35a"/><polygon points="56.0,25.0 70.0,32.0 56.0,39.0 42.0,32.0" fill="#73b852"/><polygon points="70.0,32.0 84.0,39.0 70.0,46.0 56.0,39.0" fill="#7cc35a"/><polygon points="84.0,39.0 98.0,46.0 84.0,53.0 70.0,46.0" fill="#73b852"/><polygon points="98.0,46.0 112.0,53.0 98.0,60.0 84.0,53.0" fill="#7cc35a"/><polygon points="112.0,53.0 126.0,60.0 112.0,67.0 98.0,60.0" fill="#73b852"/><polygon points="126.0,60.0 140.0,67.0 126.0,74.0 112.0,67.0" fill="#7cc35a"/><polygon points="140.0,67.0 154.0,74.0 140.0,81.0 126.0,74.0" fill="#73b852"/><polygon points="154.0,74.0 168.0,81.0 154.0,88.0 140.0,81.0" fill="#7cc35a"/><polygon points="168.0,81.0 182.0,88.0 168.0,95.0 154.0,88.0" fill="#73b852"/><polygon points="182.0,88.0 196.0,95.0 182.0,102.0 168.0,95.0" fill="#7cc35a"/><polygon points="196.0,95.0 210.0,102.0 196.0,109.0 182.0,102.0" fill="#73b852"/><polygon points="210.0,102.0 224.0,109.0 210.0,116.0 196.0,109.0" fill="#7cc35a"/><polygon points="224.0,109.0 238.0,116.0 224.0,123.0 210.0,116.0" fill="#73b852"/><polygon points="238.0,116.0 252.0,123.0 238.0,130.0 224.0,123.0" fill="#7cc35a"/><polygon points="252.0,123.0 266.0,130.0 252.0,137.0 238.0,130.0" fill="#73b852"/><polygon points="266.0,130.0 280.0,137.0 266.0,144.0 252.0,137.0" fill="#7cc35a"/><polygon points="280.0,137.0 294.0,144.0 280.0,151.0 266.0,144.0" fill="#73b852"/><polygon points="28.0,25.0 42.0,32.0 28.0,39.0 14.0,32.0" fill="#73b852"/><polygon points="42.0,32.0 56.0,39.0 42.0,46.0 28.0,39.0" fill="#7cc35a"/><polygon points="56.0,39.0 70.0,46.0 56.0,53.0 42.0,46.0" fill="#73b852"/><polygon points="70.0,46.0 84.0,53.0 70.0,60.0 56.0,53.0" fill="#7cc35a"/><polygon points="84.0,53.0 98.0,60.0 84.0,67.0 70.0,60.0" fill="#73b852"/><polygon points="98.0,60.0 112.0,67.0 98.0,74.0 84.0,67.0" fill="#7cc35a"/><polygon points="112.0,67.0 126.0,74.0 112.0,81.0 98.0,74.0" fill="#73b852"/><polygon points="126.0,74.0 140.0,81.0 126.0,88.0 112.0,81.0" fill="#7cc35a"/><polygon points="140.0,81.0 154.0,88.0 140.0,95.0 126.0,88.0" fill="#73b852"/><polygon points="154.0,88.0 168.0,95.0 154.0,102.0 140.0,95.0" fill="#7cc35a"/><polygon points="168.0,95.0 182.0,102.0 168.0,109.0 154.0,102.0" fill="#73b852"/><polygon points="182.0,102.0 196.0,109.0 182.0,116.0 168.0,109.0" fill="#7cc35a"/><polygon points="196.0,109.0 210.0,116.0 196.0,123.0 182.0,116.0" fill="#73b852"/><polygon points="210.0,116.0 224.0,123.0 210.0,130.0 196.0,123.0" fill="#7cc35a"/><polygon points="224.0,123.0 238.0,130.0 224.0,137.0 210.0,130.0" fill="#73b852"/><polygon points="238.0,130.0 252.0,137.0 238.0,144.0 224.0,137.0" fill="#7cc35a"/><polygon points="252.0,137.0 266.0,144.0 252.0,151.0 238.0,144.0" fill="#73b852"/><polygon points="266.0,144.0 280.0,151.0 266.0,158.0 252.0,151.0" fill="#7cc35a"/><polygon points="14.0,32.0 28.0,39.0 14.0,46.0 0.0,39.0" fill="#7cc35a"/><polygon points="28.0,39.0 42.0,46.0 28.0,53.0 14.0,46.0" fill="#73b852"/><polygon points="42.0,46.0 56.0,53.0 42.0,60.0 28.0,53.0" fill="#7cc35a"/><polygon points="56.0,53.0 70.0,60.0 56.0,67.0 42.0,60.0" fill="#73b852"/><polygon points="70.0,60.0 84.0,67.0 70.0,74.0 56.0,67.0" fill="#7cc35a"/><polygon points="84.0,67.0 98.0,74.0 84.0,81.0 70.0,74.0" fill="#73b852"/><polygon points="98.0,74.0 112.0,81.0 98.0,88.0 84.0,81.0" fill="#7cc35a"/><polygon points="112.0,81.0 126.0,88.0 112.0,95.0 98.0,88.0" fill="#73b852"/><polygon points="126.0,88.0 140.0,95.0 126.0,102.0 112.0,95.0" fill="#7cc35a"/><polygon points="140.0,95.0 154.0,102.0 140.0,109.0 126.0,102.0" fill="#73b852"/><polygon points="154.0,102.0 168.0,109.0 154.0,116.0 140.0,109.0" fill="#7cc35a"/><polygon points="168.0,109.0 182.0,116.0 168.0,123.0 154.0,116.0" fill="#73b852"/><polygon points="182.0,116.0 196.0,123.0 182.0,130.0 168.0,123.0" fill="#7cc35a"/><polygon points="196.0,123.0 210.0,130.0 196.0,137.0 182.0,130.0" fill="#73b852"/><polygon points="210.0,130.0 224.0,137.0 210.0,144.0 196.0,137.0" fill="#7cc35a"/><polygon points="224.0,137.0 238.0,144.0 224.0,151.0 210.0,144.0" fill="#73b852"/><polygon points="238.0,144.0 252.0,151.0 238.0,158.0 224.0,151.0" fill="#7cc35a"/><polygon points="252.0,151.0 266.0,158.0 252.0,165.0 238.0,158.0" fill="#73b852"/><polygon points="0.0,39.0 14.0,46.0 0.0,53.0 -14.0,46.0" fill="#73b852"/><polygon points="14.0,46.0 28.0,53.0 14.0,60.0 0.0,53.0" fill="#7cc35a"/><polygon points="28.0,53.0 42.0,60.0 28.0,67.0 14.0,60.0" fill="#73b852"/><polygon points="42.0,60.0 56.0,67.0 42.0,74.0 28.0,67.0" fill="#7cc35a"/><polygon points="56.0,67.0 70.0,74.0 56.0,81.0 42.0,74.0" fill="#73b852"/><polygon points="70.0,74.0 84.0,81.0 70.0,88.0 56.0,81.0" fill="#7cc35a"/><polygon points="84.0,81.0 98.0,88.0 84.0,95.0 70.0,88.0" fill="#73b852"/><polygon points="98.0,88.0 112.0,95.0 98.0,102.0 84.0,95.0" fill="#7cc35a"/><polygon points="112.0,95.0 126.0,102.0 112.0,109.0 98.0,102.0" fill="#73b852"/><polygon points="126.0,102.0 140.0,109.0 126.0,116.0 112.0,109.0" fill="#7cc35a"/><polygon points="140.0,109.0 154.0,116.0 140.0,123.0 126.0,116.0" fill="#73b852"/><polygon points="154.0,116.0 168.0,123.0 154.0,130.0 140.0,123.0" fill="#7cc35a"/><polygon points="168.0,123.0 182.0,130.0 168.0,137.0 154.0,130.0" fill="#73b852"/><polygon points="182.0,130.0 196.0,137.0 182.0,144.0 168.0,137.0" fill="#7cc35a"/><polygon points="196.0,137.0 210.0,144.0 196.0,151.0 182.0,144.0" fill="#73b852"/><polygon points="210.0,144.0 224.0,151.0 210.0,158.0 196.0,151.0" fill="#7cc35a"/><polygon points="224.0,151.0 238.0,158.0 224.0,165.0 210.0,158.0" fill="#73b852"/><polygon points="238.0,158.0 252.0,165.0 238.0,172.0 224.0,165.0" fill="#7cc35a"/><polygon points="-14.0,46.0 0.0,53.0 -14.0,60.0 -28.0,53.0" fill="#7cc35a"/><polygon points="0.0,53.0 14.0,60.0 0.0,67.0 -14.0,60.0" fill="#73b852"/><polygon points="14.0,60.0 28.0,67.0 14.0,74.0 0.0,67.0" fill="#7cc35a"/><polygon points="28.0,67.0 42.0,74.0 28.0,81.0 14.0,74.0" fill="#73b852"/><polygon points="42.0,74.0 56.0,81.0 42.0,88.0 28.0,81.0" fill="#7cc35a"/><polygon points="56.0,81.0 70.0,88.0 56.0,95.0 42.0,88.0" fill="#73b852"/><polygon points="70.0,88.0 84.0,95.0 70.0,102.0 56.0,95.0" fill="#7cc35a"/><polygon points="84.0,95.0 98.0,102.0 84.0,109.0 70.0,102.0" fill="#73b852"/><polygon points="98.0,102.0 112.0,109.0 98.0,116.0 84.0,109.0" fill="#7cc35a"/><polygon points="112.0,109.0 126.0,116.0 112.0,123.0 98.0,116.0" fill="#73b852"/><polygon points="126.0,116.0 140.0,123.0 126.0,130.0 112.0,123.0" fill="#7cc35a"/><polygon points="140.0,123.0 154.0,130.0 140.0,137.0 126.0,130.0" fill="#73b852"/><polygon points="154.0,130.0 168.0,137.0 154.0,144.0 140.0,137.0" fill="#7cc35a"/><polygon points="168.0,137.0 182.0,144.0 168.0,151.0 154.0,144.0" fill="#73b852"/><polygon points="182.0,144.0 196.0,151.0 182.0,158.0 168.0,151.0" fill="#7cc35a"/><polygon points="196.0,151.0 210.0,158.0 196.0,165.0 182.0,158.0" fill="#73b852"/><polygon points="210.0,158.0 224.0,165.0 210.0,172.0 196.0,165.0" fill="#7cc35a"/><polygon points="224.0,165.0 238.0,172.0 224.0,179.0 210.0,172.0" fill="#73b852"/><polygon points="-28.0,53.0 -14.0,60.0 -28.0,67.0 -42.0,60.0" fill="#73b852"/><polygon points="-14.0,60.0 0.0,67.0 -14.0,74.0 -28.0,67.0" fill="#7cc35a"/><polygon points="0.0,67.0 14.0,74.0 0.0,81.0 -14.0,74.0" fill="#73b852"/><polygon points="14.0,74.0 28.0,81.0 14.0,88.0 0.0,81.0" fill="#7cc35a"/><polygon points="28.0,81.0 42.0,88.0 28.0,95.0 14.0,88.0" fill="#73b852"/><polygon points="42.0,88.0 56.0,95.0 42.0,102.0 28.0,95.0" fill="#7cc35a"/><polygon points="56.0,95.0 70.0,102.0 56.0,109.0 42.0,102.0" fill="#73b852"/><polygon points="70.0,102.0 84.0,109.0 70.0,116.0 56.0,109.0" fill="#7cc35a"/><polygon points="84.0,109.0 98.0,116.0 84.0,123.0 70.0,116.0" fill="#73b852"/><polygon points="98.0,116.0 112.0,123.0 98.0,130.0 84.0,123.0" fill="#7cc35a"/><polygon points="112.0,123.0 126.0,130.0 112.0,137.0 98.0,130.0" fill="#73b852"/><polygon points="126.0,130.0 140.0,137.0 126.0,144.0 112.0,137.0" fill="#7cc35a"/><polygon points="140.0,137.0 154.0,144.0 140.0,151.0 126.0,144.0" fill="#73b852"/><polygon points="154.0,144.0 168.0,151.0 154.0,158.0 140.0,151.0" fill="#7cc35a"/><polygon points="168.0,151.0 182.0,158.0 168.0,165.0 154.0,158.0" fill="#73b852"/><polygon points="182.0,158.0 196.0,165.0 182.0,172.0 168.0,165.0" fill="#7cc35a"/><polygon points="196.0,165.0 210.0,172.0 196.0,179.0 182.0,172.0" fill="#73b852"/><polygon points="210.0,172.0 224.0,179.0 210.0,186.0 196.0,179.0" fill="#7cc35a"/><polygon points="-42.0,60.0 -28.0,67.0 -42.0,74.0 -56.0,67.0" fill="#7cc35a"/><polygon points="-28.0,67.0 -14.0,74.0 -28.0,81.0 -42.0,74.0" fill="#73b852"/><polygon points="-14.0,74.0 0.0,81.0 -14.0,88.0 -28.0,81.0" fill="#7cc35a"/><polygon points="0.0,81.0 14.0,88.0 0.0,95.0 -14.0,88.0" fill="#73b852"/><polygon points="14.0,88.0 28.0,95.0 14.0,102.0 0.0,95.0" fill="#7cc35a"/><polygon points="28.0,95.0 42.0,102.0 28.0,109.0 14.0,102.0" fill="#73b852"/><polygon points="42.0,102.0 56.0,109.0 42.0,116.0 28.0,109.0" fill="#7cc35a"/><polygon points="56.0,109.0 70.0,116.0 56.0,123.0 42.0,116.0" fill="#73b852"/><polygon points="70.0,116.0 84.0,123.0 70.0,130.0 56.0,123.0" fill="#7cc35a"/><polygon points="84.0,123.0 98.0,130.0 84.0,137.0 70.0,130.0" fill="#73b852"/><polygon points="98.0,130.0 112.0,137.0 98.0,144.0 84.0,137.0" fill="#7cc35a"/><polygon points="112.0,137.0 126.0,144.0 112.0,151.0 98.0,144.0" fill="#73b852"/><polygon points="126.0,144.0 140.0,151.0 126.0,158.0 112.0,151.0" fill="#7cc35a"/><polygon points="140.0,151.0 154.0,158.0 140.0,165.0 126.0,158.0" fill="#73b852"/><polygon points="154.0,158.0 168.0,165.0 154.0,172.0 140.0,165.0" fill="#7cc35a"/><polygon points="168.0,165.0 182.0,172.0 168.0,179.0 154.0,172.0" fill="#73b852"/><polygon points="182.0,172.0 196.0,179.0 182.0,186.0 168.0,179.0" fill="#7cc35a"/><polygon points="196.0,179.0 210.0,186.0 196.0,193.0 182.0,186.0" fill="#73b852"/><polygon points="-56.0,67.0 -42.0,74.0 -56.0,81.0 -70.0,74.0" fill="#73b852"/><polygon points="-42.0,74.0 -28.0,81.0 -42.0,88.0 -56.0,81.0" fill="#7cc35a"/><polygon points="-28.0,81.0 -14.0,88.0 -28.0,95.0 -42.0,88.0" fill="#73b852"/><polygon points="-14.0,88.0 0.0,95.0 -14.0,102.0 -28.0,95.0" fill="#7cc35a"/><polygon points="0.0,95.0 14.0,102.0 0.0,109.0 -14.0,102.0" fill="#73b852"/><polygon points="14.0,102.0 28.0,109.0 14.0,116.0 0.0,109.0" fill="#7cc35a"/><polygon points="28.0,109.0 42.0,116.0 28.0,123.0 14.0,116.0" fill="#73b852"/><polygon points="42.0,116.0 56.0,123.0 42.0,130.0 28.0,123.0" fill="#7cc35a"/><polygon points="56.0,123.0 70.0,130.0 56.0,137.0 42.0,130.0" fill="#73b852"/><polygon points="70.0,130.0 84.0,137.0 70.0,144.0 56.0,137.0" fill="#7cc35a"/><polygon points="84.0,137.0 98.0,144.0 84.0,151.0 70.0,144.0" fill="#73b852"/><polygon points="98.0,144.0 112.0,151.0 98.0,158.0 84.0,151.0" fill="#7cc35a"/><polygon points="112.0,151.0 126.0,158.0 112.0,165.0 98.0,158.0" fill="#73b852"/><polygon points="126.0,158.0 140.0,165.0 126.0,172.0 112.0,165.0" fill="#7cc35a"/><polygon points="140.0,165.0 154.0,172.0 140.0,179.0 126.0,172.0" fill="#73b852"/><polygon points="154.0,172.0 168.0,179.0 154.0,186.0 140.0,179.0" fill="#7cc35a"/><polygon points="168.0,179.0 182.0,186.0 168.0,193.0 154.0,186.0" fill="#73b852"/><polygon points="182.0,186.0 196.0,193.0 182.0,200.0 168.0,193.0" fill="#7cc35a"/><polygon points="-70.0,74.0 -56.0,81.0 -70.0,88.0 -84.0,81.0" fill="#7cc35a"/><polygon points="-56.0,81.0 -42.0,88.0 -56.0,95.0 -70.0,88.0" fill="#73b852"/><polygon points="-42.0,88.0 -28.0,95.0 -42.0,102.0 -56.0,95.0" fill="#7cc35a"/><polygon points="-28.0,95.0 -14.0,102.0 -28.0,109.0 -42.0,102.0" fill="#73b852"/><polygon points="-14.0,102.0 0.0,109.0 -14.0,116.0 -28.0,109.0" fill="#7cc35a"/><polygon points="0.0,109.0 14.0,116.0 0.0,123.0 -14.0,116.0" fill="#73b852"/><polygon points="14.0,116.0 28.0,123.0 14.0,130.0 0.0,123.0" fill="#7cc35a"/><polygon points="28.0,123.0 42.0,130.0 28.0,137.0 14.0,130.0" fill="#73b852"/><polygon points="42.0,130.0 56.0,137.0 42.0,144.0 28.0,137.0" fill="#7cc35a"/><polygon points="56.0,137.0 70.0,144.0 56.0,151.0 42.0,144.0" fill="#73b852"/><polygon points="70.0,144.0 84.0,151.0 70.0,158.0 56.0,151.0" fill="#7cc35a"/><polygon points="84.0,151.0 98.0,158.0 84.0,165.0 70.0,158.0" fill="#73b852"/><polygon points="98.0,158.0 112.0,165.0 98.0,172.0 84.0,165.0" fill="#7cc35a"/><polygon points="112.0,165.0 126.0,172.0 112.0,179.0 98.0,172.0" fill="#73b852"/><polygon points="126.0,172.0 140.0,179.0 126.0,186.0 112.0,179.0" fill="#7cc35a"/><polygon points="140.0,179.0 154.0,186.0 140.0,193.0 126.0,186.0" fill="#73b852"/><polygon points="154.0,186.0 168.0,193.0 154.0,200.0 140.0,193.0" fill="#7cc35a"/><polygon points="168.0,193.0 182.0,200.0 168.0,207.0 154.0,200.0" fill="#73b852"/><polygon points="189.0,80.3 203.0,87.3 189.0,94.3 175.0,87.3" fill="#d8b98a"/><polygon points="175.0,87.3 189.0,94.3 175.0,101.3 161.0,94.3" fill="#d8b98a"/><polygon points="161.0,94.3 175.0,101.3 161.0,108.3 147.0,101.3" fill="#d8b98a"/><polygon points="147.0,101.3 161.0,108.3 147.0,115.3 133.0,108.3" fill="#d8b98a"/><ellipse cx="170.8" cy="50.2" rx="10.4" ry="4.8" fill="#14280a" opacity=".2"/><rect x="168.9" y="34.1" width="3.8" height="16.1" fill="#6b4423"/><circle cx="165.1" cy="29.3" r="8.5" fill="#3f7f2e"/><circle cx="176.5" cy="29.3" r="8.5" fill="#3f7f2e"/><circle cx="170.8" cy="21.7" r="9.5" fill="#4b9638"/><circle cx="168.0" cy="24.6" r="5.7" fill="#5aab44"/><ellipse cx="28.0" cy="51.6" rx="9.9" ry="4.5" fill="#14280a" opacity=".2"/><rect x="26.2" y="36.3" width="3.6" height="15.3" fill="#6b4423"/><circle cx="22.6" cy="31.8" r="8.1" fill="#3f7f2e"/><circle cx="33.4" cy="31.8" r="8.1" fill="#3f7f2e"/><circle cx="28.0" cy="24.6" r="9.0" fill="#4b9638"/><circle cx="25.3" cy="27.3" r="5.4" fill="#5aab44"/><polygon points="114.8,55.6 140.0,68.2 140.0,71.2 114.8,58.6" fill="#6e4524"/><polygon points="140.0,68.2 165.2,55.6 165.2,58.6 140.0,71.2" fill="#5e3b1f"/><polygon points="140.0,43.0 165.2,55.6 140.0,68.2 114.8,55.6" fill="#8a5a32"/><path d="M138.0 47.9l1.2 -8M140.0 47.9v-9M142.0 47.9l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M145.7 51.8l1.2 -8M147.7 51.8v-9M149.7 51.8l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M153.4 55.6l1.2 -8M155.4 55.6v-9M157.4 55.6l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M130.3 51.8l1.2 -8M132.3 51.8v-9M134.3 51.8l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M138.0 55.6l1.2 -8M140.0 55.6v-9M142.0 55.6l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M145.7 59.5l1.2 -8M147.7 59.5v-9M149.7 59.5l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M122.6 55.6l1.2 -8M124.6 55.6v-9M126.6 55.6l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M130.3 59.5l1.2 -8M132.3 59.5v-9M134.3 59.5l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><path d="M138.0 63.3l1.2 -8M140.0 63.3v-9M142.0 63.3l-1.2 -8" stroke="#f0c552" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="75.6" cy="60.0" rx="12" ry="5" fill="#14280a" opacity=".2"/><line x1="68.6" y1="62.0" x2="75.6" y2="20.0" stroke="#7d858c" stroke-width="1.4"/><line x1="82.6" y1="62.0" x2="75.6" y2="20.0" stroke="#7d858c" stroke-width="1.4"/><line x1="72.6" y1="59.0" x2="75.6" y2="20.0" stroke="#7d858c" stroke-width="1.4"/><line x1="78.6" y1="59.0" x2="75.6" y2="20.0" stroke="#7d858c" stroke-width="1.4"/><line x1="70.0" y1="53.6" x2="81.2" y2="53.6" stroke="#9aa1a8" stroke-width="1"/><line x1="71.4" y1="45.2" x2="79.8" y2="45.2" stroke="#9aa1a8" stroke-width="1"/><line x1="72.8" y1="36.8" x2="78.4" y2="36.8" stroke="#9aa1a8" stroke-width="1"/><line x1="74.2" y1="28.4" x2="77.0" y2="28.4" stroke="#9aa1a8" stroke-width="1"/><path d="M77.5 20.0L83.6 18.2L83.6 21.8Z" fill="#c7ced4"/><path d="M77.2 21.5L83.1 24.9L81.9 28.0Z" fill="#e9edf0"/><path d="M76.5 22.6L80.6 30.2L78.6 32.1Z" fill="#c7ced4"/><path d="M75.6 23.0L76.7 32.9L74.5 32.9Z" fill="#e9edf0"/><path d="M74.7 22.6L72.6 32.1L70.6 30.2Z" fill="#c7ced4"/><path d="M74.0 21.5L69.3 28.0L68.1 24.9Z" fill="#e9edf0"/><path d="M73.7 20.0L67.6 21.8L67.6 18.2Z" fill="#c7ced4"/><path d="M74.0 18.5L68.1 15.1L69.3 12.0Z" fill="#e9edf0"/><path d="M74.7 17.4L70.6 9.8L72.6 7.9Z" fill="#c7ced4"/><path d="M75.6 17.0L74.5 7.1L76.7 7.1Z" fill="#e9edf0"/><path d="M76.5 17.4L78.6 7.9L80.6 9.8Z" fill="#c7ced4"/><path d="M77.2 18.5L81.9 12.0L83.1 15.1Z" fill="#e9edf0"/><circle cx="75.6" cy="20.0" r="2" fill="#59616a"/><path d="M77.6 20.0l13 -2v6l-13 1z" fill="#c7ced4"/><rect x="36.6" y="56.2" width="22" height="8" fill="#9aa4ad"/><ellipse cx="47.6" cy="64.2" rx="11" ry="4.5" fill="#9aa4ad"/><ellipse cx="47.6" cy="56.2" rx="11" ry="4.5" fill="#b8c1c9"/><ellipse cx="47.6" cy="56.2" rx="9" ry="3.4" fill="#4f8fae"/><polygon points="85.4,68.9 110.6,81.5 110.6,84.5 85.4,71.9" fill="#6e4524"/><polygon points="110.6,81.5 135.8,68.9 135.8,71.9 110.6,84.5" fill="#5e3b1f"/><polygon points="110.6,56.3 135.8,68.9 110.6,81.5 85.4,68.9" fill="#8a5a32"/><path d="M108.6 61.2l1.2 -8M110.6 61.2v-9M112.6 61.2l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M116.3 65.0l1.2 -8M118.3 65.0v-9M120.3 65.0l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M124.0 68.9l1.2 -8M126.0 68.9v-9M128.0 68.9l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M100.9 65.0l1.2 -8M102.9 65.0v-9M104.9 65.0l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M108.6 68.9l1.2 -8M110.6 68.9v-9M112.6 68.9l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M116.3 72.8l1.2 -8M118.3 72.8v-9M120.3 72.8l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M93.2 68.9l1.2 -8M95.2 68.9v-9M97.2 68.9l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M100.9 72.8l1.2 -8M102.9 72.8v-9M104.9 72.8l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><path d="M108.6 76.6l1.2 -8M110.6 76.6v-9M112.6 76.6l-1.2 -8" stroke="#7fc355" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="284.2" cy="84.5" rx="11.6" ry="5.2" fill="#14280a" opacity=".2"/><rect x="282.1" y="66.7" width="4.2" height="17.9" fill="#6b4423"/><circle cx="277.9" cy="61.4" r="9.5" fill="#3f7f2e"/><circle cx="290.5" cy="61.4" r="9.5" fill="#3f7f2e"/><circle cx="284.2" cy="53.0" r="10.5" fill="#4b9638"/><circle cx="281.1" cy="56.1" r="6.3" fill="#5aab44"/><polygon points="182.0,71.7 215.6,88.5 215.6,91.5 182.0,74.7" fill="#c4b08a"/><polygon points="215.6,88.5 249.2,71.7 249.2,74.7 215.6,91.5" fill="#b39c76"/><polygon points="215.6,54.9 249.2,71.7 215.6,88.5 182.0,71.7" fill="#d9c7a2"/><polygon points="186.2,47.7 215.6,62.4 215.6,86.4 186.2,71.7" fill="#f3ebdc" stroke="#00000022" stroke-width="1" stroke-linejoin="round"/><polygon points="215.6,62.4 245.0,47.7 245.0,71.7 215.6,86.4" fill="#ddd2bd" stroke="#00000022" stroke-width="1" stroke-linejoin="round"/><polygon points="215.6,33.0 245.0,47.7 215.6,62.4 186.2,47.7" fill="#f6efe1" stroke="#00000022" stroke-width="1" stroke-linejoin="round"/><polygon points="198.1,77.6 203.7,80.5 203.7,65.5 198.1,62.6" fill="#6b4423"/><polygon points="189.0,66.1 193.9,68.5 193.9,60.5 189.0,58.1" fill="#5aa8d0"/><polygon points="207.2,75.2 212.1,77.7 212.1,69.7 207.2,67.2" fill="#5aa8d0"/><polygon points="238.7,67.9 233.8,70.3 233.8,62.3 238.7,59.9" fill="#4f97bd"/><polygon points="227.5,73.5 222.6,75.9 222.6,67.9 227.5,65.5" fill="#4f97bd"/><polygon points="215.6,31.6 247.8,47.7 231.7,38.8 199.5,22.6" fill="#a8432b" stroke="#00000033" stroke-width="1" stroke-linejoin="round"/><polygon points="245.0,47.7 215.6,62.4 230.3,38.0" fill="#ece2cf" stroke="#00000022" stroke-width="1" stroke-linejoin="round"/><polygon points="199.5,22.6 231.7,38.8 215.6,63.8 183.4,47.7" fill="#c8553a" stroke="#00000033" stroke-width="1" stroke-linejoin="round"/><polygon points="225.4,24.0 229.6,26.1 229.6,38.1 225.4,36.0" fill="#8b7b6a"/><polygon points="229.6,26.1 233.8,24.0 233.8,36.0 229.6,38.1" fill="#7a6a58"/><polygon points="229.6,21.9 233.8,24.0 229.6,26.1 225.4,24.0" fill="#9a8c7c"/><polygon points="231.0,87.5 245.0,94.5 245.0,105.5 231.0,98.5" fill="#b0824a" stroke="#00000033" stroke-width="1" stroke-linejoin="round"/><polygon points="245.0,94.5 257.6,88.2 257.6,99.2 245.0,105.5" fill="#9a6f3c" stroke="#00000033" stroke-width="1" stroke-linejoin="round"/><polygon points="243.6,81.2 257.6,88.2 245.0,94.5 231.0,87.5" fill="#c99a5e" stroke="#00000033" stroke-width="1" stroke-linejoin="round"/><polygon points="243.6,79.8 260.4,88.2 252.7,85.0 235.9,76.6" fill="#963923" stroke="#00000033" stroke-width="1" stroke-linejoin="round"/><polygon points="257.6,88.2 245.0,94.5 251.3,84.4" fill="#b0824a" stroke="#00000022" stroke-width="1" stroke-linejoin="round"/><polygon points="235.9,76.6 252.7,85.0 245.0,95.9 228.2,87.5" fill="#b9472b" stroke="#00000033" stroke-width="1" stroke-linejoin="round"/><polygon points="235.2,100.6 239.4,102.7 239.4,96.7 235.2,94.6" fill="#3b2a1a"/><ellipse cx="225.4" cy="102.5" rx="3.2" ry="2.6" fill="#fffaf0"/><circle cx="222.8" cy="99.9" r="1.9" fill="#fffaf0"/><circle cx="222.8" cy="97.9" r="1" fill="#e0412f"/><ellipse cx="238.0" cy="107.4" rx="3.2" ry="2.6" fill="#fffaf0"/><circle cx="235.4" cy="104.8" r="1.9" fill="#fffaf0"/><circle cx="235.4" cy="102.8" r="1" fill="#e0412f"/><ellipse cx="252.0" cy="106.0" rx="3.2" ry="2.6" fill="#fffaf0"/><circle cx="249.4" cy="103.4" r="1.9" fill="#fffaf0"/><circle cx="249.4" cy="101.4" r="1" fill="#e0412f"/></svg><span class="hub-badge" hidden></span></span>
+        <span class="hub-txt"><b>Estanci<span>AR</span></b><small>Sembrá, criá animales, decorá tu campo y salí de malón contra tus amigos</small><span class="hub-rk" data-rk="estancia"></span></span>
       </button>
     </div>
     <button type="button" class="hub-friends" id="hub-friends"><span class="fr-avs" id="hub-fr-avs"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#c7a5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M2.5 18c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="15.5" cy="7" r="2.6"/><path d="M15 12.6c2.4 0 4 1.3 4.5 3.9"/></svg></span><span class="fr-txt" id="hub-fr-txt">Jugá con tus amigos</span><span class="fr-cta" id="hub-fr-cta">Invitar</span></button>
@@ -1376,9 +1393,9 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
         <button type="button" class="tile" data-two><b>2 en este equipo</b><span>Mismo teclado o pantalla</span></button>
       </div>
       <div class="field-row" id="two-kind-row" hidden><label>CÓMO</label><div class="seg" role="group" aria-label="Dos jugadores"><button type="button" data-session="local">Por puntaje</button><button type="button" data-session="versus">Versus</button></div></div>
-      <div class="field-row" id="solo-kind-row" hidden><label>PARTIDA</label><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">Giros</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
+      <div class="field-row" id="solo-kind-row" hidden><label>TIPO</label><div class="seg wrap" role="group" aria-label="Tipo de partida"><button type="button" data-solokind="marathon">Maratón</button><button type="button" data-solokind="sprint">Sprint 40</button><button type="button" data-solokind="ultra">Ultra 2:00</button><button type="button" data-solokind="daily">Desafío del día</button><button type="button" data-solokind="puzzle">Giros</button><button type="button" data-solokind="dig">Excavación</button><button type="button" data-solokind="fiesta">Fiesta</button></div></div>
       <p class="hint" id="solo-kind-note" hidden></p>
-      <div class="field-row" id="ranked-row"><label>PARTIDAS</label><div class="seg" role="group" aria-label="Ranked o amistoso"><button type="button" data-ranked="1">Ranked</button><button type="button" data-ranked="0">Amistoso</button></div></div>
+      <div class="field-row" id="ranked-row"><label>RANGO</label><div class="seg" role="group" aria-label="Ranked o amistoso"><button type="button" data-ranked="1">Ranked</button><button type="button" data-ranked="0">Amistoso</button></div></div>
       <p class="hint" id="ranked-note"></p>
       <div class="field-row" id="cpu-level-row" hidden><label>DIFICULTAD</label><div class="seg" role="group" aria-label="Dificultad"><button type="button" data-cpulevel="facil">Fácil</button><button type="button" data-cpulevel="normal">Normal</button><button type="button" data-cpulevel="dificil">Difícil</button></div></div>
     </div>
@@ -1508,7 +1525,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">48</span></p>
+      <p class="hint">Versión <span class="app-ver">51</span></p>
     </div>
     </div></details>
     </div>
@@ -1542,7 +1559,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
             <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v48</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v51</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -3519,7 +3536,7 @@ function setupScanner(){
 }
 
 /* ───────── Solo: Maratón, Sprint 40 y Ultra 2:00 ───────── */
-const SOLO_KINDS={marathon:'Maratón',sprint:'Sprint 40',ultra:'Ultra 2:00',daily:'Desafío del día',puzzle:'Desafíos de giro',dig:'Excavación',fiesta:'Modo fiesta'};
+const SOLO_KINDS={marathon:'Maratón',sprint:'Sprint 40',ultra:'Ultra 2:00',daily:'Desafío del día',puzzle:'Desafíos de giro',dig:'Excavación',fiesta:'Modo fiesta',relampago:'Relámpago'};
 /* Desafíos de giro: tableros armados con pocas piezas. Sin gravedad: la pieza baja sólo cuando la soltás.
    Todos se verificaron con un simulador de la misma rotación (SRS) que usa el juego. */
 const PUZZLES=[
@@ -3565,7 +3582,7 @@ function puzzleRestart(){if(session==='solo'&&soloKind==='puzzle'&&['playing','f
 const SPRINT_LINES=40,ULTRA_MS=120000;
 const NO_RECORD={classic:Infinity,modern:Infinity};
 // El Desafío del día es para una partida: al volver a abrir el juego se arranca en Maratón.
-let soloKind=(k=>Object.hasOwn(SOLO_KINDS,k)&&k!=='daily'?k:'marathon')(storageGet('bloques-solokind-v1'));
+let soloKind=(k=>Object.hasOwn(SOLO_KINDS,k)&&k!=='daily'&&k!=='relampago'?k:'marathon')(storageGet('bloques-solokind-v1'));
 const soloTimer={elapsed:0};
 function fmtTime(ms){const t=Math.max(0,ms),m=Math.floor(t/60000),s=Math.floor(t/1000)%60,d=Math.floor(t/100)%10;return `${m}:${String(s).padStart(2,'0')}.${d}`;}
 function singleBoard(){return session==='solo'||session==='online'||session==='cpu';}
@@ -3576,11 +3593,12 @@ function soloRecordText(m){
   if(session==='solo'&&soloKind==='puzzle')return `${puzzleSolvedCount()}/${PUZZLES.length}`;
   if(session==='solo'&&soloKind==='dig'){const b=digBest();return b?fmtTime(b):'—';}
   if(session==='solo'&&soloKind==='fiesta'){const m=partyLeader();return m?fmt(m):'—';}
+  if(session==='solo'&&soloKind==='relampago'){const b=pampaBest();return b?`${b} ${b===1?'línea':'líneas'}`:'—';}
   return fmt(soloRecords()[m]);
 }
 function setSoloKind(k){
   if(!Object.hasOwn(SOLO_KINDS,k)||k===soloKind)return;
-  tutStop();if(CH.active&&k!==CH.modo)CH.active=false;soloKind=k;storageSet('bloques-solokind-v1',k);soloTimer.elapsed=0;
+  tutStop();if(CH.active&&k!==CH.modo)CH.active=false;soloKind=k;if(k!=='relampago')storageSet('bloques-solokind-v1',k);soloTimer.elapsed=0;
   if(k==='puzzle'&&mode==='classic'){changeMode('modern');solo.announce('Los desafíos usan reglas modernas');}
   if(session==='solo'){solo.reset(false);soloReadyOverlay();}
   renderMenu();refreshTop();fitArena(true);
@@ -3593,6 +3611,7 @@ function soloKindIntro(){
 ${puzzleGoalText(p)} Piezas: ${p.pieces.join(' → ')}.
 ${p.hint}
 Sin gravedad: la pieza baja sólo cuando la soltás.`;}
+  if(soloKind==='relampago')return pampaIntro();
   if(soloKind==='daily'){const d=dailyRec();return `2 minutos con las mismas piezas que todos los que juegan hoy.${d.tries?`\nTu mejor de hoy: ${fmt(d.best)} · ${d.tries} ${d.tries===1?'intento':'intentos'}`:''}`;}
   return null;
 }
@@ -3609,9 +3628,9 @@ function soloTick(dt){
   // El reloj de la barra de arriba se actualiza unas 10 veces por segundo.
   soloTimer.acc=(soloTimer.acc||0)+dt;if(soloTimer.acc>=100){soloTimer.acc=0;refreshTop();}
   if(soloKind==='fiesta'&&soloTimer.elapsed>=PARTY.dur){soloTimer.elapsed=PARTY.dur;soloFinish();return;}
-  if(soloKind==='ultra'||soloKind==='daily'){
-    const left=ULTRA_MS-soloTimer.elapsed;timeWarn(left);
-    if(left<=0){soloTimer.elapsed=ULTRA_MS;soloFinish();}
+  if(soloKind==='ultra'||soloKind==='daily'||soloKind==='relampago'){
+    const T=soloKind==='relampago'?RELAMPAGO_MS:ULTRA_MS,left=T-soloTimer.elapsed;timeWarn(left);
+    if(left<=0){soloTimer.elapsed=T;soloFinish();}
   }else if(soloKind==='fiesta')timeWarn(PARTY.dur-soloTimer.elapsed);
 }
 // Final por objetivo cumplido (40 líneas) o por tiempo (Ultra).
@@ -3639,6 +3658,8 @@ function soloFinish(){
     if(isRec){settings.sprintRecords[mode]=t;persist();}
     progressEnd('finish');
     solo.showOverlay(isRecord(isRec,'¡40 LÍNEAS!'),`Tiempo: ${fmtTime(t)} · ${fmt(s.score)} puntos`,'OTRA ↻');
+  }else if(soloKind==='relampago'){
+    pampaEnd('finish');return;
   }else if(soloKind==='daily'){
     const prev=dailyRec().best;progressEnd('finish');
     solo.showOverlay(s.score>prev?'¡TU MEJOR DE HOY!':'¡SE TERMINÓ\nEL TIEMPO!',`El Desafío del día dura 2 minutos.\nHiciste ${fmt(s.score)} puntos · ${s.lines} líneas.`,'REPETIR DESAFÍO');
@@ -3899,6 +3920,7 @@ function prepSoloSeed(){
   // Cada partida tiene su semilla (se guarda con el récord): así otro puede jugar con las mismas piezas en un reto.
   if(!tut&&soloKind==='daily'){soloSeed=dailySeed();solo.setSeed(soloSeed);}
   else if(!tut&&soloKind==='fiesta')solo.setSeed(PARTY.seed);
+  else if(!tut&&soloKind==='relampago'){soloSeed=PAMPA_RUN.seed>>>0||1;solo.setSeed(soloSeed);}
   else if(!tut&&['marathon','sprint','ultra','dig'].includes(soloKind)){
     if(CH.active&&(CH.modo!==soloKind||CH.reglas!==mode))CH.active=false;
     soloSeed=CH.active?CH.x.semilla>>>0:(crypto.getRandomValues(new Uint32Array(1))[0]||1);solo.setSeed(soloSeed);
@@ -4003,7 +4025,8 @@ function progressEnd(result){
   const medals=[...r.medals,...checkMedals()];
   // Las medallas de esta partida (incluidas las que se ganaron jugando) se listan en el resumen.
   const won=MEDALS.filter(m=>PRG.medals[m.id]&&PRG.medals[m.id]>=r.t0Abs);
-  try{const pr=window.RANGOS&&RANGOS.premio('BloqueAR',xp);if(pr)lines.push(`Para tu estancia: +${fmt(pr.trigo)} 🌾 +${fmt(pr.pesos)} 🪙`);}catch(_){}
+  // El relámpago es un minijuego del tablero: ya tiene sus premios ahí (no da regalos ni tiradas extra).
+  if(r.kind!=='relampago')try{const pr=window.RANGOS&&RANGOS.premio('BloqueAR',xp);if(pr)lines.push(`🎁 Para tu estancia: +${fmt(pr.pesos)} 🪙${pr.tirada?' · 🎲 +1 tirada en La Gran Pampa':''}`);}catch(_){}
   saveProg();
   // Ranked: Maratón (meta de líneas según tu rango), contra la compu y en línea suben o bajan tu rango.
   let rk=null;
@@ -4012,7 +4035,7 @@ function progressEnd(result){
     else if(r.kind==='cpu'&&(result==='win'||result==='lose'))rk=R.apply('bloquear',{key:'c'+r.t0Abs,win:result==='win',kind:'compu-'+cpuLevel});
     else if(r.kind==='online'&&(result==='win'||result==='lose'))rk=R.apply('bloquear',{key:'o'+r.t0Abs,win:result==='win',kind:'amigo'});
   }}catch(_){}
-  let share=null;try{share=shareCardFor(r,result,st.score,st.lines,(r.kind==='sprint'||r.kind==='dig')?Math.round(soloTimer.elapsed):0,rk);}catch(_){}
+  let share=null;if(r.kind!=='relampago')try{share=shareCardFor(r,result,st.score,st.lines,(r.kind==='sprint'||r.kind==='dig')?Math.round(soloTimer.elapsed):0,rk);}catch(_){}
   showSummary({xp,before,after,delta,lines,won,rk,share});
   try{lbOffer(r,result);}catch(_){}
   try{chResult(r,result);}catch(_){}
@@ -4136,7 +4159,7 @@ function setupProgress(){
     {const st=solo.state.status,ov=session==='solo'&&st==='ready'&&!confirmReset?'home':session==='solo'&&['over','frozen'].includes(st)?'end':'min';byId('overlay').dataset.ov=ov;
       // Un consejo nuevo cada vez que termina una partida (en la fiesta y el tutorial, no).
       const tip=byId('overlay-tip'),gk=String(PRG.games)+':'+solo.state.pieceId;
-      if(ov==='end'&&tip.dataset.g!==gk&&soloKind!=='fiesta'&&!TUT.active&&!resumeOffer){tip.dataset.g=gk;showTip();}else if(ov!=='end')tip.hidden=true;}
+      if(ov==='end'&&tip.dataset.g!==gk&&soloKind!=='fiesta'&&soloKind!=='relampago'&&!TUT.active&&!resumeOffer){tip.dataset.g=gk;showTip();}else if(ov!=='end')tip.hidden=true;}
     const st=solo.state.status;if(!summaryKeep||!['over','frozen'].includes(st)){byId('overlay-extra').hidden=true;summaryKeep=false;}
     renderOverlayLevel();};
   byId('overlay-share').addEventListener('click',()=>openShareGame());
@@ -4280,7 +4303,7 @@ function tutBoard(){return mode==='classic'?{rows:['XXX....XXX'],pieces:['I','I'
 function tutShouldStart(){
   // (Las pruebas automáticas abren el juego con #diagnostico y no lo ven.)
   if(/diagnostico/.test(location.hash))return false;
-  return session==='solo'&&!TUT.active&&!['puzzle','fiesta'].includes(soloKind)&&!storageGet('bloques-tut-v1')&&PRG.games===0&&!(settings.records.modern>0||settings.records.classic>0);
+  return session==='solo'&&!TUT.active&&!['puzzle','fiesta','relampago'].includes(soloKind)&&!storageGet('bloques-tut-v1')&&PRG.games===0&&!(settings.records.modern>0||settings.records.classic>0);
 }
 function tutInput(){
   const coarse=matchMedia('(pointer: coarse)').matches||app.classList.contains('free-touch');
@@ -4786,7 +4809,9 @@ function agoText(t){if(!t)return 'todavía no';const s=(Date.now()-t)/1000;retur
 function renderAcctStatus(){const el=byId('acct-sync-txt');if(el&&acct)el.textContent=acct.sync?`Progreso sincronizado ${agoText(acct.sync)}`:'Tu progreso se guarda en tu cuenta';}
 function acctPanelHtml(){
   if(!LB.url)return '';
+  const volver=/^(pampa|estancia|poblar)\.html$/.test(sessionGet('blq-volver')||'')?sessionGet('blq-volver'):'';
   if(acct)return `<h3>👤 TU CUENTA</h3>
+    ${volver?`<a class="primary acct-back" id="acct-back" href="${volver}">${volver==='pampa.html'?'🗺️ Volver a La Gran Pampa':volver==='estancia.html'?'🐎 Volver a EstanciAR':'🏘️ Volver a PoblAR'}</a>`:''}
     <div class="acct-card">${avHtml(acct.avatar,acct.color,true)}<div><b>${escHtml(acct.usuario)}</b><span id="acct-sync-txt">Progreso sincronizado ${agoText(acct.sync)}</span></div></div>
     <div class="row acct-row"><button type="button" class="pill" id="acct-av">${acctPicker?'Listo':'Cambiar avatar'}</button><button type="button" class="pill" id="acct-sync">↻ Sincronizar</button><button type="button" class="linkish" id="acct-out">Salir</button></div>
     ${acctPicker?`<div class="acct-picker"><div class="av-grid">${AVATARS.map(a=>`<button type="button" class="av-pick${a===acct.avatar?' on':''}" data-av="${a}">${a}</button>`).join('')}</div>
@@ -4808,6 +4833,7 @@ function setupAcctPanel(){
       catch(e){m.textContent=e.message;go.disabled=false;}};
     go.onclick=run;for(const id of ['acct-user','acct-pin'])byId(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();run();}});}
   byId('acct-av')?.addEventListener('click',()=>{acctPicker=!acctPicker;setupAcctPanel();});
+  byId('acct-back')?.addEventListener('click',()=>sessionSet('blq-volver',''));
   byId('acct-sync')?.addEventListener('click',async()=>{byId('acct-msg').textContent='Sincronizando…';await acctPull();acctPush(true);const m=byId('acct-msg');if(m)m.textContent='Listo.';});
   byId('acct-out')?.addEventListener('click',()=>{acctPicker=false;acctLogout();});
   const setP=async(o)=>{const prev={avatar:acct.avatar,color:acct.color};Object.assign(acct,o);acctSave();setupAcctPanel();
@@ -5073,6 +5099,7 @@ function resumeEligible(){return session==='solo'&&RESUME_KINDS.includes(soloKin
 function resumeSave(){
   try{
     if(resumeOffer)return;// todavía no eligió qué hacer con la guardada
+    if(session==='solo'&&soloKind==='relampago')return;// el relámpago no se guarda (y no borra la partida guardada)
     if(!resumeEligible()){if(['over','frozen','ready'].includes(solo.state.status)||session!=='solo')storageSet(RESUME_KEY,'');return;}
     storageSet(RESUME_KEY,JSON.stringify({v:1,t:Date.now(),kind:soloKind,mode,elapsed:soloTimer.elapsed,snap:solo.saveState(),run:typeof RUN==='object'?RUN:null}));
   }catch(_){}
@@ -5093,7 +5120,7 @@ function setupResume(){
   setInterval(resumeSave,2000);
   const now=()=>{if(document.hidden)resumeSave();};
   document.addEventListener('visibilitychange',now);window.addEventListener('pagehide',()=>resumeSave());
-  const o=resumeLoad();if(!o||session!=='solo')return;
+  const o=resumeLoad();if(!o||session!=='solo'||PAMPA_RUN.from)return;
   resumeOffer=o;
   if(soloKind!==o.kind){soloKind=o.kind;}
   if(mode!==o.mode)changeMode(o.mode);
@@ -5163,7 +5190,7 @@ function setupTips(){
    directo al último juego (la redirección a PoblAR está al principio del <head>). */
 const HUB={open:false,back:false,timer:0};
 const HUB_AUTO=!navigator.webdriver||storageGet('bloques-hub-force')==='1';
-const HUB_PAGES={poblar:'poblar.html',estancia:'estancia.html'};
+const HUB_PAGES={poblar:'poblar.html',estancia:'estancia.html',pampa:'pampa.html'};
 const hubLast=()=>{const g=storageGet('bloques-ultimo-juego');return HUB_PAGES[g]?g:'bloquear';};
 function hubSetLast(g){storageSet('bloques-ultimo-juego',g);}
 function hubAv(){const a=typeof acct!=='undefined'&&acct;return a?avHtml(a.avatar,a.color,true):'<span class="av big" style="--avc:#93a1b6" aria-hidden="true">👤</span>';}
@@ -5182,16 +5209,36 @@ function hubRender(){
   }
   byId('hub-acct-txt').textContent=a?'Mi cuenta':'Crear cuenta o entrar';
   byId('hub-install').hidden=IS_STANDALONE;
-  const last=hubLast(),newP=!storageGet('poblar-ayuda')&&!storageGet('poblar-partida-v2'),newE=!storageGet('estancia-v1');
+  const last=hubLast(),newP=!storageGet('poblar-ayuda')&&!storageGet('poblar-partida-v2'),newE=!storageGet('estancia-v2')&&!storageGet('estancia-v1');
   document.querySelectorAll('.hub-game').forEach(b=>{
     const g=b.dataset.game,isLast=g===last&&storageGet('bloques-hub-played'),badge=b.querySelector('.hub-badge');
     b.classList.toggle('last',Boolean(isLast));
-    if(isLast){badge.hidden=false;badge.className='hub-badge';badge.textContent='Último jugado';}
+    if(g==='pampa'&&hubPampa().badge){const P=hubPampa();badge.hidden=false;badge.className='hub-badge '+P.cls;badge.textContent=P.badge;}
+    else if(isLast){badge.hidden=false;badge.className='hub-badge';badge.textContent='Último jugado';}
     else if((g==='poblar'&&newP)||(g==='estancia'&&newE)){badge.hidden=false;badge.className='hub-badge new';badge.textContent='Nuevo';}
+    else if(g==='estancia'&&hubEstReady()){const n=hubEstReady();badge.hidden=false;badge.className='hub-badge ready';badge.textContent=`🌾 ${n} para juntar`;}
     else badge.hidden=true;
   });
+  {const P=hubPampa(),st=byId('hub-pampa-st');if(st&&P.txt)st.textContent=P.txt;}
   hubRenderFriends();
 }
+// La Gran Pampa: el tablero guarda un resumen al abrirse (tiradas, puesto, desafíos).
+function hubPampa(){
+  let r=null;try{r=JSON.parse(storageGet('pampa-resumen')||'null');}catch(_){}
+  const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));const lunes=`${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}-${String(m.getDate()).padStart(2,'0')}`;
+  const a=typeof acct!=='undefined'&&acct;
+  if(!r||r.semana!==lunes)return a?{badge:r?'🗺️ Semana nueva':'Nuevo',cls:'new',txt:''}:{badge:'',txt:''};
+  const tir=r.dia===dia?r.tiradas:3;
+  const txt=`Vas ${r.puesto}º de ${r.de} · ⭐ ${r.est} · 🪙 ${r.pat}`;
+  if(r.duelos>0)return {badge:'⚔️ Te desafiaron',cls:'ready',txt};
+  if(r.pend&&r.dia===dia)return {badge:'👉 Te toca seguir',cls:'ready',txt};
+  if(tir>0)return {badge:`🎲 ${tir} para tirar`,cls:'ready',txt};
+  if(r.dia!==dia||!r.juego)return {badge:'🏆 Minijuego de hoy',cls:'ready',txt};
+  return {badge:'',txt};
+}
+// Cuántas cosas de la estancia están listas para juntar (la estancia guarda cuándo se termina cada una).
+function hubEstReady(){try{const L=JSON.parse(storageGet('estancia-listos')||'[]'),t=Date.now();return Array.isArray(L)?L.filter(x=>x<=t).length:0;}catch(_){return 0;}}
 function hubRenderFriends(){
   const a=typeof acct!=='undefined'&&acct,txt=byId('hub-fr-txt'),cta=byId('hub-fr-cta'),avs=byId('hub-fr-avs');
   const icon='<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#c7a5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M2.5 18c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="15.5" cy="7" r="2.6"/><path d="M15 12.6c2.4 0 4 1.3 4.5 3.9"/></svg>';
@@ -5276,7 +5323,7 @@ function setupHub(){
   if(!storageGet('bloques-hub-v1')&&HUB_AUTO&&!location.hash&&!sessionGet('blq-accept')){
     storageSet('bloques-hub-v1','1');
     // Quien ya jugaba antes no necesita la presentación: va directo al menú de juegos.
-    const veterano=PRG.games>0||storageGet('bloques-tut-v1')||(typeof acct!=='undefined'&&acct)||storageGet('poblar-ayuda')||storageGet('estancia-v1');
+    const veterano=PRG.games>0||storageGet('bloques-tut-v1')||(typeof acct!=='undefined'&&acct)||storageGet('poblar-ayuda')||storageGet('estancia-v2')||storageGet('estancia-v1')||storageGet('pampa-resumen');
     if(veterano)openHub();else openWelcome();
     return;
   }
@@ -5317,6 +5364,45 @@ function shareCardFor(r,result,score,lines,ms,rk){
   if(r.kind==='cpu'||r.kind==='online')d=(result==='win'?'¡Gané! · ':result==='lose'?'Perdí · ':'')+d;
   return {j:'bloquear',k:r.kind,t:'BloqueAR · '+(HUB_KINDS[r.kind]||'Partida'),d,r:rk&&rk.after?rk.after.label:''};
 }
+
+/* ───────── La Gran Pampa: BloqueAR relámpago ─────────
+   El minijuego del tablero semanal (pampa.html) se abre con …/#pampa-relampago=SEMILLA (y &duelo=ID
+   si es un duelo). Son 45 segundos con las mismas piezas para todos; cuentan las líneas. No guarda
+   récords ni sube a la tabla: el resultado queda en «pampa-resultado» y se vuelve al tablero. */
+const RELAMPAGO_MS=45000;
+const PAMPA_RUN={seed:0,duelo:'',from:false,done:false};
+function pampaRelampagoHash(){
+  const m=/^#pampa-relampago=(\d+)(?:&duelo=([A-Za-z0-9_-]+))?/.exec(location.hash);if(!m)return false;
+  try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
+  PAMPA_RUN.seed=(Number(m[1])>>>0)||1;PAMPA_RUN.duelo=m[2]||'';PAMPA_RUN.from=true;PAMPA_RUN.done=false;
+  storageSet('bloques-hub-v1','1');
+  try{tutStop();}catch(_){}
+  if(menuOpen)closeMenu();
+  if(session!=='solo')changeSession('solo');
+  if(mode==='classic')changeMode('modern');
+  if(soloKind==='relampago'){soloTimer.elapsed=0;solo.reset(false);soloReadyOverlay();renderMenu();refreshTop();}
+  else setSoloKind('relampago');
+  return true;
+}
+function pampaIntro(){
+  const d=PAMPA_RUN.duelo;
+  return `${d?'⚔️ Duelo de La Gran Pampa.':'🏆 El minijuego de hoy en La Gran Pampa.'}\n45 segundos con las mismas piezas que ${d?'tu rival':'todos'}.\nGana el que hace más líneas.`;
+}
+function pampaBest(){try{const o=JSON.parse(storageGet('pampa-relampago-mejor')||'null');return o&&o.seed===PAMPA_RUN.seed?o.lineas:0;}catch(_){return 0;}}
+// Puntaje para el tablero: manda la cantidad de líneas; los puntos sólo desempatan.
+function pampaScore(lines,points){return lines*1000+Math.min(999,Math.floor(points/100));}
+function pampaEnd(result){
+  const s=solo.state,best=pampaBest(),lineas=s.lines;
+  const r={j:'relampago',seed:PAMPA_RUN.seed,puntos:pampaScore(lineas,s.score),lineas,score:s.score,duelo:PAMPA_RUN.duelo,t:Date.now()};
+  storageSet('pampa-resultado',JSON.stringify(r));
+  if(lineas>best)storageSet('pampa-relampago-mejor',JSON.stringify({seed:PAMPA_RUN.seed,lineas}));
+  PAMPA_RUN.done=true;
+  progressEnd(result);
+  const top=result==='over'?'SE LLENÓ\nEL TABLERO':lineas>best&&best?'¡TU MEJOR!':'¡TIEMPO!';
+  solo.showOverlay(top,`${lineas} ${lineas===1?'línea':'líneas'} · ${fmt(s.score)} puntos\nVolvé al tablero para anotar tu marca.`,'VOLVER AL TABLERO');
+  solo.renderScore();byId('overlay-alt').hidden=true;refreshTop();
+}
+function pampaBack(){location.href='pampa.html#resultado';}
 
 /* ───────── Música techno generativa y sonidos al ritmo ─────────
    Todo se sintetiza en el momento con Web Audio: no hay archivos de audio ni música de terceros.
@@ -6434,7 +6520,7 @@ function musicBoost(bars){AU.boostBars=Math.max(AU.boostBars,bars);}
 let session='solo',mode='modern',menuOpen=false,lastFrame=0,initializing=true;
 const app=byId('app');
 const match={kind:'score',phase:'ready',resumePhase:null,countdown:3000,duration:180000,remaining:180000,elapsed:0,winner:null};
-const soloRecords=()=>session==='online'?onlineRecords():session==='cpu'?NO_RECORD:session==='solo'&&soloKind==='ultra'?settings.ultraRecords:session==='solo'&&['sprint','puzzle','dig','fiesta'].includes(soloKind)?NO_RECORD:session==='solo'&&soloKind==='daily'?{classic:Infinity,modern:Infinity}:settings.records;
+const soloRecords=()=>session==='online'?onlineRecords():session==='cpu'?NO_RECORD:session==='solo'&&soloKind==='ultra'?settings.ultraRecords:session==='solo'&&['sprint','puzzle','dig','fiesta','relampago'].includes(soloKind)?NO_RECORD:session==='solo'&&soloKind==='daily'?{classic:Infinity,modern:Infinity}:settings.records;
 const solo=createGame(byId('solo-area'),'',{records:soloRecords,recordText:m=>soloRecordText(m),onChange:onGameChange,onOverlay:primaryAction,
   gestureSurface:byId('stage'),gestureAccept:e=>{
     if(!singleBoard()||editing)return false;
@@ -6489,6 +6575,7 @@ function soloOver(isRecord){
   if(session==='online'){onlineOver();return;}
   if(session==='cpu'){cpuFinish('cpu');return;}
   if(soloKind==='fiesta'){partyTurnEnd(true);return;}
+  if(soloKind==='relampago'){pampaEnd('over');return;}
   const s=solo.state;progressEnd('over');
   if(soloKind==='dig')solo.showOverlay('FIN DE PARTIDA',`Te faltaron ${digLeft()} líneas de basura · ${fmtTime(soloTimer.elapsed)}`,'OTRA ↻');
   else if(soloKind==='sprint')solo.showOverlay('FIN DE PARTIDA',`Te faltaron ${Math.max(0,SPRINT_LINES-s.lines)} líneas · ${fmtTime(soloTimer.elapsed)}`,'OTRA ↻');
@@ -6501,9 +6588,9 @@ function soloReadyOverlay(){
   const kind=soloKindIntro();
   // La ayuda de gestos se muestra en las primeras partidas; después el cartel queda más limpio.
   const hintN=Number(storageGet('bloques-hint-n')||0);if(hintN<4)storageSet('bloques-hint-n',String(hintN+1));
-  const touchHint=hintN<4&&(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\nDeslizá para mover, tocá para girar y deslizá hacia abajo para bajar.':'\nDeslizá para mover · tocá para girar · abajo un poco baja rápido, rápido la suelta · arriba la guarda.'):'';
+  const touchHint=hintN<4&&(app.classList.contains('free-touch')||matchMedia('(pointer: coarse)').matches)&&padHidden(currentLayout())?(mode==='classic'?'\n\n👆 Tocá para girar\n↔️ Deslizá para mover\n⬇️ Hacia abajo, baja':'\n\n👆 Tocá para girar\n↔️ Deslizá para mover\n⬇️ Abajo baja · rápido, la suelta\n⬆️ Arriba la guarda'):'';
   solo.showOverlay(kind?SOLO_KINDS[soloKind].toUpperCase():'¿LISTO PARA\nJUGAR?',(kind||(mode==='classic'?'Clásico: sin reserva ni caída instantánea. La pieza queda fija al apoyarse.':'Completá líneas, usá la reserva y superá tu récord.'))+touchHint,'JUGAR');
-  byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Cambiar modo';
+  byId('overlay-alt').hidden=false;byId('overlay-alt').textContent=soloKind==='relampago'?'Volver a La Gran Pampa':'Cambiar modo';
 }
 function soloPauseOverlay(){confirmReset=false;solo.showOverlay('EN PAUSA','Tu partida está a salvo.','CONTINUAR');byId('overlay-alt').hidden=false;byId('overlay-alt').textContent='Menú';}
 
@@ -6579,6 +6666,7 @@ function primaryAction(){
   hideA2hs();
   if(resumeOffer)resumeOffer=null;
   if(confirmReset){pauseOrResume();return;}// el botón grande es «Seguir jugando»
+  if(session==='solo'&&soloKind==='relampago'&&PAMPA_RUN.done&&!['playing','paused'].includes(solo.state.status)){pampaBack();return;}
   if(menuOpen)closeMenu();
   lastFrame=performance.now();
   if(session==='solo'){
@@ -6604,7 +6692,7 @@ function primaryAction(){
 }
 /* Botón de reinicio (sólo en Solo, nunca en la fiesta): si hay una partida en juego, pide confirmación. */
 let confirmReset=false;
-function canRestartSolo(){return session==='solo'&&!(soloKind==='fiesta'&&!TUT.active);}
+function canRestartSolo(){return session==='solo'&&!(soloKind==='fiesta'&&!TUT.active)&&soloKind!=='relampago';}
 function askRestart(){
   if(!canRestartSolo()||performance.now()<endGuardUntil)return;
   if(menuOpen)closeMenu();
@@ -6653,6 +6741,7 @@ function changeMode(next,fromNet=false){
   if(!['classic','modern'].includes(next)||next===mode&&!initializing)return;
   if(session==='online'&&net.role==='guest'&&net.hello&&!fromNet)return;
   if(session==='online'&&['countdown','playing','paused','finishing'].includes(net.m.phase)&&!fromNet)return;
+  if(session==='solo'&&soloKind==='relampago'&&next==='classic'){solo.announce('El relámpago se juega con reglas modernas');return;}
   if(CH.active&&next!==CH.reglas)chStop();
   releaseAll();mode=next;app.classList.toggle('classic',mode==='classic');
   solo.modeChange(mode);
@@ -6686,7 +6775,7 @@ function changeSession(next){
 function refreshTop(){
   if(initializing)return;
   const names={solo:soloKind==='marathon'?'SOLO':SOLO_KINDS[soloKind].toUpperCase(),local:'2 JUGADORES · PUNTAJE',versus:'2 JUGADORES · VERSUS',online:'EN LÍNEA',cpu:'VS COMPU'};
-  const chip=byId('mode-chip');const text=`${names[session]} · ${mode==='classic'?'CLÁSICO':'MODERNO'}`;if(chip.textContent!==text)chip.textContent=text;
+  const chip=byId('mode-chip'),narrow=window.innerWidth<520,text=(narrow?names[session].split(' · ')[0]:`${names[session]} · ${mode==='classic'?'CLÁSICO':'MODERNO'}`);if(chip.textContent!==text)chip.textContent=text;
   let paused=false;
   if(session==='solo')paused=solo.state.status==='paused';
   else if(session==='cpu')paused=cpuM.phase==='paused';
@@ -6694,8 +6783,10 @@ function refreshTop(){
   else paused=match.phase==='paused';
   const pb=byId('pause-btn');pb.textContent=paused?'▶':'Ⅱ';pb.setAttribute('aria-label',paused?'Continuar':'Pausar');
   const tp=byId('tool-pause');tp.textContent=paused?'▶':'Ⅱ';tp.setAttribute('aria-label',paused?'Continuar':'Pausar');
-  const rl=session==='cpu'?'PARTIDAS':session==='solo'&&soloKind==='puzzle'?'RESUELTOS':session==='solo'&&soloKind==='fiesta'?'A SUPERAR':'RÉCORD';if(byId('record-label').textContent!==rl){byId('record-label').textContent=rl;solo.renderScore();}
-  {const rs=!canRestartSolo(),a=byId('restart-btn'),b=byId('tool-restart');a.hidden=rs;if(b.hidden!==rs){b.hidden=rs;fitArena(true);}}
+  const rl=session==='cpu'?'PARTIDAS':session==='solo'&&soloKind==='puzzle'?'RESUELTOS':session==='solo'&&soloKind==='fiesta'?'A SUPERAR':session==='solo'&&soloKind==='relampago'?'TU MEJOR':'RÉCORD';if(byId('record-label').textContent!==rl){byId('record-label').textContent=rl;solo.renderScore();}
+  // «Empezar de nuevo» sólo tiene sentido con una partida en juego (no en el cartel de inicio).
+  {const rs=!canRestartSolo()||!['playing','paused'].includes(solo.state.status),a=byId('restart-btn'),b=byId('tool-restart');a.hidden=rs;if(b.hidden!==rs){b.hidden=rs;fitArena(true);}}
+  app.classList.toggle('k-relampago',session==='solo'&&soloKind==='relampago');
   const bar=byId('matchbar'),showBar=session!=='solo'||soloKind!=='marathon'||CH.active;
   if(bar.hidden===showBar){bar.hidden=!showBar;fitArena(true);}
   if(!showBar)return;
@@ -6704,6 +6795,7 @@ function refreshTop(){
     byId('net-badge').hidden=true;
     if(soloKind==='sprint'){const pace=sprintPace();title=`SPRINT · ${Math.min(SPRINT_LINES,solo.state.lines)}/${SPRINT_LINES} LÍNEAS${pace?' · '+pace:''}`;clock=fmtTime(soloTimer.elapsed);}
     else if(soloKind==='daily'){title=`DESAFÍO DEL DÍA · ${fmt(solo.state.score)} PUNTOS`;clock=timeLabel(ULTRA_MS-soloTimer.elapsed);}
+    else if(soloKind==='relampago'){const n=solo.state.lines;title=`🧱 RELÁMPAGO · ${n} ${n===1?'LÍNEA':'LÍNEAS'}${PAMPA_RUN.duelo?' · DUELO':''}`;clock=timeLabel(RELAMPAGO_MS-soloTimer.elapsed);}
     else if(TUT.active){title='TUTORIAL · CÓMO SE JUEGA';clock='';}
     else if(CH.active&&soloKind===CH.modo){title=`⚔️ RETO A ${CH.x.nombre.toUpperCase()} · ${LB_TIME[CH.modo]?'TIEMPO':'MARCA'} ${chTargetText().toUpperCase()}`;clock=soloKind==='marathon'?fmt(solo.state.score):(soloKind==='ultra'?timeLabel(ULTRA_MS-soloTimer.elapsed):fmtTime(soloTimer.elapsed));}
     else if(soloKind==='dig'){const n=digLeft();title=`EXCAVACIÓN · ${n?`QUEDAN ${n} ${n===1?'LÍNEA':'LÍNEAS'}`:'¡LIMPIO!'}`;clock=fmtTime(soloTimer.elapsed);}
@@ -6780,7 +6872,7 @@ function renderMenu(){
   byId('solo-kind-row').hidden=session!=='solo';byId('cpu-level-row').hidden=session!=='cpu';
   document.querySelectorAll('[data-solokind]').forEach(b=>{const on=b.dataset.solokind===soloKind;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   document.querySelectorAll('[data-cpulevel]').forEach(b=>{const on=b.dataset.cpulevel===cpuLevel;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));b.disabled=session==='cpu'&&['countdown','playing','paused'].includes(cpuM.phase);});
-  const kn=byId('solo-kind-note');kn.hidden=session!=='solo';kn.textContent=soloKind==='sprint'?'Sprint: 40 líneas contra reloj. Gana el tiempo más bajo.':soloKind==='ultra'?'Ultra: 2 minutos para sumar todos los puntos que puedas.':soloKind==='dig'?'Excavación: el tablero arranca con 10 líneas de basura. Limpialas lo más rápido que puedas.':soloKind==='fiesta'?'Modo fiesta: se pasan el celular por turnos y todos juegan con las mismas piezas. No suma a tu progreso.':soloKind==='daily'?'Desafío del día: 2 minutos con las mismas piezas para todos. Cambia cada día.':soloKind==='puzzle'?`Desafíos de giro: tableros armados con pocas piezas, sin gravedad. Llevás ${puzzleSolvedCount()}/${PUZZLES.length}. Elegí cuál en Progreso.`:'Maratón: la velocidad sube cada 10 líneas hasta que se llene el tablero.';
+  const kn=byId('solo-kind-note');kn.hidden=session!=='solo';kn.textContent=soloKind==='sprint'?'Sprint: 40 líneas contra reloj. Gana el tiempo más bajo.':soloKind==='ultra'?'Ultra: 2 minutos para sumar todos los puntos que puedas.':soloKind==='dig'?'Excavación: el tablero arranca con 10 líneas de basura. Limpialas lo más rápido que puedas.':soloKind==='fiesta'?'Modo fiesta: se pasan el celular por turnos y todos juegan con las mismas piezas. No suma a tu progreso.':soloKind==='daily'?'Desafío del día: 2 minutos con las mismas piezas para todos. Cambia cada día.':soloKind==='relampago'?'Relámpago: el minijuego de La Gran Pampa. 45 segundos, cuentan las líneas.':soloKind==='puzzle'?`Desafíos de giro: tableros armados con pocas piezas, sin gravedad. Llevás ${puzzleSolvedCount()}/${PUZZLES.length}. Elegí cuál en Progreso.`:'Maratón: la velocidad sube cada 10 líneas hasta que se llene el tablero.';
   const play=byId('menu-play');
   const pausedNow=(session==='solo'&&solo.state.status==='paused')||(session==='cpu'&&cpuM.phase==='paused')||((session==='local'||session==='versus')&&match.phase==='paused');
   play.textContent=online?(net.hello?'JUGAR':'VOLVER AL JUEGO'):pausedNow?'CONTINUAR':'JUGAR';
@@ -7189,7 +7281,10 @@ function setupAudioUI(){
   for(const ev of ['pointerdown','keydown'])window.addEventListener(ev,audioUnlock,{passive:true});
   let bannerTimer=null;
   window.addEventListener('bloques-stage',e=>{
-    const d=e.detail,b=byId('stage-banner');b.querySelector('b').textContent=`ETAPA ${d.n} · ${d.name}`;b.querySelector('span').textContent=d.sub;
+    const d=e.detail,b=byId('stage-banner');
+    // La primera etapa no se anuncia, y nunca encima de un cartel, del menú o de la ayuda.
+    if(d.n<=1||menuOpen||(typeof HUB!=='undefined'&&HUB.open)||!byId('overlay').classList.contains('hidden')||document.querySelector('.coach:not([hidden]),.tut:not([hidden])'))return;
+    b.querySelector('b').textContent=`ETAPA ${d.n} · ${d.name}`;b.querySelector('span').textContent=d.sub;
     b.hidden=false;b.classList.remove('show');void b.offsetWidth;b.classList.add('show');clearTimeout(bannerTimer);bannerTimer=setTimeout(()=>{b.hidden=true;},2600);
   });
 }
@@ -7324,7 +7419,7 @@ function init(){
   byId('menu-scrim').addEventListener('click',()=>{const b=HUB.back;closeMenu();if(b)openHub();});
   byId('menu-play').addEventListener('click',()=>{if(session==='online'&&!net.hello){closeMenu();return;}primaryAction();});
   // «Cambiar modo» despliega el menú contextual; «Menú» (en pausa o en línea conectado) abre el menú completo.
-  byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){confirmReset=false;restart();return;}const t=e.currentTarget.textContent;if(t==='Empezar una nueva'){resumeDiscard();return;}if(t==='Jugar Maratón'){setSoloKind('marathon');return;}if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
+  byId('overlay-alt').addEventListener('click',e=>{if(confirmReset){confirmReset=false;restart();return;}const t=e.currentTarget.textContent;if(t==='Empezar una nueva'){resumeDiscard();return;}if(t==='Jugar Maratón'){setSoloKind('marathon');return;}if(t==='Volver a La Gran Pampa'){pampaBack();return;}if(t==='Menú'||(session==='online'&&net.hello))openMenu(session==='online'?'online':undefined);else openModePop(e.currentTarget);});
   byId('pause-btn').addEventListener('click',pauseOrResume);
   for(const id of ['restart-btn','tool-restart'])byId(id).addEventListener('click',e=>{askRestart();e.currentTarget.blur();});
   document.querySelectorAll('[data-session]').forEach(b=>b.addEventListener('click',()=>changeSession(b.dataset.session)));
@@ -7380,13 +7475,15 @@ function init(){
     onlineReadyNotice();
   });
   window.addEventListener('pagehide',()=>{if(net.hello)netSend({t:'bye'});});
-  window.addEventListener('resize',()=>fitArena());
+  window.addEventListener('resize',()=>{fitArena();refreshTop();});
   window.visualViewport?.addEventListener('resize',()=>fitArena());
   window.addEventListener('orientationchange',()=>setTimeout(()=>fitArena(true),250));
   if(fsAvailable){byId('menu-fullscreen').hidden=false;byId('menu-fullscreen').addEventListener('click',()=>{closeMenu();toggleFullscreen();});byId('fullscreen-btn').hidden=false;byId('fullscreen-btn').addEventListener('click',toggleFullscreen);byId('fullscreen-exit').addEventListener('click',toggleFullscreen);document.addEventListener('fullscreenchange',syncFullscreen);document.addEventListener('webkitfullscreenchange',syncFullscreen);}
   byId('rival-card').hidden=true;
   solo.modeChange(mode);soloReadyOverlay();prepareMatch();renderBindings();renderPadChoices();renderMenu();refreshTop();
   fitArena(true);pollGamepads();
+  // Minijuego de La Gran Pampa: …/#pampa-relampago=SEMILLA (se borra de la barra).
+  pampaRelampagoHash();
   // Enlace de invitación: …/bloques.html#j=BLQ-…  (se borra de la barra para no reutilizarlo).
   handleLinkHash();
   window.addEventListener('hashchange',handleLinkHash);
