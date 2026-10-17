@@ -165,7 +165,7 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR'};
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
 const RKEY='bloques-rangos-v1',XKEY='bloques-xpjuegos-v1',PKEY='bloques-progress-v1',DONE='bloques-rangos-hechas-v1';
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
@@ -182,7 +182,7 @@ function save(o){o.at=Date.now();ls.set(RKEY,JSON.stringify(o));}
 function isRanked(g){return ls.get('bloques-ranked-'+g)!=='0';}
 function setRanked(g,on){ls.set('bloques-ranked-'+g,on?'1':'0');}
 // Cuánto da o saca cada resultado. «kind»: compu-facil, compu-normal, compu-dificil, amigo, solo.
-const TABLE={'compu-facil':[10,-16],'compu-normal':[18,-14],'compu-dificil':[25,-10],amigo:[25,-15],solo:[20,-15]};
+const TABLE={'compu-facil':[10,-16],'compu-normal':[18,-14],'compu-dificil':[25,-10],amigo:[25,-15],solo:[20,-15],malon:[16,-10]};
 function apply(g,res){
   // res: {key (para no contar dos veces), win, kind, extra}
   if(!isRanked(g)||!res||!TABLE[res.kind])return null;
@@ -205,6 +205,12 @@ function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100
 // XP por juego. La de BloqueAR vive en su progreso; la de los demás, acá.
 function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
 function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]||0)+Math.max(0,Math.round(n));o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}
+// Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
+function premio(de,xp){
+  const n=Math.max(0,Math.round(xp||0));if(!n)return null;
+  const p={de,trigo:Math.min(800,n*2),pesos:Math.min(600,Math.round(n*1.5)),t:Date.now()};
+  const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));return p;
+}
 function levelInfo(x){let lv=1,acc=0,need=120;while(x>=acc+need){acc+=need;lv++;need=120+60*(lv-1);}return {lv,into:x-acc,need};}
 function general(){
   const games=Object.keys(GAMES),tot=games.reduce((a,g)=>a+xp(g),0);
@@ -233,7 +239,7 @@ const CSS=`.rk-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 
 .rk-bar{height:6px;border-radius:3px;background:#283345;overflow:hidden;margin-top:4px}.rk-bar i{display:block;height:100%;background:var(--rk,#7ce9e5)}`;
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
-window.RANGOS={TIERS,GAMES,info,get,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,DIV};
+window.RANGOS={TIERS,GAMES,info,get,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,DIV};
 })();
 
 </script>
@@ -257,7 +263,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'La Estancia'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -519,7 +525,7 @@ function renderProfile(p){
     <div class="cx-list">${body}${me?'':`<div class="cx-pact"><button type="button" class="cx-primary" data-con="${esc(S.prof)}">💬 Escribirle</button>${H.invite?`<button type="button" class="cx-sec" data-a="invitar" data-u="${esc(S.prof)}">🎮 Invitar a jugar</button>`:''}</div>`}</div>
     ${S.invFor?invSheet():''}`;
 }
-function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
+function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
 /* Compartir una partida: elegís a quién y le llega como tarjeta con un botón para jugar. */
 function shareRows(){return convList().map(({u})=>`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(u.usuario)}"${u.pub?'':' disabled'}>${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}"></i></b><small>${u.pub?esc(estTxt(u)):'Todavía no puede leer mensajes'}</small></span></button>`).join('');}
 function renderShare(p){
@@ -1430,7 +1436,7 @@ function rankEnd(){
   const key='p'+G.seed+'-'+G.rolls+'-'+(G.p[1].name||'');if(RK_LAST&&RK_LAST.key===key)return RK_LAST.r;
   const w=G.winner===0,amigo=!G.p[1].bot&&!!ON,kind=amigo?'amigo':G.diff==='facil'?null:'compu-'+G.diff;
   const done=(()=>{try{return JSON.parse(localStorage.getItem('poblar-xp-hechas')||'[]');}catch(_){return [];}})();
-  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
+  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{RANGOS.premio('PoblAR',xp);}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
   const r=kind?RANGOS.apply('poblar',{key,win:w,kind}):null;
   RK_LAST={key,r,xp};return r;
 }
@@ -1438,7 +1444,7 @@ function showEnd(){
   if(!G||G.phase!=='over'||G.winner==null)return;// (si ya se empezó otra partida, no mostrar un final viejo)
   const w=G.winner===0,rk=rankEnd(),xp=RK_LAST&&RK_LAST.xp,lvl=window.RANGOS?RANGOS.levelInfo(RANGOS.xp('poblar')):null;
   openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
-    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
+    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP · 🎁 +${Math.min(800,xp*2)} 🌾 para tu estancia`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
     ${window.CHAT&&acct()?'<button class="pill" id="e-share" style="width:100%;margin-top:10px;min-height:44px">💬 Compartir con un amigo</button>':''}
     <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
   if($('e-share'))$('e-share').onclick=()=>{closeModal();CHAT.share({j:'poblar',t:w?'Gané en PoblAR':'Perdí en PoblAR',d:`${vp(0)} a ${vp(1)} contra ${G.p[1].bot?'la compu ('+DIFF[G.diff]+')':G.p[1].name} · ${G.rolls} tiradas`,r:rk&&rk.after?rk.after.label:''});};
@@ -1477,7 +1483,7 @@ function openMenu(){
     <button id="m-log">📜 Lo que pasó</button>
     <button id="m-snd">${SND_ON?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 47</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 48</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};
@@ -1753,9 +1759,9 @@ let FAST=false,AUTO=false;
 // Chat (viene con el sitio; si se abre este archivo suelto, no está).
 if(window.RANGOS)RANGOS.css();
 if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{location.href='./#cuenta';},game:()=>'poblar',
-  invite:(g,u)=>{if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
+  invite:(g,u)=>{if(g==='estancia'){location.href='estancia.html#malon';return;}if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
     if(ON){openFriends();return;}const x=(UIQ.users||[]).find(y=>y.usuario.toLowerCase()===String(u).toLowerCase())||{usuario:u,avatar:'🙂',color:'#7ce9e5'};inviteFriend(x);},
-  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href='./';}});
+  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':'./';}});
 {const m=/^#invitar=([^&]+)/.exec(location.hash);if(m&&acct()){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
   const u=decodeURIComponent(m[1]);setTimeout(()=>{closeModal();inviteFriend((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#7ce9e5'});},400);}}
 window.POBLAR={showEnd,rankEnd,pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};

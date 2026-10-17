@@ -12,7 +12,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="description" content="BloqueAR: juego de piezas en un solo archivo. Solo y local sin internet; dos dispositivos por conexión directa.">
 <title>BloqueAR</title>
-<script>(function(){try{if(!/^https?:$/.test(location.protocol)||location.hash)return;if(navigator.webdriver&&!localStorage.getItem('bloques-hub-force'))return;var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type&&n.type!=='navigate')return;if(document.referrer&&new URL(document.referrer).origin===location.origin)return;if(sessionStorage.getItem('blq-accept'))return;if(localStorage.getItem('bloques-hub-v1')&&localStorage.getItem('bloques-ultimo-juego')==='poblar'){document.documentElement.style.background='#0b1019';location.replace('poblar.html');}}catch(e){}})();</script>
+<script>(function(){try{if(!/^https?:$/.test(location.protocol)||location.hash)return;if(navigator.webdriver&&!localStorage.getItem('bloques-hub-force'))return;var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type&&n.type!=='navigate')return;if(document.referrer&&new URL(document.referrer).origin===location.origin)return;if(sessionStorage.getItem('blq-accept'))return;if(localStorage.getItem('bloques-hub-v1')&&/^(poblar|estancia)$/.test(localStorage.getItem('bloques-ultimo-juego')||'')){document.documentElement.style.background='#0b1019';location.replace(localStorage.getItem('bloques-ultimo-juego')+'.html');}}catch(e){}})();</script>
 <style>
 :root{--theme:#7ce9e5;--pulse:0;color-scheme:dark;--bg:#0b1019;--panel:#141e2c;--line:#283345;--ink:#f4f7fe;--dim:#93a1b6;--aqua:#7ce9e5;--p1:#7ce9e5;--p2:#c7a5ff;--cell:24px;--rail:72px;--gap:8px;--btn:56px;--padw:130px;--next-h:5}
 *{box-sizing:border-box}
@@ -584,6 +584,8 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .hub-art{display:block;position:relative;aspect-ratio:17/15;background:#0f1826}
 .hub-art svg{display:block;width:100%;height:100%}
 .hub-game[data-game=poblar] .hub-art{background:#17507a}
+.hub-game.wide{grid-column:1/-1}.hub-game.wide .hub-art{aspect-ratio:34/11}
+.hub-game[data-game=estancia] .hub-txt b span{color:#e8c14a}
 .hub-badge{position:absolute;top:10px;left:10px;font-size:11px;font-weight:800;padding:4px 9px;border-radius:10px;background:var(--aqua);color:#062a2a}
 .hub-badge.new{background:#ffd166;color:#3a2a00}
 .hub-badge[hidden]{display:none}
@@ -675,7 +677,7 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR'};
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
 const RKEY='bloques-rangos-v1',XKEY='bloques-xpjuegos-v1',PKEY='bloques-progress-v1',DONE='bloques-rangos-hechas-v1';
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
@@ -692,7 +694,7 @@ function save(o){o.at=Date.now();ls.set(RKEY,JSON.stringify(o));}
 function isRanked(g){return ls.get('bloques-ranked-'+g)!=='0';}
 function setRanked(g,on){ls.set('bloques-ranked-'+g,on?'1':'0');}
 // Cuánto da o saca cada resultado. «kind»: compu-facil, compu-normal, compu-dificil, amigo, solo.
-const TABLE={'compu-facil':[10,-16],'compu-normal':[18,-14],'compu-dificil':[25,-10],amigo:[25,-15],solo:[20,-15]};
+const TABLE={'compu-facil':[10,-16],'compu-normal':[18,-14],'compu-dificil':[25,-10],amigo:[25,-15],solo:[20,-15],malon:[16,-10]};
 function apply(g,res){
   // res: {key (para no contar dos veces), win, kind, extra}
   if(!isRanked(g)||!res||!TABLE[res.kind])return null;
@@ -715,6 +717,12 @@ function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100
 // XP por juego. La de BloqueAR vive en su progreso; la de los demás, acá.
 function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
 function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]||0)+Math.max(0,Math.round(n));o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}
+// Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
+function premio(de,xp){
+  const n=Math.max(0,Math.round(xp||0));if(!n)return null;
+  const p={de,trigo:Math.min(800,n*2),pesos:Math.min(600,Math.round(n*1.5)),t:Date.now()};
+  const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));return p;
+}
 function levelInfo(x){let lv=1,acc=0,need=120;while(x>=acc+need){acc+=need;lv++;need=120+60*(lv-1);}return {lv,into:x-acc,need};}
 function general(){
   const games=Object.keys(GAMES),tot=games.reduce((a,g)=>a+xp(g),0);
@@ -743,7 +751,7 @@ const CSS=`.rk-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 
 .rk-bar{height:6px;border-radius:3px;background:#283345;overflow:hidden;margin-top:4px}.rk-bar i{display:block;height:100%;background:var(--rk,#7ce9e5)}`;
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
-window.RANGOS={TIERS,GAMES,info,get,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,DIV};
+window.RANGOS={TIERS,GAMES,info,get,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,DIV};
 })();
 
 </script>
@@ -767,7 +775,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'La Estancia'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -1029,7 +1037,7 @@ function renderProfile(p){
     <div class="cx-list">${body}${me?'':`<div class="cx-pact"><button type="button" class="cx-primary" data-con="${esc(S.prof)}">💬 Escribirle</button>${H.invite?`<button type="button" class="cx-sec" data-a="invitar" data-u="${esc(S.prof)}">🎮 Invitar a jugar</button>`:''}</div>`}</div>
     ${S.invFor?invSheet():''}`;
 }
-function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
+function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
 /* Compartir una partida: elegís a quién y le llega como tarjeta con un botón para jugar. */
 function shareRows(){return convList().map(({u})=>`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(u.usuario)}"${u.pub?'':' disabled'}>${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}"></i></b><small>${u.pub?esc(estTxt(u)):'Todavía no puede leer mensajes'}</small></span></button>`).join('');}
 function renderShare(p){
@@ -1298,6 +1306,10 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
         <span class="hub-art"><svg viewBox="0 0 170 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g stroke="#e9d9a8" stroke-width="3" stroke-linejoin="round"><polygon transform="translate(85,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#e8c14a"/><polygon transform="translate(43.4,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#3f8a4a"/><polygon transform="translate(126.6,75)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#9ccc65"/><polygon transform="translate(64.2,39)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#c2593a"/><polygon transform="translate(105.8,39)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#8d97a8"/><polygon transform="translate(64.2,111)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#9ccc65"/><polygon transform="translate(105.8,111)" points="0,-24 20.8,-12 20.8,12 0,24 -20.8,12 -20.8,-12" fill="#3f8a4a"/></g><g font-family="system-ui,sans-serif" font-weight="800" font-size="11" text-anchor="middle"><circle cx="85" cy="75" r="9" fill="#fbf3dc"/><text x="85" y="79" fill="#c81d25">6</text><circle cx="64.2" cy="39" r="9" fill="#fbf3dc"/><text x="64.2" y="43" fill="#1b1b1b">9</text><circle cx="126.6" cy="75" r="9" fill="#fbf3dc"/><text x="126.6" y="79" fill="#1b1b1b">4</text><circle cx="64.2" cy="111" r="9" fill="#fbf3dc"/><text x="64.2" y="115" fill="#c81d25">8</text></g><path d="M79 99L85 93L91 99V105H79Z" fill="#4fc3f7" stroke="#fff" stroke-width="1.5"/><path d="M43.4 99L64.2 87" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M43.4 99L64.2 87" stroke="#e5383b" stroke-width="3.5" stroke-linecap="round"/></svg><span class="hub-badge" hidden></span></span>
         <span class="hub-txt"><b>Pobl<span>AR</span></b><small>Poblá la pampa, 1 contra 1</small><span class="hub-rk" data-rk="poblar"></span></span>
       </button>
+      <button type="button" class="hub-game wide" data-game="estancia">
+        <span class="hub-art"><svg viewBox="0 0 340 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="340" height="120" fill="#5f9b45"/><path d="M0 84Q90 70 170 82T340 78V120H0Z" fill="#4c8538"/><g fill="#c9a23a" stroke="#9c7a22" stroke-width="2"><rect x="22" y="58" width="74" height="44" rx="8"/></g><g stroke="#9c7a22" stroke-width="2"><path d="M30 68H88M30 78H88M30 88H88"/></g><g stroke="#e8d6b0" stroke-width="3" fill="none"><path d="M226 66H312V104H226Z"/><path d="M226 85H312"/></g><rect x="122" y="40" width="76" height="56" rx="8" fill="#9b7653" stroke="#6b4a2b" stroke-width="2"/><path d="M116 46L160 18L204 46Z" fill="#c2593a" stroke="#8a3a22" stroke-width="2" stroke-linejoin="round"/><rect x="152" y="66" width="16" height="30" rx="2" fill="#4a3220"/><rect x="132" y="56" width="12" height="12" rx="2" fill="#ffd166"/><rect x="176" y="56" width="12" height="12" rx="2" fill="#ffd166"/><g stroke="#6b4a2b" stroke-width="3"><path d="M262 64L270 18M286 64L278 18M266 40H282"/></g><rect x="262" y="12" width="24" height="10" rx="2" fill="#6b4a2b"/><g font-size="20" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif"><text x="248" y="98">🐎</text><text x="292" y="98">🐂</text></g></svg><span class="hub-badge" hidden></span></span>
+        <span class="hub-txt"><b>Estanci<span>AR</span></b><small>Hacé crecer tu estancia y salí de malón contra tus amigos</small><span class="hub-rk" data-rk="estancia"></span></span>
+      </button>
     </div>
     <button type="button" class="hub-friends" id="hub-friends"><span class="fr-avs" id="hub-fr-avs"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#c7a5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3.2"/><path d="M2.5 18c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="15.5" cy="7" r="2.6"/><path d="M15 12.6c2.4 0 4 1.3 4.5 3.9"/></svg></span><span class="fr-txt" id="hub-fr-txt">Jugá con tus amigos</span><span class="fr-cta" id="hub-fr-cta">Invitar</span></button>
   </div>
@@ -1323,6 +1335,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
       <h2 id="hub-pick-t">¿Qué hacemos?</h2>
       <button type="button" data-pick="bloquear">BloqueAR</button>
       <button type="button" data-pick="poblar">PoblAR</button>
+      <button type="button" data-pick="estancia">EstanciAR (malón)</button>
       <button type="button" data-pick="chat">💬 Mandarle un mensaje</button>
       <button type="button" class="alt" data-pick="">Cancelar</button>
     </div>
@@ -1495,7 +1508,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">47</span></p>
+      <p class="hint">Versión <span class="app-ver">48</span></p>
     </div>
     </div></details>
     </div>
@@ -1529,7 +1542,7 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
             <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v47</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v48</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -3990,6 +4003,7 @@ function progressEnd(result){
   const medals=[...r.medals,...checkMedals()];
   // Las medallas de esta partida (incluidas las que se ganaron jugando) se listan en el resumen.
   const won=MEDALS.filter(m=>PRG.medals[m.id]&&PRG.medals[m.id]>=r.t0Abs);
+  try{const pr=window.RANGOS&&RANGOS.premio('BloqueAR',xp);if(pr)lines.push(`Para tu estancia: +${fmt(pr.trigo)} 🌾 +${fmt(pr.pesos)} 🪙`);}catch(_){}
   saveProg();
   // Ranked: Maratón (meta de líneas según tu rango), contra la compu y en línea suben o bajan tu rango.
   let rk=null;
@@ -5149,7 +5163,8 @@ function setupTips(){
    directo al último juego (la redirección a PoblAR está al principio del <head>). */
 const HUB={open:false,back:false,timer:0};
 const HUB_AUTO=!navigator.webdriver||storageGet('bloques-hub-force')==='1';
-const hubLast=()=>storageGet('bloques-ultimo-juego')==='poblar'?'poblar':'bloquear';
+const HUB_PAGES={poblar:'poblar.html',estancia:'estancia.html'};
+const hubLast=()=>{const g=storageGet('bloques-ultimo-juego');return HUB_PAGES[g]?g:'bloquear';};
 function hubSetLast(g){storageSet('bloques-ultimo-juego',g);}
 function hubAv(){const a=typeof acct!=='undefined'&&acct;return a?avHtml(a.avatar,a.color,true):'<span class="av big" style="--avc:#93a1b6" aria-hidden="true">👤</span>';}
 function hubRender(){
@@ -5167,12 +5182,12 @@ function hubRender(){
   }
   byId('hub-acct-txt').textContent=a?'Mi cuenta':'Crear cuenta o entrar';
   byId('hub-install').hidden=IS_STANDALONE;
-  const last=hubLast(),newP=!storageGet('poblar-ayuda')&&!storageGet('poblar-partida-v2');
+  const last=hubLast(),newP=!storageGet('poblar-ayuda')&&!storageGet('poblar-partida-v2'),newE=!storageGet('estancia-v1');
   document.querySelectorAll('.hub-game').forEach(b=>{
     const g=b.dataset.game,isLast=g===last&&storageGet('bloques-hub-played'),badge=b.querySelector('.hub-badge');
     b.classList.toggle('last',Boolean(isLast));
     if(isLast){badge.hidden=false;badge.className='hub-badge';badge.textContent='Último jugado';}
-    else if(g==='poblar'&&newP){badge.hidden=false;badge.className='hub-badge new';badge.textContent='Nuevo';}
+    else if((g==='poblar'&&newP)||(g==='estancia'&&newE)){badge.hidden=false;badge.className='hub-badge new';badge.textContent='Nuevo';}
     else badge.hidden=true;
   });
   hubRenderFriends();
@@ -5203,7 +5218,7 @@ function closeHub(){
 }
 function hubPlay(g){
   hubSetLast(g);storageSet('bloques-hub-played','1');
-  if(g==='poblar'){location.href='poblar.html';return;}
+  if(HUB_PAGES[g]){location.href=HUB_PAGES[g];return;}
   closeHub();
 }
 // Abre el menú de BloqueAR desde el menú de juegos: al cerrarlo, se vuelve acá.
@@ -5222,6 +5237,7 @@ function hubInviteIn(g){
   if(g==='chat'){if(window.CHAT)CHAT.open();return;}
   hubSetLast(g);storageSet('bloques-hub-played','1');
   if(g==='poblar'){location.href='poblar.html#amigos';return;}
+  if(g==='estancia'){location.href='estancia.html#malon';return;}
   if(session!=='online')changeSession('online');
   closeHub();HUB.back=false;openMenu('online');
 }
@@ -5260,7 +5276,7 @@ function setupHub(){
   if(!storageGet('bloques-hub-v1')&&HUB_AUTO&&!location.hash&&!sessionGet('blq-accept')){
     storageSet('bloques-hub-v1','1');
     // Quien ya jugaba antes no necesita la presentación: va directo al menú de juegos.
-    const veterano=PRG.games>0||storageGet('bloques-tut-v1')||(typeof acct!=='undefined'&&acct)||storageGet('poblar-ayuda');
+    const veterano=PRG.games>0||storageGet('bloques-tut-v1')||(typeof acct!=='undefined'&&acct)||storageGet('poblar-ayuda')||storageGet('estancia-v1');
     if(veterano)openHub();else openWelcome();
     return;
   }
@@ -5283,12 +5299,13 @@ function setupRanked(){
 // Desde el chat: invitar a jugar y «jugar» una partida compartida.
 function hubInviteGame(g,u){
   if(g==='poblar'){hubSetLast('poblar');location.href='poblar.html#invitar='+encodeURIComponent(u);return;}
+  if(g==='estancia'){hubSetLast('estancia');location.href='estancia.html#malon';return;}
   if(HUB.open)closeHub();hubSetLast('bloquear');
   if(session!=='online')changeSession('online');
   HUB.back=false;openMenu('online');setTimeout(()=>{try{invSend(u);}catch(_){}},400);
 }
 function hubPlayCard(c){
-  if(c.j==='poblar'){hubSetLast('poblar');location.href='poblar.html';return;}
+  if(HUB_PAGES[c.j]){hubSetLast(c.j);location.href=HUB_PAGES[c.j]+(c.j==='estancia'?'#malon':'');return;}
   if(HUB.open)closeHub();hubSetLast('bloquear');
   if(c.k&&['marathon','sprint','ultra','daily','dig'].includes(c.k)){if(session!=='solo')changeSession('solo');setSoloKind(c.k);}
   else if(c.k==='cpu'&&session!=='cpu')changeSession('cpu');
