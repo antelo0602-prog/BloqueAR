@@ -144,14 +144,522 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .mode-pick button{min-height:64px;border-radius:14px;border:1px solid var(--line);background:#0f1724;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:15px}
 .mode-pick button small{font-size:11px;color:var(--dim);font-weight:600}
 .mode-pick button.on{border-color:var(--aqua);background:#173540}
+
+.die.p0{background:var(--me);color:#04263a;box-shadow:0 0 0 2px #04263a inset}
+.die.p1{background:var(--cpu);color:#fff;box-shadow:0 0 0 2px #5a0b0e inset}
+.card.got{border-color:#57d49b;box-shadow:0 0 0 1px #57d49b inset,0 0 14px #57d49b55}
+.card.lost{border-color:#ff7b6b}
+.card .dl{position:absolute;top:-8px;right:-4px;min-width:22px;padding:1px 6px;border-radius:10px;font-size:12px;font-weight:900;background:#57d49b;color:#062a1a;box-shadow:0 2px 6px #0008;animation:bump .5s ease-out}
+.card.lost .dl{background:#ff7b6b;color:#2a0705}
 </style>
+<script>
+/* ───────── Rangos y niveles de todos los juegos ─────────
+   · Nivel de cada juego: sale de la experiencia (XP) que ganás jugando ese juego.
+   · Nivel general: la suma de la XP de todos los juegos.
+   · Rango de cada juego (Hierro → Maestro): sólo se mueve en partidas «ranked». Ganar suma puntos de
+     rango (PR) y perder resta, como en los juegos competitivos. En «amistoso» no se gana ni se pierde.
+   · Rango general: el promedio de tus 3 mejores juegos. Si tenés rango en uno solo, cuenta como si los
+     otros estuvieran en cero: para ser Diamante general hay que ser bueno en varios juegos. */
+(function(){
+'use strict';
+const TIERS=[
+  {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
+  {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR'};
+const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
+const RKEY='bloques-rangos-v1',XKEY='bloques-xpjuegos-v1',PKEY='bloques-progress-v1',DONE='bloques-rangos-hechas-v1';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
+const ROMAN=['III','II','I'];
+function info(v){
+  v=Math.max(0,Math.round(v||0));
+  if(v>=MAX){const t=TIERS[TIERS.length-1];return {v,t,tier:TIERS.length-1,name:t.n,div:'',pr:v-MAX,label:`${t.n}`,short:t.n,next:null,pct:1};}
+  const tier=Math.floor(v/(DIV*PER)),d=Math.floor((v%(DIV*PER))/DIV),t=TIERS[tier];
+  return {v,t,tier,name:t.n,div:ROMAN[d],pr:v%DIV,label:`${t.n} ${ROMAN[d]}`,short:`${t.n} ${ROMAN[d]}`,next:DIV-v%DIV,pct:(v%DIV)/DIV};
+}
+function all(){const o=ls.json(RKEY,{});o.j=o.j||{};return o;}
+function get(g){const o=all().j[g]||{};return {v:o.v||0,w:o.w||0,l:o.l||0,n:o.n||0,hist:o.hist||[]};}
+function save(o){o.at=Date.now();ls.set(RKEY,JSON.stringify(o));}
+function isRanked(g){return ls.get('bloques-ranked-'+g)!=='0';}
+function setRanked(g,on){ls.set('bloques-ranked-'+g,on?'1':'0');}
+// Cuánto da o saca cada resultado. «kind»: compu-facil, compu-normal, compu-dificil, amigo, solo.
+const TABLE={'compu-facil':[10,-16],'compu-normal':[18,-14],'compu-dificil':[25,-10],amigo:[25,-15],solo:[20,-15]};
+function apply(g,res){
+  // res: {key (para no contar dos veces), win, kind, extra}
+  if(!isRanked(g)||!res||!TABLE[res.kind])return null;
+  const done=ls.json(DONE,[]);if(res.key&&done.includes(g+':'+res.key))return null;
+  const o=all(),r=o.j[g]||{v:0,w:0,l:0,n:0,hist:[]},before=info(r.v);
+  const [up,down]=TABLE[res.kind];
+  let d=res.win?up+(res.extra||0):down;
+  if(!res.win&&before.tier===0&&r.v<DIV)d=Math.round(d/2);        // en Hierro III se pierde la mitad
+  if(res.win&&r.n<5)d=Math.round(d*1.5);                            // las primeras partidas ubican más rápido
+  const nv=Math.max(0,r.v+d);
+  r.v=nv;r.n=(r.n||0)+1;if(res.win)r.w=(r.w||0)+1;else r.l=(r.l||0)+1;
+  r.hist=(r.hist||[]).concat([{t:Date.now(),d:nv-before.v,k:res.kind}]).slice(-30);
+  o.j[g]=r;save(o);
+  if(res.key){done.push(g+':'+res.key);ls.set(DONE,JSON.stringify(done.slice(-80)));}
+  const after=info(nv);
+  return {delta:nv-before.v,before,after,up:after.tier>before.tier||(after.tier===before.tier&&after.div!==before.div&&nv>before.v),down:nv<before.v&&(after.tier<before.tier||after.div!==before.div)};
+}
+// Meta de líneas en Maratón ranked según tu rango (Hierro 10 … Maestro 100).
+function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100][t];}
+// XP por juego. La de BloqueAR vive en su progreso; la de los demás, acá.
+function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
+function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]||0)+Math.max(0,Math.round(n));o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}
+function levelInfo(x){let lv=1,acc=0,need=120;while(x>=acc+need){acc+=need;lv++;need=120+60*(lv-1);}return {lv,into:x-acc,need};}
+function general(){
+  const games=Object.keys(GAMES),tot=games.reduce((a,g)=>a+xp(g),0);
+  const vals=games.map(g=>get(g).v).sort((a,b)=>b-a),best=[0,1,2].map(i=>vals[i]||0);
+  return {xp:tot,level:levelInfo(tot),rank:info((best[0]+best[1]+best[2])/3),games:games.map(g=>({g,name:GAMES[g],xp:xp(g),level:levelInfo(xp(g)),rank:info(get(g).v),rec:get(g)})),count:vals.filter(v=>v>0).length};
+}
+// Para la cuenta: se suben y se bajan junto con el progreso de BloqueAR.
+function exportData(){return {r:ls.json(RKEY,{}),x:ls.json(XKEY,{})};}
+function importData(d){
+  if(!d||typeof d!=='object')return false;let ch=false;
+  const r=ls.json(RKEY,{});if(d.r&&(d.r.at||0)>(r.at||0)){ls.set(RKEY,JSON.stringify(d.r));ch=true;}
+  const x=ls.json(XKEY,{});if(d.x){const o={...x};for(const [k,v] of Object.entries(d.x))if(k!=='at'&&Number.isFinite(v)&&v>(o[k]||0)){o[k]=v;ch=true;}if(ch){o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}}
+  return ch;
+}
+function badge(v,small){const i=info(v);return `<span class="rk-badge${small?' sm':''}" style="--rk:${i.t.c}" title="${i.label}${i.next!=null?` · ${i.pr}/${DIV} PR`:''}"><i>${i.t.e}</i>${i.short}</span>`;}
+const CSS=`.rk-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 5px;border-radius:999px;border:1px solid color-mix(in srgb,var(--rk) 60%,transparent);background:color-mix(in srgb,var(--rk) 16%,#0c131e);color:var(--rk);font:800 11.5px/1.3 system-ui,-apple-system,sans-serif;white-space:nowrap;vertical-align:middle}
+.rk-badge i{font-style:normal;font-size:12px}.rk-badge.sm{font-size:10.5px;padding:1px 7px 1px 4px}
+.rk-res{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px;font-weight:800}
+.rk-res .rk-d{font-size:15px}.rk-res .rk-d.up{color:#57d49b}.rk-res .rk-d.down{color:#ff8a6b}
+.rk-bar{height:6px;border-radius:3px;background:#283345;overflow:hidden;margin-top:4px}.rk-bar i{display:block;height:100%;background:var(--rk,#7ce9e5)}`;
+function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
+function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
+window.RANGOS={TIERS,GAMES,info,get,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,DIV};
+})();
+
+</script>
+<script>
+/* ───────── Chat de BloqueAR (versión 5 de la planilla) ─────────
+   Es el mismo en BloqueAR, PoblAR y el menú de juegos. Charlas de a dos, reacciones, zumbidos,
+   «escribiendo…» y «visto». Los mensajes salen cifrados de este dispositivo (AES-GCM con una llave
+   ECDH por par de usuarios); la planilla sólo guarda texto ilegible. La llave secreta de cada uno se
+   guarda en la planilla cerrada con su PIN, así el chat se lee en cualquier dispositivo con la cuenta.
+   Mientras hay una partida en juego no suena ni aparece nada: sólo sube el numerito del botón 💬. */
+(function(){
+'use strict';
+const LB_DEF='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';
+const REACS=['❤️','😂','😮','😢','👍','🔥'];
+const DIAS=30;
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(_){}},
+  json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')??d;}catch(_){return d;}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const $=(sel,root=document)=>root.querySelector(sel);
+const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.token?a:null;};
+const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
+const lc=s=>String(s||'').toLowerCase();
+const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{}};
+const S={users:[],usersAt:0,msgs:[],last:0,read:{},vistos:{},typing:[],open:false,view:'list',con:null,key:null,keys:{},plain:{},
+  timer:0,polling:false,unsupported:false,err:'',pending:[],typedAt:0,lastSeenSent:{},inited:false,me:'',zbAt:0,errAt:0,pickFor:null};
+
+/* ── Red ── */
+async function call(p,post=true,ms=15000){
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
+  try{
+    let r;
+    if(post)r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
+    else{const u=new URL(lbUrl());for(const [k,v] of Object.entries(p))u.searchParams.set(k,String(v));u.searchParams.set('_',Date.now());r=await fetch(u,{cache:'no-store',signal:ctl.signal,redirect:'follow'});}
+    const j=await r.json();
+    if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');
+    return j;
+  }catch(e){
+    if(e.name==='AbortError')throw new Error('La planilla tardó demasiado.');
+    if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');
+    throw e;
+  }finally{clearTimeout(to);}
+}
+const auth=o=>{const a=acct();return {usuario:a.usuario,token:a.token,...o};};
+
+/* ── Cifrado ── */
+const cs=window.crypto&&window.crypto.subtle;
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=u=>{let s='';const b=new Uint8Array(u);for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
+const unb64=s=>{s=String(s).replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const r=atob(s),o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;};
+async function pinKey(pin,sal){const base=await cs.importKey('raw',enc.encode(String(pin)),'PBKDF2',false,['deriveKey']);
+  return cs.deriveKey({name:'PBKDF2',salt:sal,iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+async function newKeyPair(pin){
+  const kp=await cs.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveKey']);
+  const pub=await cs.exportKey('jwk',kp.publicKey),priv=await cs.exportKey('jwk',kp.privateKey);
+  const sal=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await cs.encrypt({name:'AES-GCM',iv},await pinKey(pin,sal),enc.encode(JSON.stringify(priv)));
+  return {local:{pub:JSON.stringify(pub),priv},remote:{pub:JSON.stringify(pub),priv:b64(ct),sal:b64(sal),iv:b64(iv),v:1}};
+}
+async function openRemote(r,pin){
+  const k=await pinKey(pin,unb64(r.sal));
+  const pt=await cs.decrypt({name:'AES-GCM',iv:unb64(r.iv)},k,unb64(r.priv));
+  return {pub:r.pub,priv:JSON.parse(dec.decode(pt))};
+}
+async function myPriv(){if(!S.key)return null;if(!S.key.ck)S.key.ck=await cs.importKey('jwk',S.key.priv,{name:'ECDH',namedCurve:'P-256'},false,['deriveKey']);return S.key.ck;}
+async function convKey(name){
+  const u=userOf(name);if(!u||!u.pub)return null;
+  const c=S.keys[lc(name)];if(c&&c.pub===u.pub)return c.k;
+  const pub=await cs.importKey('jwk',JSON.parse(u.pub),{name:'ECDH',namedCurve:'P-256'},false,[]);
+  const k=await cs.deriveKey({name:'ECDH',public:pub},await myPriv(),{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  S.keys[lc(name)]={pub:u.pub,k};return k;
+}
+async function seal(name,obj){const k=await convKey(name);if(!k)throw new Error(`${name} todavía no abrió su chat: cuando lo abra, le podés escribir.`);
+  const iv=crypto.getRandomValues(new Uint8Array(12)),ct=await cs.encrypt({name:'AES-GCM',iv},k,enc.encode(JSON.stringify(obj)));return b64(iv)+'.'+b64(ct);}
+async function unseal(name,cont){const k=await convKey(name);if(!k)return null;const [iv,ct]=String(cont).split('.');
+  try{return JSON.parse(dec.decode(await cs.decrypt({name:'AES-GCM',iv:unb64(iv)},k,unb64(ct))));}catch(_){return null;}}
+
+/* ── Datos guardados en este dispositivo ── */
+const kMsgs=()=>'bloques-chat-msgs-'+lc(S.me),kRead=()=>'bloques-chat-read-'+lc(S.me),kKey='bloques-chatkey-v1';
+function loadLocal(){
+  const a=acct();S.me=a?a.usuario:'';S.msgs=[];S.last=0;S.read={};S.plain={};S.keys={};S.key=null;
+  if(!a)return;
+  const m=ls.json(kMsgs(),null);if(m&&Array.isArray(m.list)){S.msgs=m.list;S.last=m.last||0;}
+  S.read=ls.json(kRead(),{});
+  const k=ls.json(kKey,null);if(k&&lc(k.usuario)===lc(S.me)&&k.priv)S.key={pub:k.pub,priv:k.priv};
+  prune();
+}
+function prune(){const corte=Date.now()-DIAS*864e5;S.msgs=S.msgs.filter(m=>m.t>corte).slice(-3000);}
+function saveMsgs(){ls.set(kMsgs(),JSON.stringify({last:S.last,list:S.msgs}));}
+function saveRead(){ls.set(kRead(),JSON.stringify(S.read));}
+const userOf=n=>S.users.find(u=>lc(u.usuario)===lc(n));
+const other=m=>lc(m.de)===lc(S.me)?m.para:m.de;
+function unreadFrom(n){const r=S.read[lc(n)]||0;return S.msgs.filter(m=>lc(m.de)===lc(n)&&lc(m.para)===lc(S.me)&&m.tipo!=='reac'&&m.t>r).length;}
+function unreadTotal(){const seen=new Set();let n=0;for(const m of S.msgs){if(lc(m.para)!==lc(S.me)||m.tipo==='reac')continue;const r=S.read[lc(m.de)]||0;if(m.t>r)n++;seen.add(lc(m.de));}return n;}
+
+/* ── Consultas periódicas ── */
+function schedule(){
+  clearTimeout(S.timer);if(!acct()||S.unsupported)return;
+  const ms=document.hidden?30000:S.open&&S.view==='conv'?2500:5000;
+  S.timer=setTimeout(poll,ms);
+}
+async function poll(){
+  const a=acct();
+  if(!a){if(S.me){loadLocal();render();}return;}
+  if(lc(a.usuario)!==lc(S.me)){loadLocal();render();}
+  if(S.polling){schedule();return;}S.polling=true;
+  try{
+    const p={accion:'chat'};
+    if(S.open&&S.view==='conv'&&S.con&&Date.now()-S.typedAt<4000)p.escribe=S.con;
+    if(S.open&&S.view==='conv'&&S.con&&!document.hidden){const t=lastFrom(S.con);if(t&&S.lastSeenSent[lc(S.con)]!==t){p.leido={con:S.con,t};S.lastSeenSent[lc(S.con)]=t;}}
+    const j=await call(auth(p));
+    S.err='';S.typing=j.escribiendo||[];S.vistos=j.vistos||{};
+    if(Date.now()-S.usersAt>30000||(j.t>S.last&&!S.users.length)){await loadUsers();await decryptAll();}
+    if(j.t>S.last)await fetchNew();
+    else if(S.open)render();
+    checkDeferred();
+  }catch(e){
+    const m=String(e.message||e);
+    if(/desconocida/i.test(m)){S.unsupported=true;S.err='Para usar el chat hay que actualizar el código de la planilla a la versión 5.';}
+    else if(/sesión venció/i.test(m)){S.err='Tu sesión venció: volvé a entrar con tu usuario y PIN.';}
+    else S.err=m;
+    if(S.open)render();
+  }finally{S.polling=false;schedule();}
+}
+async function loadUsers(){try{const j=await call({accion:'usuarios'},false);if(Array.isArray(j.usuarios)){S.users=j.usuarios;S.usersAt=Date.now();}}catch(_){}}
+const lastFrom=n=>{let t=0;for(const m of S.msgs)if(lc(m.de)===lc(n)&&m.t>t)t=m.t;return t;};
+async function fetchNew(){
+  const j=await call(auth({accion:'mensajes',desde:S.last}));
+  const known=new Set(S.msgs.map(m=>m.id)),fresh=[];
+  for(const m of j.mensajes||[]){if(m.t>S.last)S.last=m.t;if(known.has(m.id))continue;S.msgs.push(m);fresh.push(m);}
+  const first=!S.inited;S.inited=true;
+  if(!fresh.length){saveMsgs();if(S.open)render();return;}
+  prune();saveMsgs();await decryptAll();
+  if(!first){for(const m of fresh)if(lc(m.de)!==lc(S.me))arrived(m);}
+  else{// Al abrir la app: si te escribieron mientras no estabas, un aviso con el resumen.
+    const r=S.read,nuevos=fresh.filter(m=>lc(m.para)===lc(S.me)&&m.tipo!=='reac'&&m.t>(r[lc(m.de)]||0)&&!(S.open&&S.view==='conv'&&lc(S.con)===lc(m.de)));
+    if(nuevos.length){S.pending.push(...nuevos);checkDeferred();}}
+  render();badges();
+}
+async function decryptAll(){
+  if(!S.key||!cs)return;
+  for(const m of S.msgs){if(S.plain[m.id]||m.tipo==='zumbido'||m.tmp)continue;const o=await unseal(other(m),m.cont).catch(()=>null);S.plain[m.id]=o;}
+}
+
+/* ── Avisos ── */
+let AC=null;
+function beep(kind){
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+    const t0=AC.currentTime,notes=kind==='zumbido'?[[90,.06],[110,.06],[90,.06],[110,.06],[90,.06],[110,.06]]:kind==='soft'?[[880,.08]]:[[784,.1],[1175,.18]];
+    let t=t0;for(const [f,d] of notes){const o=AC.createOscillator(),g=AC.createGain();o.type=kind==='zumbido'?'sawtooth':'sine';o.frequency.value=f;o.connect(g).connect(AC.destination);
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(kind==='zumbido'?.08:.12,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.start(t);o.stop(t+d+.02);o.onended=()=>{try{o.disconnect();g.disconnect();}catch(_){}};t+=d*.9;}
+  }catch(_){}
+}
+function preview(m){if(m.tipo==='zumbido')return '📳 ¡Te mandó un zumbido!';const o=S.plain[m.id];return o&&o.x?o.x:'🔒 Mensaje nuevo';}
+function arrived(m){
+  if(m.tipo==='reac')return;
+  const from=m.de,viewing=S.open&&S.view==='conv'&&lc(S.con)===lc(from)&&!document.hidden;
+  if(viewing){if(m.tipo==='zumbido')shake();else beep('soft');markRead(from);return;}
+  if(document.hidden){sysNotify(m);flashTitle();}
+  if(H.busy()){S.pending.push(m);return;}
+  notice(m);
+}
+function notice(m){
+  if(m.tipo==='zumbido'){shake();beep('zumbido');try{navigator.vibrate&&navigator.vibrate([120,60,120,60,200]);}catch(_){}}
+  else beep('msg');
+  toast(m.de,preview(m));
+}
+function checkDeferred(){
+  if(!S.pending.length||H.busy())return;
+  const list=S.pending.splice(0),names=[...new Set(list.map(m=>m.de))];
+  if(list.some(m=>m.tipo==='zumbido'))beep('zumbido');else beep('msg');
+  if(list.length===1){toast(list[0].de,preview(list[0]));return;}
+  toast(names.length===1?names[0]:names.slice(0,3).join(', '),`Te ${list.length===1?'escribió':'escribieron'}: ${list.length} mensajes nuevos.`,names.length===1?names[0]:null);
+}
+function shake(){const el=S.open?$('.cx-panel'):document.body;if(!el)return;el.classList.remove('cx-shake');void el.offsetWidth;el.classList.add('cx-shake');setTimeout(()=>el.classList.remove('cx-shake'),800);}
+let baseTitle=document.title,titleTimer=0;
+function flashTitle(){if(titleTimer)return;baseTitle=document.title.replace(/^\(\d+\) /,'');let on=false;titleTimer=setInterval(()=>{const n=unreadTotal();if(!document.hidden||!n){clearInterval(titleTimer);titleTimer=0;document.title=baseTitle;return;}on=!on;document.title=on?`(${n}) 💬 Mensaje nuevo`:baseTitle;},1200);}
+function sysNotify(m){
+  try{if(!('Notification' in window)||Notification.permission!=='granted')return;
+    const u=userOf(m.de),n=new Notification(`${u?u.avatar+' ':''}${m.de}`,{body:preview(m),tag:'bloques-chat-'+lc(m.de),silent:false});
+    n.onclick=()=>{window.focus();open(m.de);n.close();};}catch(_){}
+}
+function toast(who,txt,openWho=who){
+  const box=$('.cx-toasts');if(!box)return;const u=userOf(who);
+  const el=document.createElement('button');el.type='button';el.className='cx-toast';
+  el.innerHTML=`${u?avatar(u):'<span class="cx-av">💬</span>'}<span><b>${esc(who)}</b><small>${esc(txt).slice(0,140)}</small></span>`;
+  el.onclick=()=>{el.remove();open(openWho||undefined);};
+  box.appendChild(el);while(box.children.length>3)box.firstChild.remove();
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},6500);
+}
+function badges(){
+  const n=unreadTotal();
+  document.querySelectorAll('[data-chat-btn]').forEach(b=>{let s=b.querySelector('.cx-badge');if(!n){if(s)s.remove();return;}if(!s){s=document.createElement('span');s.className='cx-badge';b.appendChild(s);}s.textContent=n>9?'9+':String(n);});
+  if(!document.hidden)document.title=baseTitle;
+}
+
+/* ── Vista ── */
+const avatar=(u,big)=>`<span class="cx-av${big?' big':''}" style="--avc:${/^#[0-9a-fA-F]{6}$/.test(u&&u.color||'')?u.color:'#7ce9e5'}">${esc(u&&u.avatar||'🙂')}</span>`;
+const hora=t=>{const d=new Date(t),n=new Date();const hm=d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});if(d.toDateString()===n.toDateString())return hm;const y=new Date(n-864e5);if(d.toDateString()===y.toDateString())return 'ayer '+hm;return d.toLocaleDateString('es-AR',{day:'numeric',month:'short'});};
+const dia=t=>{const d=new Date(t),n=new Date();if(d.toDateString()===n.toDateString())return 'Hoy';if(d.toDateString()===new Date(n-864e5).toDateString())return 'Ayer';return d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});};
+function ensureDom(){
+  if($('#cx-root'))return;
+  const r=document.createElement('div');r.id='cx-root';
+  r.innerHTML=`<div class="cx-scrim" hidden></div><aside class="cx-panel" hidden role="dialog" aria-modal="true" aria-label="Chat"></aside><div class="cx-toasts" aria-live="polite"></div>`;
+  document.body.appendChild(r);
+  $('.cx-scrim').onclick=close;
+  const p=$('.cx-panel');
+  p.addEventListener('click',onClick);
+  p.addEventListener('input',e=>{if(e.target.id==='cx-in'){S.typedAt=Date.now();autoGrow(e.target);}});
+  p.addEventListener('keydown',e=>{
+    if(e.target.id==='cx-in'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send();}
+    if(e.target.id==='cx-pin'&&e.key==='Enter'){e.preventDefault();activate();}
+    e.stopPropagation();
+  });
+  document.addEventListener('keydown',e=>{if(S.open&&e.key==='Escape'){e.preventDefault();e.stopPropagation();if(S.pickFor){S.pickFor=null;render();}else if(S.view==='conv'){S.view='list';render();}else close();}},true);
+}
+function autoGrow(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,120)+'px';}
+function convList(){
+  const me=lc(S.me),by={};
+  for(const m of S.msgs){const o=lc(other(m));if(!by[o]||m.t>by[o].t)by[o]=m;}
+  const users=S.users.filter(u=>lc(u.usuario)!==me);
+  for(const k of Object.keys(by))if(!users.some(u=>lc(u.usuario)===k)){const m=by[k];users.push({usuario:other(m),avatar:'🙂',color:'#93a1b6',enLinea:false});}
+  return users.map(u=>({u,m:by[lc(u.usuario)]||null})).sort((a,b)=>((b.m?b.m.t:0)-(a.m?a.m.t:0))||((b.u.enLinea?1:0)-(a.u.enLinea?1:0))||a.u.usuario.localeCompare(b.u.usuario));
+}
+function render(){
+  const p=$('.cx-panel');if(!p||!S.open)return;
+  const a=acct();
+  if(!a){p.innerHTML=head('Chat')+`<div class="cx-empty"><p>Para chatear con tus amigos necesitás una cuenta (la misma de los juegos).</p><button type="button" class="cx-primary" data-a="cuenta">Crear cuenta o entrar</button></div>`;return;}
+  if(S.unsupported){p.innerHTML=head('Chat')+`<div class="cx-empty"><p>${esc(S.err)}</p><p class="cx-dim">Es la misma planilla de la tabla: Extensiones › Apps Script, pegar el código nuevo e Implementar › Nueva versión.</p></div>`;return;}
+  if(!cs){p.innerHTML=head('Chat')+`<div class="cx-empty"><p>Este navegador no permite el cifrado del chat. Abrí el juego desde la página (https), no como archivo suelto.</p></div>`;return;}
+  if(!S.key){if(p.dataset.sig==='act'&&$('#cx-pin')){const e=$('#cx-err');if(e)e.textContent=S.err||'';return;}p.dataset.sig='act';p.innerHTML=head('Chat')+`<div class="cx-empty"><p><b>Abrí tu chat</b></p><p>Tus mensajes viajan cifrados: en la planilla nadie los puede leer. Para abrirlos en este dispositivo, escribí tu PIN.</p>
+    <label class="cx-lbl" for="cx-pin">PIN</label><input id="cx-pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" placeholder="••••">
+    <button type="button" class="cx-primary" data-a="activar">Abrir el chat</button><p class="cx-err" id="cx-err">${esc(S.err||'')}</p>
+    <button type="button" class="cx-ask" id="cx-reset" data-a="reset" hidden>¿Te cambiaron el PIN? Empezar el chat de nuevo (los mensajes viejos ya no se van a poder leer)</button>
+    <p class="cx-dim">Con un PIN corto la protección es básica. No mandes contraseñas ni datos de tarjetas por acá.</p></div>`;setTimeout(()=>$('#cx-pin')?.focus(),50);return;}
+  if(S.view==='conv'&&S.con){renderConv(p);return;}
+  p.dataset.sig='';
+  const rows=convList().map(({u,m})=>{
+    const n=unreadFrom(u.usuario),typing=S.typing.some(x=>lc(x)===lc(u.usuario));
+    const sub=typing?'<i class="cx-typing">escribiendo…</i>':m?esc((lc(m.de)===lc(S.me)?'Vos: ':'')+(m.tipo==='zumbido'?'📳 Zumbido':m.tipo==='reac'?'Reaccionó a un mensaje':((S.plain[m.id]||{}).x||'🔒 Mensaje'))):(u.pub?'Escribile':'Todavía no abrió su chat');
+    return `<button type="button" class="cx-row${n?' unread':''}" data-con="${esc(u.usuario)}">${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}${u.enLinea?'<i class="cx-dot" title="Conectado"></i>':''}</b><small>${sub}</small></span><span class="cx-end">${m?`<small>${hora(m.t)}</small>`:''}${n?`<span class="cx-n">${n}</span>`:''}</span></button>`;
+  }).join('');
+  const canAsk='Notification' in window&&Notification.permission==='default'&&!/iPhone|iPad/.test(navigator.userAgent);
+  p.innerHTML=head('Chat')+(S.err?`<p class="cx-err cx-pad">${esc(S.err)}</p>`:'')+(canAsk?`<button type="button" class="cx-ask" data-a="permiso">🔔 Avisarme en la compu cuando me escriben</button>`:'')+
+    `<div class="cx-list">${rows||'<p class="cx-dim cx-pad">Todavía no hay otras cuentas. Cuando tus amigos se creen una, aparecen acá.</p>'}</div>`;
+}
+function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
+function renderConv(p){
+  const sig=[S.con,S.msgs.length,S.typing.join(','),JSON.stringify(S.vistos),S.err,S.pickFor,Object.keys(S.plain).length,(userOf(S.con)||{}).enLinea,(userOf(S.con)||{}).pub?1:0].join('|');
+  if(p.dataset.sig===sig&&$('#cx-msgs'))return;p.dataset.sig=sig;
+  const u=userOf(S.con)||{usuario:S.con,avatar:'🙂',color:'#93a1b6'},me=lc(S.me),con=lc(S.con);
+  const list=S.msgs.filter(m=>(lc(m.de)===me&&lc(m.para)===con)||(lc(m.de)===con&&lc(m.para)===me));
+  const reacs={};for(const m of list)if(m.tipo==='reac'&&m.ref){const o=S.plain[m.id];(reacs[m.ref]=reacs[m.ref]||{})[lc(m.de)]=o&&o.e||'';}
+  const typing=S.typing.some(x=>lc(x)===con),status=typing?'escribiendo…':u.enLinea?'conectado':'desconectado';
+  let html='',lastDay='',lastMine=null;
+  for(const m of list){if(m.tipo==='reac')continue;
+    const d=dia(m.t);if(d!==lastDay){html+=`<div class="cx-day">${esc(d)}</div>`;lastDay=d;}
+    const mine=lc(m.de)===me;if(mine)lastMine=m;
+    if(m.tipo==='zumbido'){html+=`<div class="cx-zb">${mine?'Le mandaste un zumbido':esc(m.de)+' te mandó un zumbido'} 📳 <small>${hora(m.t)}</small></div>`;continue;}
+    const o=S.plain[m.id],txt=o&&typeof o.x==='string'?esc(o.x).replace(/\n/g,'<br>'):'<i>🔒 No se puede leer este mensaje en este dispositivo</i>';
+    const R=reacs[m.id]||{},chips=Object.entries(R).filter(([,e])=>e).map(([who,e])=>`<span title="${esc(who)}">${esc(e)}</span>`).join('');
+    html+=`<div class="cx-msg${mine?' me':''}" data-id="${esc(m.id)}"><div class="cx-bub" data-a="reac" data-id="${esc(m.id)}">${txt}<small>${hora(m.t)}</small></div>${chips?`<div class="cx-reacs">${chips}</div>`:''}${S.pickFor===m.id?`<div class="cx-pick">${REACS.map(e=>`<button type="button" data-a="dar" data-id="${esc(m.id)}" data-e="${e}">${e}</button>`).join('')}</div>`:''}</div>`;
+  }
+  if(lastMine&&(S.vistos[u.usuario]||S.vistos[S.con]||0)>=lastMine.t)html+=`<div class="cx-seen">Visto</div>`;
+  if(typing)html+=`<div class="cx-msg"><div class="cx-bub cx-dots"><i></i><i></i><i></i></div></div>`;
+  const can=!!u.pub;
+  const keep=$('#cx-in');const draft=keep?keep.value:'';const focused=document.activeElement===keep;
+  p.innerHTML=`<div class="cx-head cx-chead"><button type="button" class="cx-back" data-a="volver" aria-label="Volver a la lista">‹</button>${avatar(u)}<span class="cx-who"><b>${esc(u.usuario)}</b><small class="${typing?'cx-typing':''}">${status}</small></span>
+    <button type="button" class="cx-zbtn" data-a="zumbido" aria-label="Mandar un zumbido" title="Mandar un zumbido"${can?'':' disabled'}>📳</button><button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>
+    <div class="cx-msgs" id="cx-msgs">${html||`<p class="cx-dim cx-pad">${can?`Mandale el primer mensaje a ${esc(u.usuario)}.`:`${esc(u.usuario)} todavía no abrió su chat. Cuando lo abra, le vas a poder escribir.`}</p>`}</div>
+    ${S.err?`<p class="cx-err cx-pad">${esc(S.err)}</p>`:''}
+    <div class="cx-bar"><textarea id="cx-in" rows="1" maxlength="1000" placeholder="${can?'Escribí un mensaje':'Todavía no te puede leer'}"${can?'':' disabled'}></textarea><button type="button" class="cx-send" data-a="enviar" aria-label="Enviar"${can?'':' disabled'}>➤</button></div>`;
+  const box=$('#cx-msgs');box.scrollTop=box.scrollHeight;
+  const ta=$('#cx-in');ta.value=draft;autoGrow(ta);if(focused)ta.focus();
+  markRead(S.con);
+}
+function markRead(n){const t=lastFrom(n);if(t>(S.read[lc(n)]||0)){S.read[lc(n)]=t;saveRead();badges();}}
+async function onClick(e){
+  const b=e.target.closest('[data-a],[data-con]');if(!b)return;
+  if(b.dataset.con){S.con=b.dataset.con;S.view='conv';S.pickFor=null;S.err='';render();poll();return;}
+  const a=b.dataset.a;
+  if(a==='cerrar')close();
+  else if(a==='volver'){S.view='list';S.con=null;S.pickFor=null;render();}
+  else if(a==='cuenta'){close();H.account();}
+  else if(a==='activar')activate();
+  else if(a==='reset')activate(true);
+  else if(a==='enviar')send();
+  else if(a==='zumbido')buzz();
+  else if(a==='permiso'){try{await Notification.requestPermission();}catch(_){}render();}
+  else if(a==='reac'){if(window.getSelection&&String(window.getSelection()).length)return;S.pickFor=S.pickFor===b.dataset.id?null:b.dataset.id;render();}
+  else if(a==='dar')react(b.dataset.id,b.dataset.e);
+}
+async function activate(reset=false){
+  const pin=String(($('#cx-pin')||{}).value||'').trim();
+  const err=t=>{S.err=t;const el=$('#cx-err');if(el)el.textContent=t;};
+  if(!/^\d{4,6}$/.test(pin)){err('El PIN tiene de 4 a 6 números.');return;}
+  err('Abriendo…');
+  try{
+    const j=await call(auth({accion:'llave'}));
+    let local;
+    if(j.llave&&!reset){const r=JSON.parse(j.llave);try{local=await openRemote(r,pin);}catch(_){
+      err('PIN incorrecto.');const b=$('#cx-reset');if(b)b.hidden=false;return;}}
+    else{const k=await newKeyPair(pin);await call(auth({accion:'llave',pin,llave:JSON.stringify(k.remote),reemplazar:reset||undefined}));local=k.local;}
+    S.key={pub:local.pub,priv:local.priv};ls.set(kKey,JSON.stringify({usuario:S.me,pub:local.pub,priv:local.priv}));
+    S.err='';$('.cx-panel').dataset.sig='';await loadUsers();await decryptAll();render();poll();
+  }catch(e){err(String(e.message||e).replace('Acción desconocida.','Para usar el chat hay que actualizar la planilla a la versión 5.'));}
+}
+async function send(){
+  const ta=$('#cx-in');if(!ta||!S.con)return;const txt=ta.value.trim();if(!txt)return;
+  ta.value='';autoGrow(ta);ta.focus();
+  const tmp={id:'tmp'+Date.now(),de:S.me,para:S.con,tipo:'msg',cont:'',ref:'',t:Date.now(),tmp:true};S.plain[tmp.id]={x:txt};S.msgs.push(tmp);render();
+  try{
+    const cont=await seal(S.con,{x:txt});const j=await call(auth({accion:'enviar',para:S.con,tipo:'msg',cont}));
+    const i=S.msgs.indexOf(tmp);if(i>=0)S.msgs.splice(i,1);
+    const m={id:j.id,de:S.me,para:S.con,tipo:'msg',cont,ref:'',t:j.t};S.msgs.push(m);S.plain[m.id]={x:txt};saveMsgs();S.err='';
+  }catch(e){const i=S.msgs.indexOf(tmp);if(i>=0)S.msgs.splice(i,1);S.err=String(e.message||e);ta.value=txt;}
+  render();
+}
+async function buzz(){
+  if(!S.con)return;if(Date.now()-S.zbAt<8000){S.err='Esperá un poquito para mandar otro zumbido.';render();return;}
+  S.zbAt=Date.now();shake();beep('zumbido');
+  try{const j=await call(auth({accion:'enviar',para:S.con,tipo:'zumbido'}));S.msgs.push({id:j.id,de:S.me,para:S.con,tipo:'zumbido',cont:'',ref:'',t:j.t});saveMsgs();S.err='';}
+  catch(e){S.err=String(e.message||e);}
+  render();
+}
+async function react(id,e){
+  S.pickFor=null;const m=S.msgs.find(x=>x.id===id);if(!m)return;
+  const mine=S.msgs.filter(x=>x.tipo==='reac'&&x.ref===id&&lc(x.de)===lc(S.me)).pop(),cur=mine&&S.plain[mine.id]&&S.plain[mine.id].e;
+  const val=cur===e?'':e;
+  try{const cont=await seal(S.con,{e:val});const j=await call(auth({accion:'enviar',para:S.con,tipo:'reac',cont,ref:id}));
+    const r={id:j.id,de:S.me,para:S.con,tipo:'reac',cont,ref:id,t:j.t};S.msgs.push(r);S.plain[r.id]={e:val};saveMsgs();S.err='';}
+  catch(err){S.err=String(err.message||err);}
+  render();
+}
+function open(name){
+  ensureDom();S.open=true;S.err=S.unsupported?S.err:'';
+  if(name){S.con=name;S.view='conv';}else if(S.view!=='conv')S.view='list';
+  $('.cx-panel').hidden=false;$('.cx-scrim').hidden=false;document.documentElement.classList.add('cx-on');
+  try{H.onOpen();}catch(_){}
+  render();loadUsers().then(render);poll();
+}
+function close(){
+  S.open=false;S.pickFor=null;const p=$('.cx-panel');if(p){p.hidden=true;$('.cx-scrim').hidden=true;}document.documentElement.classList.remove('cx-on');
+  try{H.onClose();}catch(_){}schedule();
+}
+
+/* ── Estilos ── */
+const CSS=`
+#cx-root{font:500 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#f4f7fe}
+.cx-scrim{position:fixed;inset:0;z-index:80;background:#05080dcc}.cx-scrim[hidden],.cx-panel[hidden]{display:none}
+.cx-panel{position:fixed;top:0;right:0;bottom:0;z-index:81;width:min(420px,100vw);box-sizing:border-box;background:#0f1724;border-left:1px solid #283345;box-shadow:-24px 0 60px #000b;display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);animation:cxIn .2s ease-out;font:500 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#f4f7fe}
+@keyframes cxIn{from{transform:translateX(40px);opacity:.3}}
+@media (prefers-reduced-motion:reduce){.cx-panel,.cx-toast{animation:none!important}}
+.cx-panel button{font:inherit;color:inherit;cursor:pointer}
+.cx-head{display:flex;align-items:center;gap:10px;padding:12px 12px 10px 16px;border-bottom:1px solid #1f2a3b;flex:none}
+.cx-head h2{margin:0;font-size:20px;flex:1}
+.cx-x,.cx-back,.cx-zbtn{width:44px;height:44px;border-radius:14px;border:0;background:#1a2536;font-size:18px;flex:none;display:grid;place-items:center}
+.cx-back{font-size:30px;line-height:1;background:none;width:36px}
+.cx-zbtn:disabled{opacity:.35}
+.cx-who{flex:1;min-width:0;display:flex;flex-direction:column}.cx-who b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cx-who small{color:#93a1b6;font-size:12px}
+.cx-av{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;border:2px solid var(--avc,#7ce9e5);background:color-mix(in srgb,var(--avc,#7ce9e5) 25%,#0c131e);font-size:21px;flex:none;line-height:1}
+.cx-list{overflow-y:auto;flex:1;overscroll-behavior:contain}
+.cx-row{display:flex;align-items:center;gap:12px;width:100%;padding:10px 16px;border:0;border-bottom:1px solid #18222f;background:none;text-align:left;min-height:64px}
+.cx-row:active{background:#162133}
+.cx-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.cx-mid b{font-size:15px}.cx-mid small{color:#93a1b6;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cx-row.unread .cx-mid small{color:#f4f7fe;font-weight:700}
+.cx-end{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}.cx-end small{color:#93a1b6;font-size:11px}
+.cx-n{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:#c7a5ff;color:#1b1030;font-size:12px;font-weight:900;display:grid;place-items:center}
+.cx-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#57d49b;box-shadow:0 0 6px #57d49b;margin-left:6px;vertical-align:1px}
+.cx-typing{color:#7ce9e5!important;font-style:normal}
+.cx-msgs{flex:1;overflow-y:auto;padding:12px 12px 6px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
+.cx-day{align-self:center;font-size:11px;color:#93a1b6;background:#162133;border-radius:10px;padding:3px 10px;margin:8px 0 2px;text-transform:capitalize}
+.cx-msg{display:flex;flex-direction:column;align-items:flex-start;max-width:82%;position:relative}
+.cx-msg.me{align-self:flex-end;align-items:flex-end}
+.cx-bub{background:#1d2a3d;border-radius:18px 18px 18px 6px;padding:8px 12px 6px;font-size:15px;line-height:1.35;overflow-wrap:anywhere;cursor:pointer;-webkit-user-select:text;user-select:text}
+.cx-msg.me .cx-bub{background:#7ce9e5;color:#062a2a;border-radius:18px 18px 6px 18px}
+.cx-bub small{display:block;font-size:10.5px;opacity:.6;margin-top:2px;text-align:right}
+.cx-reacs{display:flex;gap:2px;margin-top:-6px;background:#0f1724;border:1px solid #283345;border-radius:12px;padding:1px 6px;font-size:14px;z-index:1}
+.cx-pick{display:flex;gap:4px;margin-top:4px;background:#1a2536;border:1px solid #334056;border-radius:22px;padding:4px 6px;box-shadow:0 8px 20px #0008}
+.cx-pick button{width:38px;height:38px;border:0;border-radius:50%;background:none;font-size:22px}
+.cx-pick button:active{background:#283345}
+.cx-zb{align-self:center;font-size:13px;color:#ffd166;background:#2a2410;border:1px solid #4a3d12;border-radius:12px;padding:5px 12px;margin:4px 0}.cx-zb small{color:#a99550;margin-left:4px}
+.cx-seen{align-self:flex-end;font-size:11px;color:#93a1b6;margin:-2px 4px 0}
+.cx-dots{display:flex;gap:4px;padding:12px 14px}.cx-dots i{width:7px;height:7px;border-radius:50%;background:#93a1b6;animation:cxDot 1s infinite}.cx-dots i:nth-child(2){animation-delay:.15s}.cx-dots i:nth-child(3){animation-delay:.3s}
+@keyframes cxDot{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.cx-bar{display:flex;align-items:flex-end;gap:8px;padding:8px 10px 10px;border-top:1px solid #1f2a3b;flex:none}
+.cx-bar textarea{flex:1;resize:none;min-height:44px;max-height:120px;box-sizing:border-box;border-radius:22px;border:1px solid #334056;background:#141e2c;color:#f4f7fe;font:500 16px/1.35 system-ui,-apple-system,sans-serif;padding:11px 16px;outline:none}
+.cx-bar textarea:focus{border-color:#7ce9e5}
+.cx-send{width:44px;height:44px;border-radius:50%;border:0;background:#7ce9e5;color:#062a2a!important;font-size:18px;flex:none}
+.cx-send:disabled,.cx-bar textarea:disabled{opacity:.4}
+.cx-empty{padding:20px 18px;display:flex;flex-direction:column;gap:10px}.cx-empty p{margin:0;color:#cbd6e3;line-height:1.45}
+.cx-lbl{font-size:12px;color:#93a1b6;font-weight:700}
+#cx-pin{height:48px;border-radius:14px;border:1px solid #334056;background:#141e2c;color:#f4f7fe;font:700 22px system-ui;letter-spacing:.3em;padding:0 16px;outline:none}
+#cx-pin:focus{border-color:#7ce9e5}
+.cx-primary{min-height:50px;border-radius:14px;border:0;background:#7ce9e5;color:#062a2a!important;font-weight:900!important;font-size:15px}
+.cx-dim{color:#93a1b6!important;font-size:12.5px}.cx-pad{padding:12px 16px;margin:0}
+.cx-err{color:#ff8a6b!important;font-size:13px;min-height:1em}
+.cx-ask{margin:10px 16px 4px;min-height:40px;border-radius:12px;border:1px dashed #334056;background:none;color:#cbd6e3!important;font-size:13px!important}
+.cx-toasts{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;width:min(400px,calc(100vw - 20px));pointer-events:none}
+.cx-toast{pointer-events:auto;display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:18px;border:1px solid #3a4a60;background:#141e2cf2;color:#f4f7fe;text-align:left;box-shadow:0 14px 40px #000a;cursor:pointer;animation:cxDrop .28s ease-out;font:500 14px/1.35 system-ui,-apple-system,sans-serif;backdrop-filter:blur(8px)}
+.cx-toast span{display:flex;flex-direction:column;min-width:0}.cx-toast b{font-size:14px}.cx-toast small{color:#cbd6e3;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cx-toast.out{opacity:0;transform:translateY(-10px);transition:.35s}
+@keyframes cxDrop{from{transform:translateY(-16px);opacity:0}}
+.cx-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;background:#ff5d73;color:#fff;font:900 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #0b1019;pointer-events:none}
+[data-chat-btn]{position:relative}
+.cx-shake{animation:cxShake .7s cubic-bezier(.36,.07,.19,.97)}
+@keyframes cxShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}
+@media (min-width:900px){.cx-msg{max-width:72%}}
+`;
+function injectCss(){if($('#cx-css'))return;const s=document.createElement('style');s.id='cx-css';s.textContent=CSS;document.head.appendChild(s);}
+
+/* ── Arranque ── */
+function bindButtons(){document.querySelectorAll('[data-chat-btn]').forEach(b=>{if(!b.dataset.cxOn){b.dataset.cxOn='1';b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();S.open?close():open();});}});badges();}
+function init(opts={}){
+  Object.assign(H,opts);injectCss();ensureDom();loadLocal();
+  bindButtons();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){document.title=baseTitle;poll();}});
+  window.addEventListener('storage',e=>{if(e.key==='bloques-acct-v1'||e.key===kKey){loadLocal();render();badges();}});
+  badges();
+  if(acct())setTimeout(poll,1200);
+}
+window.CHAT={init,open,close,get unread(){return unreadTotal();},get state(){return S;},poll,bindButtons};
+})();
+
+</script>
 </head>
 <body>
 <div class="app" id="app">
   <div class="top">
     <a class="icon-btn games-btn" id="btn-games" href="./#juegos" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i></a>
     <div class="brand">POBL<span>AR</span></div><span class="tag">BETA</span>
-    <button class="icon-btn" id="btn-log" aria-label="Historial">📜</button>
+    <button class="icon-btn" id="btn-chat" aria-label="Chat" title="Chat" data-chat-btn>💬</button>
     <button class="icon-btn" id="btn-help" aria-label="Cómo se juega">?</button>
     <button class="icon-btn" id="btn-friend" aria-label="Jugar con un amigo">👥</button>
     <button class="icon-btn" id="btn-menu" aria-label="Menú">☰</button>
@@ -304,7 +812,6 @@ function place(p,kind,at){
   else if(kind==='town'){G.town[at]=true;G.p[p].ranch--;G.p[p].town++;}
   else{G.road[at]=p;G.p[p].road++;}
   if(kind!=='town')updateLongest();
-  sound('build');
 }
 function build(p,kind,at){
   if(G.phase==='setup'){
@@ -324,7 +831,7 @@ function build(p,kind,at){
 }
 function checkWin(){for(const p of [0,1])if(vp(p)>=GOAL&&G.phase!=='over'){G.phase='over';G.winner=p;addLog(p===0?'🏆 ¡Ganaste!':`${G.p[1].name} ganó.`);save();render();setTimeout(showEnd,500);}}
 async function roll(){
-  const d=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],n=d[0]+d[1];G.dice=d;G.rolls++;sound('dice');
+  const d=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],n=d[0]+d[1];G.dice=d;G.diceBy=G.turn;G.rolls++;
   addLog(`${who(G.turn)} ${G.turn===0?'sacaste':'sacó'} ${n}.`);
   if(n===7){
     G.phase='robber';G.after='main';
@@ -347,14 +854,14 @@ function moveRobber(p,hex){
   G.robber=hex;const victims=new Set(B.hexes[hex].v.map(v=>G.owner[v]).filter(o=>o!==null&&o!==p));
   let txt=`${who(p)} ${p===0?'mandaste':'mandó'} al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()}`;
   for(const o of victims){const pool=RES.flatMap(r=>Array(G.p[o].hand[r]).fill(r));if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;txt+=p===0?` y le robaste ${RI[r].e}`:` y te robó ${RI[r].e}`;}}
-  addLog(txt+'.');sound('robber');G.byGaucho=false;G.phase=G.after||'main';G.after=null;checkWin();save();render();
+  addLog(txt+'.');G.byGaucho=false;G.phase=G.after||'main';G.after=null;checkWin();save();render();
 }
 function trade(p,give,get){const n=rate(p,give);if(G.p[p].hand[give]<n)return false;G.p[p].hand[give]-=n;G.p[p].hand[get]++;addLog(`${who(p)} ${p===0?'cambiaste':'cambió'} ${n}${RI[give].e} por 1${RI[get].e}.`);save();render();return true;}
 function endTurn(){if(G.phase!=='main')return;G.free=0;G.turn=1-G.turn;G.turnNo++;G.devUsed=false;G.offers=0;G.phase='roll';G.dice=null;mode=null;save();render();next();}
 /* ── Cartas de desarrollo ── */
 function buyDev(p){
   if(!can(p,'dev')||!G.deck.length)return false;pay(p,'dev');const k=G.deck.pop();G.p[p].dev.push({k,t:G.turnNo});
-  addLog(`${who(p)} ${p===0?`compraste una carta: ${DEV[k].e} ${DEV[k].n}`:'compró una carta'}.`);sound('build');checkWin();save();render();return true;
+  addLog(`${who(p)} ${p===0?`compraste una carta: ${DEV[k].e} ${DEV[k].n}`:'compró una carta'}.`);checkWin();save();render();return true;
 }
 const playable=(p,c)=>c.k!=='procer'&&c.t<G.turnNo&&!G.devUsed&&G.turn===p&&(c.k==='gaucho'?['roll','main'].includes(G.phase):G.phase==='main');
 function playDev(p,i,arg){
@@ -618,12 +1125,21 @@ function drawBoard(){
     const hit=el('line',{x1:A.x,y1:A.y,x2:C.x,y2:C.y,stroke:'transparent','stroke-width':30},top);hit.addEventListener('click',()=>onBoardTap('e',ei));});
   T.v.forEach(vi=>{const v=RB.verts[vi];el('circle',{cx:v.x,cy:v.y,r:11,class:'spot on'},top);const hit=el('circle',{cx:v.x,cy:v.y,r:24,fill:'transparent'},top);hit.addEventListener('click',()=>onBoardTap('v',vi));});
 }
+// Qué cartas se sumaron (o se fueron) hace poco: se marcan unos segundos en la mano.
+let HD={seed:null,last:null,d:{},t:0,timer:0};
+function handDelta(){
+  const h=G.p[0].hand,now=Date.now();
+  if(HD.seed!==G.seed||!HD.last){HD={seed:G.seed,last:{...h},d:{},t:0,timer:0};return {};}
+  let ch=false;for(const r of RES){const x=h[r]-HD.last[r];if(x){if(now-HD.t>4000&&!ch)HD.d={};HD.d[r]=(HD.d[r]||0)+x;ch=true;}}
+  if(ch){HD.t=now;HD.last={...h};clearTimeout(HD.timer);HD.timer=setTimeout(()=>{HD.d={};document.querySelectorAll('#hand .dl').forEach(e=>e.remove());document.querySelectorAll('#hand .got,#hand .lost').forEach(e=>e.classList.remove('got','lost'));},4000);}
+  return now-HD.t<4000?HD.d:{};
+}
 function render(rolled=false){
-  if(!G)return;drawBoard();fitBoard();
+  if(!G)return;drawBoard();fitBoard();try{soundDiff();}catch(_){}
   $('pn1').textContent=G.p[1].name;$('pn0').textContent=G.p[0].name;
   for(const p of [0,1]){$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(1);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
     const bits=[`${cards(p)} cartas`];if(G.p[p].dev.length&&p===1)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(' · ');}
-  const h=G.p[0].hand;$('hand').innerHTML=RES.map(r=>`<div class="card${h[r]?'':' zero'}" id="c-${r}"><span class="e">${RI[r].e}</span><span class="n">${h[r]}</span><span class="l">${RI[r].n}</span></div>`).join('');
+  const h=G.p[0].hand,dl=handDelta();$('hand').innerHTML=RES.map(r=>`<div class="card${h[r]?'':' zero'}${dl[r]>0?' got':dl[r]<0?' lost':''}" id="c-${r}"><span class="e">${RI[r].e}</span><span class="n">${h[r]}</span><span class="l">${RI[r].n}</span>${dl[r]?`<span class="dl">${dl[r]>0?'+':'−'}${Math.abs(dl[r])}</span>`:''}</div>`).join('');
   const mine=G.turn===0&&G.phase==='main';
   for(const [id,k] of [['b-road','road'],['b-ranch','ranch'],['b-town','town']]){const b=$(id);
     const spots=k==='road'?roadSpots(0):k==='ranch'?ranchSpots(0):townSpots(0);
@@ -639,7 +1155,7 @@ function render(rolled=false){
   else if(G.phase==='discard'){main.textContent='DESCARTÁ CARTAS';main.disabled=false;}
   else{main.textContent=mode?'CANCELAR':'TERMINAR TURNO';main.disabled=false;}
   // Línea de estado
-  const st=$('status'),d=G.dice?`<span class="dice"><span class="die${rolled?' roll':''}">${G.dice[0]}</span><span class="die${rolled?' roll':''}">${G.dice[1]}</span></span>`:'';
+  const by=G.diceBy??G.turn,st=$('status'),d=G.dice?`<span class="dice" title="Tiró ${by===0?'vos':escHtml(G.p[1].name)}"><span class="die p${by}${rolled?' roll':''}">${G.dice[0]}</span><span class="die p${by}${rolled?' roll':''}">${G.dice[1]}</span></span>`:'';
   let msg='';
   if(G.phase==='over')msg=G.winner===0?'🏆 ¡Ganaste!':`${rivalName()} ganó esta vez.`;
   else if(G.phase==='setup')msg=G.turn===0?(G.setupPhase==='ranch'?`Poné tu ${G.setupStep<2?'primer':'segundo'} rancho en una esquina libre.<small>${G.setupStep>=2?'Con este cobrás lo que lo rodea.':'Buscá números que salgan seguido (6, 8, 5, 9).'}</small>`:'Poné un camino pegado a tu rancho.'):`${G.p[1].bot?'La compu está eligiendo':G.p[1].name+' está eligiendo'}…`;
@@ -767,6 +1283,11 @@ function openDiscard(){
     $('dc-ok').onclick=()=>{for(const r of RES)G.p[0].hand[r]-=out[r];finish();};
   };draw();
 }
+function rankedRow(facil){
+  if(!window.RANGOS)return '';const on=RANGOS.isRanked('poblar'),i=RANGOS.info(RANGOS.get('poblar').v);
+  return `<b style="display:block;margin-top:10px">Partida</b><div class="diff" id="rk" style="grid-template-columns:1fr 1fr"><button data-r="1" class="${on?'on':''}">🏆 Ranked</button><button data-r="0" class="${on?'':'on'}">🤝 Amistoso</button></div>
+    <p class="note">${on?(facil?'En Fácil la partida es amistosa: para el rango jugá en Normal o Difícil.':`Ganar suma y perder resta puntos de rango. Tu rango: ${RANGOS.badge(i.v,true)}`):'No se mueve tu rango: jugás tranquilo.'}</p>`;
+}
 function openNew(first=false,kind='compu'){
   if(ON&&ON.state==='on'){openModal(`<h2>Estás jugando en línea</h2><p>Para empezar otra contra la compu, primero salí de la partida en línea (Menú › Salir).</p><div class="row"><button class="primary" id="x1">OK</button></div>`);$('x1').onclick=closeModal;return;}
   let d=(()=>{try{return localStorage.getItem('poblar-dificultad')||'normal';}catch(_){return 'normal';}})();
@@ -776,10 +1297,11 @@ function openNew(first=false,kind='compu'){
     <div class="mode-pick" id="mk"><button data-k="compu" class="${compu?'on':''}">🤖 Con la compu<small>Cuando quieras</small></button><button data-k="online" class="${compu?'':'on'}">👥 En línea<small>Con un amigo</small></button></div>
     ${compu?`<b>Dificultad</b>
     <div class="diff" id="df">${Object.entries(DIFF).map(([k,n])=>`<button data-d="${k}" class="${d===k?'on':''}">${n}</button>`).join('')}</div>
-    <p class="note">${d==='facil'?'Juega más relajada: no compra cartas ni te ofrece cambios.':d==='dificil'?'Cambia más, compra cartas y no te regala nada.':'Juega bien, compra cartas y a veces te ofrece cambios.'}</p>`
-    :`<p>Jugás contra un amigo, cada uno en su celular o compu. Usás tu cuenta de BloqueAR: elegís a tu amigo y le llega la invitación.</p>`}
+    <p class="note">${d==='facil'?'Juega más relajada: no compra cartas ni te ofrece cambios.':d==='dificil'?'Cambia más, compra cartas y no te regala nada.':'Juega bien, compra cartas y a veces te ofrece cambios.'}</p>${rankedRow(d==='facil')}`
+    :`<p>Jugás contra un amigo, cada uno en su celular o compu. Usás tu cuenta de BloqueAR: elegís a tu amigo y le llega la invitación.</p>${rankedRow(false)}`}
     <div class="row">${first?'':'<button class="pill" id="n-no">Volver</button>'}<button class="primary" id="n-yes">${compu?'JUGAR':'ELEGIR AMIGO'}</button></div>`);
     $('mk').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!==kind){kind=b.dataset.k;draw();}};
+    $('rk')&&($('rk').onclick=e=>{const b=e.target.closest('button');if(b&&window.RANGOS){RANGOS.setRanked('poblar',b.dataset.r==='1');draw();}});
     if(compu)$('df').onclick=e=>{const b=e.target.closest('button');if(b){d=b.dataset.d;draw();}};
     if(!first)$('n-no').onclick=closeModal;
     $('n-yes').onclick=()=>{
@@ -801,9 +1323,20 @@ function openHelp(){
     <div class="row"><button class="primary" id="h-ok">ENTENDIDO</button></div>`);
   $('h-ok').onclick=closeModal;
 }
+let RK_LAST=null;
+function rankEnd(){
+  if(!window.RANGOS||AUTO||!G||G.phase!=='over')return null;
+  const key='p'+G.seed+'-'+G.rolls+'-'+(G.p[1].name||'');if(RK_LAST&&RK_LAST.key===key)return RK_LAST.r;
+  const w=G.winner===0,amigo=!G.p[1].bot&&!!ON,kind=amigo?'amigo':G.diff==='facil'?null:'compu-'+G.diff;
+  const done=(()=>{try{return JSON.parse(localStorage.getItem('poblar-xp-hechas')||'[]');}catch(_){return [];}})();
+  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
+  const r=kind?RANGOS.apply('poblar',{key,win:w,kind}):null;
+  RK_LAST={key,r,xp};return r;
+}
 function showEnd(){
-  const w=G.winner===0;
+  const w=G.winner===0,rk=rankEnd(),xp=RK_LAST&&RK_LAST.xp,lvl=window.RANGOS?RANGOS.levelInfo(RANGOS.xp('poblar')):null;
   openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
+    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
     <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
   $('e-see').onclick=closeModal;$('e-new').onclick=()=>{closeModal();playAgain();};
 }
@@ -820,7 +1353,7 @@ $('b-main').addEventListener('click',()=>{
 $('b-trade').addEventListener('click',()=>{if(G.turn===0&&G.phase==='main')openTrade();});
 $('b-dev').addEventListener('click',()=>{if(G.turn===0)openDev();});
 $('btn-help').addEventListener('click',openHelp);
-$('btn-log').addEventListener('click',()=>$('log').classList.toggle('open'));
+const toggleLog=()=>{$('log').classList.toggle('open');};
 $('btn-menu').addEventListener('click',openMenu);
 $('btn-friend').addEventListener('click',openFriends);
 // Ir al menú de juegos. Si hay una partida en línea, primero se pregunta (se cortaría).
@@ -838,23 +1371,64 @@ function openMenu(){
     <button id="m-friend">👥 Jugar en línea <small>con un amigo</small></button>
     <button id="m-help">❓ Cómo se juega</button>
     <button id="m-log">📜 Lo que pasó</button>
+    <button id="m-snd">${SND_ON?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 44</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 45</p>`);
   const go=f=>()=>{closeSide();f();};
+  $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};
-  $('m-new').onclick=go(()=>{if(ON)netLeave();openNew(false);});$('m-friend').onclick=go(openFriends);$('m-help').onclick=go(openHelp);$('m-log').onclick=go(()=>$('btn-log').click());
+  $('m-new').onclick=go(()=>{if(ON)netLeave();openNew(false);});$('m-friend').onclick=go(openFriends);$('m-help').onclick=go(openHelp);$('m-log').onclick=go(toggleLog);
   if($('m-leave'))$('m-leave').onclick=go(netLeave);
 }
 
 /* ── Sonidos cortitos ── */
 let AC=null;
-function sound(k){
-  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
-    const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g).connect(AC.destination);
-    const f={build:[520,780],dice:[220,330],robber:[180,120]}[k]||[440,440];o.type=k==='dice'?'triangle':'sine';
-    o.frequency.setValueAtTime(f[0],t);o.frequency.exponentialRampToValueAtTime(f[1],t+.12);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.start(t);o.stop(t+.2);
-    o.onended=()=>{try{o.disconnect();g.disconnect();}catch(_){}};
-  }catch(_){}
+let SND_ON=(()=>{try{return localStorage.getItem('poblar-sonido')!=='0';}catch(_){return true;}})();
+function actx(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC;}
+function tone(f1,f2,dur,type='sine',vol=.1,delay=0){const a=actx(),t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type=type;o.connect(g).connect(a.destination);
+  o.frequency.setValueAtTime(f1,t);if(f2!==f1)o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.start(t);o.stop(t+dur+.02);o.onended=()=>{try{o.disconnect();g.disconnect();}catch(_){}};}
+let NOISE=null;
+function noise(dur,vol=.2,delay=0,freq=2000){const a=actx();if(!NOISE){NOISE=a.createBuffer(1,a.sampleRate*.5,a.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+  const t=a.currentTime+delay,src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=NOISE;f.type='bandpass';f.frequency.value=freq;f.Q.value=1.2;src.connect(f).connect(g).connect(a.destination);
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);src.start(t);src.stop(t+dur+.02);src.onended=()=>{try{src.disconnect();f.disconnect();g.disconnect();}catch(_){}};}
+const SFX={
+  dice(){for(let i=0;i<7;i++)noise(.035,.3,i*.05+Math.random()*.02,1600+Math.random()*1800);tone(150,110,.09,'triangle',.14,.4);tone(170,120,.08,'triangle',.12,.47);},
+  seven(){tone(440,440,.12,'square',.06,.6);tone(311,311,.22,'square',.06,.74);},
+  gain(){[659,880,1175].forEach((f,i)=>tone(f,f,.14,'sine',.09,i*.07));},
+  lose1(){tone(392,262,.25,'triangle',.08);},
+  road(){noise(.06,.3,0,500);tone(190,120,.1,'triangle',.12);noise(.05,.25,.12,520);tone(180,115,.09,'triangle',.1,.12);},
+  ranch(){SFX.road();tone(523,523,.16,'triangle',.09,.25);tone(784,784,.25,'triangle',.09,.34);},
+  town(){[523,659,784,1047].forEach((f,i)=>tone(f,f,.22,'triangle',.1,i*.09));noise(.05,.2,0,500);},
+  robber(){tone(233,117,.4,'sawtooth',.05);tone(175,88,.45,'sawtooth',.045,.15);},
+  steal(){noise(.2,.25,0,3200);tone(900,300,.2,'sine',.05,.05);},
+  card(){noise(.07,.3,0,4200);noise(.06,.2,.08,3600);tone(1200,1600,.08,'sine',.04,.1);},
+  play(){[392,523,659,784].forEach((f,i)=>tone(f,f,.13,'square',.045,i*.06));},
+  trade(){tone(587,587,.1,'sine',.1);tone(880,880,.16,'sine',.1,.1);},
+  turn(){tone(988,988,.3,'sine',.08);tone(1319,1319,.45,'sine',.06,.09);},
+  win(){[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,f,.3,'triangle',.11,i*.11));},
+  lose(){[392,349,330,262].forEach((f,i)=>tone(f,f*.97,.32,'triangle',.08,i*.2));},
+  nope(){tone(170,150,.16,'square',.05);}
+};
+function sound(k){if(!SND_ON||(typeof FAST!=='undefined'&&FAST))return;try{SFX[k]&&SFX[k]();}catch(_){}}
+// Sonidos según lo que cambió desde la última vez que se dibujó (así suenan también las jugadas del amigo en línea).
+let SNAP=null;
+function snapOf(){const pc=p=>G.p[p].road+G.p[p].ranch*10+G.p[p].town*100;return {seed:G.seed,rolls:G.rolls,robber:G.robber,road:[0,1].map(p=>G.p[p].road),ranch:[0,1].map(p=>G.p[p].ranch),town:[0,1].map(p=>G.p[p].town),
+  dev:[0,1].map(p=>G.p[p].dev.length),hand:{...G.p[0].hand},turn:G.turn,phase:G.phase,winner:G.winner,dice:G.dice?G.dice[0]+G.dice[1]:0};}
+function soundDiff(){
+  const n=snapOf(),o=SNAP;SNAP=n;if(!o||o.seed!==n.seed)return;
+  const q=[];
+  if(n.rolls>o.rolls){q.push('dice');if(n.dice===7)q.push('seven');}
+  let up=0,down=0;for(const r of RES){const d=n.hand[r]-o.hand[r];if(d>0)up+=d;else down-=d;}
+  if(n.robber!==o.robber)q.push('robber');
+  if(n.town[0]+n.town[1]>o.town[0]+o.town[1])q.push('town');
+  else if(n.ranch[0]+n.ranch[1]>o.ranch[0]+o.ranch[1])q.push('ranch');
+  else if(n.road[0]+n.road[1]>o.road[0]+o.road[1])q.push('road');
+  if(n.dev[0]+n.dev[1]>o.dev[0]+o.dev[1])q.push('card');else if(n.dev[0]+n.dev[1]<o.dev[0]+o.dev[1])q.push('play');
+  if(up&&down&&!q.length)q.push('trade');else if(up&&!q.includes('town')&&!q.includes('ranch')&&!q.includes('road'))q.push(n.robber!==o.robber?'steal':'gain');else if(down&&n.robber!==o.robber)q.push('lose1');
+  if(n.phase==='over'&&o.phase!=='over')q.push(n.winner===0?'win':'lose');
+  else if(n.turn===0&&o.turn!==0&&n.phase==='roll')q.push('turn');
+  q.slice(0,3).forEach((k,i)=>setTimeout(()=>sound(k),k==='gain'?650+i*60:i*140));
 }
 
 /* ───────── En línea con un amigo ─────────
@@ -891,14 +1465,14 @@ const UIQ={users:null,err:'',dismissed:new Set(),pending:null};
 function flip(g){// la misma partida vista desde el otro lado
   const x=JSON.parse(JSON.stringify(g)),sw=v=>v===0?1:v===1?0:v;
   x.owner=x.owner.map(sw);x.road=x.road.map(sw);x.p.reverse();x.turn=sw(x.turn);x.first=sw(x.first);x.setup=x.setup.map(sw);
-  x.longest=sw(x.longest);x.army=sw(x.army);x.winner=sw(x.winner);x.longLen=x.longLen.slice().reverse();
+  x.longest=sw(x.longest);x.army=sw(x.army);x.winner=sw(x.winner);if(x.diceBy!==undefined)x.diceBy=sw(x.diceBy);x.longLen=x.longLen.slice().reverse();
   for(const pl of x.p)pl.bot=false;return x;
 }
 function netSend(m){try{if(ON&&ON.ch&&ON.ch.readyState==='open')ON.ch.send(JSON.stringify(m));}catch(_){}}
 const me=()=>{const a=acct();return {usuario:a?a.usuario:'Vos',avatar:a?a.avatar:'🙂',color:a?a.color:'#7ce9e5'};};
 function attach(ch){
   ON.ch=ch;
-  ch.onopen=()=>{ON.state='on';renderOnline();closeModal();banner('🔗 CONECTADOS');sound('build');
+  ch.onopen=()=>{ON.state='on';renderOnline();closeModal();banner('🔗 CONECTADOS');sound('turn');
     netSend({t:'hola',yo:me()});if(ON.role==='host')onlineNewGame();};
   ch.onclose=()=>onLost();
   ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}onMsg(m);};
@@ -1051,7 +1625,10 @@ let FAST=false,AUTO=false;
   else{G=null;openNew(true);}
   if(/^#amigos/.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}setTimeout(openFriends,200);}
 })();
-window.POBLAR={pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
+// Chat (viene con el sitio; si se abre este archivo suelto, no está).
+if(window.RANGOS)RANGOS.css();
+if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{location.href='./#cuenta';}});
+window.POBLAR={showEnd,rankEnd,pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
 </script>
 </body>
 </html>
