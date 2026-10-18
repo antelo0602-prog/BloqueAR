@@ -183,6 +183,22 @@ html,body{height:100%;overflow:hidden}
 
 .die.p0{background:var(--me);color:#04263a;box-shadow:0 0 0 2px #04263a inset}
 .die.p1{background:var(--cpu);color:#fff;box-shadow:0 0 0 2px #5a0b0e inset}
+.die.p2{background:#f39c34;color:#3a1d00;box-shadow:0 0 0 2px #6b3a05 inset}.die.p3{background:#a06ae0;color:#fff;box-shadow:0 0 0 2px #3d1d6b inset}
+/* De a 3 o 4: un panel chico por jugador, todos en una fila */
+.score.multi{grid-template-columns:repeat(var(--np,3),minmax(0,1fr));gap:5px}
+.score.multi .pl{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"i n n" "s s v";gap:0 5px;padding:4px 7px;border-radius:11px;align-items:center}
+.score.multi .pl i{grid-area:i;width:9px;height:9px}
+.score.multi .pl b{grid-area:n;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.score.multi .pl small.st{grid-area:s;font-size:10.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dim)}
+.score.multi .pl .vp{grid-area:v;font-size:17px;margin:0;line-height:1.1}.score.multi .pl .vp small{font-size:9px}
+.vpick{display:grid;gap:8px;margin:10px 0}
+.vpick button{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"i b" "i s";align-items:center;gap:0 10px;text-align:left;min-height:56px;padding:8px 12px;border-radius:14px;border:1px solid var(--line);background:#0f1724;cursor:pointer}
+.vpick button i{grid-area:i;width:14px;height:14px;border-radius:50%;background:var(--pc)}.vpick button b{grid-area:b;font-size:16px}.vpick button small{grid-area:s;color:var(--dim)}
+.vpick button.on{border-color:var(--pc);box-shadow:0 0 0 1px var(--pc) inset}
+.vpick.row3{grid-template-columns:repeat(3,minmax(0,1fr))}.vpick.row3 button{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"i b" "s s";min-height:50px;padding:6px 8px}.vpick.row3 button b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vpick.row3 button small{font-size:11px}
+.nplay{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 2px}
+.nplay button{min-height:52px;border-radius:12px;border:1px solid var(--line);background:#0f1724;font-weight:800;font-size:18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.nplay button small{font-size:10.5px;color:var(--dim);font-weight:600}.nplay button.on{border-color:var(--aqua);background:#173540}
 .card.got{border-color:#57d49b;box-shadow:0 0 0 1px #57d49b inset,0 0 14px #57d49b55}
 .card.lost{border-color:#ff7b6b}
 .card .dl{position:absolute;top:-8px;right:-4px;min-width:22px;padding:1px 6px;border-radius:10px;font-size:12px;font-weight:900;background:#57d49b;color:#062a1a;box-shadow:0 2px 6px #0008;animation:bump .5s ease-out}
@@ -285,11 +301,13 @@ function generalFrom(d){
   return {xp:tot,level:levelInfo(tot),rank:info(((vals[0]||0)+(vals[1]||0)+(vals[2]||0))/3),games:games.map(g=>({g,name:GAMES[g],xp:xpOf(g),level:levelInfo(xpOf(g)),rank:info(vOf(g))}))};
 }
 // Para la cuenta: se suben y se bajan junto con el progreso de BloqueAR.
-function exportData(){return {r:ls.json(RKEY,{}),x:ls.json(XKEY,{})};}
+function exportData(){const o={r:ls.json(RKEY,{}),x:ls.json(XKEY,{})};try{if(window.LOGROS)o.lg=window.LOGROS.exportData();}catch(_){}return o;}
 function importData(d){
   if(!d||typeof d!=='object')return false;let ch=false;
   const r=ls.json(RKEY,{});if(d.r&&(d.r.at||0)>(r.at||0)){ls.set(RKEY,JSON.stringify(d.r));ch=true;}
   const x=ls.json(XKEY,{});if(d.x){const o={...x};for(const [k,v] of Object.entries(d.x))if(k!=='at'&&Number.isFinite(v)&&v>(o[k]||0)){o[k]=v;ch=true;}if(ch){o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}}
+  // Logros y retos (v60): se unen; si acá hay algo que la planilla no tiene, se avisa que cambió para que se suba.
+  try{if(window.LOGROS){const L=window.LOGROS.importData(d.lg||{});if(L.ch||L.falta)ch=true;}}catch(_){}
   return ch;
 }
 function badge(v,small){const i=info(v);return `<span class="rk-badge${small?' sm':''}" style="--rk:${i.t.c}" title="${i.label}${i.next!=null?` · ${i.pr}/${DIV} PR`:''}"><i>${i.t.e}</i>${i.short}</span>`;}
@@ -309,6 +327,352 @@ function mine(g){if(!GAMES[g])return '';const r=get(g),i=info(r.v),L=levelInfo(x
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
 window.RANGOS={TIERS,GAMES,info,get,mine,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,pampaAct,PAMPA_ACT,DIV};
+})();
+
+</script>
+<script>
+/* ───────── Logros, retos de la semana y apariencias de TrucAR, UnoAR, PoblAR, EstanciAR y La Gran Pampa ─────────
+   (BloqueAR tiene sus medallas y su desafío del día aparte, en su progreso.)
+
+   API (window.LOGROS):
+   · evento(juego, clave, n=1, key?)  suma n al contador «clave» del juego (y al de la semana). Con «key» no se cuenta dos veces
+                                      lo mismo (reanudar, revancha, el mismo estado que llega dos veces). Avisa con un cartelito
+                                      arriba si se consigue un logro o se cumple un reto. Devuelve los logros nuevos.
+   · marca(juego, clave, valor, key?) guarda el máximo (p. ej. puntos en una mano, nivel de la estancia).
+   · fin(juego, datos, key)           al terminar una partida: datos = {gano, modo:'compu'|'online', dif, n (jugadores), ...}.
+                                      Devuelve {nuevos, retos, html}: «html» es un renglón para la pantalla final (no avisa aparte).
+   · abrir(juego, {side, volver})     abre el panel «Logros y retos» en el menú lateral del juego (side = openSide del juego).
+   · panelHtml(juego) / cablear(raíz, juego, opciones)   lo mismo, en dos pasos.
+   · aplicar(juego)                   pone la apariencia elegida (atributos data-lg-<tipo> en <html> y su CSS).
+   · apariencia(juego, tipo) / elegir(juego, tipo, id)
+   · retos(juego)                     los 3 retos de esta semana con su progreso.
+   · contar()                         → {truco:{tiene,total}, uno:{…}, poblar:{…}, estancia:{…}, pampa:{…}}
+   · resumenHtml()                    resumen compacto de todos los juegos (para el menú de juegos o Mi cuenta).
+   · exportData() / importData(d)     viaja con la cuenta dentro de RANGOS.exportData() como «lg»:
+                                      lg = {g:{<juego>:{<idLogro>:timestamp}}, c:{<juego>:{<clave>:n}}, s:{w:'AAAA-MM-DD', c:{…}, h:{<juego>:[idReto]}}, ap:{<juego>:{<tipo>:id}}, at}
+                                      La planilla cuenta Object.keys(lg.g[juego]).length para la tabla de logros.
+   · ocultar([juegos])                el paquete sin EstanciAR esconde esos juegos del resumen.
+   Los retos se eligen con el lunes de la semana en hora argentina: son los mismos para todos y cambian el lunes. */
+(function(){
+'use strict';
+const KEY='bloques-logros-v1';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const fmt=n=>Math.floor(Number(n)||0).toLocaleString('es-AR');
+
+/* ── Lo que hay en cada juego ──
+   Logro: {id, e, n, d, k (contador), m (meta, 1 si no se dice), marca (si el contador es un máximo)}
+   Reto:  {id, k, v:[metas posibles], t:meta→texto, xp}
+   Apariencia: {id, n, sw (muestra), lv (nivel del juego) o logro (id), css} — la primera de cada tipo es la de siempre. */
+const D={
+truco:{n:'TrucAR',e:'🃏',
+  logros:[
+    {id:'primera',e:'🃏',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Primera victoria',d:'Ganá una partida.',k:'ganadas'},
+    {id:'gane25',e:'🎩',n:'Tallador',d:'Ganá 25 partidas.',k:'ganadas',m:25},
+    {id:'dificil',e:'🧠',n:'Más vivo que la compu',d:'Ganale a la compu en Difícil.',k:'ganadas_dif'},
+    {id:'amigo',e:'🤝',n:'Mano a mano',d:'Ganale una partida en línea a alguien de verdad.',k:'ganadas_online'},
+    {id:'vale4',e:'🔥',n:'Quiero vale cuatro',d:'Ganá una mano con el vale cuatro querido.',k:'vale4'},
+    {id:'retruco',e:'💪',n:'Retrucador',d:'Ganá 10 manos con el retruco querido.',k:'retrucos',m:10},
+    {id:'env33',e:'7️⃣',n:'Treinta y tres',d:'Que te toquen 33 de envido (el 7 y el 6 del mismo palo).',k:'env33'},
+    {id:'falta',e:'💥',n:'Falta envido',d:'Ganá una falta envido querida.',k:'falta'},
+    {id:'envidos',e:'🗣️',n:'Envidioso',d:'Ganá 50 envidos.',k:'envidos',m:50},
+    {id:'zapatero',e:'👞',n:'Zapatero',d:'Ganá dejando al otro sin llegar a la mitad de los puntos.',k:'zapatero'},
+    {id:'remontada',e:'📈',n:'Remontada',d:'Ganá una partida que ibas perdiendo por 10 o más.',k:'remontada'},
+    {id:'parroquiano',e:'🍷',n:'Parroquiano del boliche',d:'Jugá 50 partidas.',k:'partidas',m:50},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[3,5],t:n=>`Jugá ${n} partidas`,xp:40},
+    {id:'g',k:'ganadas',v:[2,3],t:n=>`Ganá ${n} partidas`,xp:60},
+    {id:'e',k:'envidos',v:[5,8],t:n=>`Ganá ${n} envidos`,xp:45},
+    {id:'t',k:'trucos',v:[5,8],t:n=>`Ganá ${n} manos con truco querido`,xp:50},
+    {id:'r',k:'retrucos',v:[1,2],t:n=>n===1?'Ganá una mano con retruco querido':`Ganá ${n} manos con retruco querido`,xp:50},
+    {id:'m',k:'manos',v:[15,25],t:n=>`Ganá ${n} manos`,xp:45},
+    {id:'n',k:'ganadas_nd',v:[1,2],t:n=>n===1?'Ganale a la compu en Normal o Difícil':`Ganale ${n} veces a la compu en Normal o Difícil`,xp:55},
+    {id:'s',k:'tantos',v:[60,100],t:n=>`Sumá ${n} puntos`,xp:45}],
+  ap:{
+    pano:{n:'Paño',op:[
+      {id:'verde',n:'Paño verde',sw:'#2e4a35'},
+      {id:'azul',n:'Paño azul',sw:'#223a54',lv:2,f:['#2d4a66','#223a54','#182b40']},
+      {id:'bordo',n:'Paño bordó',sw:'#552025',lv:5,f:['#6a2a2e','#552025','#3f171b']},
+      {id:'cuero',n:'Cuero',sw:'#5e4329',lv:8,f:['#7a5a3a','#5e4329','#46311d']},
+      {id:'negro',n:'Boliche de noche',sw:'#201e1b',logro:'vale4',f:['#2f2c27','#201e1b','#151412']}],
+      css:(o,s)=>`${s} .felt{background:radial-gradient(90% 70% at 50% 45%,${o.f[0]} 0%,${o.f[1]} 55%,${o.f[2]} 100%)}`},
+    dorso:{n:'Dorso de las cartas',op:[
+      {id:'rojo',n:'Guarda roja',sw:'#7e2a21'},
+      {id:'azul',n:'Guarda azul',sw:'#24457f',lv:3,f:['#1f3a6e','#24457f','#e8d3a6']},
+      {id:'verde',n:'Guarda verde',sw:'#255c3b',lv:6,f:['#1f4d32','#255c3b','#e8d3a6']},
+      {id:'oro',n:'Negro y oro',sw:'#221c16',logro:'gane25',f:['#1a1612','#221c16','#e0b553']}],
+      css:(o,s)=>`${s} .card.back svg>rect:first-child{fill:${o.f[0]}}${s} #guarda rect{fill:${o.f[1]}}${s} #guarda path:nth-of-type(1),${s} #guarda path:nth-of-type(4){stroke:${o.f[2]}}${s} #guarda path:nth-of-type(2){fill:${o.f[2]}}${s} .card.back svg>rect:nth-of-type(n+2){stroke:${o.f[2]}}`}}},
+uno:{n:'UnoAR',e:'🎴',
+  logros:[
+    {id:'primera',e:'🎴',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Primera victoria',d:'Ganá una partida.',k:'ganadas'},
+    {id:'gane25',e:'🍀',n:'Mano bendita',d:'Ganá 25 partidas.',k:'ganadas',m:25},
+    {id:'dificil',e:'🧠',n:'Más vivo que la compu',d:'Ganale a la compu en Difícil.',k:'ganadas_dif'},
+    {id:'seis',e:'👥',n:'Mesa llena',d:'Ganá una partida de 6 jugadores.',k:'ganadas_6'},
+    {id:'amigo',e:'🤝',n:'Con amigos',d:'Ganá una partida en línea con gente de verdad.',k:'ganadas_online'},
+    {id:'cierre4',e:'➕',n:'Cierre con +4',d:'Quedate sin cartas tirando un +4.',k:'cierre4'},
+    {id:'comodin',e:'🌈',n:'Comodín final',d:'Quedate sin cartas tirando un comodín.',k:'cierre_comodin'},
+    {id:'uno50',e:'📣',n:'¡Uno!',d:'Decí «uno» 50 veces.',k:'uno_dicho',m:50},
+    {id:'cantor',e:'👀',n:'Ojo de águila',d:'Cantale a 10 que se olvidaron del «uno».',k:'cantadas',m:10},
+    {id:'cien',e:'💯',n:'Mano de cien',d:'Sumá 100 puntos o más en una sola mano.',k:'mano_max',m:100,marca:true},
+    {id:'puntos',e:'🧮',n:'Juntapuntos',d:'Sumá 2.000 puntos en total.',k:'puntos',m:2000},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[3,5],t:n=>`Jugá ${n} partidas`,xp:40},
+    {id:'g',k:'ganadas',v:[2,3],t:n=>`Ganá ${n} partidas`,xp:60},
+    {id:'m',k:'manos',v:[4,6],t:n=>`Quedate sin cartas ${n} veces`,xp:50},
+    {id:'x',k:'mas4',v:[3,5],t:n=>`Tirá ${n} cartas +4`,xp:40},
+    {id:'u',k:'uno_dicho',v:[5,8],t:n=>`Decí «uno» ${n} veces`,xp:40},
+    {id:'c',k:'cantadas',v:[1,2],t:n=>n===1?'Cantale a uno que no dijo «uno»':`Cantales a ${n} que no dijeron «uno»`,xp:50},
+    {id:'s',k:'puntos',v:[300,500],t:n=>`Sumá ${fmt(n)} puntos`,xp:50},
+    {id:'n',k:'ganadas_nd',v:[1,2],t:n=>n===1?'Ganale a la compu en Normal o Difícil':`Ganale ${n} veces a la compu en Normal o Difícil`,xp:55}],
+  ap:{
+    pano:{n:'Paño',op:[
+      {id:'petroleo',n:'Azul petróleo',sw:'#1f4250'},
+      {id:'verde',n:'Paño verde',sw:'#244a35',lv:2,f:['#2f5a40','#244a35','#1a3828']},
+      {id:'rojo',n:'Paño rojo',sw:'#552323',lv:4,f:['#6a2c2c','#552323','#3f1a1a']},
+      {id:'pizarra',n:'Pizarra',sw:'#2f363d',lv:7,f:['#3c444c','#2f363d','#22282e']},
+      {id:'noche',n:'Mesa de noche',sw:'#201b33',logro:'seis',f:['#2a2440','#201b33','#161226']}],
+      css:(o,s)=>`${s} .felt{background:radial-gradient(90% 70% at 50% 45%,${o.f[0]} 0%,${o.f[1]} 55%,${o.f[2]} 100%)}`},
+    dorso:{n:'Dorso de las cartas',op:[
+      {id:'bordo',n:'Bordó',sw:'#5b1f2b'},
+      {id:'petroleo',n:'Petróleo',sw:'#1f4a56',lv:3,f:['#1f4a56','#10303a']},
+      {id:'violeta',n:'Violeta',sw:'#4a2a6a',lv:5,f:['#4a2a6a','#2c1840']},
+      {id:'oro',n:'Negro y oro',sw:'#1c1a16',logro:'gane25',f:['#1c1a16','#0f0e0c']}],
+      css:(o,s)=>`${s} .card.back pattern rect{fill:${o.f[0]}}${s} .card.back svg>rect:nth-of-type(2){stroke:${o.f[1]}}${s} .card.back svg>rect:nth-of-type(3){fill:${o.f[1]}}`}}},
+poblar:{n:'PoblAR',e:'🏘️',
+  logros:[
+    {id:'primera',e:'🎲',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Primera victoria',d:'Ganá una partida.',k:'ganadas'},
+    {id:'gane15',e:'🏛️',n:'Patrón de la isla',d:'Ganá 15 partidas.',k:'ganadas',m:15},
+    {id:'dificil',e:'🧠',n:'Más vivo que la compu',d:'Ganale a la compu en Difícil.',k:'ganadas_dif'},
+    {id:'diez',e:'🔟',n:'Diez puntos en Difícil',d:'Ganá una partida de a 3 o 4 a 10 puntos, en Difícil.',k:'diez_dif'},
+    {id:'cuatro',e:'👥',n:'De a cuatro',d:'Ganá una partida de 4 jugadores.',k:'ganadas_4'},
+    {id:'amigo',e:'🤝',n:'Con amigos',d:'Ganá una partida en línea con gente de verdad.',k:'ganadas_online'},
+    {id:'camino',e:'🛣️',n:'Camino más largo',d:'Llevate el camino más largo.',k:'camino'},
+    {id:'tropilla',e:'🐎',n:'Tropilla más grande',d:'Llevate la tropilla más grande.',k:'tropilla'},
+    {id:'pueblos',e:'🏘️',n:'Fundador',d:'Armá 25 pueblos.',k:'pueblos',m:25},
+    {id:'tramos',e:'🧱',n:'Caminero',d:'Hacé 100 tramos de camino.',k:'tramos',m:100},
+    {id:'cambios',e:'⚖️',n:'Comerciante',d:'Hacé 30 cambios.',k:'cambios',m:30},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[2,3],t:n=>`Jugá ${n} partidas`,xp:45},
+    {id:'g',k:'ganadas',v:[1,2],t:n=>n===1?'Ganá una partida':`Ganá ${n} partidas`,xp:60},
+    {id:'v',k:'pueblos',v:[3,5],t:n=>`Armá ${n} pueblos`,xp:45},
+    {id:'c',k:'tramos',v:[10,15],t:n=>`Hacé ${n} tramos de camino`,xp:40},
+    {id:'r',k:'ranchos',v:[5,8],t:n=>`Armá ${n} ranchos`,xp:40},
+    {id:'x',k:'cambios',v:[4,6],t:n=>`Hacé ${n} cambios`,xp:40},
+    {id:'l',k:'cuatrero',v:[3,5],t:n=>`Mandá al cuatrero ${n} veces`,xp:40},
+    {id:'d',k:'cartas',v:[2,3],t:n=>`Jugá ${n} cartas`,xp:45}],
+  ap:{
+    mar:{n:'Mar',op:[
+      {id:'mar',n:'Mar de siempre',sw:'#134a63'},
+      {id:'laguna',n:'Laguna',sw:'#1a6660',lv:3,f:['#2a8f86','#1a6660','#0f433f']},
+      {id:'atardecer',n:'Atardecer',sw:'#7e3f3a',lv:6,f:['#b8684a','#7e3f3a','#4a2430']},
+      {id:'noche',n:'Noche',sw:'#141f40',logro:'gane15',f:['#1d2f5a','#141f40','#0b1228']}],
+      css:(o,s)=>`${s} #g-mar stop:nth-child(1){stop-color:${o.f[0]}}${s} #g-mar stop:nth-child(2){stop-color:${o.f[1]}}${s} #g-mar stop:nth-child(3){stop-color:${o.f[2]}}${s} .boardwrap{background:${o.f[2]}}`}}},
+estancia:{n:'EstanciAR',e:'🐎',
+  logros:[
+    {id:'cosecha1',e:'🌾',n:'Primera cosecha',d:'Cosechá algo.',k:'cosechas'},
+    {id:'cosecha100',e:'🚜',n:'Chacarero',d:'Cosechá 100 veces.',k:'cosechas',m:100},
+    {id:'junta200',e:'🥛',n:'Tambero',d:'Juntá lo que producen tus animales 200 veces.',k:'juntar',m:200},
+    {id:'obras',e:'🔨',n:'Constructor',d:'Comprá o construí 30 cosas.',k:'compras',m:30},
+    {id:'malon1',e:'⚔️',n:'Primer malón',d:'Ganá un malón.',k:'malones'},
+    {id:'malon25',e:'🐎',n:'Malonero',d:'Ganá 25 malones.',k:'malones',m:25},
+    {id:'tres',e:'⭐',n:'Tres estrellas',d:'Hacé un malón de 3 estrellas.',k:'tres'},
+    {id:'aguante',e:'🛡️',n:'Aguante',d:'Rechazá un malón de otro jugador.',k:'aguantes'},
+    {id:'nivel5',e:'🏡',n:'Estancia en marcha',d:'Llevá tu estancia a nivel 5.',k:'nivel',m:5,marca:true},
+    {id:'nivel10',e:'🏰',n:'Gran estancia',d:'Llevá tu estancia a nivel 10.',k:'nivel',m:10,marca:true},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'c',k:'cosechas',v:[10,20],t:n=>`Cosechá ${n} veces`,xp:50},
+    {id:'j',k:'juntar',v:[15,25],t:n=>`Juntá lo de tus animales ${n} veces`,xp:45},
+    {id:'m',k:'malones',v:[1,3],t:n=>n===1?'Ganá un malón':`Ganá ${n} malones`,xp:60},
+    {id:'o',k:'compras',v:[2,4],t:n=>`Comprá o construí ${n} cosas`,xp:45},
+    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55}],
+  ap:{}},
+pampa:{n:'La Gran Pampa',e:'🗺️',
+  logros:[
+    {id:'sumado',e:'🗺️',n:'A la pampa',d:'Sumate a una semana.',k:'semanas_jugadas'},
+    {id:'sumado8',e:'🧭',n:'Baqueano',d:'Jugá 8 semanas.',k:'semanas_jugadas',m:8},
+    {id:'paraje',e:'🚩',n:'Primer paraje',d:'Reclamá un paraje.',k:'parajes'},
+    {id:'parajes50',e:'🏕️',n:'Poblador',d:'Reclamá 50 parajes.',k:'parajes',m:50},
+    {id:'cruce',e:'⚔️',n:'Primer cruce',d:'Ganá un cruce.',k:'cruces'},
+    {id:'cruces10',e:'🛡️',n:'Caudillo',d:'Ganá 10 cruces.',k:'cruces',m:10},
+    {id:'podio',e:'🥉',n:'Al podio',d:'Terminá una semana entre los 3 primeros.',k:'podios'},
+    {id:'copa',e:'🏆',n:'Dueño de la pampa',d:'Ganá una semana.',k:'copas'}],
+  retos:[],ap:{}}
+};
+const ORDEN=['truco','uno','poblar','estancia','pampa'];
+let OCULTOS=[];
+
+/* ── Datos guardados ── */
+function lunesAR(t=Date.now()){const d=new Date(t-3*3600e3),dow=d.getUTCDay(),m=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-((dow+6)%7)*864e5);return m.toISOString().slice(0,10);}
+function load(){const o=ls.json(KEY,{});o.g=o.g||{};o.c=o.c||{};o.ap=o.ap||{};o.k=Array.isArray(o.k)?o.k:[];
+  const w=lunesAR();if(!o.s||o.s.w!==w)o.s={w,c:{},h:{}};o.s.c=o.s.c||{};o.s.h=o.s.h||{};return o;}
+function save(o){o.at=Date.now();ls.set(KEY,JSON.stringify(o));}
+const cnt=(o,j)=>(o.c[j]=o.c[j]||{});
+const tiene=(o,j,id)=>!!(o.g[j]&&o.g[j][id]);
+
+/* ── Retos de la semana: los mismos para todos ── */
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rng(seed){let a=seed>>>0||1;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+function retosDe(j,w){const L=(D[j]&&D[j].retos)||[];if(!L.length)return [];const R=rng(hash(w+':'+j)),pool=L.slice(),out=[];
+  while(out.length<3&&pool.length){const r=pool.splice(Math.floor(R()*pool.length),1)[0];const n=r.v[Math.floor(R()*r.v.length)];out.push({id:r.id+n,k:r.k,n,txt:r.t(n),xp:r.xp+(n===r.v[r.v.length-1]&&r.v.length>1?10:0)});}
+  return out;}
+function retos(j){const o=load(),c=o.s.c[j]||{},h=o.s.h[j]||[];return retosDe(j,o.s.w).map(r=>({...r,va:Math.min(r.n,c[r.k]||0),hecho:h.includes(r.id)}));}
+
+/* ── Contar ── */
+function revisar(o,j){
+  const nuevos=[],cumplidos=[],Gd=D[j];if(!Gd)return {nuevos,cumplidos};
+  // retos (antes que los logros: completar los 3 cuenta para «Semana redonda»)
+  const sc=o.s.c[j]||{},sh=(o.s.h[j]=o.s.h[j]||[]),rs=retosDe(j,o.s.w);
+  for(const r of rs)if(!sh.includes(r.id)&&(sc[r.k]||0)>=r.n){sh.push(r.id);cumplidos.push(r);premiar(j,r);}
+  if(cumplidos.length&&rs.length&&rs.every(r=>sh.includes(r.id))){const c=cnt(o,j);c.semanas=(c.semanas||0)+1;}
+  const c=cnt(o,j);o.g[j]=o.g[j]||{};
+  for(const L of Gd.logros)if(!o.g[j][L.id]&&(c[L.k]||0)>=(L.m||1)){o.g[j][L.id]=Date.now();nuevos.push(L);}
+  return {nuevos,cumplidos};
+}
+function premiar(j,r){const R=window.RANGOS;if(!R)return;
+  try{if(j!=='estancia'&&j!=='pampa'&&R.GAMES[j])R.addXp(j,r.xp);}catch(_){}
+  try{R.premio(`${D[j].n} (reto)`,r.xp,false);}catch(_){}}
+function visto(o,key){if(!key)return false;if(o.k.includes(key))return true;o.k.push(key);if(o.k.length>300)o.k.splice(0,o.k.length-300);return false;}
+function sumar(o,j,k,n){const c=cnt(o,j);c[k]=(c[k]||0)+n;const s=(o.s.c[j]=o.s.c[j]||{});s[k]=(s[k]||0)+n;}
+function evento(j,k,n=1,key,quiet){
+  if(!D[j]||!k||!(n>0))return [];const o=load();if(visto(o,key&&(j+':'+key+':'+k))){save(o);return [];}
+  sumar(o,j,k,n);const r=revisar(o,j);save(o);if(!quiet)avisar(j,r);return r.nuevos;
+}
+function marca(j,k,v,key,quiet){
+  if(!D[j]||!k||!Number.isFinite(v))return [];const o=load();if(visto(o,key&&(j+':'+key+':m:'+k))){save(o);return [];}
+  const c=cnt(o,j);if(v>(c[k]||0))c[k]=v;const r=revisar(o,j);save(o);if(!quiet)avisar(j,r);return r.nuevos;
+}
+// Al terminar la partida. Cada juego pasa lo suyo en «datos»; acá se arman los contadores.
+function finEventos(j,d){const E=[],win=!!d.gano,compu=d.modo==='compu',dif=d.dif||'';
+  E.push(['partidas',1]);
+  if(win){E.push(['ganadas',1]);if(compu&&dif==='dificil')E.push(['ganadas_dif',1]);if(compu&&(dif==='normal'||dif==='dificil'))E.push(['ganadas_nd',1]);if(d.modo==='online')E.push(['ganadas_online',1]);}
+  if(j==='truco'&&win){if(d.meta&&d.tantos&&d.tantos[1]<d.meta/2)E.push(['zapatero',1]);if(d.remontada)E.push(['remontada',1]);}
+  if(j==='uno'&&win&&d.n>=6)E.push(['ganadas_6',1]);
+  if(j==='poblar'&&win){if(d.n>=4)E.push(['ganadas_4',1]);if(compu&&dif==='dificil'&&d.n>=3)E.push(['diez_dif',1]);}
+  return E;}
+function fin(j,d,key){
+  const out={nuevos:[],retos:[],html:''};if(!D[j]||!d)return out;const o=load();
+  if(visto(o,key&&(j+':fin:'+key))){save(o);return out;}
+  for(const [k,n] of finEventos(j,d))sumar(o,j,k,n);
+  const r=revisar(o,j);save(o);out.nuevos=r.nuevos;out.retos=r.cumplidos;
+  const p=[...r.nuevos.map(L=>`<span class="lg-chip"><i>${L.e}</i>${esc(L.n)}</span>`),...r.cumplidos.map(x=>`<span class="lg-chip reto"><i>🎯</i>${esc(x.txt)} · +${x.xp} XP</span>`)];
+  if(p.length){css();out.html=`<div class="lg-fin"><small>${r.nuevos.length?(r.nuevos.length===1?'Logro nuevo':'Logros nuevos'):''}${r.nuevos.length&&r.cumplidos.length?' y ':''}${r.cumplidos.length?(r.cumplidos.length===1?(r.nuevos.length?'reto cumplido':'Reto cumplido'):(r.nuevos.length?'retos cumplidos':'Retos cumplidos')):''}</small>${p.join('')}</div>`;}
+  return out;
+}
+
+/* ── Cartelito: aparece debajo de la barra de arriba, chico, y se va solo ── */
+const COLA=[];let MOSTRANDO=false;
+function avisar(j,r){for(const L of r.nuevos)COLA.push({e:L.e,t:'Logro: '+L.n,s:L.d});for(const x of r.cumplidos)COLA.push({e:'🎯',t:'Reto cumplido',s:`${x.txt} · +${x.xp} XP`});if(!MOSTRANDO)siguiente();}
+function siguiente(){const a=COLA.shift();if(!a){MOSTRANDO=false;return;}MOSTRANDO=true;css();
+  if(!document.body){MOSTRANDO=false;return;}
+  const el=document.createElement('div');el.className='lg-aviso';el.setAttribute('role','status');el.innerHTML=`<i>${a.e}</i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span>`;
+  document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
+  setTimeout(()=>{el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);},3400);}
+
+/* ── Apariencias ── */
+function nivel(j){try{const R=window.RANGOS;return R?R.levelInfo(R.xp(j)).lv:1;}catch(_){return 1;}}
+function libre(j,op,o){if(!op.lv&&!op.logro)return true;if(op.logro)return tiene(o,j,op.logro);return nivel(j)>=op.lv;}
+function apariencia(j,tipo){const A=D[j]&&D[j].ap[tipo];if(!A)return '';const o=load(),id=(o.ap[j]||{})[tipo],op=A.op.find(x=>x.id===id);return op&&libre(j,op,o)?op.id:A.op[0].id;}
+function elegir(j,tipo,id){const A=D[j]&&D[j].ap[tipo];if(!A)return false;const o=load(),op=A.op.find(x=>x.id===id);if(!op||!libre(j,op,o))return false;
+  (o.ap[j]=o.ap[j]||{})[tipo]=id;save(o);aplicar(j);return true;}
+function aplicar(j){const G=D[j];if(!G)return;css();
+  let st=document.getElementById('lg-ap-'+j);
+  if(!st){let txt='';for(const [tipo,A] of Object.entries(G.ap))for(const op of A.op.slice(1))txt+=A.css(op,`html[data-lg-${tipo}="${op.id}"]`)+'\n';
+    st=document.createElement('style');st.id='lg-ap-'+j;st.textContent=txt;(document.head||document.documentElement).appendChild(st);}
+  for(const tipo of Object.keys(G.ap)){const id=apariencia(j,tipo),A=G.ap[tipo];if(id===A.op[0].id)document.documentElement.removeAttribute('data-lg-'+tipo);else document.documentElement.setAttribute('data-lg-'+tipo,id);}
+}
+
+/* ── Panel ── */
+function diasHastaLunes(){const w=lunesAR(),next=Date.parse(w+'T03:00:00Z')+7*864e5,ms=next-Date.now(),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/3600e3);return d>=1?`${d} ${d===1?'día':'días'}`:`${Math.max(1,h)} ${h===1?'hora':'horas'}`;}
+function panelHtml(j){const G=D[j];if(!G)return '';css();const o=load(),c=o.c[j]||{},rs=retos(j),tot=G.logros.length,got=G.logros.filter(L=>tiene(o,j,L.id)).length;
+  const retH=rs.length?`<section class="lg-sec"><h3>Retos de la semana</h3><p class="lg-lead">Los mismos para todos. Se renuevan el lunes: faltan ${diasHastaLunes()}.</p>
+    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y ${fmt(Math.min(1000,r.xp*2))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
+  const logH=`<section class="lg-sec"><h3>Logros <small>${got} de ${tot}</small></h3><div class="lg-list">${G.logros.map(L=>{const on=tiene(o,j,L.id),m=L.m||1,v=Math.min(m,c[L.k]||0);
+    return `<div class="lg-l${on?' on':''}"><i>${L.e}</i><div><b>${esc(L.n)}</b><small>${esc(L.d)}</small>${!on&&m>1?`<div class="lg-bar"><i style="width:${(v/m*100).toFixed(1)}%"></i></div><small>${fmt(v)} de ${fmt(m)}</small>`:''}</div>${on?'<em>✓</em>':''}</div>`;}).join('')}</div></section>`;
+  const tipos=Object.entries(G.ap);
+  const apH=tipos.length?`<section class="lg-sec"><h3>Apariencias</h3><p class="lg-lead">Se destraban subiendo de nivel en ${esc(G.n)} (vas por el ${nivel(j)}) o con logros.</p>
+    ${tipos.map(([tipo,A])=>{const cur=apariencia(j,tipo);return `<h4>${esc(A.n)}</h4><div class="lg-aps">${A.op.map(op=>{const ok=libre(j,op,o),req=op.logro?`Logro: ${(G.logros.find(L=>L.id===op.logro)||{}).n||''}`:op.lv?`Nivel ${op.lv}`:'';
+      return `<button type="button" class="lg-ap${cur===op.id?' on':''}" data-lg-tipo="${tipo}" data-lg-id="${op.id}" ${ok?'':'disabled'} aria-pressed="${cur===op.id}"><span class="lg-sw" style="background:${op.sw}"></span><b>${esc(op.n)}</b><small>${cur===op.id?'Puesta':ok?'Elegir':'🔒 '+esc(req)}</small></button>`;}).join('')}</div>`;}).join('')}</section>`:'';
+  return `<div class="side-head"><button type="button" class="lg-back" id="lg-back" aria-label="Volver al menú">‹</button><h2>${rs.length?'Logros y retos':'Logros'}</h2><button class="side-x" id="lg-x" aria-label="Cerrar">✕</button></div><div class="lg-panel">${retH}${logH}${apH}</div>`;
+}
+function cablear(root,j,op={}){if(!root)return;
+  const b=root.querySelector('#lg-back');if(b)b.onclick=()=>{op.volver?op.volver():op.cerrar&&op.cerrar();};
+  const x=root.querySelector('#lg-x');if(x)x.onclick=()=>{op.cerrar?op.cerrar():(root.closest('.side')||{}).hidden=true;};
+  root.querySelectorAll('[data-lg-tipo]').forEach(el=>el.onclick=()=>{if(elegir(j,el.dataset.lgTipo,el.dataset.lgId)){const top=root.scrollTop;abrir(j,op);root.scrollTop=top;}});
+}
+function abrir(j,op={}){if(!op.side)return;op.side(panelHtml(j));const root=document.getElementById('side-panel');cablear(root,j,{...op,cerrar:op.cerrar||(()=>{const s=document.getElementById('side');if(s)s.hidden=true;})});}
+
+/* ── Para el menú de juegos y Mi cuenta ── */
+function contar(){const o=load(),out={};for(const j of ORDEN){if(OCULTOS.includes(j))continue;out[j]={tiene:D[j].logros.filter(L=>tiene(o,j,L.id)).length,total:D[j].logros.length};}return out;}
+function resumenHtml(){css();const C=contar(),o=load();
+  return `<div class="lg-res">${Object.entries(C).map(([j,x])=>{const rs=retos(j),h=rs.filter(r=>r.hecho).length;
+    return `<div class="lg-rr"><i>${D[j].e}</i><span><b>${esc(D[j].n)}</b><small>${x.tiene} de ${x.total} logros${rs.length?` · retos de la semana ${h}/${rs.length}`:''}</small></span><span class="lg-bar"><i style="width:${(x.tiene/x.total*100).toFixed(1)}%"></i></span></div>`;}).join('')}</div>`;}
+
+/* ── Cuenta: viaja dentro de RANGOS.exportData() ── */
+function exportData(){const o=load();return {g:o.g,c:o.c,s:{w:o.s.w,c:o.s.c,h:o.s.h},ap:o.ap,at:o.at||0};}
+// Une lo de la planilla con lo de acá. Devuelve {ch: cambió algo acá, falta: acá hay algo que la planilla no tiene}.
+function importData(d){
+  const res={ch:false,falta:false};if(!d||typeof d!=='object')return res;const o=load();
+  for(const [j,L] of Object.entries(d.g||{})){if(!D[j]||!L||typeof L!=='object')continue;o.g[j]=o.g[j]||{};
+    for(const [id,t] of Object.entries(L))if(Number.isFinite(t)&&(!o.g[j][id]||t<o.g[j][id])){if(!o.g[j][id])res.ch=true;o.g[j][id]=t;}}
+  for(const [j,L] of Object.entries(o.g))for(const id of Object.keys(L))if(!(d.g&&d.g[j]&&d.g[j][id]))res.falta=true;
+  for(const [j,C] of Object.entries(d.c||{})){if(!D[j]||!C||typeof C!=='object')continue;const c=cnt(o,j);for(const [k,v] of Object.entries(C))if(Number.isFinite(v)&&v>(c[k]||0)){c[k]=v;res.ch=true;}}
+  for(const [j,C] of Object.entries(o.c))for(const [k,v] of Object.entries(C))if(v>((d.c&&d.c[j]&&d.c[j][k])||0))res.falta=true;
+  const s=d.s;if(s&&s.w===o.s.w){for(const [j,C] of Object.entries(s.c||{})){if(!D[j])continue;const sc=(o.s.c[j]=o.s.c[j]||{});for(const [k,v] of Object.entries(C||{}))if(Number.isFinite(v)&&v>(sc[k]||0)){sc[k]=v;res.ch=true;}}
+    for(const [j,H] of Object.entries(s.h||{})){if(!D[j]||!Array.isArray(H))continue;const sh=(o.s.h[j]=o.s.h[j]||[]);for(const id of H)if(!sh.includes(id)){sh.push(id);res.ch=true;}}}
+  // la apariencia: si acá no se eligió nada, la de la cuenta
+  for(const [j,A] of Object.entries(d.ap||{})){if(!D[j]||!A)continue;o.ap[j]=o.ap[j]||{};for(const [t,id] of Object.entries(A))if(!o.ap[j][t]&&typeof id==='string'){o.ap[j][t]=id;res.ch=true;}}
+  // Los retos que la planilla ya tenía cumplidos se marcan acá sin volver a dar el premio.
+  if(res.ch)save(o);
+  return res;
+}
+function ocultar(L){OCULTOS=Array.isArray(L)?L.slice():[];}
+
+/* ── Estilos (propios: se ven bien sobre los menús oscuros de todos los juegos) ── */
+const CSS=`.lg-panel{display:flex;flex-direction:column;gap:16px;font:500 13.5px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink,#eef1ea)}
+.side-head .lg-back{min-width:40px;height:40px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.04);color:inherit;font-size:22px;line-height:1;margin-right:8px}
+.side-head .lg-back+h2{flex:1}
+.lg-sec h3{margin:0 0 6px;font:700 16px/1.25 system-ui,-apple-system,sans-serif;display:flex;align-items:baseline;gap:8px}.lg-sec h3 small{font-weight:600;font-size:12.5px;opacity:.7}
+.lg-sec h4{margin:12px 0 6px;font:700 13.5px/1.2 system-ui,-apple-system,sans-serif;opacity:.9}
+.lg-lead{margin:0 0 8px;font-size:12.5px;opacity:.72}
+.lg-reto{padding:10px 12px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.035);margin-bottom:8px}
+.lg-reto.ok{border-color:rgba(120,210,150,.55);background:rgba(87,212,155,.08)}
+.lg-rt{display:flex;flex-direction:column;gap:2px;margin-bottom:7px}.lg-rt b{font-size:14px}.lg-rt small{font-size:12px;opacity:.75}
+.lg-bar{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}.lg-bar>i{display:block;height:100%;background:#f2c14e;border-radius:3px}
+.lg-reto.ok .lg-bar>i{background:#57d49b}
+.lg-list{display:flex;flex-direction:column;gap:6px}
+.lg-l{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.025)}
+.lg-l>i{font-style:normal;font-size:20px;line-height:1.2;width:26px;text-align:center;flex:none;filter:grayscale(1);opacity:.45}
+.lg-l>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.lg-l b{font-size:13.5px}.lg-l small{font-size:12px;opacity:.72}
+.lg-l .lg-bar{margin-top:3px}.lg-l>em{font-style:normal;color:#57d49b;font-weight:800;font-size:15px;flex:none}
+.lg-l.on{border-color:rgba(242,193,78,.45);background:rgba(242,193,78,.07)}.lg-l.on>i{filter:none;opacity:1}
+.lg-aps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lg-ap{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:9px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.035);color:inherit;font:inherit;text-align:left;min-height:84px;cursor:pointer}
+.lg-ap b{font-size:13px;line-height:1.2}.lg-ap small{font-size:11.5px;opacity:.75}
+.lg-ap.on{border-color:#f2c14e;box-shadow:inset 0 0 0 1px #f2c14e}
+.lg-ap:disabled{cursor:default;opacity:.55}.lg-ap:disabled .lg-sw{filter:saturate(.4)}
+.lg-sw{display:block;width:100%;height:24px;border-radius:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.lg-aviso{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:40;transform:translate(-50%,-14px);opacity:0;transition:transform .24s ease,opacity .24s ease;
+  display:flex;align-items:center;gap:10px;max-width:min(360px,calc(100vw - 24px));padding:9px 14px 9px 10px;border-radius:14px;background:rgba(18,20,24,.94);border:1px solid rgba(242,193,78,.6);
+  box-shadow:0 10px 28px rgba(0,0,0,.45);color:#f4f1e8;font:500 13px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;pointer-events:none}
+.lg-aviso.on{transform:translate(-50%,0);opacity:1}
+.lg-aviso>i{font-style:normal;font-size:22px;flex:none}.lg-aviso span{display:flex;flex-direction:column;min-width:0}.lg-aviso b{font-size:13.5px}.lg-aviso small{opacity:.78;font-size:12px}
+.lg-fin{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:6px 0 2px}.lg-fin>small{flex-basis:100%;text-align:center;font-size:12px;opacity:.75}
+.lg-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 7px;border-radius:999px;background:rgba(242,193,78,.16);border:1px solid rgba(190,145,40,.55);font:700 12.5px/1.25 system-ui,-apple-system,sans-serif}
+.lg-chip i{font-style:normal}.lg-chip.reto{background:rgba(87,212,155,.14);border-color:rgba(60,160,110,.55)}
+.lg-res{display:flex;flex-direction:column;gap:8px}
+.lg-rr{display:grid;grid-template-columns:26px 1fr 64px;align-items:center;gap:8px}.lg-rr>i{font-style:normal;font-size:19px;text-align:center}.lg-rr span{display:flex;flex-direction:column;min-width:0}
+.lg-rr b{font-size:13.5px}.lg-rr small{font-size:12px;opacity:.72}
+@media (prefers-reduced-motion:reduce){.lg-aviso{transition:none}}`;
+function css(){if(document.getElementById('lg-css'))return;const s=document.createElement('style');s.id='lg-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
+
+window.LOGROS={D,evento,marca,fin,abrir,panelHtml,cablear,aplicar,apariencia,elegir,retos,contar,resumenHtml,exportData,importData,ocultar,css,lunesAR,_retosDe:retosDe};
 })();
 
 </script>
@@ -842,15 +1206,28 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:60,grande:true,titulo:'Novedades',items:[
+    ['🏅','Logros en todos los juegos: TrucAR, UnoAR, PoblAR, EstanciAR y La Gran Pampa. Y BloqueAR suma muchas medallas nuevas.'],
+    ['🎯','Retos de la semana: 3 por juego, los mismos para todos. Cambian el lunes y dan XP y pesos para tu estancia.'],
+    ['🎨','Apariencias para destrabar: paños y dorsos en TrucAR y UnoAR, el mar de PoblAR y bloques nuevos en BloqueAR.'],
+    ['🏆','Tablas de cada juego (☰ › Tablas): quién va primero en rango, en nivel y en logros.'],
+    ['🎴','UnoAR: el «¡UNO!» se canta sólo cuando de verdad podés quedarte con una carta.']]},
+  {v:59,grande:true,titulo:'Novedades',items:[
+    ['🏘️','PoblAR de a 2, 3 o 4: contra la compu o en línea, con una mesa donde invitás a varios amigos (los lugares vacíos los juega la compu). Con 3 o 4 se juega a 10 puntos.'],
+    ['🤠','Con varios jugadores, cuando sale 7 cada uno elige qué descartar, y el cuatrero te deja elegir a quién robarle.'],
+    ['👆','PoblAR responde mejor al tacto: los botones ya no quedan corridos y no se hace zoom solo.']]},
   // todos: el resumen completo; lo ven todos (también los que recién llegan o todavía no se crearon la cuenta).
   {v:58,grande:true,todos:true,titulo:'Todo lo que hay',items:[
-    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa.'],
-    ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords y llevás tu progreso a otro celular.'],
+    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
+    ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords, entrás a La Gran Pampa y llevás tu progreso a otro celular.'],
     ['💬','Chat con tus amigos (el botón 💬 de arriba): ahora alcanza con la cuenta, ya no hace falta ingresar el PIN.'],
-    ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar. Y la tabla de récords tiene su propio lugar (☰ › Ver tabla).'],
-    ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir.'],
-            ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
-    ['🏘️','PoblAR: el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
+    ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar.'],
+    ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir. Cada juego tiene logros, 3 retos por semana y apariencias para destrabar.'],
+    ['🏆','Tablas de cada juego (☰ › Tablas): mirá quién va primero en rango, nivel y logros.'],
+    ['🚩','La Gran Pampa: cada lunes un mapa nuevo con los que se suman (lunes o martes). Lo que ganás en partidas ranked te da leguas para crecer.'],
+    ['🐎','EstanciAR: sembrá, criá animales, poné tapias y salí de malón (ahora se ven a ×2 y te llevás lo que estaba listo).'],
+    ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
+    ['🏘️','PoblAR: ahora de a 2, 3 o 4, contra la compu o en línea con amigos. Y el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
     ['📱','Anda mejor en el celular: menos memoria, gráficos livianos de entrada y el sonido se pausa cuando salís del juego.']]},
   {v:57,grande:true,titulo:'Novedades',items:[
     ['⚔️','Versus más parejo: las líneas que te mandan tardan unos segundos en entrar (la barra se pone naranja) y las podés atajar haciendo líneas. Cuatro líneas mandan 3.'],
@@ -859,12 +1236,15 @@ const LISTA=[
     ['🖥️','BloqueAR arranca con gráficos livianos (anda mejor en el celular). Se cambian en Ajustes › Gráficos.'],
     ['🎵','En línea suena Techno oscuro.'],
     ['🃏','TrucAR: al terminar la mano ya no se ven las cartas que el otro no tiró.'],
-            ['🏘️','PoblAR: siempre se ve quién tiene el camino más largo y la tropilla. Y si te roban, te llevan un recurso o te descartan con un 7, te sale un aviso que explica qué pasó.']]},
+    ['🐎','EstanciAR: los malones se pueden ver a ×2, hay tapias para defender la estancia y en un malón también te llevás lo que estaba listo para juntar.'],
+    ['🚩','La Gran Pampa: malones parejos. Tu estancia defiende al menos como una del nivel del que ataca, y si te sacan un paraje con un malón lo podés recuperar con un relámpago (gratis una vez por semana).'],
+    ['🏘️','PoblAR: siempre se ve quién tiene el camino más largo y la tropilla. Y si te roban, te llevan un recurso o te descartan con un 7, te sale un aviso que explica qué pasó.']]},
   {v:56,grande:true,titulo:'Novedades',items:[
     ['📱','Arreglamos una pérdida de memoria de la música que crecía en partidas largas y duelos. Probablemente era lo que reiniciaba el juego con la pantalla en blanco: si te vuelve a pasar, avisanos.'],
     ['👥','Nuevo botón «Gente» en el menú de juegos: ves a todos, su perfil, les escribís o los invitás a jugar. Desde ahí también está la tabla.'],
     ['👤','«Mi cuenta» tiene su propio lugar: tu avatar, tu nivel y el rango de cada juego, sin abrir BloqueAR.'],
-        ['🔁','Revancha en línea (PoblAR y TrucAR): arranca cuando los dos dicen que sí.'],
+    ['🚩','La Gran Pampa: ahora te sumás a la semana (lunes o martes) y el mapa se arma según cuántos se suman. Las leguas salen sólo de partidas ranked.'],
+    ['🔁','Revancha en línea (PoblAR y TrucAR): arranca cuando los dos dicen que sí.'],
     ['🎮','Al aceptar una invitación entrás directo a la partida, estés donde estés.'],
     ['🃏','TrucAR: al cerrar las reglas te ofrece empezar una partida.'],
     ['🎓','El tutorial de BloqueAR enseña a bajar la pieza más rápido.']]},
@@ -874,7 +1254,8 @@ const LISTA=[
     ['🧱','Retos de BloqueAR: si te arrepentís, tocá «No, jugar normal» y jugás sin el reto.'],
     ['🃏','TrucAR: la mesa se acomoda a cada pantalla y las cartas ya no se salen del paño.'],
     ['🎮','El botón para volver a los juegos ahora dice «Juegos».'],
-        ['📱','Si BloqueAR se cierra de golpe en tu celular, al volver pasa solo a gráficos livianos.']]},
+    ['🗺️','La Gran Pampa: las fichas de arriba (leguas, puesto y reloj) ya entran en los celulares chicos.'],
+    ['📱','Si BloqueAR se cierra de golpe en tu celular, al volver pasa solo a gráficos livianos.']]},
 ];
 const K='bloques-novedades';
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}}};
@@ -914,7 +1295,7 @@ function items(ns){return ns[0].todos?ns[0].items:ns.flatMap(n=>n.items).slice(0
 function sinCuenta(){try{const a=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');return !(a&&a.usuario);}catch(_){return false;}}
 function abrir(ns,alCerrar){
   css();const w=document.createElement('div');w.className='nv-scrim';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','nv-t');
-  const v=ns[0].v;
+  const v=ns[0].todos?ULT:ns[0].v;
   w.innerHTML=`<div class="nv-card"><h2 id="nv-t">${esc(ns[0].titulo||'Novedades')}</h2><p class="nv-v">${ns[0].todos?`Versión ${v}: lo nuevo y todo lo que ya había`:`Versión ${v}${ns.length>1?(ns.length===2?' y la anterior':` y las ${ns.length-1} anteriores`):''}`}</p><ul>${items(ns).map(([e,t])=>`<li><i aria-hidden="true">${e}</i><span>${esc(t)}</span></li>`).join('')}</ul><div class="nv-pie">${ns[0].todos&&sinCuenta()?'<button type="button" id="nv-cta">Crear mi cuenta</button><button type="button" id="nv-ok" class="nv-alt">Ahora no</button>':'<button type="button" id="nv-ok">Dale</button>'}</div></div>`;
   const cerrar=()=>{w.remove();document.removeEventListener('keydown',tecla,true);alCerrar&&alCerrar();};
   const tecla=e=>{if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();e.stopPropagation();cerrar();}};
@@ -944,7 +1325,6 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
 })();
 
 </script>
-<style id="sin-estancia">.hub-game[data-game=estancia],.hub-game[data-game=pampa],.hub-campo-h,.hub-campo,a[href^="estancia.html"],a[href^="pampa.html"],[data-g=estancia],[data-pick=estancia]{display:none!important}</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -1008,7 +1388,15 @@ const AI={facil:{top:10,miss:0,miss7:1,rob:-1,buy:0,cap:1,calm:1},normal:{top:5,
 const ai=()=>AI[G&&G.diff]||AI.normal;
 const pickTop=k=>{if(k<=1)return 0;if(k===3){const r=Math.random();return r<.5?0:r<.8?1:2;}return Math.floor(Math.random()*k);};// k=-1: cualquiera
 const LIMIT={road:15,ranch:5,town:4};
-const GOAL=8;
+const GOAL=8;// de a 2 se juega a 8; de a 3 o 4, a 10
+const NP=()=>G?G.p.length:2,seats=()=>G.p.map((_,i)=>i),others=p=>seats().filter(q=>q!==p);
+const goal=()=>NP()>2?10:GOAL;
+const jugadores=(online=false)=>{try{const n=Number(localStorage.getItem(online?'poblar-jugadores-online':'poblar-jugadores'));return n>=2&&n<=4?n:2;}catch(_){return 2;}};
+const BOTN=['','Compu roja','Compu naranja','Compu violeta'];
+// El rival que va ganando (para la compu: a quién frenar)
+function lead(p){let b=null;for(const q of others(p))if(b===null||vp(q)*3+cards(q)>vp(b)*3+cards(b))b=q;return b;}
+// Cuántas cartas tiene que descartar cada uno con un 7 (las partidas guardadas viejas sólo tenían discardN, el tuyo)
+const dn=p=>G.disc?(G.disc[p]||0):(p===0&&G.phase==='discard'?G.discardN||0:0);
 const SAVE='poblar-partida-v2';
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1049,16 +1437,20 @@ function buildBoard(seed){
 
 /* ── Estado de la partida ── */
 let B=null,G=null;
-function newGame(seed=(Math.random()*2**32)>>>0){
+function newGame(seed=(Math.random()*2**32)>>>0,opt={}){
   B=buildBoard(seed);
-  const first=Math.random()<.5?0:1;
+  const n=Math.max(2,Math.min(4,opt.n||jugadores())),first=Math.floor(Math.random()*n),order=Array.from({length:n},(_,i)=>(first+i)%n);
+  const hum=opt.humans||[];// nombres de los otros jugadores de verdad (en línea), en los asientos 1, 2…
+  const pl=i=>i===0?{name:'Vos',bot:AUTO,hand:hand0(),ranch:0,town:0,road:0,dev:[],gauchos:0}:{name:hum[i-1]||(n===2?'La compu':(opt.botName||(k=>BOTN[k]))(i)),bot:!hum[i-1],hand:hand0(),ranch:0,town:0,road:0,dev:[],gauchos:0};
   const deck=shuffle([...Array(14).fill('gaucho'),...Array(5).fill('procer'),'obra','obra','cosecha','cosecha','acopio','acopio'],Math.random);
   G={seed,v:2,deck,turnNo:0,devUsed:false,free:0,after:null,army:null,offers:0,diff:(()=>{try{return localStorage.getItem('poblar-dificultad')||'normal';}catch(_){return 'normal';}})(),owner:B.verts.map(()=>null),town:B.verts.map(()=>false),road:B.edges.map(()=>null),
     robber:B.hexes.findIndex(h=>h.res==='salitral'),
-    p:[{name:'Vos',bot:AUTO,hand:hand0(),ranch:0,town:0,road:0,dev:[],gauchos:0},{name:'La compu',bot:true,hand:hand0(),ranch:0,town:0,road:0,dev:[],gauchos:0}],
-    longest:null,longLen:[0,0],turn:first,first,setup:[first,1-first,1-first,first],setupStep:0,setupPhase:'ranch',lastRanch:null,
+    p:order.map((_,i)=>pl(i)),
+    // Armado en serpiente: 1-2-3-4 y de vuelta 4-3-2-1 (de a 2 queda como siempre: A B B A)
+    longest:null,longLen:Array(n).fill(0),turn:first,first,setup:[...order,...order.slice().reverse()],setupStep:0,setupPhase:'ranch',lastRanch:null,
     phase:'setup',dice:null,winner:null,log:[],rolls:0};
-  addLog(`Empieza ${first===0?'vos':G.p[1].name}.`);
+  addLog(`Empieza ${first===0?'vos':G.p[first].name}.`);
+  if(opt.quiet)return;
   save();render();next();
 }
 function hand0(){return {madera:0,ladrillo:0,lana:0,trigo:0,mineral:0};}
@@ -1069,7 +1461,7 @@ const vp=p=>shown(p)+hidden(p);
 const can=(p,what)=>Object.entries(COST[what]).every(([r,n])=>G.p[p].hand[r]>=n);
 function pay(p,what){for(const [r,n] of Object.entries(COST[what]))G.p[p].hand[r]-=n;}
 function addLog(t){G.log.push(t);if(G.log.length>60)G.log.shift();renderLog();}
-function save(){if(ON&&ON.state==='on'){netSend({t:'state',G:flip(G)});return;}if(ON)return;try{localStorage.setItem(SAVE,JSON.stringify(G));}catch(_){}}
+function save(){if(ON&&ON.state==='on'){sendState();return;}if(ON)return;try{localStorage.setItem(SAVE,JSON.stringify(G));}catch(_){}}
 
 /* ── Reglas de dónde se puede construir ── */
 function freeSpot(v){return G.owner[v]===null&&B.verts[v].adj.every(a=>G.owner[a]===null);}
@@ -1098,13 +1490,19 @@ function longestRoad(p){
   return best;
 }
 function updateLongest(){
-  const L=[longestRoad(0),longestRoad(1)];G.longLen=L;const prev=G.longest;
-  if(G.longest===null){const c=[0,1].filter(p=>L[p]>=5);if(c.length===1||(c.length===2&&L[0]!==L[1]))G.longest=L[0]>L[1]?0:1;}
-  else{const o=1-G.longest;if(L[o]>L[G.longest]&&L[o]>=5)G.longest=o;else if(L[G.longest]<5)G.longest=L[o]>=5?o:null;}
-  if(G.longest!==prev&&G.longest!==null){addLog(`🛣️ ${who(G.longest)} ${G.longest===0?'tenés':'tiene'} el camino más largo (+2).`);banner(`🛣️ CAMINO MÁS LARGO · ${G.p[G.longest].name.toUpperCase()}`);}
+  const L=seats().map(longestRoad);G.longLen=L;const prev=G.longest,h=G.longest;
+  // Se lo lleva quien supera al que lo tiene; si el que lo tenía quedó por debajo de 5 (le cortaron el camino), el más largo de 5 o más, si es uno solo.
+  const top=c=>{if(!c.length)return null;const m=Math.max(...c.map(p=>L[p])),t=c.filter(p=>L[p]===m);return t.length===1?t[0]:undefined;};
+  if(h===null||L[h]<5){const t=top(seats().filter(p=>L[p]>=5));G.longest=t===undefined?null:t;}
+  else{const t=top(others(h).filter(p=>L[p]>L[h]));if(t!==null&&t!==undefined)G.longest=t;}
+  if(G.longest!==prev&&G.longest!==null){addLog(`🛣️ ${W(G.longest)} ${V(G.longest,'tenés','tiene')} el camino más largo (+2).`);banner(`🛣️ CAMINO MÁS LARGO · ${G.p[G.longest].name.toUpperCase()}`);}
 }
-const who=p=>p===0?'Vos':G.p[1].name;
-const rivalName=()=>G?G.p[1].name:'La compu';
+const who=p=>p===0?'Vos':G.p[p].name;
+// El otro: de a 2, el rival; de a más, el que está jugando (o el que ganó).
+const rivalName=()=>!G?'La compu':NP()===2?G.p[1].name:G.phase==='over'&&G.winner!=null&&G.winner!==0?G.p[G.winner].name:G.turn!==0?G.p[G.turn].name:'los demás';
+// El registro de lo que pasó viaja con la partida: en línea se escribe con nombres (si no, «Vos sacaste» le aparecía a los demás).
+const W=p=>p===0&&!ON?'Vos':nombreReal(p),V=(p,a,b)=>p===0&&!ON?a:b;
+const quien=p=>p===0?'vos':G.p[p].name==='La compu'?'la compu':G.p[p].name;
 
 /* ── Acciones ── */
 function place(p,kind,at){
@@ -1126,37 +1524,42 @@ function build(p,kind,at){
   if(G.phase==='setup'){
     if(G.setupPhase==='ranch'){place(p,'ranch',at);G.lastRanch=at;G.setupPhase='road';
       // Con el segundo rancho se cobran los recursos de alrededor.
-      if(G.setupStep>=2)for(const h of B.verts[at].hexes){const r=B.hexes[h].res;if(r!=='salitral'){G.p[p].hand[r]++;}}
+      if(G.setupStep>=NP())for(const h of B.verts[at].hexes){const r=B.hexes[h].res;if(r!=='salitral'){G.p[p].hand[r]++;}}
     }else{place(p,'road',at);G.setupStep++;G.setupPhase='ranch';G.lastRanch=null;
-      if(G.setupStep>=4){G.phase='roll';G.turn=G.first;addLog('¡Arranca la partida!');}else G.turn=G.setup[G.setupStep];}
+      if(G.setupStep>=2*NP()){G.phase='roll';G.turn=G.first;addLog('¡Arranca la partida!');}else G.turn=G.setup[G.setupStep];}
     save();render();next();return;
   }
   const free=kind==='road'&&G.free>0;
   if(free)G.free--;else pay(p,kind);place(p,kind,at);
-  addLog(`${who(p)} ${p===0?'construiste':'construyó'} ${kind==='road'?'un camino':kind==='ranch'?'un rancho':'un pueblo'}${free?' (gratis)':''}.`);
+  if(p===0)lgEv(kind==='road'?'tramos':kind==='ranch'?'ranchos':'pueblos');
+  addLog(`${W(p)} ${V(p,'construiste','construyó')} ${kind==='road'?'un camino':kind==='ranch'?'un rancho':'un pueblo'}${free?' (gratis)':''}.`);
   if(G.free>0&&(!roadSpots(p).length||G.p[p].road>=LIMIT.road))G.free=0;
   if(p===0&&G.free>0)mode='road';
   checkWin();save();render();
 }
-function checkWin(){for(const p of [0,1])if(vp(p)>=GOAL&&G.phase!=='over'){G.phase='over';G.winner=p;addLog(p===0?'🏆 ¡Ganaste!':`${G.p[1].name} ganó.`);save();render();setTimeout(showEnd,500);}}
+function checkWin(){for(const p of seats())if(vp(p)>=goal()&&G.phase!=='over'){G.phase='over';G.winner=p;addLog(p===0&&!ON?'🏆 ¡Ganaste!':`🏆 ${W(p)} ganó.`);save();render();setTimeout(showEnd,500);}}
 async function roll(){
   if(!G||G.phase!=='roll')return;
   const d=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],n=d[0]+d[1];G.dice=d;G.diceBy=G.turn;G.rolls++;
-  addLog(`${who(G.turn)} ${G.turn===0?'sacaste':'sacó'} ${n}.`);
+  addLog(`${W(G.turn)} ${V(G.turn,'sacaste','sacó')} ${n}.`);
   if(n===7){
-    G.phase='robber';G.after='main';
-    let rival='';
-    for(const p of [0,1]){const c=cards(p);
-      if(c<=7){if(p===1){rival=`${G.p[1].name} no descarta (tiene ${c})`;addLog(`${G.p[1].name} tiene ${c} cartas: no descarta.`);}continue;}
+    G.phase='robber';G.after='main';G.disc={};
+    let rival='';const parts=[];
+    for(const p of seats()){const c=cards(p);
+      if(c<=7){if(p!==0&&NP()===2){rival=`${G.p[p].name} no descarta (tiene ${c})`;addLog(`${G.p[p].name} tiene ${c} cartas: no descarta.`);}continue;}
       const lose=Math.floor(c/2);
-      if(G.p[p].bot||p!==0){const fue=discard(p,lose);if(p===1){rival=`${G.p[1].name} descarta ${lose} de ${c}`;addLog(`${G.p[1].name} tenía ${c} cartas y descartó ${lose}.`);aviso(1,'🎲','Salió 7: descartaste '+lose,`tenías ${c} cartas (más de 7) y se fue la mitad, de lo que más tenías: ${fue.map(r=>RI[r].e).join(' ')}. Para que no pase, gastá cartas antes de pasar de 7.`,{k:'siete',r:fue});}else addLog(`Tenías ${c} cartas y descartaste ${lose}.`);}
-      else{G.phase='discard';G.discardN=lose;}}
-    banner(`🤠 7 · ${rival.toUpperCase()}`);
-    if(G.phase==='discard'){save();render(true);openDiscard();return;}
+      // Elige quien juega de verdad en este aparato; los de otros celulares eligen en el suyo si su PoblAR ya sabe (si no, como antes, se descarta solo).
+      if(G.p[p].bot||(p!==0&&!remoteDisc())){const fue=discard(p,lose);
+        if(p!==0){rival=`${G.p[p].name} descarta ${lose} de ${c}`;parts.push(`${G.p[p].name} ${lose}`);addLog(`${G.p[p].name} tenía ${c} cartas y descartó ${lose}.`);aviso(p,'🎲','Salió 7: descartaste '+lose,`tenías ${c} cartas (más de 7) y se fue la mitad, de lo que más tenías: ${fue.map(r=>RI[r].e).join(' ')}. Para que no pase, gastá cartas antes de pasar de 7.`,{k:'siete',r:fue});}
+        else addLog(`Tenías ${c} cartas y descartaste ${lose}.`);}
+      else{G.disc[p]=lose;if(p!==0){rival=`${G.p[p].name} elige ${lose} para descartar`;parts.push(`${G.p[p].name} elige ${lose}`);}}}
+    if(Object.keys(G.disc).length){G.phase='discard';G.discardN=G.disc[0]||0;}
+    banner(`🤠 7 · ${(NP()===2?rival:parts.length?'descartan: '+parts.join(', '):'nadie más descarta').toUpperCase()}`);
+    if(G.phase==='discard'){save();render(true);if(dn(0)&&!G.p[0].bot)openDiscard();next();return;}
   }else{
-    const got=[hand0(),hand0()];
+    const got=seats().map(hand0);
     B.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;for(const v of h.v)if(G.owner[v]!==null){const k=G.town[v]?2:1;G.p[G.owner[v]].hand[h.res]+=k;got[G.owner[v]][h.res]+=k;}});
-    for(const p of [0,1]){const t=RES.filter(r=>got[p][r]).map(r=>`${got[p][r]}${RI[r].e}`).join(' ');if(t)addLog(`${who(p)} ${p===0?'recibís':'recibe'} ${t}`);}
+    for(const p of seats()){const t=RES.filter(r=>got[p][r]).map(r=>`${got[p][r]}${RI[r].e}`).join(' ');if(t)addLog(`${W(p)} ${V(p,'recibís','recibe')} ${t}`);}
     floatGains(n,got);
     G.phase='main';
   }
@@ -1164,10 +1567,24 @@ async function roll(){
 }
 // Descartar la mitad: se van las cartas de lo que más tenés.
 function discard(p,n){const h=G.p[p].hand,out=[];for(let i=0;i<n;i++){const r=RES.reduce((a,b)=>h[b]>h[a]?b:a);h[r]--;out.push(r);}return out;}
+// Lo que descartaría el juego por vos (sin tocar la mano): de lo que más tenés.
+function autoOut(p,n){const h={...G.p[p].hand},o=hand0();for(let i=0;i<n;i++){const r=RES.reduce((a,b)=>h[b]>h[a]?b:a);h[r]--;o[r]++;}return o;}
+// ¿Este aparato maneja el turno? (el tuyo, o el de una compu si no estás en línea o si armaste la partida)
+const isAuth=()=>G.turn===0||(G.p[G.turn].bot&&(!ON||ON.role==='host'));
+// Descarte elegido por el jugador p (lo aplica quien maneja el turno).
+function applyDisc(p,out){
+  if(!G||G.phase!=='discard'||!dn(p))return false;const k=dn(p),t=RES.reduce((s,r)=>s+(out[r]||0),0);
+  if(t!==k||!RES.every(r=>(out[r]||0)>=0&&(out[r]||0)<=G.p[p].hand[r]))out=autoOut(p,k);
+  for(const r of RES)G.p[p].hand[r]-=out[r]||0;
+  if(!G.disc)G.disc={0:G.discardN};delete G.disc[p];if(p===0)G.discardN=0;
+  addLog(p===0&&!ON?`Descartaste ${k} cartas.`:`${W(p)} descartó ${k} cartas.`);
+  if(!Object.keys(G.disc).length){G.phase='robber';G.discardN=0;}
+  save();render();next();return true;
+}
 /* Avisos para el que «sufre» una jugada del otro (le roban, le descartan con un 7, le llevan todo un recurso):
    viajan con la partida, así en línea también le llegan al otro celular, y se muestran una sola vez. */
-function nombreReal(p){if(p===0){try{return ON?me().usuario:'Vos';}catch(_){return 'Vos';}}return G.p[1].name;}
-function aviso(para,e,t,txt,x){if(G.p[para].bot)return;G.avn=(G.avn||0)+1;G.avisos=(G.avisos||[]).slice(-5);G.avisos.push({n:G.avn,para,e,t,txt,...(x||{})});}
+function nombreReal(p){if(p===0){try{return ON?me().usuario:'Vos';}catch(_){return 'Vos';}}return G.p[p].name;}
+function aviso(para,e,t,txt,x){if(!G.p[para]||G.p[para].bot)return;G.avn=(G.avn||0)+1;G.avisos=(G.avisos||[]).slice(-5);G.avisos.push({n:G.avn,para,e,t,txt,...(x||{})});}
 const AVV={seed:null,n:0};
 // Se cuentan dentro del juego: la línea del relato, la carta jugada sobre el tablero y las cartas que vuelan.
 function mostrarAvisos(){
@@ -1177,9 +1594,9 @@ function mostrarAvisos(){
 }
 function contar(a){
   const delay=a.carta?1500:0;
-  if(a.carta)cartaGrande(a.carta,a.quien||G.p[1].name,1);
+  if(a.carta)cartaGrande(a.carta,a.quien||G.p[a.de??1]?.name||'',1);
   setTimeout(()=>{relato(a.e,a.t,a.txt);
-    if(a.r&&a.r.length){const destino=a.k==='siete'?$('dice-zone')||$('boardwrap'):$('pl1');a.r.forEach((r,i)=>setTimeout(()=>vuela(r,$('c-'+r),destino),i*140));}},delay);
+    if(a.r&&a.r.length){const destino=a.k==='siete'?$('dice-zone')||$('boardwrap'):$('pl'+(a.de??1))||$('pl1');a.r.forEach((r,i)=>setTimeout(()=>vuela(r,$('c-'+r),destino),i*140));}},delay);
 }
 let RELT=0;
 function relato(e,t,txt){const el=$('relato');if(!el)return;el.innerHTML=`<span class="ic">${e}</span><span><b>${escHtml(t)}</b>${txt?' · '+escHtml(txt):''}</span>`;el.hidden=false;el.classList.remove('nuevo');void el.offsetWidth;el.classList.add('nuevo');clearTimeout(RELT);RELT=setTimeout(()=>{el.hidden=true;},9000);}
@@ -1198,40 +1615,52 @@ function cartaGrande(k,quien,de){
   const el=document.createElement('div');el.className='devbig';el.innerHTML=`<div class="e">${d.e}</div><b>${escHtml(d.n)}</b><p>${escHtml(d.d)}</p><small>La jugó ${escHtml(quien)}</small>`;w.appendChild(el);
   setTimeout(()=>{el.classList.add('va');setTimeout(()=>el.remove(),520);},1500);
 }
-function moveRobber(p,hex){
+const victimsAt=(hex,p)=>[...new Set(B.hexes[hex].v.map(v=>G.owner[v]).filter(o=>o!==null&&o!==p))];
+// La compu le roba al que va ganando (y que tenga cartas).
+function botVictim(p,vs){return vs.slice().sort((a,b)=>(cards(b)?1:0)-(cards(a)?1:0)||vp(b)*3+cards(b)-(vp(a)*3+cards(a)))[0];}
+function moveRobber(p,hex,victim){
   if(!G||G.phase!=='robber'||G.turn!==p||hex===G.robber||!B.hexes[hex])return;
-  G.robber=hex;const victims=new Set(B.hexes[hex].v.map(v=>G.owner[v]).filter(o=>o!==null&&o!==p));
-  let txt=`${who(p)} ${p===0?'mandaste':'mandó'} al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()}`;
-  for(const o of victims){const pool=RES.flatMap(r=>Array(Math.max(0,G.p[o].hand[r])).fill(r));if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;txt+=p===0?` y le robaste ${RI[r].e}`:` y te robó ${RI[r].e}`;aviso(o,'🤠',`${nombreReal(p)} te robó 1 ${RI[r].e}`,`mandó al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()} y te sacó una carta al azar. Ese terreno no produce mientras el cuatrero esté ahí.`,{k:'robo',r:[r]});if(p===0)setTimeout(()=>vuela(r,$('pl1'),$('c-'+r)),60);
-    banner(p===0?`🤠 LE ROBASTE 1 ${RI[r].e} A ${G.p[1].name.toUpperCase()}`:`🤠 ${G.p[1].name.toUpperCase()} TE ROBÓ 1 ${RI[r].e}`);}
-    else txt+=p===0?' (no tenía cartas para robarle)':' (no tenías cartas)';}
+  if(p===0)lgEv('cuatrero');
+  G.robber=hex;const vs=victimsAt(hex,p),o=vs.length<=1?vs[0]:vs.includes(victim)?victim:botVictim(p,vs),two=NP()===2,on=o===undefined?'':G.p[o].name;
+  let txt=`${W(p)} ${V(p,'mandaste','mandó')} al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()}`;
+  if(o!==undefined){const pool=RES.flatMap(r=>Array(Math.max(0,G.p[o].hand[r])).fill(r));
+    if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;
+      txt+=ON?` y le robó una carta a ${W(o)}`:p===0?` y le robaste ${RI[r].e}${two?'':' a '+on}`:o===0?` y te robó ${RI[r].e}`:` y le robó una carta a ${on}`;
+      aviso(o,'🤠',`${nombreReal(p)} te robó 1 ${RI[r].e}`,`mandó al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()} y te sacó una carta al azar. Ese terreno no produce mientras el cuatrero esté ahí.`,{k:'robo',r:[r],de:p});
+      if(p===0)setTimeout(()=>vuela(r,$('pl'+o),$('c-'+r)),60);
+      banner(p===0?`🤠 LE ROBASTE 1 ${RI[r].e} A ${on.toUpperCase()}`:o===0?`🤠 ${G.p[p].name.toUpperCase()} TE ROBÓ 1 ${RI[r].e}`:`🤠 ${G.p[p].name.toUpperCase()} LE ROBÓ A ${on.toUpperCase()}`);}
+    else txt+=ON?` (${W(o)} no tenía cartas)`:p===0?' (no tenía cartas para robarle)':o===0?' (no tenías cartas)':` (${on} no tenía cartas)`;}
   addLog(txt+'.');G.byGaucho=false;G.phase=G.after||'main';G.after=null;checkWin();save();render();
 }
-function trade(p,give,get){if(!G||G.phase!=='main'||G.turn!==p||give===get)return false;const n=rate(p,give);if(G.p[p].hand[give]<n)return false;G.p[p].hand[give]-=n;G.p[p].hand[get]++;addLog(`${who(p)} ${p===0?'cambiaste':'cambió'} ${n}${RI[give].e} por 1${RI[get].e}.`);save();render();return true;}
-function endTurn(){if(G.phase!=='main')return;G.free=0;G.turn=1-G.turn;G.turnNo++;G.devUsed=false;G.offers=0;G.phase='roll';G.dice=null;mode=null;save();render();next();}
+function trade(p,give,get){if(!G||G.phase!=='main'||G.turn!==p||give===get)return false;const n=rate(p,give);if(G.p[p].hand[give]<n)return false;if(p===0)lgEv('cambios');G.p[p].hand[give]-=n;G.p[p].hand[get]++;addLog(`${W(p)} ${V(p,'cambiaste','cambió')} ${n}${RI[give].e} por 1${RI[get].e}.`);save();render();return true;}
+function endTurn(){if(G.phase!=='main')return;G.free=0;G.turn=(G.turn+1)%NP();G.turnNo++;G.devUsed=false;G.offers=0;G.phase='roll';G.dice=null;mode=null;save();render();next();}
 /* ── Cartas de desarrollo ── */
 function buyDev(p){
   if(!G||G.phase!=='main'||G.turn!==p||!can(p,'dev')||!G.deck.length)return false;pay(p,'dev');const k=G.deck.pop();G.p[p].dev.push({k,t:G.turnNo});
-  addLog(`${who(p)} ${p===0?`compraste una carta: ${DEV[k].e} ${DEV[k].n}`:'compró una carta'}.`);checkWin();save();render();return true;
+  addLog(`${W(p)} ${p===0&&!ON?`compraste una carta: ${DEV[k].e} ${DEV[k].n}`:'compró una carta'}.`);checkWin();save();render();return true;
 }
 const playable=(p,c)=>c.k!=='procer'&&c.t<G.turnNo&&!G.devUsed&&G.turn===p&&(c.k==='gaucho'?['roll','main'].includes(G.phase):G.phase==='main');
 function playDev(p,i,arg){
   const c=G.p[p].dev[i];if(!c||!playable(p,c))return false;
-  G.p[p].dev.splice(i,1);G.devUsed=true;const o=1-p;
-  addLog(`${who(p)} ${p===0?'jugaste':'jugó'} ${DEV[c.k].e} ${DEV[c.k].n}.`);
-  const fx=c.k==='gaucho'?'mueve al cuatrero':c.k==='obra'?'2 caminos gratis':c.k==='cosecha'?(Array.isArray(arg)?'toma '+arg.map(r=>RI[r].e).join(''):'2 recursos'):c.k==='acopio'&&RI[arg]?(p===0?'te llevás sus '+RI[arg].e:'se lleva tus '+RI[arg].e):'';
-  banner(`${DEV[c.k].e} ${p===0?'':G.p[1].name.toUpperCase()+' JUGÓ '}${DEV[c.k].n.toUpperCase()}${fx?' · '+fx.toUpperCase():''}`);
-  if(p===1&&!ON)cartaGrande(c.k,G.p[1].name,1);else if(c.k!=='acopio'&&c.k!=='gaucho')aviso(o,DEV[c.k].e,`${nombreReal(p)} jugó ${DEV[c.k].n}`,fx||'',{carta:c.k,quien:nombreReal(p)});else if(c.k==='gaucho')aviso(o,'🐎',`${nombreReal(p)} jugó Gaucho`,'mueve al cuatrero',{carta:'gaucho',quien:nombreReal(p)});
+  G.p[p].dev.splice(i,1);G.devUsed=true;if(p===0)lgEv('cartas');const o=NP()===2?1-p:null,os=others(p);
+  addLog(`${W(p)} ${V(p,'jugaste','jugó')} ${DEV[c.k].e} ${DEV[c.k].n}.`);
+  const fx=c.k==='gaucho'?'mueve al cuatrero':c.k==='obra'?'2 caminos gratis':c.k==='cosecha'?(Array.isArray(arg)?'toma '+arg.map(r=>RI[r].e).join(''):'2 recursos'):c.k==='acopio'&&RI[arg]?(NP()>2?(p===0?'te llevás todas las '+RI[arg].e:'se lleva todas las '+RI[arg].e):p===0?'te llevás sus '+RI[arg].e:'se lleva tus '+RI[arg].e):'';
+  banner(`${DEV[c.k].e} ${p===0?'':G.p[p].name.toUpperCase()+' JUGÓ '}${DEV[c.k].n.toUpperCase()}${fx?' · '+fx.toUpperCase():''}`);
+  if(p!==0&&!ON)cartaGrande(c.k,G.p[p].name,1);else for(const q of os){if(c.k!=='acopio'&&c.k!=='gaucho')aviso(q,DEV[c.k].e,`${nombreReal(p)} jugó ${DEV[c.k].n}`,fx||'',{carta:c.k,quien:nombreReal(p),de:p});else if(c.k==='gaucho')aviso(q,'🐎',`${nombreReal(p)} jugó Gaucho`,'mueve al cuatrero',{carta:'gaucho',quien:nombreReal(p),de:p});}
   if(c.k==='gaucho'){G.p[p].gauchos++;updateArmy();G.after=G.phase;G.phase='robber';G.byGaucho=true;}
   else if(c.k==='obra'){G.free=Math.min(2,LIMIT.road-G.p[p].road);if(!roadSpots(p).length)G.free=0;if(p===0&&G.free)mode='road';}
-  else if(c.k==='cosecha'){for(const r of arg)G.p[p].hand[r]++;addLog(`${who(p)} ${p===0?'tomaste':'tomó'} ${arg.map(r=>RI[r].e).join('')}.`);}
-  else if(c.k==='acopio'){const n=G.p[o].hand[arg];G.p[o].hand[arg]=0;G.p[p].hand[arg]+=n;aviso(o,'🏚️',`${nombreReal(p)} se llevó tus ${RI[arg].e}`,n?`jugó Acopio, eligió ${RI[arg].n.toLowerCase()} y se llevó todas las tuyas: ${n}.`:`jugó Acopio y eligió ${RI[arg].n.toLowerCase()}, pero no tenías.`,{k:'acopio',r:Array(Math.min(n,6)).fill(arg),carta:'acopio',quien:nombreReal(p)});if(p===0&&n)for(let i=0;i<Math.min(n,6);i++)setTimeout(()=>vuela(arg,$('pl1'),$('c-'+arg)),i*140);addLog(`${who(p)} se ${p===0?'llevaste':'llevó'} ${n}${RI[arg].e} del rival.`);}
+  else if(c.k==='cosecha'){for(const r of arg)G.p[p].hand[r]++;addLog(`${W(p)} ${V(p,'tomaste','tomó')} ${arg.map(r=>RI[r].e).join('')}.`);}
+  else if(c.k==='acopio'){let tot=0;
+    for(const q of os){const n=G.p[q].hand[arg];G.p[q].hand[arg]=0;G.p[p].hand[arg]+=n;tot+=n;
+      aviso(q,'🏚️',`${nombreReal(p)} se llevó tus ${RI[arg].e}`,n?`jugó Acopio, eligió ${RI[arg].n.toLowerCase()} y se llevó todas las tuyas: ${n}.`:`jugó Acopio y eligió ${RI[arg].n.toLowerCase()}, pero no tenías.`,{k:'acopio',r:Array(Math.min(n,6)).fill(arg),carta:'acopio',quien:nombreReal(p),de:p});
+      if(p===0&&n)for(let i=0;i<Math.min(n,6);i++)setTimeout(()=>vuela(arg,$('pl'+q),$('c-'+arg)),i*140);}
+    addLog(`${W(p)} se ${V(p,'llevaste','llevó')} ${tot}${RI[arg].e} ${NP()===2?'del rival':'de los demás'}.`);}
   checkWin();save();render();return true;
 }
 function updateArmy(){
-  const g=[G.p[0].gauchos,G.p[1].gauchos],prev=G.army;
-  for(const p of [0,1])if(g[p]>=3&&g[p]>g[1-p]&&G.army!==p&&(G.army===null||g[p]>g[G.army]))G.army=p;
-  if(G.army!==prev){addLog(`🐎 ${who(G.army)} ${G.army===0?'tenés':'tiene'} la tropilla más grande (+2).`);banner(`🐎 TROPILLA MÁS GRANDE · ${G.p[G.army].name.toUpperCase()}`);}
+  const g=seats().map(p=>G.p[p].gauchos||0),prev=G.army;
+  for(const p of seats())if(g[p]>=3&&G.army!==p&&(G.army===null?others(p).every(q=>g[p]>g[q]):g[p]>g[G.army]))G.army=p;
+  if(G.army!==prev){addLog(`🐎 ${W(G.army)} ${V(G.army,'tenés','tiene')} la tropilla más grande (+2).`);banner(`🐎 TROPILLA MÁS GRANDE · ${G.p[G.army].name.toUpperCase()}`);}
 }
 /* ── Cambios con el rival ── */
 // Cuánto le sirve a la compu cada recurso según lo que le falta para construir.
@@ -1242,17 +1671,17 @@ function needValue(p){
   for(const r of RES)if(h[r]>=4)val[r]*=.6;
   return val;
 }
-function botAcceptsOffer(give,want){// give: lo que le das a la compu; want: lo que pedís
-  const b=1;for(const r of RES)if(G.p[b].hand[r]<want[r])return {ok:false,why:'No tengo esas cartas.'};
-  if(vp(0)>=GOAL-2)return {ok:false,why:'Estás muy cerca de ganar, no te ayudo 😏'};
+function botAcceptsOffer(give,want,b=1){// give: lo que le das a la compu; want: lo que pedís; b: qué compu
+for(const r of RES)if(G.p[b].hand[r]<want[r])return {ok:false,why:'No tengo esas cartas.'};
+  if(vp(0)>=goal()-2)return {ok:false,why:'Estás muy cerca de ganar, no te ayudo 😏'};
   const nIn=RES.reduce((s,r)=>s+give[r],0),nOut=RES.reduce((s,r)=>s+want[r],0);
   if(nOut>nIn+(G.diff==='facil'?1:0))return {ok:false,why:`¿${nOut} por ${nIn}? ¡Ni loco! 😂`};
   const v=needValue(b),inV=RES.reduce((s,r)=>s+v[r]*give[r],0),outV=RES.reduce((s,r)=>s+v[r]*want[r],0);
   const k={facil:.85,normal:1.1,dificil:1.35}[G.diff]||1.1;
   return inV>=outV*k?{ok:true}:{ok:false,why:'Mmm, no me conviene.'};
 }
-function swapCards(give,want){for(const r of RES){G.p[0].hand[r]-=give[r];G.p[1].hand[r]+=give[r];G.p[1].hand[r]-=want[r];G.p[0].hand[r]+=want[r];}
-  const t=o=>RES.filter(r=>o[r]).map(r=>`${o[r]}${RI[r].e}`).join(' ');addLog(`🤝 Cambio con ${G.p[1].bot?'la compu':G.p[1].name}: das ${t(give)} y recibís ${t(want)}.`);save();render();}
+function swapCards(give,want,t=1){lgEv('cambios');for(const r of RES){G.p[0].hand[r]-=give[r];G.p[t].hand[r]+=give[r];G.p[t].hand[r]-=want[r];G.p[0].hand[r]+=want[r];}
+  const f=o=>RES.filter(r=>o[r]).map(r=>`${o[r]}${RI[r].e}`).join(' ');addLog(ON?`🤝 ${W(0)} cambió con ${W(t)}: dio ${f(give)} y recibió ${f(want)}.`:`🤝 Cambio con ${quien(t)}: das ${f(give)} y recibís ${f(want)}.`);save();render();}
 
 /* ── Turno de la compu ── */
 function vertValue(p,v,setup=false){
@@ -1281,7 +1710,7 @@ function bestRoadToward(p){
 // la vieja se corta en la próxima espera y no toca nada más.
 let BOTTOK=0;const STOP={};
 async function botTurn(){
-  const g0=G,p=G.turn,o=1-p,tok=++BOTTOK;
+  const g0=G,p=G.turn,o=NP()===2?1-p:lead(p),tok=++BOTTOK;
   const alive=()=>G===g0&&BOTTOK===tok&&G.turn===p&&G.p[p].bot&&G.phase!=='over';
   const wait=async ms=>{await sleep(FAST?0:ms);if(!alive()){if(window.BOTDBG)console.log('STOP',G===g0,BOTTOK,tok,G.turn,p,G.p[p].bot,G.phase,new Error().stack.split('\n').slice(1,4).join('|'));throw STOP;}};
   try{await botPlay(p,o,wait,alive);}catch(e){if(e!==STOP)throw e;}
@@ -1306,11 +1735,11 @@ async function botPlay(p,o,wait,alive){
     let did=false;const room=built<cap;
     if(room&&can(p,'town')&&G.p[p].town<LIMIT.town){const val=v=>B.verts[v].hexes.reduce((s,h)=>s+(B.hexes[h].res==='salitral'?0:pips(B.hexes[h].num)),0);const t=townSpots(p).sort((a,b)=>val(b)-val(a));if(t.length){build(p,'town',t[0]);did=true;built++;}}
     if(room&&!did&&can(p,'ranch')&&G.p[p].ranch<LIMIT.ranch){const s=ranchSpots(p).sort((a,b)=>vertValue(p,b)-vertValue(p,a));if(s.length){build(p,'ranch',s[0]);did=true;built++;}}
-    if(room&&!did&&can(p,'road')&&G.p[p].road<LIMIT.road&&!(ranchSpots(p).length&&!can(p,'ranch')&&cards(p)>=3)){const e=bestRoadToward(p);const wantLong=G.longest!==p&&G.longLen[p]>=G.longLen[o]-1&&G.longLen[p]>=3;
+    if(room&&!did&&can(p,'road')&&G.p[p].road<LIMIT.road&&!(ranchSpots(p).length&&!can(p,'ranch')&&cards(p)>=3)){const e=bestRoadToward(p);const wantLong=G.longest!==p&&G.longLen[p]>=Math.max(...others(p).map(q=>G.longLen[q]||0))-1&&G.longLen[p]>=3;
       if(e!==null||wantLong){const e2=e!==null?e:roadSpots(p)[0];if(e2!==undefined){build(p,'road',e2);did=true;built++;}}}
     if(!did)did=botDev(p);
     if(G.phase==='robber'){await wait(500);await botRobber(p,o);did=true;}
-    if(!did&&G.offers<1&&G.p[o].bot===false&&G.diff!=='facil'){did=await botOffer(p,alive);if(!alive())throw STOP;}
+    if(!did&&G.offers<1&&p!==0&&!G.p[0].bot&&!ON&&G.diff!=='facil'){did=await botOffer(p,alive);if(!alive())throw STOP;}
     if(!did&&room)did=botTrade(p);
     if(G.phase==='over')return;
     if(!did)break;await wait(650);
@@ -1318,21 +1747,22 @@ async function botPlay(p,o,wait,alive){
   await wait(500);if(G.phase==='main')endTurn();
 }
 async function botRobber(p,o){
-  const opts=[];B.hexes.forEach((h,hi)=>{if(hi===G.robber)return;let s=0;for(const v of h.v){if(G.owner[v]===o)s+=pips(h.num)*(G.town[v]?2:1)+(cards(o)?.5:0);if(G.owner[v]===p)s-=pips(h.num)*2;}opts.push([s,hi]);});
-  opts.sort((a,b)=>b[0]-a[0]);const k=ai().rob,hit=opts.filter(x=>B.hexes[x[1]].v.some(v=>G.owner[v]===o));
+  // A todos los rivales, un poco más al que va ganando; nunca donde tiene ella.
+  const L=o??lead(p),opts=[];B.hexes.forEach((h,hi)=>{if(hi===G.robber)return;let s=0;for(const v of h.v){const q=G.owner[v];if(q===null)continue;if(q===p)s-=pips(h.num)*2;else s+=(pips(h.num)*(G.town[v]?2:1)+(cards(q)?.5:0))*(q===L?1:NP()>2?.6:1);}opts.push([s,hi]);});
+  opts.sort((a,b)=>b[0]-a[0]);const k=ai().rob,hit=opts.filter(x=>B.hexes[x[1]].v.some(v=>G.owner[v]!==null&&G.owner[v]!==p));
   const pick=k<0?opts[Math.floor(Math.random()*opts.length)]:k===0?(hit.length?hit[Math.floor(Math.random()*hit.length)]:opts[0]):opts[Math.min(opts.length-1,pickTop(k))];
-  moveRobber(p,pick[1]);
+  const vs=victimsAt(pick[1],p);moveRobber(p,pick[1],vs.length?botVictim(p,vs):undefined);
 }
 // Cartas: compra si le sobra para eso y juega las que le sirven.
 function botDev(p){
-  const D=G.p[p].dev,o=1-p;if(G.diff==='facil')return false;
+  const D=G.p[p].dev,os=others(p);if(G.diff==='facil')return false;
   if(!G.devUsed){
     let i=D.findIndex(c=>c.k==='obra'&&playable(p,c));if(i>=0&&roadSpots(p).length&&G.p[p].road<LIMIT.road-1){playDev(p,i);let n=0;while(G.free>0&&n++<2){const e=bestRoadToward(p)??roadSpots(p)[0];if(e===undefined||e===null)break;build(p,'road',e);}G.free=0;return true;}
     i=D.findIndex(c=>c.k==='cosecha'&&playable(p,c));if(i>=0){const v=needValue(p),pick=RES.slice().sort((a,b)=>v[b]-v[a]);if(v[pick[0]]>1.5){playDev(p,i,[pick[0],v[pick[1]]>1.5?pick[1]:pick[0]]);return true;}}
     i=D.findIndex(c=>c.k==='acopio'&&playable(p,c));if(i>=0){
-      const prod=r=>{let s=0;for(let v=0;v<B.verts.length;v++)if(G.owner[v]===o)for(const h of B.verts[v].hexes)if(B.hexes[h].res===r&&h!==G.robber)s+=pips(B.hexes[h].num)*(G.town[v]?2:1);return s;};
-      const r=G.diff==='dificil'?RES.slice().sort((a,b)=>G.p[o].hand[b]-G.p[o].hand[a])[0]:RES.slice().sort((a,b)=>prod(b)-prod(a))[0];
-      if(G.diff!=='dificil'?cards(o)>=4:G.p[o].hand[r]>=2){playDev(p,i,r);return true;}}
+      const prod=r=>{let s=0;for(let v=0;v<B.verts.length;v++)if(G.owner[v]!==null&&G.owner[v]!==p)for(const h of B.verts[v].hexes)if(B.hexes[h].res===r&&h!==G.robber)s+=pips(B.hexes[h].num)*(G.town[v]?2:1);return s;};
+      const tot=r=>os.reduce((s,q)=>s+G.p[q].hand[r],0),r=G.diff==='dificil'?RES.slice().sort((a,b)=>tot(b)-tot(a))[0]:RES.slice().sort((a,b)=>prod(b)-prod(a))[0];
+      if(G.diff!=='dificil'?os.reduce((s,q)=>s+cards(q),0)>=4:tot(r)>=2){playDev(p,i,r);return true;}}
     i=D.findIndex(c=>c.k==='gaucho'&&playable(p,c));if(i>=0&&(B.hexes[G.robber].v.some(v=>G.owner[v]===p)||(G.diff==='dificil'&&G.p[p].gauchos>=2&&G.army!==p))){playDev(p,i);return true;}
   }
   const nothingElse=!(can(p,'ranch')&&ranchSpots(p).length)&&!(can(p,'town')&&townSpots(p).length);
@@ -1341,15 +1771,15 @@ function botDev(p){
 }
 // Te ofrece un cambio 1 por 1 si le falta una sola carta para algo.
 async function botOffer(p,alive=()=>true){
-  const h=G.p[p].hand,o=1-p,goals=[];if(townSpots(p).length&&G.p[p].town<LIMIT.town)goals.push('town');if(ranchSpots(p).length&&G.p[p].ranch<LIMIT.ranch)goals.push('ranch');
+  const h=G.p[p].hand,o=0,goals=[];if(townSpots(p).length&&G.p[p].town<LIMIT.town)goals.push('town');if(ranchSpots(p).length&&G.p[p].ranch<LIMIT.ranch)goals.push('ranch');
   for(const g of goals){const need=RES.filter(r=>(COST[g][r]||0)>h[r]);const miss=need.reduce((s,r)=>s+(COST[g][r]-h[r]),0);if(miss!==1)continue;
     const want=need[0];if(!G.p[o].hand[want])continue;
     const spare=RES.filter(r=>r!==want&&h[r]-(COST[g][r]||0)>=1).sort((a,b)=>h[b]-h[a]);if(!spare.length)continue;
     G.offers++;const give=spare[0];
-    const yes=await askOffer(give,want,'La compu',g);
+    const yes=await askOffer(give,want,G.p[p].name,g);
     if(!alive())return false;
-    if(yes){const gv=hand0(),wv=hand0();gv[want]=1;wv[give]=1;swapCards(gv,wv);return true;}
-    addLog('No aceptaste el cambio de la compu.');return false;}
+    if(yes){const gv=hand0(),wv=hand0();gv[want]=1;wv[give]=1;swapCards(gv,wv,p);return true;}
+    addLog(`No aceptaste el cambio de ${quien(p)}.`);return false;}
   return false;
 }
 // Cambia con el banco si le falta una sola carta para construir algo.
@@ -1370,8 +1800,11 @@ function botTrade(p){
 let mode=null;// 'road' | 'ranch' | 'town' | 'robber' | null
 function next(){
   if(!G||G.phase==='over')return;
-  if(G.turn===1&&!G.p[1].bot){mode=null;render();return;}// turno de tu amigo: llega por la conexión
-  if(G.p[G.turn].bot){mode=null;render();botTurn();return;}
+  if(G.phase==='discard'&&isAuth()){const b=others(0).filter(q=>G.p[q].bot&&dn(q));if(b.length){for(const q of b){const k=dn(q);discard(q,k);delete G.disc[q];addLog(`${G.p[q].name} descartó ${k} cartas.`);}if(!Object.keys(G.disc).length){G.phase='robber';G.discardN=0;}save();}}
+  // Con un 7, cada uno elige lo suyo: si te toca, se abre tu descarte (aunque no sea tu turno).
+  if(G.phase==='discard'&&dn(0)&&!G.p[0].bot&&DSENT!==discKey()&&!($('dc')&&!$('modal').hidden))openDiscard();
+  if(G.turn!==0&&!G.p[G.turn].bot){mode=null;render();return;}// turno de otro jugador de verdad: llega por la conexión
+  if(G.p[G.turn].bot){mode=null;render();if(!ON||ON.role==='host')botTurn();return;}// las compus las juega este aparato (o, en línea, el que armó la partida)
   if(G.phase==='setup')mode=G.setupPhase==='ranch'?'ranch':'road';
   else if(G.phase==='robber')mode='robber';else mode=null;
   render();
@@ -1387,9 +1820,18 @@ function targets(){
 }
 function onBoardTap(kind,i){
   if(G.turn!==0)return;
-  if(G.phase==='robber'&&kind==='h'){moveRobber(0,i);mode=G.free>0?'road':null;render();return;}
+  if(G.phase==='robber'&&kind==='h'){const vs=victimsAt(i,0);if(vs.length>1){pickVictim(i,vs);return;}moveRobber(0,i);mode=G.free>0?'road':null;render();return;}
   if(G.phase==='setup'){build(0,G.setupPhase,i);return;}
   if(mode&&(kind==='v'||kind==='e')){const m=mode;mode=null;build(0,m,i);}
+}
+
+// En un terreno con más de un rival, elegís a quién robarle.
+function pickVictim(hex,vs){
+  openModal(`<h2>🤠 ¿A quién le robás?</h2><p>En ${RI[B.hexes[hex].res].hex.toLowerCase()} hay ${vs.length} rivales. Elegí a quién sacarle una carta (sale al azar de su mano).</p>
+    <div class="vpick" id="vk">${vs.map(o=>`<button data-o="${o}" style="--pc:${PC[o]}"><i></i><b>${escHtml(G.p[o].name)}</b><small>${cards(o)} carta${cards(o)===1?'':'s'} · ${shown(o)} punto${shown(o)===1?'':'s'}</small></button>`).join('')}</div>
+    <div class="row"><button class="pill" id="vk-x">Elegir otro lugar</button></div>`);
+  $('vk').onclick=e=>{const b=e.target.closest('button[data-o]');if(!b)return;closeModal();if(G.phase!=='robber'||G.turn!==0)return;moveRobber(0,hex,Number(b.dataset.o));mode=G.free>0?'road':null;render();};
+  $('vk-x').onclick=closeModal;
 }
 
 /* ── Dibujo del tablero ──
@@ -1398,7 +1840,7 @@ function onBoardTap(kind,i){
    se arma una sola vez por tablero; en cada jugada sólo se redibujan las piezas. */
 const NS='http://www.w3.org/2000/svg';
 function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
-const PC=['#4fc3f7','#e5383b'],PCD=['#0d5f86','#7d1216'];
+const PC=['#4fc3f7','#e5383b','#f39c34','#a06ae0'],PCD=['#0d5f86','#7d1216','#8a4a08','#4b2580'];
 const TERR={
   madera:{base:'#2f7d43',dark:'#1d5230',pat:`<pattern id="p-madera" width="26" height="24" patternUnits="userSpaceOnUse"><path d="M7 19 l6-12 l6 12z" fill="#1c5a30"/><path d="M8.5 13 l4.5-8 l4.5 8z" fill="#2a8a45"/><rect x="12" y="19" width="2" height="3" fill="#5b3a1e"/></pattern>`},
   ladrillo:{base:'#c4602f',dark:'#7f3416',pat:`<pattern id="p-ladrillo" width="22" height="12" patternUnits="userSpaceOnUse"><path d="M0 0.75H22M0 6.75H22M5 0v6M16 6v6" stroke="#8c3a17" stroke-width="1.6" fill="none"/></pattern>`},
@@ -1518,16 +1960,39 @@ function handDelta(){
   if(ch){HD.t=now;HD.last={...h};clearTimeout(HD.timer);HD.timer=setTimeout(()=>{HD.d={};document.querySelectorAll('#hand .dl').forEach(e=>e.remove());document.querySelectorAll('#hand .got,#hand .lost').forEach(e=>e.classList.remove('got','lost'));},4000);}
   return now-HD.t<4000?HD.d:{};
 }
+// Color de cada uno en pantalla (vos, siempre celeste)
+const pcol=p=>p===0?'var(--me)':p===1?'var(--cpu)':PC[p];
+function ensurePanels(){
+  const n=NP(),sc=document.querySelector('.score');if(sc.dataset.n===String(n))return;sc.dataset.n=n;
+  sc.classList.toggle('multi',n>2);sc.style.setProperty('--np',n);sc.querySelectorAll('.pl').forEach(e=>e.remove());const bon=$('bonos');
+  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='pl';d.id='pl'+i;d.style.setProperty('--pc',pcol(i));
+    d.innerHTML=n>2?`<i></i><b id="pn${i}"></b><div class="vp" title="de ${goal()} puntos"><span id="vp${i}">0</span></div><small class="st" id="ps${i}"></small>`
+      :`<i></i><div><b id="pn${i}"></b><small id="ps${i}"></small></div><div class="vp"><span id="vp${i}">0</span><small>/${goal()}</small></div>`;
+    sc.insertBefore(d,bon);}
+}
+// Logros y retos (v60): cuenta lo que hago yo (en línea cada celular cuenta lo suyo: el que juega su turno es el que lo aplica).
+const LG=()=>window.LOGROS&&(!AUTO||window.LOGROS_TEST);
+function lgEv(k){if(!LG())return;try{LOGROS.evento('poblar',k,1);}catch(e){console.warn('logros',e);}}
+const LG_VISTO=new Set();
+function lgRender(){if(!LG()||!G)return;
+  for(const [k,v] of [['camino',G.longest],['tropilla',G.army]])if(v===0){const key=k+G.seed;if(LG_VISTO.has(key))continue;LG_VISTO.add(key);try{LOGROS.evento('poblar',k,1,key);}catch(_){}}}
+let LG_FIN=null;// el final se puede mostrar más de una vez: los logros se cuentan una sola, pero se siguen viendo
+function lgFin(){if(!LG()||!G||G.phase!=='over')return '';const amigo=!!ON&&G.p.some((x,i)=>i>0&&!x.bot),key='p'+G.seed+'-'+G.rolls+'-'+(G.p[1].name||'');
+  if(LG_FIN&&LG_FIN.key===key)return LG_FIN.html;
+  try{LG_FIN={key,html:LOGROS.fin('poblar',{gano:G.winner===0,modo:amigo?'online':'compu',dif:G.diff,n:NP()},key).html};return LG_FIN.html;}catch(e){console.warn('logros',e);return '';}}
 function render(rolled=false){
-  if(!G)return;drawBoard();fitBoard();try{mostrarAvisos();}catch(_){}try{soundDiff();}catch(_){}
-  $('pn1').textContent=G.p[1].name;$('pn0').textContent=G.p[0].name;
-  for(const p of [0,1]){$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(1);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
-    const bits=[`${cards(p)} cartas`];if(G.p[p].dev.length&&p===1)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(' · ');}
-  {const nom=p=>p===0?'Vos':G.p[1].name,col=p=>p===0?'var(--me)':'var(--cpu)',L=G.longLen||[0,0],Gc=[G.p[0].gauchos||0,G.p[1].gauchos||0];
+  if(!G)return;ensurePanels();drawBoard();fitBoard();try{mostrarAvisos();}catch(_){}try{soundDiff();}catch(_){}try{lgRender();}catch(_){}
+  const multi=NP()>2;
+  // De a 3 o 4 el panel es chico: «Compu roja» se ve como «Roja» (el color ya dice que es esa)
+  const corto=p=>multi?String(G.p[p].name).replace(/^Compu (\w)/,(_,c)=>c.toUpperCase()):G.p[p].name;
+  for(const p of seats()){$('pn'+p).textContent=corto(p);$('pl'+p).title=G.p[p].name;$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(p);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
+    $('pl'+p).classList.toggle('desc',G.phase==='discard'&&!!dn(p));
+    const bits=[multi?`🎴${cards(p)}`:`${cards(p)} cartas`];if(G.p[p].dev.length&&p!==0)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(multi?' ':' · ');}
+  {const nom=p=>p===0?'Vos':G.p[p].name,col=pcol,L=G.longLen||[],Gc=seats().map(p=>G.p[p].gauchos||0);
    const bono=(ic,tit,dueno,cuanto,falta)=>dueno!==null&&dueno!==undefined?`<div class="bono si" style="--pc:${col(dueno)}"><span>${ic}</span><span><b>${tit} +2</b><em>${escHtml(nom(dueno))}</em> · ${cuanto}</span></div>`:`<div class="bono"><span>${ic}</span><span><b>${tit}</b>Nadie · ${falta}</span></div>`;
    $('bonos').innerHTML=bono('🛣️','Camino más largo',G.longest,`${L[G.longest]||0} tramos`,'desde 5 tramos')+bono('🐎','Tropilla más grande',G.army,`${Gc[G.army]||0} gauchos`,'desde 3 gauchos');}
   const h=G.p[0].hand,dl=handDelta();$('hand').innerHTML=RES.map(r=>`<div class="card${h[r]?'':' zero'}${dl[r]>0?' got':dl[r]<0?' lost':''}" id="c-${r}"><span class="e">${RI[r].e}</span><span class="n">${h[r]}</span><span class="l">${RI[r].n}</span>${dl[r]?`<span class="dl">${dl[r]>0?'+':'−'}${Math.abs(dl[r])}</span>`:''}</div>`).join('');
-  const mine=G.turn===0&&G.phase==='main';
+  const mine=G.turn===0&&G.phase==='main';const wait=G.phase==='discard'?others(0).filter(q=>dn(q)):[];
   for(const [id,k] of [['b-road','road'],['b-ranch','ranch'],['b-town','town']]){const b=$(id);
     const spots=k==='road'?roadSpots(0):k==='ranch'?ranchSpots(0):townSpots(0);
     b.disabled=!(mine&&(can(0,k)||(k==='road'&&G.free>0))&&G.p[0][k]<LIMIT[k]&&spots.length);b.classList.toggle('sel',mode===k);}
@@ -1536,21 +2001,24 @@ function render(rolled=false){
   const main=$('b-main');
   // Al terminar, el botón espera un momento: así un toque apurado no arranca otra partida sin querer.
   if(G.phase==='over'){const k=G.seed+':'+G.rolls;if(OVER.k!==k){OVER.k=k;OVER.t=Date.now();setTimeout(()=>{if(G&&G.phase==='over')render();},1700);}main.textContent='JUGAR OTRA';main.disabled=Date.now()-OVER.t<1600;}
-  else if(G.turn!==0){main.textContent=`TURNO DE ${rivalName().toUpperCase()}…`;main.disabled=true;}
+  else if(G.phase==='discard'&&dn(0)&&!G.p[0].bot){main.textContent='DESCARTÁ CARTAS';main.disabled=DSENT===discKey();}
+  else if(G.turn!==0){main.textContent=`TURNO DE ${G.p[G.turn].name.toUpperCase()}…`;main.disabled=true;}
   else if(G.phase==='setup'){main.textContent=G.setupPhase==='ranch'?'ELEGÍ DÓNDE VA TU RANCHO':'AHORA TU CAMINO';main.disabled=true;}
   else if(G.phase==='roll'){main.textContent='🎲 TIRAR DADOS';main.disabled=false;}
   else if(G.phase==='robber'){main.textContent='MOVÉ AL CUATRERO';main.disabled=true;}
-  else if(G.phase==='discard'){main.textContent='DESCARTÁ CARTAS';main.disabled=false;}
+  else if(G.phase==='discard'){main.textContent='ESPERANDO EL DESCARTE…';main.disabled=true;}
   else{main.textContent=mode?'CANCELAR':'TERMINAR TURNO';main.disabled=false;}
   // Línea de estado
-  const by=G.diceBy??G.turn,st=$('status'),d=G.dice?`<span class="dice" title="Tiró ${by===0?'vos':escHtml(G.p[1].name)}"><span class="die p${by}${rolled?' roll':''}">${G.dice[0]}</span><span class="die p${by}${rolled?' roll':''}">${G.dice[1]}</span></span>`:'';
+  const by=G.diceBy??G.turn,st=$('status'),d=G.dice?`<span class="dice" title="Tiró ${by===0?'vos':escHtml(G.p[by]?.name||'')}"><span class="die p${by}${rolled?' roll':''}">${G.dice[0]}</span><span class="die p${by}${rolled?' roll':''}">${G.dice[1]}</span></span>`:'';
   let msg='';
-  if(G.phase==='over')msg=G.winner===0?'🏆 ¡Ganaste!':`${rivalName()} ganó esta vez.`;
-  else if(G.phase==='setup')msg=G.turn===0?(G.setupPhase==='ranch'?`Poné tu ${G.setupStep<2?'primer':'segundo'} rancho en una esquina libre.<small>${G.setupStep>=2?'Con este cobrás lo que lo rodea.':'Buscá números que salgan seguido (6, 8, 5, 9).'}</small>`:'Poné un camino pegado a tu rancho.'):`${G.p[1].bot?'La compu está eligiendo':G.p[1].name+' está eligiendo'}…`;
-  else if(G.turn!==0)msg=`${d}Juega ${G.p[1].bot?'la compu':G.p[1].name}…`;
+  const lista=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' y '+a[a.length-1];
+  if(G.phase==='over')msg=G.winner===0?'🏆 ¡Ganaste!':`${escHtml(G.p[G.winner]?.name||rivalName())} ganó esta vez.`;
+  else if(G.phase==='discard'&&dn(0)&&!G.p[0].bot&&DSENT!==discKey())msg=`${d}¡Salió 7! Tenés más de 7 cartas: elegí ${dn(0)} para descartar.`;
+  else if(G.phase==='discard')msg=`${d}¡Salió 7! Esperando que ${escHtml(lista(wait.map(q=>G.p[q].name)))} ${wait.length>1?'descarten':'descarte'}…${DSENT===discKey()?'<small>Tu descarte ya salió.</small>':''}`;
+  else if(G.phase==='setup')msg=G.turn===0?(G.setupPhase==='ranch'?`Poné tu ${G.setupStep<NP()?'primer':'segundo'} rancho en una esquina libre.<small>${G.setupStep>=NP()?'Con este cobrás lo que lo rodea.':'Buscá números que salgan seguido (6, 8, 5, 9).'}</small>`:'Poné un camino pegado a tu rancho.'):`${escHtml(G.p[G.turn].name)} está eligiendo…`;
+  else if(G.turn!==0)msg=`${d}Juega ${escHtml(quien(G.turn))}…`;
   else if(G.phase==='roll')msg='Tu turno: tirá los dados.';
-  else if(G.phase==='robber')msg=`${G.byGaucho?'🐎 Gaucho: ':d+'¡Salió 7! '}Tocá dónde va el cuatrero 🤠<small>Bloquea ese lugar y le robás una carta a quien esté ahí.</small>`;
-  else if(G.phase==='discard')msg=`${d}¡Salió 7! Tenés más de 7 cartas: elegí ${G.discardN} para descartar.`;
+  else if(G.phase==='robber')msg=`${G.byGaucho?'🐎 Gaucho: ':d+'¡Salió 7! '}Tocá dónde va el cuatrero 🤠<small>Bloquea ese lugar y le robás una carta a ${NP()>2?'uno de los que estén ahí (si hay varios, elegís)':'quien esté ahí'}.</small>`;
   else if(mode)msg=`Tocá un lugar marcado para tu ${mode==='road'?'camino':mode==='ranch'?'rancho':'pueblo'}${mode==='road'&&G.free?` (gratis: ${G.free})`:''}.`;
   else msg=`${d}Construí, cambiá o terminá tu turno.`;
   st.innerHTML=msg;
@@ -1651,25 +2119,27 @@ function openTrade(tab='banco'){
     $('tr-x').onclick=closeModal;$('tr-ok').onclick=()=>{trade(0,give,get);closeModal();};
   };draw();
 }
-function tabsHtml(on){return `<div class="tabs"><button data-tab="banco" class="${on==='banco'?'on':''}">Con el banco</button><button data-tab="compu" class="${on==='compu'?'on':''}">Con ${G.p[1].bot?'la compu':G.p[1].name} ${G.offers>=3?'(ya no)':''}</button></div>`;}
+function tabsHtml(on){return `<div class="tabs"><button data-tab="banco" class="${on==='banco'?'on':''}">Con el banco</button><button data-tab="compu" class="${on==='compu'?'on':''}">Con ${NP()>2?'otro jugador':G.p[1].bot?'la compu':escHtml(G.p[1].name)} ${G.offers>=3?'(ya no)':''}</button></div>`;}
 function bindTabs(){document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.onclick=()=>openTrade(b.dataset.tab));}
 // Ofrecerle un cambio a la compu: elegís cuánto das y cuánto pedís.
+let OFT=1;// a quién le proponés (de a 3 o 4 se elige)
 function openOffer(){
-  const give=hand0(),want=hand0();let msg='';
+  const give=hand0(),want=hand0();let msg='';if(!G.p[OFT]||OFT===0)OFT=1;
   const draw=()=>{
-    const h=G.p[0].hand,rh=G.p[1].hand,tg=RES.reduce((s,r)=>s+give[r],0),tw=RES.reduce((s,r)=>s+want[r],0);
+    const t=OFT,P=G.p[t],h=G.p[0].hand,tg=RES.reduce((s,r)=>s+give[r],0),tw=RES.reduce((s,r)=>s+want[r],0);
+    const pick=NP()>2?`<div class="vpick row3" id="o-to">${others(0).map(q=>`<button data-o="${q}" class="${q===t?'on':''}" style="--pc:${PC[q]}"><i></i><b>${escHtml(String(G.p[q].name).replace(/^Compu (\w)/,(_,c)=>c.toUpperCase()))}</b><small>${cards(q)} cartas</small></button>`).join('')}</div>`:'';
     const row=(o,lim,id)=>`<div class="cnt" id="${id}">${RES.map(r=>`<div><span class="e">${RI[r].e}</span><span class="n">${o[r]}</span><span class="pm"><button data-r="${r}" data-d="-1" ${o[r]?'':'disabled'}>−</button><button data-r="${r}" data-d="1" ${o[r]<lim(r)?'':'disabled'}>+</button></span></div>`).join('')}</div>`;
-    openModal(`<h2>🔁 Cambiar</h2>${tabsHtml('compu')}<p class="note">Proponele un cambio. ${G.p[1].bot?'La compu':G.p[1].name} tiene ${cards(1)} cartas${G.p[1].bot?'; acepta si le conviene':''}. Hasta 3 propuestas por turno.</p>
+    openModal(`<h2>🔁 Cambiar</h2>${tabsHtml('compu')}${pick}<p class="note">Proponele un cambio. ${NP()>2?escHtml(P.name):P.bot?'La compu':escHtml(P.name)} tiene ${cards(t)} cartas${P.bot?'; acepta si le conviene':''}. Hasta 3 propuestas por turno.</p>
       <b>Das</b>${row(give,r=>h[r],'o-give')}<b style="display:block;margin-top:10px">Pedís</b>${row(want,r=>4,'o-want')}
       ${msg?`<p><b>${msg}</b></p>`:''}
       <div class="row"><button class="pill" id="of-x">Cerrar</button><button class="primary" id="of-ok" ${tg&&tw&&G.offers<3?'':'disabled'}>PROPONER</button></div>`);
-    bindTabs();
+    bindTabs();if($('o-to'))$('o-to').onclick=e=>{const b=e.target.closest('button[data-o]');if(b){OFT=Number(b.dataset.o);msg='';draw();}};
     const pm=(o,id)=>{$(id).onclick=e=>{const b=e.target.closest('button[data-r]');if(!b||b.disabled)return;const r=b.dataset.r;o[r]=Math.max(0,o[r]+Number(b.dataset.d));if(o===give)want[r]=0;else give[r]=0;msg='';draw();};};
     pm(give,'o-give');pm(want,'o-want');
     $('of-x').onclick=closeModal;
     $('of-ok').onclick=()=>{
-      if(!G.p[1].bot){G.offers++;msg='<span class="busy"></span>Esperando qué dice '+G.p[1].name+'…';draw();friendOffer(give,want).then(ok=>{if(ok){swapCards(give,want);closeModal();banner('🤝 '+G.p[1].name.toUpperCase()+' ACEPTÓ');}else{msg=`${G.p[1].name} dijo que no.`;draw();}});return;}
-      G.offers++;const r=botAcceptsOffer(give,want);if(r.ok){swapCards(give,want);closeModal();banner('🤝 LA COMPU ACEPTÓ');}else{msg=`🤖 «${r.why}»`;addLog('La compu no aceptó tu cambio.');save();draw();}};
+      if(!P.bot){G.offers++;msg='<span class="busy"></span>Esperando qué dice '+escHtml(P.name)+'…';draw();friendOffer(give,want,t).then(ok=>{if(ok){swapCards(give,want,t);closeModal();banner('🤝 '+P.name.toUpperCase()+' ACEPTÓ');}else{msg=`${escHtml(P.name)} dijo que no.`;draw();}});return;}
+      G.offers++;const r=botAcceptsOffer(give,want,t);if(r.ok){swapCards(give,want,t);closeModal();banner(NP()>2?'🤝 '+P.name.toUpperCase()+' ACEPTÓ':'🤝 LA COMPU ACEPTÓ');}else{msg=`🤖 «${r.why}»`;addLog(`${NP()>2?P.name:'La compu'} no aceptó tu cambio.`);save();draw();}};
   };draw();
 }
 // La compu te ofrece un cambio en su turno.
@@ -1695,7 +2165,7 @@ function openDev(){
   $('dv-buy').onclick=()=>{buyDev(0);openDev();};
   document.querySelectorAll('.dev button[data-i]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i),k=D[i].k;
     if(k==='cosecha')pickRes(2,'🧺 Buena cosecha: elegí 2 recursos',rs=>{playDev(0,i,rs);});
-    else if(k==='acopio')pickRes(1,'🏚️ Acopio: ¿qué recurso le sacás al rival?',rs=>{playDev(0,i,rs[0]);});
+    else if(k==='acopio')pickRes(1,NP()>2?'🏚️ Acopio: ¿qué recurso les sacás a todos?':'🏚️ Acopio: ¿qué recurso le sacás al rival?',rs=>{playDev(0,i,rs[0]);});
     else{closeModal();playDev(0,i);next();}});
 }
 function pickRes(n,title,done){
@@ -1705,16 +2175,20 @@ function pickRes(n,title,done){
     $('pr-x').onclick=closeModal;$('pr-ok').onclick=()=>{closeModal();done(sel.slice());};};draw();
 }
 // Con un 7 y más de 7 cartas: elegís cuáles descartar.
+let DSENT='';const discKey=()=>G?G.seed+':'+G.rolls:'';
 function openDiscard(){
-  const out=hand0();
+  if(!G||G.phase!=='discard'||!dn(0))return;
+  const out=hand0(),k=dn(0);
   const draw=()=>{const h=G.p[0].hand,t=RES.reduce((s,r)=>s+out[r],0);
-    openModal(`<h2>🤠 ¡Salió 7!</h2><p>Tenés ${cards(0)} cartas (más de 7): descartá la mitad, <b>${G.discardN}</b>.</p>
-      <div class="cnt" id="dc">${RES.map(r=>`<div><span class="e">${RI[r].e}</span><span class="n">${out[r]}</span><small>de ${h[r]}</small><span class="pm"><button data-r="${r}" data-d="-1" ${out[r]?'':'disabled'}>−</button><button data-r="${r}" data-d="1" ${out[r]<h[r]&&t<G.discardN?'':'disabled'}>+</button></span></div>`).join('')}</div>
-      <div class="row"><button class="pill" id="dc-auto">Que elija el juego</button><button class="primary" id="dc-ok" ${t===G.discardN?'':'disabled'}>DESCARTAR</button></div>`);
+    openModal(`<h2>🤠 ¡Salió 7!</h2><p>Tenés ${cards(0)} cartas (más de 7): descartá la mitad, <b>${k}</b>.</p>
+      <div class="cnt" id="dc">${RES.map(r=>`<div><span class="e">${RI[r].e}</span><span class="n">${out[r]}</span><small>de ${h[r]}</small><span class="pm"><button data-r="${r}" data-d="-1" ${out[r]?'':'disabled'}>−</button><button data-r="${r}" data-d="1" ${out[r]<h[r]&&t<k?'':'disabled'}>+</button></span></div>`).join('')}</div>
+      <div class="row"><button class="pill" id="dc-auto">Que elija el juego</button><button class="primary" id="dc-ok" ${t===k?'':'disabled'}>DESCARTAR</button></div>`);
     $('dc').onclick=e=>{const b=e.target.closest('button[data-r]');if(!b||b.disabled)return;out[b.dataset.r]+=Number(b.dataset.d);draw();};
-    const finish=()=>{if(G.phase!=='discard'){closeModal();return;}addLog(`Descartaste ${G.discardN} cartas.`);G.phase='robber';G.discardN=0;closeModal();save();next();};
-    $('dc-auto').onclick=()=>{if(G.phase==='discard')discard(0,G.discardN);finish();};
-    $('dc-ok').onclick=()=>{if(G.phase==='discard'&&RES.reduce((s,r)=>s+out[r],0)===G.discardN&&RES.every(r=>out[r]<=G.p[0].hand[r]))for(const r of RES)G.p[0].hand[r]-=out[r];else if(G.phase==='discard'){draw();return;}finish();};
+    const finish=o=>{closeModal();if(G.phase!=='discard'||!dn(0))return;
+      if(isAuth())applyDisc(0,o);
+      else{DSENT=discKey();netDisc(o);render();}};// lo aplica el que maneja el turno y vuelve con la partida
+    $('dc-auto').onclick=()=>finish(autoOut(0,k));
+    $('dc-ok').onclick=()=>{if(RES.reduce((s,r)=>s+out[r],0)===k&&RES.every(r=>out[r]<=G.p[0].hand[r]))finish({...out});else draw();};
   };draw();
 }
 function rankedRow(facil){
@@ -1726,14 +2200,16 @@ function openNew(first=false,kind='compu'){
   if(ON&&ON.state==='on'){openModal(`<h2>Estás jugando en línea</h2><p>Para empezar otra contra la compu, primero salí de la partida en línea (Menú › Salir).</p><div class="row"><button class="primary" id="x1">OK</button></div>`);$('x1').onclick=closeModal;return;}
   let d=(()=>{try{return localStorage.getItem('poblar-dificultad')||'normal';}catch(_){return 'normal';}})();
   const draw=()=>{
-    const compu=kind==='compu';
+    const compu=kind==='compu',np=jugadores(!compu);
+    const nrow=`<b style="display:block;margin-top:8px">Jugadores</b><div class="nplay" id="np">${[2,3,4].map(k=>`<button data-n="${k}" class="${np===k?'on':''}">${k}<small>${compu?(k===2?'vos y 1 compu':`vos y ${k-1} compus`):(k===2?'vos y un amigo':`hasta ${k-1} amigos`)}</small></button>`).join('')}</div><p class="note">${np===2?'Gana el primero en llegar a 8 puntos.':`Gana el primero en llegar a 10 puntos.${compu?'':' Los lugares que no ocupen tus amigos los juega la compu.'}`}</p>`;
     openModal(`<h2>${first?'PoblAR':'Partida nueva'}</h2>${first||!G||G.phase==='over'?'':'<p class="note">Si empezás otra, se pierde la que estás jugando.</p>'}
-    <div class="mode-pick" id="mk"><button data-k="compu" class="${compu?'on':''}">🤖 Con la compu<small>Cuando quieras</small></button><button data-k="online" class="${compu?'':'on'}">👥 En línea<small>Con un amigo</small></button></div>
-    ${compu?`<b>Dificultad</b>
+    <div class="mode-pick" id="mk"><button data-k="compu" class="${compu?'on':''}">🤖 Con la compu<small>Cuando quieras</small></button><button data-k="online" class="${compu?'':'on'}">👥 En línea<small>Con amigos</small></button></div>
+    ${compu?`${nrow}<b style="display:block;margin-top:8px">Dificultad</b>
     <div class="diff" id="df">${Object.entries(DIFF).map(([k,n])=>`<button data-d="${k}" class="${d===k?'on':''}">${n}</button>`).join('')}</div>
     <p class="note">${d==='facil'?'Para aprender: construye de a una cosa por turno, no compra cartas y casi no cambia con el banco.':d==='dificil'?'A fondo: elige los mejores lugares, cambia mucho, compra cartas y no te regala nada.':'Pareja: juega bien, pero se le puede ganar.'}</p>${rankedRow(d==='facil')}`
-    :`<p>Jugás contra un amigo, cada uno en su celular o compu. Usás tu cuenta de BloqueAR: elegís a tu amigo y le llega la invitación.</p>${rankedRow(false)}`}
-    <div class="row">${first?'':'<button class="pill" id="n-no">Volver</button>'}<button class="primary" id="n-yes">${compu?'JUGAR':'ELEGIR AMIGO'}</button></div>`);
+    :`<p>Jugás con amigos, cada uno en su celular o compu. Usás tu cuenta de BloqueAR: elegís a quién invitar y le llega la invitación.</p>${nrow}${rankedRow(false)}`}
+    <div class="row">${first?'':'<button class="pill" id="n-no">Volver</button>'}<button class="primary" id="n-yes">${compu?'JUGAR':np>2?'ELEGIR AMIGOS':'ELEGIR AMIGO'}</button></div>`);
+    $('np').onclick=e=>{const b=e.target.closest('button[data-n]');if(b){try{localStorage.setItem(compu?'poblar-jugadores':'poblar-jugadores-online',b.dataset.n);}catch(_){}draw();}};
     $('mk').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!==kind){kind=b.dataset.k;draw();}};
     $('rk')&&($('rk').onclick=e=>{const b=e.target.closest('button');if(b&&window.RANGOS){RANGOS.setRanked('poblar',b.dataset.r==='1');draw();}});
     if(compu)$('df').onclick=e=>{const b=e.target.closest('button');if(b){d=b.dataset.d;draw();}};
@@ -1745,7 +2221,9 @@ function openNew(first=false,kind='compu'){
 }
 function openHelp(){
   const chip=(e,t)=>`<span class="hchip">${e} ${t}</span>`;
-  openModal(`<h2>Cómo se juega</h2><p class="hgoal">Gana el primero en llegar a <b>${GOAL} puntos</b>.</p>
+  const n=G?NP():jugadores(),gl=n>2?10:8;
+  openModal(`<h2>Cómo se juega</h2><p class="hgoal">Gana el primero en llegar a <b>${gl} puntos</b>.</p>
+    <div class="hcard"><h4>👥 De a 2, 3 o 4</h4><p>De a 2 se juega a 8 puntos; de a 3 o 4, a 10. Se arranca en serpiente: cada uno pone un rancho y un camino, y en la vuelta, al revés (el último pone dos seguidos), y con el segundo rancho cobrás lo que lo rodea. Los lugares sin un amigo los juega la compu (cada una con su color).</p></div>
     <div class="hcard"><h4>🎲 Tu turno</h4><p>Tirás los dados: cada terreno con ese número le da su recurso a los ranchos pegados (1 carta) y a los pueblos (2). Después construís, cambiás o jugás una carta.</p></div>
     <div class="hcard"><h4>🗺️ Qué da cada terreno</h4><div class="hgrid">${['madera','ladrillo','lana','trigo','mineral'].map(r=>`<span><b>${RI[r].e} ${RI[r].hex}</b><small>${RI[r].n}</small></span>`).join('')}<span><b>🧂 Salitral</b><small>Nada</small></span></div></div>
     <div class="hcard"><h4>🔨 Construir</h4>
@@ -1753,10 +2231,10 @@ function openHelp(){
       <div class="hrow"><b>Rancho <small>1 punto</small></b><span>🌳🧱🐑🌾</span></div>
       <div class="hrow"><b>Pueblo <small>2 puntos, mejora un rancho</small></b><span>🌾🌾⛰️⛰️⛰️</span></div>
       <p>Los ranchos van en esquinas libres pegadas a tus caminos, y nunca al lado de otro rancho.</p></div>
-    <div class="hcard"><h4>🤠 El cuatrero (cuando sale 7)</h4><p>Quien tenga más de 7 cartas descarta la mitad (con 8 o 9, 4; con 10 u 11, 5). Después, el que tiró pone al cuatrero en un terreno: ese terreno no produce y le roba una carta al rival que esté ahí. Por eso, si te sale el 7 al otro, podés perder la mitad y una más.</p></div>
-    <div class="hcard"><h4>🔁 Cambiar</h4><p>4 iguales por 1 con el banco. Con un rancho en un puerto: 3:1 o 2:1. También podés proponerle cambios ${ON?'a tu amigo':'a la compu'}.</p></div>
-    <div class="hcard"><h4>🃏 Cartas <small>🐑🌾⛰️</small></h4><p>${ON?'Tu amigo':'La compu'} también las compra y las juega: cuando usa una, aparece un cartel que dice qué hace (por ejemplo, 2 caminos gratis).</p><div class="hlist">${Object.values(DEV).map(d=>`<span><b>${d.e} ${d.n}</b><small>${d.d}</small></span>`).join('')}</div></div>
-    <div class="hcard"><h4>⭐ Puntos extra</h4><p>🛣️ <b>Camino más largo</b> (5 o más seguidos): +2. 🐎 <b>Tropilla más grande</b> (3 gauchos o más): +2. Si el rival te supera, se los lleva.</p></div>
+    <div class="hcard"><h4>🤠 El cuatrero (cuando sale 7)</h4><p>Quien tenga más de 7 cartas descarta la mitad (con 8 o 9, 4; con 10 u 11, 5). Después, el que tiró pone al cuatrero en un terreno: ese terreno no produce y le roba una carta al rival que esté ahí (si hay varios, elige a cuál). Cada uno elige qué descarta. Por eso, si el 7 le sale a otro, podés perder la mitad y una más.</p></div>
+    <div class="hcard"><h4>🔁 Cambiar</h4><p>4 iguales por 1 con el banco. Con un rancho en un puerto: 3:1 o 2:1. También podés proponerle cambios ${n>2?'a cualquier otro jugador (elegís a quién)':ON?'a tu amigo':'a la compu'}.</p></div>
+    <div class="hcard"><h4>🃏 Cartas <small>🐑🌾⛰️</small></h4><p>${ON?'Los demás':'La compu'} también las compra y las juega: cuando usa una, aparece un cartel que dice qué hace (por ejemplo, 2 caminos gratis).</p><div class="hlist">${Object.values(DEV).map(d=>`<span><b>${d.e} ${d.n}</b><small>${d.d}</small></span>`).join('')}</div></div>
+    <div class="hcard"><h4>⭐ Puntos extra</h4><p>🛣️ <b>Camino más largo</b> (5 o más seguidos): +2. 🐎 <b>Tropilla más grande</b> (3 gauchos o más): +2. Si alguien te supera, se los lleva.</p></div>
     <div class="row hfoot"><button class="primary" id="h-ok">ENTENDIDO</button></div>`);
   $('h-ok').onclick=closeModal;
 }
@@ -1764,7 +2242,7 @@ let RK_LAST=null;const OVER={k:'',t:0,leguas:null};
 function rankEnd(){
   if(!window.RANGOS||AUTO||!G||G.phase!=='over')return null;
   const key='p'+G.seed+'-'+G.rolls+'-'+(G.p[1].name||'');if(RK_LAST&&RK_LAST.key===key)return RK_LAST.r;
-  const w=G.winner===0,amigo=!G.p[1].bot&&!!ON,kind=amigo?'amigo':G.diff==='facil'?null:'compu-'+G.diff;
+  const w=G.winner===0,amigo=!!ON&&G.p.some((x,i)=>i>0&&!x.bot),kind=amigo?'amigo':G.diff==='facil'?null:'compu-'+G.diff;
   const done=(()=>{try{return JSON.parse(localStorage.getItem('poblar-xp-hechas')||'[]');}catch(_){return [];}})();
   let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{const pr=RANGOS.premio('PoblAR',xp,!!(kind&&RANGOS.isRanked('poblar')));if(pr&&pr.leguas)OVER.leguas={key,n:pr.leguas};}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
   const r=kind?RANGOS.apply('poblar',{key,win:w,kind}):null;
@@ -1772,12 +2250,14 @@ function rankEnd(){
 }
 function showEnd(){
   if(!G||G.phase!=='over'||G.winner==null)return;// (si ya se empezó otra partida, no mostrar un final viejo)
-  const w=G.winner===0,rk=rankEnd(),xp=RK_LAST&&RK_LAST.xp,lvl=window.RANGOS?RANGOS.levelInfo(RANGOS.xp('poblar')):null;
-  openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
-    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP${OVER.leguas&&OVER.leguas.key===(RK_LAST&&RK_LAST.key)?` · 🚩 +${OVER.leguas.n} leguas en La Gran Pampa`:''}`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango ni da leguas':''):' · Partida amistosa: no mueve el rango ni da leguas'):''}</p>`:''}
+  const w=G.winner===0,rk=rankEnd(),xp=RK_LAST&&RK_LAST.xp,lvl=window.RANGOS?RANGOS.levelInfo(RANGOS.xp('poblar')):null,lgH=lgFin();
+  const tabla=NP()===2?`Vos ${vp(0)} · ${escHtml(rivalName())} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''}`
+    :seats().sort((a,b)=>vp(b)-vp(a)).map(q=>`${q===G.winner?'🏆 ':''}${escHtml(q===0?'Vos':G.p[q].name)} ${vp(q)}${hidden(q)&&q!==0?` (${hidden(q)} 🏛️)`:''}`).join(' · ');
+  openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${escHtml(G.p[G.winner].name)}`}</h2><p>${tabla} · ${G.rolls} tiradas${ON&&!G.p.some((x,i)=>i>0&&x.bot)?'':' · '+DIFF[G.diff]}.</p>
+    ${rk?RANGOS.resultHtml(rk):''}${lgH}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP · 🎁 +${Math.min(1000,xp*2)} 🪙 para tu estancia${OVER.leguas&&OVER.leguas.key===(RK_LAST&&RK_LAST.key)?` · 🚩 +${OVER.leguas.n} leguas en La Gran Pampa`:''}`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&!(ON&&G.p.some((x,i)=>i>0&&!x.bot))?' · En Fácil no se mueve el rango ni da leguas':''):' · Partida amistosa: no mueve el rango ni da leguas'):''}</p>`:''}
     ${window.CHAT&&acct()?'<button class="pill" id="e-share" style="width:100%;margin-top:10px;min-height:44px">💬 Compartir con un amigo</button>':''}
     <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
-  if($('e-share'))$('e-share').onclick=()=>{closeModal();CHAT.share({j:'poblar',t:w?'Gané en PoblAR':'Perdí en PoblAR',d:`${vp(0)} a ${vp(1)} contra ${G.p[1].bot?'la compu ('+DIFF[G.diff]+')':G.p[1].name} · ${G.rolls} tiradas`,r:rk&&rk.after?rk.after.label:''});};
+  if($('e-share'))$('e-share').onclick=()=>{closeModal();CHAT.share({j:'poblar',t:w?'Gané en PoblAR':'Perdí en PoblAR',d:NP()===2?`${vp(0)} a ${vp(1)} contra ${G.p[1].bot?'la compu ('+DIFF[G.diff]+')':G.p[1].name} · ${G.rolls} tiradas`:`${vp(0)} puntos de ${goal()}, de a ${NP()} (${others(0).map(q=>G.p[q].name).join(', ')}) · ${G.rolls} tiradas`,r:rk&&rk.after?rk.after.label:''});};
   $('e-see').onclick=closeModal;$('e-new').onclick=()=>{closeModal();playAgain();};
 }
 
@@ -1785,9 +2265,9 @@ function showEnd(){
 document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;mode=mode===b.dataset.build?null:b.dataset.build;render();}));
 $('b-main').addEventListener('click',()=>{
   if(G.phase==='over'){playAgain();return;}
+  if(G.phase==='discard'){if(dn(0)&&DSENT!==discKey())openDiscard();return;}
   if(G.turn!==0)return;
   if(G.phase==='roll'){roll();return;}
-  if(G.phase==='discard'){openDiscard();return;}
   if(G.phase==='main'){if(mode){mode=null;if(G.free)G.free=0;render();}else endTurn();}
 });
 $('b-trade').addEventListener('click',()=>{if(G.turn===0&&G.phase==='main')openTrade();});
@@ -1809,16 +2289,18 @@ $('btn-games').addEventListener('click',goGames);
 function openMenu(){
   openSide(`<div class="side-head"><h2>Menú</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div>${window.RANGOS?RANGOS.mine('poblar'):''}<div class="menu-list">
     <button id="m-new">🎲 Partida nueva</button>
-    <button id="m-friend">👥 Jugar en línea <small>con un amigo</small></button>
+    <button id="m-friend">👥 Jugar en línea <small>con amigos</small></button>
     <button id="m-help">❓ Cómo se juega</button>
     <button id="m-log">📜 Lo que pasó</button>
     <button id="m-snd">${SND_ON?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
+    ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=poblar" id="m-tabla">🏆 Tabla</a>
     <a href="./#cuenta" id="m-acct">👤 Mi cuenta</a>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 58</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 60</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
-  $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};$('m-acct').onclick=e=>{closeSide();goGames(e);};
+  $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};$('m-acct').onclick=e=>{closeSide();goGames(e);};$('m-tabla').onclick=e=>{closeSide();goGames(e);};
+  if($('m-logros'))$('m-logros').onclick=()=>LOGROS.abrir('poblar',{side:openSide,volver:openMenu,cerrar:closeSide});
   $('m-new').onclick=go(()=>{if(ON)netLeave();openNew(false);});$('m-friend').onclick=go(openFriends);$('m-help').onclick=go(openHelp);$('m-log').onclick=go(toggleLog);
   if($('m-leave'))$('m-leave').onclick=go(netLeave);
 }
@@ -1873,8 +2355,8 @@ const SFX={
 function sound(k){if(!SND_ON||(typeof FAST!=='undefined'&&FAST))return;try{SFX[k]&&SFX[k]();}catch(_){}}
 // Sonidos según lo que cambió desde la última vez que se dibujó (así suenan también las jugadas del amigo en línea).
 let SNAP=null;
-function snapOf(){const pc=p=>G.p[p].road+G.p[p].ranch*10+G.p[p].town*100;return {seed:G.seed,rolls:G.rolls,robber:G.robber,road:[0,1].map(p=>G.p[p].road),ranch:[0,1].map(p=>G.p[p].ranch),town:[0,1].map(p=>G.p[p].town),
-  dev:[0,1].map(p=>G.p[p].dev.length),hand:{...G.p[0].hand},turn:G.turn,phase:G.phase,winner:G.winner,dice:G.dice?G.dice[0]+G.dice[1]:0};}
+function snapOf(){const sm=f=>seats().reduce((s,p)=>s+f(G.p[p]),0);return {seed:G.seed,rolls:G.rolls,robber:G.robber,road:[sm(x=>x.road),0],ranch:[sm(x=>x.ranch),0],town:[sm(x=>x.town),0],
+  dev:[sm(x=>x.dev.length),0],hand:{...G.p[0].hand},turn:G.turn,phase:G.phase,winner:G.winner,dice:G.dice?G.dice[0]+G.dice[1]:0};}
 function soundDiff(){
   const n=snapOf(),o=SNAP;SNAP=n;if(!o||o.seed!==n.seed)return;
   const q=[];
@@ -1922,25 +2404,50 @@ async function iceServers(){
 function gathered(pc){return new Promise(res=>{if(pc.iceGatheringState==='complete')return res();const t=setTimeout(res,6000);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res();}});});}
 let ON=null;// {role,peer:{usuario,avatar,color},pc,ch,state:'preparing'|'waiting'|'connecting'|'on'|'lost',id,msg}
 const UIQ={users:null,err:'',dismissed:new Set(),pending:null};
-function flip(g){// la misma partida vista desde el otro lado
-  const x=JSON.parse(JSON.stringify(g)),sw=v=>v===0?1:v===1?0:v;
-  x.owner=x.owner.map(sw);x.road=x.road.map(sw);x.p.reverse();x.turn=sw(x.turn);x.first=sw(x.first);x.setup=x.setup.map(sw);
-  x.longest=sw(x.longest);x.army=sw(x.army);x.winner=sw(x.winner);if(x.diceBy!==undefined)x.diceBy=sw(x.diceBy);x.longLen=x.longLen.slice().reverse();
-  if(x.avisos)x.avisos=x.avisos.map(a=>({...a,para:sw(a.para)}));
-  for(const pl of x.p)pl.bot=false;return x;
+// La misma partida vista desde el asiento k (k lugares más adelante): el que estaba en k pasa a ser el 0.
+function rot(g,k){
+  const n=g.p.length;k=((k%n)+n)%n;const x=JSON.parse(JSON.stringify(g));if(!k)return x;
+  const sw=v=>typeof v==='number'?(v-k+n)%n:v,r=a=>a.map((_,i)=>a[(i+k)%n]);
+  x.owner=x.owner.map(sw);x.road=x.road.map(sw);x.p=r(x.p);x.turn=sw(x.turn);x.first=sw(x.first);x.setup=x.setup.map(sw);
+  x.longest=sw(x.longest);x.army=sw(x.army);x.winner=sw(x.winner);if(x.diceBy!==undefined)x.diceBy=sw(x.diceBy);x.longLen=r(x.longLen);
+  if(x.avisos)x.avisos=x.avisos.map(a=>({...a,para:sw(a.para),...(a.de!==undefined?{de:sw(a.de)}:{})}));
+  if(x.disc){const d={};for(const [q,v] of Object.entries(x.disc))d[sw(Number(q))]=v;x.disc=d;}
+  return x;
 }
-function netSend(m){try{if(ON&&ON.ch&&ON.ch.readyState==='open')ON.ch.send(JSON.stringify(m));}catch(_){}}
+// De a 2: la misma partida vista desde el otro lado (como siempre: así anda con un PoblAR anterior del otro lado).
+function flip(g){const x=rot(g,1);for(const pl of x.p)pl.bot=false;return x;}
+const chSend=(ch,m)=>{try{if(ch&&ch.readyState==='open')ch.send(JSON.stringify(m));}catch(_){}};
+// A todos: el invitado le manda al que armó la partida; el que la armó, a cada invitado.
+function netSend(m){if(!ON)return;if(ON.multi){for(const x of ON.peers)if(x.state==='on')chSend(x.ch,m);return;}chSend(ON.ch,m);}
+// A un asiento (de la mesa, no de tu pantalla): todo pasa por el que armó la partida (en estrella).
+function route(m){if(!ON)return;if(ON.multi){if(m.to===0){onMsg(m);return;}const x=ON.peers.find(y=>y.seat===m.to&&y.state==='on');if(x)chSend(x.ch,m);return;}chSend(ON.ch,m);}
+const mySeat=()=>ON&&ON.seat||0,gSeat=q=>(q+mySeat())%NP(),lSeat=g=>((g-mySeat())%NP()+NP())%NP();
+// La partida, a cada uno desde su lado.
+function sendState(except){
+  if(!G||!ON)return;
+  if(ON.multi){for(const x of ON.peers)if(x.state==='on'&&x.inGame&&x!==except)chSend(x.ch,{t:'state',G:rot(G,x.seat)});return;}
+  if(NP()===2&&!ON.mesa){chSend(ON.ch,{t:'state',G:flip(G)});return;}
+  chSend(ON.ch,{t:'state',G:rot(G,NP()-mySeat())});
+}
+// ¿Los de los otros celulares eligen su descarte? (si del otro lado hay un PoblAR anterior, no: se descarta solo, como antes)
+const remoteDisc=()=>!!(ON&&ON.state==='on'&&ON.cap);
+function netDisc(out){if(!ON||!G)return;const auth=G.p[G.turn].bot?0:gSeat(G.turn);route({t:'disc',seat:mySeat(),out,to:auth});}
+// Nombres de verdad de los otros jugadores (cada uno se ve como «Vos»)
+function setNames(g){const n=g.p.length;g.p[0].name='Vos';g.p[0].bot=false;if(!ON||!ON.names)return;for(let i=1;i<n;i++){const nm=ON.names[(i+mySeat())%n];if(!g.p[i].bot&&nm)g.p[i].name=nm;}}
 const me=()=>{const a=acct();return {usuario:a?a.usuario:'Vos',avatar:a?a.avatar:'🙂',color:a?a.color:'#7ce9e5'};};
 function attach(ch){
   ON.ch=ch;
   ch.onopen=()=>{ON.state='on';renderOnline();closeModal();banner('🔗 CONECTADOS');sound('turn');
-    netSend({t:'hola',yo:me()});if(ON.role==='host')onlineNewGame();};
+    netSend({t:'hola',yo:me(),v:4});if(ON.role==='host')onlineNewGame();else if(ON.mesa)mesaWait();};
   ch.onclose=()=>onLost();
   ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}onMsg(m);};
 }
 // Otra partida: en línea la arma siempre el que invitó (así los dos quedan con la misma).
 // En línea, la revancha arranca cuando los dos dijeron que sí (antes, cada toque armaba un tablero nuevo).
 function playAgain(){
+  if(ON&&ON.multi&&ON.state==='on'){if(G&&G.phase!=='over'){closeModal();return;}mesaStart();return;}// de a más: la arma el que invitó, para todos
+  if(ON&&ON.mesa&&ON.state==='on'){if(G&&G.phase!=='over'){closeModal();return;}netSend({t:'again'});
+    openModal(`<h2>🔁 Otra partida</h2><p>Le avisamos a <b>${escHtml(ON.peer.usuario)}</b>, que armó la mesa: arranca cuando toque «Otra partida».</p><div class="row"><button class="primary" id="rv-ok">OK</button></div>`);$('rv-ok').onclick=closeModal;return;}
   if(ON&&ON.state==='on'){
     if(G&&G.phase!=='over'){closeModal();return;}           // ya hay una partida nueva andando
     ON.otraYo=true;netSend({t:'again'});
@@ -1952,25 +2459,45 @@ function playAgain(){
 }
 function revanchaArranca(){ON.otraYo=ON.otraEl=false;if(ON.role==='host'){closeModal();onlineNewGame();}else openModal(`<h2>🔁 Revancha</h2><p>¡Aceptó! Armando el tablero…</p>`);}
 function onlineNewGame(){
-  newGame();G.p[1].bot=false;G.p[1].name=ON.peer.usuario;G.diff='normal';
-  G.log=[];addLog(`Partida en línea con ${ON.peer.usuario}. Empieza ${G.first===0?'vos':ON.peer.usuario}.`);
+  newGame(undefined,{n:2,humans:[ON.peer.usuario],quiet:true});G.p[1].bot=false;G.p[1].name=ON.peer.usuario;G.diff='normal';
+  G.log=[];addLog(`Partida en línea: ${me().usuario} y ${ON.peer.usuario}. Empieza ${G.first===0?me().usuario:ON.peer.usuario}.`);
   save();render();next();
 }
-function onMsg(m){
-  if(m.t==='hola'){if(m.yo)ON.peer={...ON.peer,...m.yo};renderOnline();return;}
+function onMsg(m,from){
+  if(!ON)return;
+  if(ON.multi&&m.to!==undefined&&m.to!==0){route(m);return;}// no es para el que armó: se le pasa a quien va
+  if(m.t==='hola'){
+    if(from){Object.assign(from,{usuario:m.yo&&m.yo.usuario||from.usuario,avatar:m.yo&&m.yo.avatar||from.avatar,color:m.yo&&m.yo.color||from.color,cap:(m.v||0)>=4});
+      // De a 3 o 4 hace falta el PoblAR nuevo del otro lado
+      if(!from.cap){chSend(from.ch,{t:'bye'});from.state='vieja';try{from.pc.close();}catch(_){}}
+      mesaDraw();mesaTell();return;}
+    if(m.yo)ON.peer={...ON.peer,...m.yo};ON.cap=(m.v||0)>=4;renderOnline();return;}
+  if(m.t==='lobby'){ON.mesa=true;ON.n=m.n;ON.names=m.names;ON.lobby=m;if(!ON.started)mesaWait();return;}
+  if(m.t==='start'){ON.mesa=true;ON.started=true;ON.seat=m.seat;ON.n=m.n;ON.names=m.names;ON.cap=true;return;}
   if(m.t==='state'&&m.G){
-    const g=m.G;g.p[0].bot=false;// ya viene dada vuelta (desde tu lado)
-   g.p[1].bot=false;g.p[1].name=ON.peer.usuario;g.p[0].name='Vos';
-    const fresh=!G||!B||G.seed!==g.seed;G=g;if(fresh){B=buildBoard(G.seed);ON.otraYo=ON.otraEl=false;if(!$('modal').hidden&&/Revancha|revancha|Ganaste|Ganó/.test($('sheet').textContent))closeModal();}closeModalIfGame();
+    const g=m.G;
+    if(ON.multi){// del invitado que está jugando (viene vista desde acá): cada asiento sin alguien conectado lo juega la compu
+      for(let q=1;q<g.p.length;q++){const x=ON.peers.find(y=>y.seat===q&&y.inGame);if(x&&x.state==='on')g.p[q].bot=false;else if(!g.p[q].bot){g.p[q].bot=true;}}
+      setNames(g);}
+    else if(g.p.length===2&&!ON.mesa){g.p[0].bot=false;// ya viene dada vuelta (desde tu lado)
+      g.p[1].bot=false;g.p[1].name=ON.peer.usuario;g.p[0].name='Vos';}
+    else setNames(g);
+    const fresh=!G||!B||G.seed!==g.seed;G=g;if(fresh){B=buildBoard(G.seed);ON.otraYo=ON.otraEl=false;DSENT='';if(!$('modal').hidden&&/Revancha|revancha|Ganaste|Ganó|Otra partida|Mesa de/.test($('sheet').textContent))closeModal();}closeModalIfGame();
+    if(G.phase!=='discard'||!dn(0))DSENT='';
+    if(ON.multi)sendState(from);// el que armó se la pasa a los demás
     mode=null;render(true);renderLog();
     if(G.phase==='over'&&G.winner!==null)setTimeout(showEnd,400);else next();return;
   }
-  if(m.t==='offer-n'){// propuesta de tu amigo
-    const t=o=>RES.filter(r=>o[r]).map(r=>`${o[r]} ${RI[r].e}`).join(' ');
-    openModal(`<h2>🤝 ${escHtml(ON.peer.usuario)} te propone</h2><p style="font-size:18px">Te da <b>${t(m.give)}</b> y te pide <b>${t(m.want)}</b>.</p>
+  if(m.t==='disc'&&G){applyDisc(lSeat(m.seat),m.out||{});return;}
+  if(m.t==='again'&&(ON.multi||ON.mesa)){if(ON.multi&&from)banner(`🔁 ${String(from.usuario).toUpperCase()} QUIERE OTRA`);return;}
+  if(m.t==='bye'&&from){peerLost(from,'salió de la partida');return;}
+  if(m.t==='offer-n'){// propuesta de otro jugador
+    const t=o=>RES.filter(r=>o[r]).map(r=>`${o[r]} ${RI[r].e}`).join(' '),de=m.de!==undefined&&ON.names?ON.names[m.de]||'Alguien':ON.peer.usuario;
+    const reply=ok=>m.de!==undefined?route({t:'offer-reply',id:m.id,ok,to:m.de,de:mySeat()}):netSend({t:'offer-reply',id:m.id,ok});
+    openModal(`<h2>🤝 ${escHtml(de)} te propone</h2><p style="font-size:18px">Te da <b>${t(m.give)}</b> y te pide <b>${t(m.want)}</b>.</p>
       ${RES.every(r=>G.p[0].hand[r]>=m.want[r])?'':'<p class="note">No tenés esas cartas.</p>'}
       <div class="row"><button class="pill" id="fo-no">No</button><button class="primary" id="fo-yes" ${RES.every(r=>G.p[0].hand[r]>=m.want[r])?'':'disabled'}>ACEPTAR</button></div>`);
-    $('fo-no').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:false});};$('fo-yes').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:true});};return;}
+    $('fo-no').onclick=()=>{closeModal();reply(false);};$('fo-yes').onclick=()=>{closeModal();reply(true);};return;}
   if(m.t==='offer-reply'&&UIQ.pending&&UIQ.pending.id===m.id){UIQ.pending.res(!!m.ok);UIQ.pending=null;return;}
   if(m.t==='again'){
     if(G&&G.phase!=='over')return;                          // pedido viejo: ya se está jugando otra
@@ -1980,21 +2507,104 @@ function onMsg(m){
   if(m.t==='again-no'){ON.otraEl=false;if(ON.otraYo){ON.otraYo=false;closeModal();}banner(`${ON.peer.usuario.toUpperCase()} NO QUIERE LA REVANCHA AHORA`);return;}
   if(m.t==='bye'){onLost('salió de la partida');}
 }
-function closeModalIfGame(){const s=$('sheet');if(s&&!$('modal').hidden&&/Jugar con un amigo|Te invitan/.test(s.textContent))closeModal();}
-function friendOffer(give,want){
-  return new Promise(res=>{const id=Math.random().toString(36).slice(2);UIQ.pending={id,res};netSend({t:'offer-n',id,give,want});
+function closeModalIfGame(){const s=$('sheet');if(s&&!$('modal').hidden&&/Jugar con un amigo|Te invitan|Mesa de/.test(s.textContent))closeModal();}
+function friendOffer(give,want,t=1){
+  return new Promise(res=>{const id=Math.random().toString(36).slice(2);UIQ.pending={id,res,t};
+    if(NP()===2&&!ON.multi&&!ON.mesa)netSend({t:'offer-n',id,give,want});else route({t:'offer-n',id,give,want,de:mySeat(),to:gSeat(t)});
     setTimeout(()=>{if(UIQ.pending&&UIQ.pending.id===id){UIQ.pending=null;res(false);}},60000);});
 }
 function onLost(why='se desconectó'){
-  if(!ON||ON.state==='lost')return;const was=ON.state==='on';ON.state='lost';
-  if(G&&was&&G.phase!=='over'){G.p[1].bot=true;addLog(`⚠️ ${G.p[1].name} ${why}. Sigue la compu en su lugar.`);G.p[1].name='La compu';banner('⚠️ SE CORTÓ: SIGUE LA COMPU');}
-  try{ON.pc.close();}catch(_){}ON=null;renderOnline();if(G){render();next();}
+  if(!ON||ON.state==='lost')return;if(ON.multi){mesaCancel(false);return;}const was=ON.state==='on';ON.state='lost';let hold=false;
+  if(G&&was&&G.phase!=='over'){
+    if(NP()===2&&!ON.mesa){G.p[1].bot=true;addLog(`⚠️ ${G.p[1].name} ${why}. Sigue la compu en su lugar.`);G.p[1].name='La compu';banner('⚠️ SE CORTÓ: SIGUE LA COMPU');}
+    else{const host=ON.peer&&ON.peer.usuario||'El que armó la partida';for(const q of others(0))if(!G.p[q].bot){G.p[q].bot=true;G.p[q].name+=' (compu)';}
+      addLog(`⚠️ Se cortó con ${host}, que armó la mesa (${why}). Siguen las compus en lugar de los demás.`);banner('⚠️ SE CORTÓ LA MESA: SIGUEN LAS COMPUS');
+      // Se avisa y se espera a que lo leas: recién al tocar SEGUIR juegan las compus.
+      hold=true;openModal(`<h2>⚠️ Se cortó la mesa</h2><p>Se cortó la conexión con <b>${escHtml(host)}</b>, que armó la partida, y con eso con todos. Podés seguir: la compu juega por los demás.</p><div class="row"><button class="primary" id="lo-ok">SEGUIR</button></div>`);$('lo-ok').onclick=()=>{closeModal();if(G)next();};}
+  }
+  DSENT='';try{ON.pc.close();}catch(_){}ON=null;renderOnline();if(G){render();if(!hold)next();}
 }
-function netLeave(){netSend({t:'bye'});const o=ON;ON=null;try{o&&o.pc&&o.pc.close();}catch(_){}if(G&&G.phase!=='over'){G.p[1].bot=true;G.p[1].name='La compu';}renderOnline();if(G){render();next();}}
+function netLeave(){if(ON&&ON.multi){mesaCancel(true);return;}netSend({t:'bye'});const o=ON;ON=null;DSENT='';try{o&&o.pc&&o.pc.close();}catch(_){}
+  if(G&&G.phase!=='over'){if(NP()===2&&!(o&&o.mesa)){G.p[1].bot=true;G.p[1].name='La compu';}else for(const q of others(0))if(!G.p[q].bot){G.p[q].bot=true;G.p[q].name+=' (compu)';}}renderOnline();if(G){render();next();}}
+/* ── Mesa de 3 o 4 en línea (en estrella) ──
+   El que invita arma la mesa: le manda una invitación a cada amigo (cada uno con su conexión) y, cuando están, toca EMPEZAR.
+   Los lugares sin amigo los juega la compu en su celular. Cada jugada sale del celular de quien juega, pasa por el que armó
+   y él se la manda a los demás (cada uno la ve desde su lado). Si se va un invitado, sigue la compu en su lugar. */
+function mesaNew(){const n=Math.max(3,jugadores(true));ON={role:'host',multi:true,n,state:'lobby',peers:[],seat:0,cap:true,peer:{usuario:'',avatar:'🙂',color:'#7ce9e5'},msg:'Armando la mesa…'};renderOnline();}
+const vivo=x=>!['lost','fail','vieja'].includes(x.state);
+function mesaTell(){if(!ON||!ON.multi||ON.state!=='lobby')return;const names=[me().usuario,...ON.peers.filter(x=>x.state==='on').map(x=>x.usuario)];
+  for(const x of ON.peers)if(x.state==='on')chSend(x.ch,{t:'lobby',n:ON.n,names,host:me().usuario});}
+function mesaDraw(){
+  if(!ON||!ON.multi||ON.state!=='lobby')return;const n=ON.n,live=ON.peers.filter(vivo),ready=ON.peers.filter(x=>x.state==='on'&&x.cap);
+  const st=x=>x.state==='on'?'✅ Listo':x.state==='vieja'?'Tiene un PoblAR viejo: que lo actualice':x.state==='fail'||x.state==='lost'?escHtml(x.msg||'No se pudo'):`<span class="busy"></span>${escHtml(x.msg||'Invitando…')}`;
+  const rows=[`<li>${avHtml(me().avatar,me().color)}<span class="nm">${escHtml(me().usuario)} (vos)</span><small>✅</small></li>`,...ON.peers.map(x=>`<li>${avHtml(x.avatar,x.color)}<span class="nm">${escHtml(x.usuario)}</span><small>${st(x)}</small></li>`)];
+  for(let i=live.length+1;i<n;i++)rows.push(`<li><span class="av">🤖</span><span class="nm">La compu</span><small>si no se suma nadie</small></li>`);
+  openModal(`<h2>👥 Mesa de ${n}</h2><p class="note">Invitá hasta ${n-1} amigos; los lugares que queden los juega la compu. Cuando estén, tocá EMPEZAR. Gana el primero en llegar a 10 puntos.</p><ul class="ulist mesa">${rows.join('')}</ul>
+    <div class="row"><button class="pill" id="ms-x">Cancelar</button>${live.length<n-1?'<button class="pill" id="ms-inv">+ Invitar</button>':''}<button class="primary" id="ms-go" ${ready.length?'':'disabled'}>EMPEZAR</button></div>`);
+  $('ms-x').onclick=()=>mesaCancel(true);if($('ms-inv'))$('ms-inv').onclick=openFriends;$('ms-go').onclick=mesaStart;
+}
+function mesaWait(){if(!ON||!ON.mesa||ON.multi)return;const L=ON.lobby,host=ON.peer.usuario,n=ON.n||(L&&L.n)||3;
+  openModal(`<h2>👥 Mesa de ${n}</h2><p>Estás en la mesa de <b>${escHtml(host)}</b>. Arranca cuando toque EMPEZAR; los lugares que queden los juega la compu.</p>
+    ${L?`<ul class="ulist mesa">${L.names.map(u=>`<li><span class="nm">${escHtml(u)}</span><small>✅</small></li>`).join('')}</ul>`:''}<div class="row"><button class="pill" id="mw-x">Salir</button></div>`);
+  $('mw-x').onclick=()=>{netLeave();closeModal();if(!G)openNew(true,'online');};}
+async function invitePeer(u){
+  const a=acct();if(!a||!ON||!ON.multi||ON.state!=='lobby')return;if(ON.peers.some(x=>vivo(x)&&x.usuario.toLowerCase()===u.usuario.toLowerCase())){mesaDraw();return;}
+  const M=ON,x={usuario:u.usuario,avatar:u.avatar,color:u.color,state:'preparing',msg:'Preparando la invitación…',seat:null};M.peers=M.peers.filter(y=>y.usuario.toLowerCase()!==u.usuario.toLowerCase());M.peers.push(x);mesaDraw();
+  const fail=t=>{if(x.state==='on')return;if(x.id&&x.state==='waiting')lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:x.id}).catch(()=>{});x.state='fail';x.msg=t;try{x.pc&&x.pc.close();}catch(_){}if(ON===M)mesaDraw();};
+  try{
+    const pc=new RTCPeerConnection({iceServers:await iceServers()});x.pc=pc;const ch=pc.createDataChannel('poblar',{ordered:true});x.ch=ch;
+    ch.onopen=()=>{if(ON!==M){try{pc.close();}catch(_){}return;}x.state='on';x.msg='';chSend(ch,{t:'hola',yo:me(),v:4,n:M.n});banner(`🔗 ${x.usuario.toUpperCase()} SE SUMÓ`);sound('turn');mesaDraw();mesaTell();};
+    ch.onclose=()=>peerLost(x);ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}if(ON===M)onMsg(m,x);};
+    pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))peerLost(x);};
+    await pc.setLocalDescription(await pc.createOffer());await gathered(pc);if(ON!==M||x.state!=='preparing')return;
+    const j=await lbCall({accion:'invitar',usuario:a.usuario,token:a.token,para:u.usuario,oferta:'POBLAR:'+JSON.stringify({sdp:pc.localDescription.sdp,n:M.n})});
+    if(ON!==M||x.state!=='preparing')return;x.id=j.id;x.state='waiting';x.msg='Esperando que acepte…';mesaDraw();
+    const t0=Date.now();
+    while(ON===M&&x.state==='waiting'&&Date.now()-t0<300000){
+      await sleep(2000);if(ON!==M||x.state!=='waiting')return;
+      let r;try{r=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token,id:x.id});}catch(_){continue;}
+      if(ON!==M||x.state!=='waiting')return;
+      if(r.estado==='aceptada'&&r.respuesta){x.state='connecting';x.msg='Conectando…';mesaDraw();await pc.setRemoteDescription({type:'answer',sdp:JSON.parse(r.respuesta).sdp});
+        setTimeout(()=>{if(ON===M&&x.state==='connecting')fail('No se pudieron conectar.');},45000);return;}
+      if(r.estado==='rechazada'){fail('Dijo «ahora no».');return;}
+      if(r.estado==='vencida'||r.estado==='cancelada'){fail('La invitación venció.');return;}
+    }
+    if(ON===M&&x.state==='waiting')fail('No respondió.');
+  }catch(e){fail(e.message||'No se pudo preparar la conexión.');}
+}
+function peerLost(x,why='se desconectó'){
+  if(!ON||!ON.multi||!ON.peers.includes(x)||['lost','fail','vieja'].includes(x.state))return;const was=x.state==='on'&&x.inGame;x.state='lost';x.msg='Se desconectó';try{x.pc.close();}catch(_){}
+  if(ON.state==='lobby'){mesaDraw();mesaTell();return;}
+  if(G&&was&&G.phase!=='over'&&G.p[x.seat]&&!G.p[x.seat].bot){const q=x.seat;G.p[q].bot=true;G.p[q].name=x.usuario+' (compu)';
+    addLog(`⚠️ ${x.usuario} ${why}. Sigue la compu en su lugar.`);banner(`⚠️ ${x.usuario.toUpperCase()} SE FUE: SIGUE LA COMPU`);
+    if(UIQ.pending&&UIQ.pending.t===q){UIQ.pending.res(false);UIQ.pending=null;}
+    if(!ON.peers.some(y=>y.state==='on')){ON=null;renderOnline();save();render();next();return;}// ya no queda nadie: sigue con las compus
+    save();render();next();return;}
+  if(!ON.peers.some(y=>y.state==='on')){ON=null;}renderOnline();
+}
+function mesaCancel(tell=true){
+  const M=ON;if(!M||!M.multi)return;const a=acct();
+  for(const x of M.peers){if(tell&&x.state==='on')chSend(x.ch,{t:'bye'});if(a&&x.id&&x.state==='waiting')lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:x.id}).catch(()=>{});x.state='lost';try{x.pc&&x.pc.close();}catch(_){}}
+  const playing=M.state==='on';ON=null;renderOnline();
+  if(G&&playing&&G.phase!=='over'){for(const q of others(0))if(!G.p[q].bot){G.p[q].bot=true;G.p[q].name+=' (compu)';}render();next();}
+  else if(!playing){closeModal();if(!G)openNew(true,'online');}
+}
+function mesaStart(){
+  const M=ON;if(!M||!M.multi)return;const ready=M.peers.filter(x=>x.state==='on'&&x.cap);if(!ready.length){if(M.state==='on'){M.state='lobby';}mesaDraw();return;}
+  const a=acct();for(const x of M.peers)if(!ready.includes(x)){if(a&&x.id&&x.state==='waiting')lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:x.id}).catch(()=>{});x.state='lost';try{x.pc&&x.pc.close();}catch(_){}}
+  M.peers=ready;ready.forEach((x,i)=>{x.seat=i+1;x.inGame=true;});const n=M.n;
+  M.names=[me().usuario,...ready.map(x=>x.usuario)];while(M.names.length<n)M.names.push(null);
+  M.state='on';M.peer=ready[0];M.otraYo=M.otraEl=false;closeModal();renderOnline();
+  for(const x of ready)chSend(x.ch,{t:'start',seat:x.seat,n,names:M.names});
+  newGame(undefined,{n,humans:ready.map(x=>x.usuario),botName:i=>n-ready.length>2?'Compu '+(i-ready.length):'La compu',quiet:true});G.diff='normal';
+  G.log=[];addLog(`Partida en línea de a ${n}: ${ready.map(x=>x.usuario).join(', ')}${n-1>ready.length?` y ${n-1-ready.length===1?'la compu':(n-1-ready.length)+' compus'}`:''}. Empieza ${W(G.first)}.`);
+  save();render();next();
+}
 function renderOnline(){
   const el=$('onl');if(!ON){el.className='onl';el.textContent='';return;}
   el.className='onl '+(ON.state==='on'?'on':'off');
-  el.innerHTML=ON.state==='on'?`● En línea con ${escHtml(ON.peer.usuario)}`:`<span class="busy"></span>${escHtml(ON.msg||'Conectando…')}`;
+  const con=ON.multi?ON.peers.filter(x=>x.state==='on').map(x=>x.usuario):ON.mesa&&ON.names?ON.names.filter((u,i)=>u&&i!==mySeat()):[ON.peer.usuario];
+  el.innerHTML=ON.state==='on'?`● En línea con ${escHtml(con.join(', '))}`:`<span class="busy"></span>${escHtml(ON.msg||'Conectando…')}`;
 }
 // Invitar: se prepara la conexión y se deja en el buzón del amigo.
 async function inviteFriend(u){
@@ -2022,10 +2632,10 @@ async function inviteFriend(u){
 }
 async function acceptInvite(inv){
   const a=acct();if(!a)return;UIQ.dismissed.add(inv.id);
-  ON={role:'guest',peer:{usuario:inv.de,avatar:inv.avatar,color:inv.color},state:'connecting',msg:`Conectando con ${inv.de}…`,id:inv.id};renderOnline();friendsWait();
+  ON={role:'guest',peer:{usuario:inv.de,avatar:inv.avatar,color:inv.color},state:'connecting',msg:`Conectando con ${inv.de}…`,id:inv.id,seat:1};renderOnline();friendsWait();
   const me0=ON;
   try{
-    const off=JSON.parse(String(inv.oferta).slice(7));const pc=new RTCPeerConnection({iceServers:await iceServers()});ON.pc=pc;
+    const off=JSON.parse(String(inv.oferta).slice(7));if(off.n>2){ON.mesa=true;ON.n=off.n;}const pc=new RTCPeerConnection({iceServers:await iceServers()});ON.pc=pc;
     pc.ondatachannel=e=>attach(e.channel);pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))onLost();};
     await pc.setRemoteDescription({type:'offer',sdp:off.sdp});await pc.setLocalDescription(await pc.createAnswer());await gathered(pc);
     await lbCall({accion:'responder',usuario:a.usuario,token:a.token,id:inv.id,respuesta:JSON.stringify({sdp:pc.localDescription.sdp})});
@@ -2047,18 +2657,22 @@ function friendsWait(){
 }
 async function openFriends(){
   const a=acct();
-  if(ON&&ON.state!=='on'){friendsWait();return;}
-  if(ON&&ON.state==='on'){openModal(`<h2>👥 En línea</h2><p>Estás jugando con <b>${escHtml(ON.peer.usuario)}</b>.</p><div class="row"><button class="pill" id="fx-leave">Salir de la partida</button><button class="primary" id="fx-x">SEGUIR</button></div>`);$('fx-x').onclick=closeModal;$('fx-leave').onclick=()=>{netLeave();closeModal();};return;}
+  const mesa=ON&&ON.multi&&ON.state==='lobby';
+  if(ON&&ON.state!=='on'&&!mesa){friendsWait();return;}
+  if(ON&&ON.state==='on'){const con=ON.multi?ON.peers.filter(x=>x.state==='on').map(x=>x.usuario):ON.mesa&&ON.names?ON.names.filter((u,i)=>u&&i!==mySeat()):[ON.peer.usuario];
+    openModal(`<h2>👥 En línea</h2><p>Estás jugando con <b>${escHtml(con.join(', '))}</b>.</p><div class="row"><button class="pill" id="fx-leave">Salir de la partida</button><button class="primary" id="fx-x">SEGUIR</button></div>`);$('fx-x').onclick=closeModal;$('fx-leave').onclick=()=>{netLeave();closeModal();};return;}
   if(!a){openModal(`<h2>👥 Jugar con un amigo</h2><p>Para invitar a un amigo usás tu <b>cuenta de BloqueAR</b> (es la misma). Creala o entrá en BloqueAR › Yo, y volvé.</p>
     <div class="row"><button class="pill" id="fa-x">Cerrar</button><a class="primary" href="./" style="display:grid;place-items:center;text-decoration:none">IR A BLOQUEAR</a></div>`);$('fa-x').onclick=()=>{closeModal();if(!G)openNew(true,'online');};return;}
-  const draw=()=>{const list=(UIQ.users||[]).filter(u=>u.usuario.toLowerCase()!==a.usuario.toLowerCase());
-    openModal(`<h2>👥 Jugar con un amigo</h2><p class="note">Elegí a quién invitar. El punto verde es que tiene BloqueAR o PoblAR abierto.</p>
+  if(!ON&&jugadores(true)>2){mesaNew();}
+  const M=ON&&ON.multi?ON:null;
+  const draw=()=>{const list=(UIQ.users||[]).filter(u=>u.usuario.toLowerCase()!==a.usuario.toLowerCase()&&!(M&&M.peers.some(x=>vivo(x)&&x.usuario.toLowerCase()===u.usuario.toLowerCase())));
+    openModal(`<h2>👥 ${M?`Mesa de ${M.n}: invitar`:'Jugar con un amigo'}</h2><p class="note">Elegí a quién invitar. El punto verde es que tiene BloqueAR o PoblAR abierto.</p>
       ${UIQ.err?`<p>${escHtml(UIQ.err)}</p>`:''}${UIQ.users?`<ul class="ulist">${list.map(u=>`<li>${avHtml(u.avatar,u.color)}<span class="nm">${escHtml(u.usuario)}${u.enLinea?'<i class="dot"></i>':''}</span><button data-u="${escHtml(u.usuario)}">Invitar</button></li>`).join('')||'<li>Todavía no hay otras cuentas.</li>'}</ul>`:(UIQ.err?'':'<p><span class="busy"></span>Cargando…</p>')}
       <div class="row"><button class="pill" id="fl-x">Cerrar</button></div>`);
-    $('fl-x').onclick=()=>{closeModal();if(!G)openNew(true,'online');};document.querySelectorAll('.ulist button[data-u]').forEach(b=>b.onclick=()=>{const u=list.find(x=>x.usuario===b.dataset.u);if(u)inviteFriend(u);});};
+    $('fl-x').onclick=()=>{if(M&&ON===M){if(M.peers.length)mesaDraw();else mesaCancel(false);return;}closeModal();if(!G)openNew(true,'online');};document.querySelectorAll('.ulist button[data-u]').forEach(b=>b.onclick=()=>{const u=list.find(x=>x.usuario===b.dataset.u);if(!u)return;if(M&&ON===M)invitePeer(u);else inviteFriend(u);});};
   draw();
   try{const j=await lbCall({accion:'usuarios'},false);if(!Array.isArray(j.usuarios))throw new Error('Hay que actualizar el código de la planilla (versión 4).');UIQ.users=j.usuarios;UIQ.err='';}catch(e){UIQ.err=e.message;}
-  if(!ON&&!$('modal').hidden&&/Elegí a quién invitar/.test($('sheet').textContent))draw();
+  if((!ON||ON===M&&M&&M.state==='lobby')&&!$('modal').hidden&&/Elegí a quién invitar/.test($('sheet').textContent))draw();
 }
 // Buzón: te avisa si alguien te invita (a PoblAR o a BloqueAR).
 let pollAt=0,polling=false;
@@ -2092,13 +2706,14 @@ if(!/[#&]auto/.test(location.hash)){
      if(++n>12){clearInterval(t);try{sessionStorage.removeItem('poblar-accept');}catch(_){}openModal(`<h2>No encontramos la invitación</h2><p>Puede que haya vencido (duran 5 minutos) o que tu amigo la haya cancelado. Pedile que te invite de nuevo, o invitalo vos.</p><div class="row"><button class="pill" id="ia-x">Cerrar</button><button class="primary" id="ia-inv">INVITAR</button></div>`);$('ia-x').onclick=closeModal;$('ia-inv').onclick=()=>{closeModal();$('btn-friend').click();};return;}
      pollInbox(true);},2500);}}
 }
-window.addEventListener('pagehide',()=>{if(ON&&ON.state==='on')netSend({t:'bye'});});
+window.addEventListener('pagehide',()=>{if(ON&&(ON.state==='on'||ON.multi))netSend({t:'bye'});});
 
 /* ── Inicio: seguir la partida guardada o empezar ── */
 let FAST=false,AUTO=false;
 (function start(){
-  // Para las pruebas: #auto hace que la compu juegue también por vos (#auto-rapido, sin esperas).
-  if(/[#&]auto/.test(location.hash)){FAST=/rapido/.test(location.hash);AUTO=true;newGame(Number((location.hash.match(/semilla=(\d+)/)||[])[1])||undefined);return;}
+  if(/[#&]rapido/.test(location.hash))FAST=true;// (pruebas: compus sin esperas)
+  // Para las pruebas: #auto hace que la compu juegue también por vos (#auto-rapido, sin esperas; &jug=3 o 4 para más jugadores).
+  if(/[#&]auto/.test(location.hash)){FAST=/rapido/.test(location.hash);AUTO=true;newGame(Number((location.hash.match(/semilla=(\d+)/)||[])[1])||undefined,{n:Number((location.hash.match(/jug=(\d)/)||[])[1])||2});return;}
   try{localStorage.setItem('bloques-ultimo-juego','poblar');localStorage.setItem('bloques-hub-v1','1');}catch(_){}
   let saved=null;try{saved=JSON.parse(localStorage.getItem(SAVE)||'null');}catch(_){}
   if(saved&&saved.v===2&&saved.phase!=='over'){G=saved;B=buildBoard(G.seed);render();renderLog();next();if(G.phase==='discard'&&G.turn!==0||G.phase==='discard')openDiscard();}
@@ -2107,19 +2722,14 @@ let FAST=false,AUTO=false;
 })();
 // Chat (viene con el sitio; si se abre este archivo suelto, no está).
 if(window.RANGOS)RANGOS.css();
+try{window.LOGROS&&LOGROS.aplicar('poblar');}catch(_){}
 if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{location.href='./#cuenta';},game:()=>'poblar',inbox:()=>pollInbox(true),
   invite:(g,u)=>{if(g==='estancia'){location.href='estancia.html#malon';return;}if(g==='truco'){location.href='truco.html#invitar='+encodeURIComponent(u);return;}if(g==='uno'){location.href='uno.html#invitar='+encodeURIComponent(u);return;}if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
     if(ON){openFriends();return;}const x=(UIQ.users||[]).find(y=>y.usuario.toLowerCase()===String(u).toLowerCase())||{usuario:u,avatar:'🙂',color:'#7ce9e5'};inviteFriend(x);},
   play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':c.j==='truco'?'truco.html':c.j==='uno'?'uno.html':'./';}});
 {const m=/^#invitar=([^&]+)/.exec(location.hash);if(m&&acct()){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
   const u=decodeURIComponent(m[1]);setTimeout(()=>{closeModal();inviteFriend((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#7ce9e5'});},400);}}
-window.POBLAR={save,showEnd,rankEnd,pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
-</script>
-<script>/* Paquete sin EstanciAR ni La Gran Pampa */
-(function(){try{if(window.RANGOS)RANGOS.premio=function(){return null;};}catch(e){}
-function limpiar(){document.querySelectorAll('.wel-row').forEach(function(r){if(/EstanciAR|La Gran Pampa/.test(r.textContent))r.remove();});}
-limpiar();document.addEventListener('DOMContentLoaded',limpiar);
-try{var u=localStorage.getItem('bloques-ultimo-juego');if(u==='estancia'||u==='pampa')localStorage.setItem('bloques-ultimo-juego','bloquear');}catch(e){}})();
+window.POBLAR={save,showEnd,rankEnd,pollInbox,get ON(){return ON},flip,rot,onMsg,newGame,applyDisc,openDiscard,moveRobber,endTurn,botAcceptsOffer,mesaStart,invitePeer,openFriends,openNew,get DSENT(){return DSENT},acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
 </script>
 </body>
 </html>

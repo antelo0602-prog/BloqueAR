@@ -276,11 +276,13 @@ function generalFrom(d){
   return {xp:tot,level:levelInfo(tot),rank:info(((vals[0]||0)+(vals[1]||0)+(vals[2]||0))/3),games:games.map(g=>({g,name:GAMES[g],xp:xpOf(g),level:levelInfo(xpOf(g)),rank:info(vOf(g))}))};
 }
 // Para la cuenta: se suben y se bajan junto con el progreso de BloqueAR.
-function exportData(){return {r:ls.json(RKEY,{}),x:ls.json(XKEY,{})};}
+function exportData(){const o={r:ls.json(RKEY,{}),x:ls.json(XKEY,{})};try{if(window.LOGROS)o.lg=window.LOGROS.exportData();}catch(_){}return o;}
 function importData(d){
   if(!d||typeof d!=='object')return false;let ch=false;
   const r=ls.json(RKEY,{});if(d.r&&(d.r.at||0)>(r.at||0)){ls.set(RKEY,JSON.stringify(d.r));ch=true;}
   const x=ls.json(XKEY,{});if(d.x){const o={...x};for(const [k,v] of Object.entries(d.x))if(k!=='at'&&Number.isFinite(v)&&v>(o[k]||0)){o[k]=v;ch=true;}if(ch){o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}}
+  // Logros y retos (v60): se unen; si acá hay algo que la planilla no tiene, se avisa que cambió para que se suba.
+  try{if(window.LOGROS){const L=window.LOGROS.importData(d.lg||{});if(L.ch||L.falta)ch=true;}}catch(_){}
   return ch;
 }
 function badge(v,small){const i=info(v);return `<span class="rk-badge${small?' sm':''}" style="--rk:${i.t.c}" title="${i.label}${i.next!=null?` · ${i.pr}/${DIV} PR`:''}"><i>${i.t.e}</i>${i.short}</span>`;}
@@ -300,6 +302,352 @@ function mine(g){if(!GAMES[g])return '';const r=get(g),i=info(r.v),L=levelInfo(x
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
 window.RANGOS={TIERS,GAMES,info,get,mine,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,pampaAct,PAMPA_ACT,DIV};
+})();
+
+</script>
+<script>
+/* ───────── Logros, retos de la semana y apariencias de TrucAR, UnoAR, PoblAR, EstanciAR y La Gran Pampa ─────────
+   (BloqueAR tiene sus medallas y su desafío del día aparte, en su progreso.)
+
+   API (window.LOGROS):
+   · evento(juego, clave, n=1, key?)  suma n al contador «clave» del juego (y al de la semana). Con «key» no se cuenta dos veces
+                                      lo mismo (reanudar, revancha, el mismo estado que llega dos veces). Avisa con un cartelito
+                                      arriba si se consigue un logro o se cumple un reto. Devuelve los logros nuevos.
+   · marca(juego, clave, valor, key?) guarda el máximo (p. ej. puntos en una mano, nivel de la estancia).
+   · fin(juego, datos, key)           al terminar una partida: datos = {gano, modo:'compu'|'online', dif, n (jugadores), ...}.
+                                      Devuelve {nuevos, retos, html}: «html» es un renglón para la pantalla final (no avisa aparte).
+   · abrir(juego, {side, volver})     abre el panel «Logros y retos» en el menú lateral del juego (side = openSide del juego).
+   · panelHtml(juego) / cablear(raíz, juego, opciones)   lo mismo, en dos pasos.
+   · aplicar(juego)                   pone la apariencia elegida (atributos data-lg-<tipo> en <html> y su CSS).
+   · apariencia(juego, tipo) / elegir(juego, tipo, id)
+   · retos(juego)                     los 3 retos de esta semana con su progreso.
+   · contar()                         → {truco:{tiene,total}, uno:{…}, poblar:{…}, estancia:{…}, pampa:{…}}
+   · resumenHtml()                    resumen compacto de todos los juegos (para el menú de juegos o Mi cuenta).
+   · exportData() / importData(d)     viaja con la cuenta dentro de RANGOS.exportData() como «lg»:
+                                      lg = {g:{<juego>:{<idLogro>:timestamp}}, c:{<juego>:{<clave>:n}}, s:{w:'AAAA-MM-DD', c:{…}, h:{<juego>:[idReto]}}, ap:{<juego>:{<tipo>:id}}, at}
+                                      La planilla cuenta Object.keys(lg.g[juego]).length para la tabla de logros.
+   · ocultar([juegos])                el paquete sin EstanciAR esconde esos juegos del resumen.
+   Los retos se eligen con el lunes de la semana en hora argentina: son los mismos para todos y cambian el lunes. */
+(function(){
+'use strict';
+const KEY='bloques-logros-v1';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const fmt=n=>Math.floor(Number(n)||0).toLocaleString('es-AR');
+
+/* ── Lo que hay en cada juego ──
+   Logro: {id, e, n, d, k (contador), m (meta, 1 si no se dice), marca (si el contador es un máximo)}
+   Reto:  {id, k, v:[metas posibles], t:meta→texto, xp}
+   Apariencia: {id, n, sw (muestra), lv (nivel del juego) o logro (id), css} — la primera de cada tipo es la de siempre. */
+const D={
+truco:{n:'TrucAR',e:'🃏',
+  logros:[
+    {id:'primera',e:'🃏',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Primera victoria',d:'Ganá una partida.',k:'ganadas'},
+    {id:'gane25',e:'🎩',n:'Tallador',d:'Ganá 25 partidas.',k:'ganadas',m:25},
+    {id:'dificil',e:'🧠',n:'Más vivo que la compu',d:'Ganale a la compu en Difícil.',k:'ganadas_dif'},
+    {id:'amigo',e:'🤝',n:'Mano a mano',d:'Ganale una partida en línea a alguien de verdad.',k:'ganadas_online'},
+    {id:'vale4',e:'🔥',n:'Quiero vale cuatro',d:'Ganá una mano con el vale cuatro querido.',k:'vale4'},
+    {id:'retruco',e:'💪',n:'Retrucador',d:'Ganá 10 manos con el retruco querido.',k:'retrucos',m:10},
+    {id:'env33',e:'7️⃣',n:'Treinta y tres',d:'Que te toquen 33 de envido (el 7 y el 6 del mismo palo).',k:'env33'},
+    {id:'falta',e:'💥',n:'Falta envido',d:'Ganá una falta envido querida.',k:'falta'},
+    {id:'envidos',e:'🗣️',n:'Envidioso',d:'Ganá 50 envidos.',k:'envidos',m:50},
+    {id:'zapatero',e:'👞',n:'Zapatero',d:'Ganá dejando al otro sin llegar a la mitad de los puntos.',k:'zapatero'},
+    {id:'remontada',e:'📈',n:'Remontada',d:'Ganá una partida que ibas perdiendo por 10 o más.',k:'remontada'},
+    {id:'parroquiano',e:'🍷',n:'Parroquiano del boliche',d:'Jugá 50 partidas.',k:'partidas',m:50},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[3,5],t:n=>`Jugá ${n} partidas`,xp:40},
+    {id:'g',k:'ganadas',v:[2,3],t:n=>`Ganá ${n} partidas`,xp:60},
+    {id:'e',k:'envidos',v:[5,8],t:n=>`Ganá ${n} envidos`,xp:45},
+    {id:'t',k:'trucos',v:[5,8],t:n=>`Ganá ${n} manos con truco querido`,xp:50},
+    {id:'r',k:'retrucos',v:[1,2],t:n=>n===1?'Ganá una mano con retruco querido':`Ganá ${n} manos con retruco querido`,xp:50},
+    {id:'m',k:'manos',v:[15,25],t:n=>`Ganá ${n} manos`,xp:45},
+    {id:'n',k:'ganadas_nd',v:[1,2],t:n=>n===1?'Ganale a la compu en Normal o Difícil':`Ganale ${n} veces a la compu en Normal o Difícil`,xp:55},
+    {id:'s',k:'tantos',v:[60,100],t:n=>`Sumá ${n} puntos`,xp:45}],
+  ap:{
+    pano:{n:'Paño',op:[
+      {id:'verde',n:'Paño verde',sw:'#2e4a35'},
+      {id:'azul',n:'Paño azul',sw:'#223a54',lv:2,f:['#2d4a66','#223a54','#182b40']},
+      {id:'bordo',n:'Paño bordó',sw:'#552025',lv:5,f:['#6a2a2e','#552025','#3f171b']},
+      {id:'cuero',n:'Cuero',sw:'#5e4329',lv:8,f:['#7a5a3a','#5e4329','#46311d']},
+      {id:'negro',n:'Boliche de noche',sw:'#201e1b',logro:'vale4',f:['#2f2c27','#201e1b','#151412']}],
+      css:(o,s)=>`${s} .felt{background:radial-gradient(90% 70% at 50% 45%,${o.f[0]} 0%,${o.f[1]} 55%,${o.f[2]} 100%)}`},
+    dorso:{n:'Dorso de las cartas',op:[
+      {id:'rojo',n:'Guarda roja',sw:'#7e2a21'},
+      {id:'azul',n:'Guarda azul',sw:'#24457f',lv:3,f:['#1f3a6e','#24457f','#e8d3a6']},
+      {id:'verde',n:'Guarda verde',sw:'#255c3b',lv:6,f:['#1f4d32','#255c3b','#e8d3a6']},
+      {id:'oro',n:'Negro y oro',sw:'#221c16',logro:'gane25',f:['#1a1612','#221c16','#e0b553']}],
+      css:(o,s)=>`${s} .card.back svg>rect:first-child{fill:${o.f[0]}}${s} #guarda rect{fill:${o.f[1]}}${s} #guarda path:nth-of-type(1),${s} #guarda path:nth-of-type(4){stroke:${o.f[2]}}${s} #guarda path:nth-of-type(2){fill:${o.f[2]}}${s} .card.back svg>rect:nth-of-type(n+2){stroke:${o.f[2]}}`}}},
+uno:{n:'UnoAR',e:'🎴',
+  logros:[
+    {id:'primera',e:'🎴',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Primera victoria',d:'Ganá una partida.',k:'ganadas'},
+    {id:'gane25',e:'🍀',n:'Mano bendita',d:'Ganá 25 partidas.',k:'ganadas',m:25},
+    {id:'dificil',e:'🧠',n:'Más vivo que la compu',d:'Ganale a la compu en Difícil.',k:'ganadas_dif'},
+    {id:'seis',e:'👥',n:'Mesa llena',d:'Ganá una partida de 6 jugadores.',k:'ganadas_6'},
+    {id:'amigo',e:'🤝',n:'Con amigos',d:'Ganá una partida en línea con gente de verdad.',k:'ganadas_online'},
+    {id:'cierre4',e:'➕',n:'Cierre con +4',d:'Quedate sin cartas tirando un +4.',k:'cierre4'},
+    {id:'comodin',e:'🌈',n:'Comodín final',d:'Quedate sin cartas tirando un comodín.',k:'cierre_comodin'},
+    {id:'uno50',e:'📣',n:'¡Uno!',d:'Decí «uno» 50 veces.',k:'uno_dicho',m:50},
+    {id:'cantor',e:'👀',n:'Ojo de águila',d:'Cantale a 10 que se olvidaron del «uno».',k:'cantadas',m:10},
+    {id:'cien',e:'💯',n:'Mano de cien',d:'Sumá 100 puntos o más en una sola mano.',k:'mano_max',m:100,marca:true},
+    {id:'puntos',e:'🧮',n:'Juntapuntos',d:'Sumá 2.000 puntos en total.',k:'puntos',m:2000},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[3,5],t:n=>`Jugá ${n} partidas`,xp:40},
+    {id:'g',k:'ganadas',v:[2,3],t:n=>`Ganá ${n} partidas`,xp:60},
+    {id:'m',k:'manos',v:[4,6],t:n=>`Quedate sin cartas ${n} veces`,xp:50},
+    {id:'x',k:'mas4',v:[3,5],t:n=>`Tirá ${n} cartas +4`,xp:40},
+    {id:'u',k:'uno_dicho',v:[5,8],t:n=>`Decí «uno» ${n} veces`,xp:40},
+    {id:'c',k:'cantadas',v:[1,2],t:n=>n===1?'Cantale a uno que no dijo «uno»':`Cantales a ${n} que no dijeron «uno»`,xp:50},
+    {id:'s',k:'puntos',v:[300,500],t:n=>`Sumá ${fmt(n)} puntos`,xp:50},
+    {id:'n',k:'ganadas_nd',v:[1,2],t:n=>n===1?'Ganale a la compu en Normal o Difícil':`Ganale ${n} veces a la compu en Normal o Difícil`,xp:55}],
+  ap:{
+    pano:{n:'Paño',op:[
+      {id:'petroleo',n:'Azul petróleo',sw:'#1f4250'},
+      {id:'verde',n:'Paño verde',sw:'#244a35',lv:2,f:['#2f5a40','#244a35','#1a3828']},
+      {id:'rojo',n:'Paño rojo',sw:'#552323',lv:4,f:['#6a2c2c','#552323','#3f1a1a']},
+      {id:'pizarra',n:'Pizarra',sw:'#2f363d',lv:7,f:['#3c444c','#2f363d','#22282e']},
+      {id:'noche',n:'Mesa de noche',sw:'#201b33',logro:'seis',f:['#2a2440','#201b33','#161226']}],
+      css:(o,s)=>`${s} .felt{background:radial-gradient(90% 70% at 50% 45%,${o.f[0]} 0%,${o.f[1]} 55%,${o.f[2]} 100%)}`},
+    dorso:{n:'Dorso de las cartas',op:[
+      {id:'bordo',n:'Bordó',sw:'#5b1f2b'},
+      {id:'petroleo',n:'Petróleo',sw:'#1f4a56',lv:3,f:['#1f4a56','#10303a']},
+      {id:'violeta',n:'Violeta',sw:'#4a2a6a',lv:5,f:['#4a2a6a','#2c1840']},
+      {id:'oro',n:'Negro y oro',sw:'#1c1a16',logro:'gane25',f:['#1c1a16','#0f0e0c']}],
+      css:(o,s)=>`${s} .card.back pattern rect{fill:${o.f[0]}}${s} .card.back svg>rect:nth-of-type(2){stroke:${o.f[1]}}${s} .card.back svg>rect:nth-of-type(3){fill:${o.f[1]}}`}}},
+poblar:{n:'PoblAR',e:'🏘️',
+  logros:[
+    {id:'primera',e:'🎲',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Primera victoria',d:'Ganá una partida.',k:'ganadas'},
+    {id:'gane15',e:'🏛️',n:'Patrón de la isla',d:'Ganá 15 partidas.',k:'ganadas',m:15},
+    {id:'dificil',e:'🧠',n:'Más vivo que la compu',d:'Ganale a la compu en Difícil.',k:'ganadas_dif'},
+    {id:'diez',e:'🔟',n:'Diez puntos en Difícil',d:'Ganá una partida de a 3 o 4 a 10 puntos, en Difícil.',k:'diez_dif'},
+    {id:'cuatro',e:'👥',n:'De a cuatro',d:'Ganá una partida de 4 jugadores.',k:'ganadas_4'},
+    {id:'amigo',e:'🤝',n:'Con amigos',d:'Ganá una partida en línea con gente de verdad.',k:'ganadas_online'},
+    {id:'camino',e:'🛣️',n:'Camino más largo',d:'Llevate el camino más largo.',k:'camino'},
+    {id:'tropilla',e:'🐎',n:'Tropilla más grande',d:'Llevate la tropilla más grande.',k:'tropilla'},
+    {id:'pueblos',e:'🏘️',n:'Fundador',d:'Armá 25 pueblos.',k:'pueblos',m:25},
+    {id:'tramos',e:'🧱',n:'Caminero',d:'Hacé 100 tramos de camino.',k:'tramos',m:100},
+    {id:'cambios',e:'⚖️',n:'Comerciante',d:'Hacé 30 cambios.',k:'cambios',m:30},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[2,3],t:n=>`Jugá ${n} partidas`,xp:45},
+    {id:'g',k:'ganadas',v:[1,2],t:n=>n===1?'Ganá una partida':`Ganá ${n} partidas`,xp:60},
+    {id:'v',k:'pueblos',v:[3,5],t:n=>`Armá ${n} pueblos`,xp:45},
+    {id:'c',k:'tramos',v:[10,15],t:n=>`Hacé ${n} tramos de camino`,xp:40},
+    {id:'r',k:'ranchos',v:[5,8],t:n=>`Armá ${n} ranchos`,xp:40},
+    {id:'x',k:'cambios',v:[4,6],t:n=>`Hacé ${n} cambios`,xp:40},
+    {id:'l',k:'cuatrero',v:[3,5],t:n=>`Mandá al cuatrero ${n} veces`,xp:40},
+    {id:'d',k:'cartas',v:[2,3],t:n=>`Jugá ${n} cartas`,xp:45}],
+  ap:{
+    mar:{n:'Mar',op:[
+      {id:'mar',n:'Mar de siempre',sw:'#134a63'},
+      {id:'laguna',n:'Laguna',sw:'#1a6660',lv:3,f:['#2a8f86','#1a6660','#0f433f']},
+      {id:'atardecer',n:'Atardecer',sw:'#7e3f3a',lv:6,f:['#b8684a','#7e3f3a','#4a2430']},
+      {id:'noche',n:'Noche',sw:'#141f40',logro:'gane15',f:['#1d2f5a','#141f40','#0b1228']}],
+      css:(o,s)=>`${s} #g-mar stop:nth-child(1){stop-color:${o.f[0]}}${s} #g-mar stop:nth-child(2){stop-color:${o.f[1]}}${s} #g-mar stop:nth-child(3){stop-color:${o.f[2]}}${s} .boardwrap{background:${o.f[2]}}`}}},
+estancia:{n:'EstanciAR',e:'🐎',
+  logros:[
+    {id:'cosecha1',e:'🌾',n:'Primera cosecha',d:'Cosechá algo.',k:'cosechas'},
+    {id:'cosecha100',e:'🚜',n:'Chacarero',d:'Cosechá 100 veces.',k:'cosechas',m:100},
+    {id:'junta200',e:'🥛',n:'Tambero',d:'Juntá lo que producen tus animales 200 veces.',k:'juntar',m:200},
+    {id:'obras',e:'🔨',n:'Constructor',d:'Comprá o construí 30 cosas.',k:'compras',m:30},
+    {id:'malon1',e:'⚔️',n:'Primer malón',d:'Ganá un malón.',k:'malones'},
+    {id:'malon25',e:'🐎',n:'Malonero',d:'Ganá 25 malones.',k:'malones',m:25},
+    {id:'tres',e:'⭐',n:'Tres estrellas',d:'Hacé un malón de 3 estrellas.',k:'tres'},
+    {id:'aguante',e:'🛡️',n:'Aguante',d:'Rechazá un malón de otro jugador.',k:'aguantes'},
+    {id:'nivel5',e:'🏡',n:'Estancia en marcha',d:'Llevá tu estancia a nivel 5.',k:'nivel',m:5,marca:true},
+    {id:'nivel10',e:'🏰',n:'Gran estancia',d:'Llevá tu estancia a nivel 10.',k:'nivel',m:10,marca:true},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'c',k:'cosechas',v:[10,20],t:n=>`Cosechá ${n} veces`,xp:50},
+    {id:'j',k:'juntar',v:[15,25],t:n=>`Juntá lo de tus animales ${n} veces`,xp:45},
+    {id:'m',k:'malones',v:[1,3],t:n=>n===1?'Ganá un malón':`Ganá ${n} malones`,xp:60},
+    {id:'o',k:'compras',v:[2,4],t:n=>`Comprá o construí ${n} cosas`,xp:45},
+    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55}],
+  ap:{}},
+pampa:{n:'La Gran Pampa',e:'🗺️',
+  logros:[
+    {id:'sumado',e:'🗺️',n:'A la pampa',d:'Sumate a una semana.',k:'semanas_jugadas'},
+    {id:'sumado8',e:'🧭',n:'Baqueano',d:'Jugá 8 semanas.',k:'semanas_jugadas',m:8},
+    {id:'paraje',e:'🚩',n:'Primer paraje',d:'Reclamá un paraje.',k:'parajes'},
+    {id:'parajes50',e:'🏕️',n:'Poblador',d:'Reclamá 50 parajes.',k:'parajes',m:50},
+    {id:'cruce',e:'⚔️',n:'Primer cruce',d:'Ganá un cruce.',k:'cruces'},
+    {id:'cruces10',e:'🛡️',n:'Caudillo',d:'Ganá 10 cruces.',k:'cruces',m:10},
+    {id:'podio',e:'🥉',n:'Al podio',d:'Terminá una semana entre los 3 primeros.',k:'podios'},
+    {id:'copa',e:'🏆',n:'Dueño de la pampa',d:'Ganá una semana.',k:'copas'}],
+  retos:[],ap:{}}
+};
+const ORDEN=['truco','uno','poblar','estancia','pampa'];
+let OCULTOS=[];
+
+/* ── Datos guardados ── */
+function lunesAR(t=Date.now()){const d=new Date(t-3*3600e3),dow=d.getUTCDay(),m=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-((dow+6)%7)*864e5);return m.toISOString().slice(0,10);}
+function load(){const o=ls.json(KEY,{});o.g=o.g||{};o.c=o.c||{};o.ap=o.ap||{};o.k=Array.isArray(o.k)?o.k:[];
+  const w=lunesAR();if(!o.s||o.s.w!==w)o.s={w,c:{},h:{}};o.s.c=o.s.c||{};o.s.h=o.s.h||{};return o;}
+function save(o){o.at=Date.now();ls.set(KEY,JSON.stringify(o));}
+const cnt=(o,j)=>(o.c[j]=o.c[j]||{});
+const tiene=(o,j,id)=>!!(o.g[j]&&o.g[j][id]);
+
+/* ── Retos de la semana: los mismos para todos ── */
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rng(seed){let a=seed>>>0||1;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+function retosDe(j,w){const L=(D[j]&&D[j].retos)||[];if(!L.length)return [];const R=rng(hash(w+':'+j)),pool=L.slice(),out=[];
+  while(out.length<3&&pool.length){const r=pool.splice(Math.floor(R()*pool.length),1)[0];const n=r.v[Math.floor(R()*r.v.length)];out.push({id:r.id+n,k:r.k,n,txt:r.t(n),xp:r.xp+(n===r.v[r.v.length-1]&&r.v.length>1?10:0)});}
+  return out;}
+function retos(j){const o=load(),c=o.s.c[j]||{},h=o.s.h[j]||[];return retosDe(j,o.s.w).map(r=>({...r,va:Math.min(r.n,c[r.k]||0),hecho:h.includes(r.id)}));}
+
+/* ── Contar ── */
+function revisar(o,j){
+  const nuevos=[],cumplidos=[],Gd=D[j];if(!Gd)return {nuevos,cumplidos};
+  // retos (antes que los logros: completar los 3 cuenta para «Semana redonda»)
+  const sc=o.s.c[j]||{},sh=(o.s.h[j]=o.s.h[j]||[]),rs=retosDe(j,o.s.w);
+  for(const r of rs)if(!sh.includes(r.id)&&(sc[r.k]||0)>=r.n){sh.push(r.id);cumplidos.push(r);premiar(j,r);}
+  if(cumplidos.length&&rs.length&&rs.every(r=>sh.includes(r.id))){const c=cnt(o,j);c.semanas=(c.semanas||0)+1;}
+  const c=cnt(o,j);o.g[j]=o.g[j]||{};
+  for(const L of Gd.logros)if(!o.g[j][L.id]&&(c[L.k]||0)>=(L.m||1)){o.g[j][L.id]=Date.now();nuevos.push(L);}
+  return {nuevos,cumplidos};
+}
+function premiar(j,r){const R=window.RANGOS;if(!R)return;
+  try{if(j!=='estancia'&&j!=='pampa'&&R.GAMES[j])R.addXp(j,r.xp);}catch(_){}
+  try{R.premio(`${D[j].n} (reto)`,r.xp,false);}catch(_){}}
+function visto(o,key){if(!key)return false;if(o.k.includes(key))return true;o.k.push(key);if(o.k.length>300)o.k.splice(0,o.k.length-300);return false;}
+function sumar(o,j,k,n){const c=cnt(o,j);c[k]=(c[k]||0)+n;const s=(o.s.c[j]=o.s.c[j]||{});s[k]=(s[k]||0)+n;}
+function evento(j,k,n=1,key,quiet){
+  if(!D[j]||!k||!(n>0))return [];const o=load();if(visto(o,key&&(j+':'+key+':'+k))){save(o);return [];}
+  sumar(o,j,k,n);const r=revisar(o,j);save(o);if(!quiet)avisar(j,r);return r.nuevos;
+}
+function marca(j,k,v,key,quiet){
+  if(!D[j]||!k||!Number.isFinite(v))return [];const o=load();if(visto(o,key&&(j+':'+key+':m:'+k))){save(o);return [];}
+  const c=cnt(o,j);if(v>(c[k]||0))c[k]=v;const r=revisar(o,j);save(o);if(!quiet)avisar(j,r);return r.nuevos;
+}
+// Al terminar la partida. Cada juego pasa lo suyo en «datos»; acá se arman los contadores.
+function finEventos(j,d){const E=[],win=!!d.gano,compu=d.modo==='compu',dif=d.dif||'';
+  E.push(['partidas',1]);
+  if(win){E.push(['ganadas',1]);if(compu&&dif==='dificil')E.push(['ganadas_dif',1]);if(compu&&(dif==='normal'||dif==='dificil'))E.push(['ganadas_nd',1]);if(d.modo==='online')E.push(['ganadas_online',1]);}
+  if(j==='truco'&&win){if(d.meta&&d.tantos&&d.tantos[1]<d.meta/2)E.push(['zapatero',1]);if(d.remontada)E.push(['remontada',1]);}
+  if(j==='uno'&&win&&d.n>=6)E.push(['ganadas_6',1]);
+  if(j==='poblar'&&win){if(d.n>=4)E.push(['ganadas_4',1]);if(compu&&dif==='dificil'&&d.n>=3)E.push(['diez_dif',1]);}
+  return E;}
+function fin(j,d,key){
+  const out={nuevos:[],retos:[],html:''};if(!D[j]||!d)return out;const o=load();
+  if(visto(o,key&&(j+':fin:'+key))){save(o);return out;}
+  for(const [k,n] of finEventos(j,d))sumar(o,j,k,n);
+  const r=revisar(o,j);save(o);out.nuevos=r.nuevos;out.retos=r.cumplidos;
+  const p=[...r.nuevos.map(L=>`<span class="lg-chip"><i>${L.e}</i>${esc(L.n)}</span>`),...r.cumplidos.map(x=>`<span class="lg-chip reto"><i>🎯</i>${esc(x.txt)} · +${x.xp} XP</span>`)];
+  if(p.length){css();out.html=`<div class="lg-fin"><small>${r.nuevos.length?(r.nuevos.length===1?'Logro nuevo':'Logros nuevos'):''}${r.nuevos.length&&r.cumplidos.length?' y ':''}${r.cumplidos.length?(r.cumplidos.length===1?(r.nuevos.length?'reto cumplido':'Reto cumplido'):(r.nuevos.length?'retos cumplidos':'Retos cumplidos')):''}</small>${p.join('')}</div>`;}
+  return out;
+}
+
+/* ── Cartelito: aparece debajo de la barra de arriba, chico, y se va solo ── */
+const COLA=[];let MOSTRANDO=false;
+function avisar(j,r){for(const L of r.nuevos)COLA.push({e:L.e,t:'Logro: '+L.n,s:L.d});for(const x of r.cumplidos)COLA.push({e:'🎯',t:'Reto cumplido',s:`${x.txt} · +${x.xp} XP`});if(!MOSTRANDO)siguiente();}
+function siguiente(){const a=COLA.shift();if(!a){MOSTRANDO=false;return;}MOSTRANDO=true;css();
+  if(!document.body){MOSTRANDO=false;return;}
+  const el=document.createElement('div');el.className='lg-aviso';el.setAttribute('role','status');el.innerHTML=`<i>${a.e}</i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span>`;
+  document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
+  setTimeout(()=>{el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);},3400);}
+
+/* ── Apariencias ── */
+function nivel(j){try{const R=window.RANGOS;return R?R.levelInfo(R.xp(j)).lv:1;}catch(_){return 1;}}
+function libre(j,op,o){if(!op.lv&&!op.logro)return true;if(op.logro)return tiene(o,j,op.logro);return nivel(j)>=op.lv;}
+function apariencia(j,tipo){const A=D[j]&&D[j].ap[tipo];if(!A)return '';const o=load(),id=(o.ap[j]||{})[tipo],op=A.op.find(x=>x.id===id);return op&&libre(j,op,o)?op.id:A.op[0].id;}
+function elegir(j,tipo,id){const A=D[j]&&D[j].ap[tipo];if(!A)return false;const o=load(),op=A.op.find(x=>x.id===id);if(!op||!libre(j,op,o))return false;
+  (o.ap[j]=o.ap[j]||{})[tipo]=id;save(o);aplicar(j);return true;}
+function aplicar(j){const G=D[j];if(!G)return;css();
+  let st=document.getElementById('lg-ap-'+j);
+  if(!st){let txt='';for(const [tipo,A] of Object.entries(G.ap))for(const op of A.op.slice(1))txt+=A.css(op,`html[data-lg-${tipo}="${op.id}"]`)+'\n';
+    st=document.createElement('style');st.id='lg-ap-'+j;st.textContent=txt;(document.head||document.documentElement).appendChild(st);}
+  for(const tipo of Object.keys(G.ap)){const id=apariencia(j,tipo),A=G.ap[tipo];if(id===A.op[0].id)document.documentElement.removeAttribute('data-lg-'+tipo);else document.documentElement.setAttribute('data-lg-'+tipo,id);}
+}
+
+/* ── Panel ── */
+function diasHastaLunes(){const w=lunesAR(),next=Date.parse(w+'T03:00:00Z')+7*864e5,ms=next-Date.now(),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/3600e3);return d>=1?`${d} ${d===1?'día':'días'}`:`${Math.max(1,h)} ${h===1?'hora':'horas'}`;}
+function panelHtml(j){const G=D[j];if(!G)return '';css();const o=load(),c=o.c[j]||{},rs=retos(j),tot=G.logros.length,got=G.logros.filter(L=>tiene(o,j,L.id)).length;
+  const retH=rs.length?`<section class="lg-sec"><h3>Retos de la semana</h3><p class="lg-lead">Los mismos para todos. Se renuevan el lunes: faltan ${diasHastaLunes()}.</p>
+    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y ${fmt(Math.min(1000,r.xp*2))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
+  const logH=`<section class="lg-sec"><h3>Logros <small>${got} de ${tot}</small></h3><div class="lg-list">${G.logros.map(L=>{const on=tiene(o,j,L.id),m=L.m||1,v=Math.min(m,c[L.k]||0);
+    return `<div class="lg-l${on?' on':''}"><i>${L.e}</i><div><b>${esc(L.n)}</b><small>${esc(L.d)}</small>${!on&&m>1?`<div class="lg-bar"><i style="width:${(v/m*100).toFixed(1)}%"></i></div><small>${fmt(v)} de ${fmt(m)}</small>`:''}</div>${on?'<em>✓</em>':''}</div>`;}).join('')}</div></section>`;
+  const tipos=Object.entries(G.ap);
+  const apH=tipos.length?`<section class="lg-sec"><h3>Apariencias</h3><p class="lg-lead">Se destraban subiendo de nivel en ${esc(G.n)} (vas por el ${nivel(j)}) o con logros.</p>
+    ${tipos.map(([tipo,A])=>{const cur=apariencia(j,tipo);return `<h4>${esc(A.n)}</h4><div class="lg-aps">${A.op.map(op=>{const ok=libre(j,op,o),req=op.logro?`Logro: ${(G.logros.find(L=>L.id===op.logro)||{}).n||''}`:op.lv?`Nivel ${op.lv}`:'';
+      return `<button type="button" class="lg-ap${cur===op.id?' on':''}" data-lg-tipo="${tipo}" data-lg-id="${op.id}" ${ok?'':'disabled'} aria-pressed="${cur===op.id}"><span class="lg-sw" style="background:${op.sw}"></span><b>${esc(op.n)}</b><small>${cur===op.id?'Puesta':ok?'Elegir':'🔒 '+esc(req)}</small></button>`;}).join('')}</div>`;}).join('')}</section>`:'';
+  return `<div class="side-head"><button type="button" class="lg-back" id="lg-back" aria-label="Volver al menú">‹</button><h2>${rs.length?'Logros y retos':'Logros'}</h2><button class="side-x" id="lg-x" aria-label="Cerrar">✕</button></div><div class="lg-panel">${retH}${logH}${apH}</div>`;
+}
+function cablear(root,j,op={}){if(!root)return;
+  const b=root.querySelector('#lg-back');if(b)b.onclick=()=>{op.volver?op.volver():op.cerrar&&op.cerrar();};
+  const x=root.querySelector('#lg-x');if(x)x.onclick=()=>{op.cerrar?op.cerrar():(root.closest('.side')||{}).hidden=true;};
+  root.querySelectorAll('[data-lg-tipo]').forEach(el=>el.onclick=()=>{if(elegir(j,el.dataset.lgTipo,el.dataset.lgId)){const top=root.scrollTop;abrir(j,op);root.scrollTop=top;}});
+}
+function abrir(j,op={}){if(!op.side)return;op.side(panelHtml(j));const root=document.getElementById('side-panel');cablear(root,j,{...op,cerrar:op.cerrar||(()=>{const s=document.getElementById('side');if(s)s.hidden=true;})});}
+
+/* ── Para el menú de juegos y Mi cuenta ── */
+function contar(){const o=load(),out={};for(const j of ORDEN){if(OCULTOS.includes(j))continue;out[j]={tiene:D[j].logros.filter(L=>tiene(o,j,L.id)).length,total:D[j].logros.length};}return out;}
+function resumenHtml(){css();const C=contar(),o=load();
+  return `<div class="lg-res">${Object.entries(C).map(([j,x])=>{const rs=retos(j),h=rs.filter(r=>r.hecho).length;
+    return `<div class="lg-rr"><i>${D[j].e}</i><span><b>${esc(D[j].n)}</b><small>${x.tiene} de ${x.total} logros${rs.length?` · retos de la semana ${h}/${rs.length}`:''}</small></span><span class="lg-bar"><i style="width:${(x.tiene/x.total*100).toFixed(1)}%"></i></span></div>`;}).join('')}</div>`;}
+
+/* ── Cuenta: viaja dentro de RANGOS.exportData() ── */
+function exportData(){const o=load();return {g:o.g,c:o.c,s:{w:o.s.w,c:o.s.c,h:o.s.h},ap:o.ap,at:o.at||0};}
+// Une lo de la planilla con lo de acá. Devuelve {ch: cambió algo acá, falta: acá hay algo que la planilla no tiene}.
+function importData(d){
+  const res={ch:false,falta:false};if(!d||typeof d!=='object')return res;const o=load();
+  for(const [j,L] of Object.entries(d.g||{})){if(!D[j]||!L||typeof L!=='object')continue;o.g[j]=o.g[j]||{};
+    for(const [id,t] of Object.entries(L))if(Number.isFinite(t)&&(!o.g[j][id]||t<o.g[j][id])){if(!o.g[j][id])res.ch=true;o.g[j][id]=t;}}
+  for(const [j,L] of Object.entries(o.g))for(const id of Object.keys(L))if(!(d.g&&d.g[j]&&d.g[j][id]))res.falta=true;
+  for(const [j,C] of Object.entries(d.c||{})){if(!D[j]||!C||typeof C!=='object')continue;const c=cnt(o,j);for(const [k,v] of Object.entries(C))if(Number.isFinite(v)&&v>(c[k]||0)){c[k]=v;res.ch=true;}}
+  for(const [j,C] of Object.entries(o.c))for(const [k,v] of Object.entries(C))if(v>((d.c&&d.c[j]&&d.c[j][k])||0))res.falta=true;
+  const s=d.s;if(s&&s.w===o.s.w){for(const [j,C] of Object.entries(s.c||{})){if(!D[j])continue;const sc=(o.s.c[j]=o.s.c[j]||{});for(const [k,v] of Object.entries(C||{}))if(Number.isFinite(v)&&v>(sc[k]||0)){sc[k]=v;res.ch=true;}}
+    for(const [j,H] of Object.entries(s.h||{})){if(!D[j]||!Array.isArray(H))continue;const sh=(o.s.h[j]=o.s.h[j]||[]);for(const id of H)if(!sh.includes(id)){sh.push(id);res.ch=true;}}}
+  // la apariencia: si acá no se eligió nada, la de la cuenta
+  for(const [j,A] of Object.entries(d.ap||{})){if(!D[j]||!A)continue;o.ap[j]=o.ap[j]||{};for(const [t,id] of Object.entries(A))if(!o.ap[j][t]&&typeof id==='string'){o.ap[j][t]=id;res.ch=true;}}
+  // Los retos que la planilla ya tenía cumplidos se marcan acá sin volver a dar el premio.
+  if(res.ch)save(o);
+  return res;
+}
+function ocultar(L){OCULTOS=Array.isArray(L)?L.slice():[];}
+
+/* ── Estilos (propios: se ven bien sobre los menús oscuros de todos los juegos) ── */
+const CSS=`.lg-panel{display:flex;flex-direction:column;gap:16px;font:500 13.5px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink,#eef1ea)}
+.side-head .lg-back{min-width:40px;height:40px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.04);color:inherit;font-size:22px;line-height:1;margin-right:8px}
+.side-head .lg-back+h2{flex:1}
+.lg-sec h3{margin:0 0 6px;font:700 16px/1.25 system-ui,-apple-system,sans-serif;display:flex;align-items:baseline;gap:8px}.lg-sec h3 small{font-weight:600;font-size:12.5px;opacity:.7}
+.lg-sec h4{margin:12px 0 6px;font:700 13.5px/1.2 system-ui,-apple-system,sans-serif;opacity:.9}
+.lg-lead{margin:0 0 8px;font-size:12.5px;opacity:.72}
+.lg-reto{padding:10px 12px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.035);margin-bottom:8px}
+.lg-reto.ok{border-color:rgba(120,210,150,.55);background:rgba(87,212,155,.08)}
+.lg-rt{display:flex;flex-direction:column;gap:2px;margin-bottom:7px}.lg-rt b{font-size:14px}.lg-rt small{font-size:12px;opacity:.75}
+.lg-bar{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}.lg-bar>i{display:block;height:100%;background:#f2c14e;border-radius:3px}
+.lg-reto.ok .lg-bar>i{background:#57d49b}
+.lg-list{display:flex;flex-direction:column;gap:6px}
+.lg-l{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.025)}
+.lg-l>i{font-style:normal;font-size:20px;line-height:1.2;width:26px;text-align:center;flex:none;filter:grayscale(1);opacity:.45}
+.lg-l>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.lg-l b{font-size:13.5px}.lg-l small{font-size:12px;opacity:.72}
+.lg-l .lg-bar{margin-top:3px}.lg-l>em{font-style:normal;color:#57d49b;font-weight:800;font-size:15px;flex:none}
+.lg-l.on{border-color:rgba(242,193,78,.45);background:rgba(242,193,78,.07)}.lg-l.on>i{filter:none;opacity:1}
+.lg-aps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lg-ap{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:9px;border-radius:12px;border:1px solid var(--line,#33404d);background:rgba(255,255,255,.035);color:inherit;font:inherit;text-align:left;min-height:84px;cursor:pointer}
+.lg-ap b{font-size:13px;line-height:1.2}.lg-ap small{font-size:11.5px;opacity:.75}
+.lg-ap.on{border-color:#f2c14e;box-shadow:inset 0 0 0 1px #f2c14e}
+.lg-ap:disabled{cursor:default;opacity:.55}.lg-ap:disabled .lg-sw{filter:saturate(.4)}
+.lg-sw{display:block;width:100%;height:24px;border-radius:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.lg-aviso{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:40;transform:translate(-50%,-14px);opacity:0;transition:transform .24s ease,opacity .24s ease;
+  display:flex;align-items:center;gap:10px;max-width:min(360px,calc(100vw - 24px));padding:9px 14px 9px 10px;border-radius:14px;background:rgba(18,20,24,.94);border:1px solid rgba(242,193,78,.6);
+  box-shadow:0 10px 28px rgba(0,0,0,.45);color:#f4f1e8;font:500 13px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;pointer-events:none}
+.lg-aviso.on{transform:translate(-50%,0);opacity:1}
+.lg-aviso>i{font-style:normal;font-size:22px;flex:none}.lg-aviso span{display:flex;flex-direction:column;min-width:0}.lg-aviso b{font-size:13.5px}.lg-aviso small{opacity:.78;font-size:12px}
+.lg-fin{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:6px 0 2px}.lg-fin>small{flex-basis:100%;text-align:center;font-size:12px;opacity:.75}
+.lg-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 7px;border-radius:999px;background:rgba(242,193,78,.16);border:1px solid rgba(190,145,40,.55);font:700 12.5px/1.25 system-ui,-apple-system,sans-serif}
+.lg-chip i{font-style:normal}.lg-chip.reto{background:rgba(87,212,155,.14);border-color:rgba(60,160,110,.55)}
+.lg-res{display:flex;flex-direction:column;gap:8px}
+.lg-rr{display:grid;grid-template-columns:26px 1fr 64px;align-items:center;gap:8px}.lg-rr>i{font-style:normal;font-size:19px;text-align:center}.lg-rr span{display:flex;flex-direction:column;min-width:0}
+.lg-rr b{font-size:13.5px}.lg-rr small{font-size:12px;opacity:.72}
+@media (prefers-reduced-motion:reduce){.lg-aviso{transition:none}}`;
+function css(){if(document.getElementById('lg-css'))return;const s=document.createElement('style');s.id='lg-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
+
+window.LOGROS={D,evento,marca,fin,abrir,panelHtml,cablear,aplicar,apariencia,elegir,retos,contar,resumenHtml,exportData,importData,ocultar,css,lunesAR,_retosDe:retosDe};
 })();
 
 </script>
@@ -833,15 +1181,28 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:60,grande:true,titulo:'Novedades',items:[
+    ['🏅','Logros en todos los juegos: TrucAR, UnoAR, PoblAR, EstanciAR y La Gran Pampa. Y BloqueAR suma muchas medallas nuevas.'],
+    ['🎯','Retos de la semana: 3 por juego, los mismos para todos. Cambian el lunes y dan XP y pesos para tu estancia.'],
+    ['🎨','Apariencias para destrabar: paños y dorsos en TrucAR y UnoAR, el mar de PoblAR y bloques nuevos en BloqueAR.'],
+    ['🏆','Tablas de cada juego (☰ › Tablas): quién va primero en rango, en nivel y en logros.'],
+    ['🎴','UnoAR: el «¡UNO!» se canta sólo cuando de verdad podés quedarte con una carta.']]},
+  {v:59,grande:true,titulo:'Novedades',items:[
+    ['🏘️','PoblAR de a 2, 3 o 4: contra la compu o en línea, con una mesa donde invitás a varios amigos (los lugares vacíos los juega la compu). Con 3 o 4 se juega a 10 puntos.'],
+    ['🤠','Con varios jugadores, cuando sale 7 cada uno elige qué descartar, y el cuatrero te deja elegir a quién robarle.'],
+    ['👆','PoblAR responde mejor al tacto: los botones ya no quedan corridos y no se hace zoom solo.']]},
   // todos: el resumen completo; lo ven todos (también los que recién llegan o todavía no se crearon la cuenta).
   {v:58,grande:true,todos:true,titulo:'Todo lo que hay',items:[
-    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa.'],
-    ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords y llevás tu progreso a otro celular.'],
+    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
+    ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords, entrás a La Gran Pampa y llevás tu progreso a otro celular.'],
     ['💬','Chat con tus amigos (el botón 💬 de arriba): ahora alcanza con la cuenta, ya no hace falta ingresar el PIN.'],
-    ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar. Y la tabla de récords tiene su propio lugar (☰ › Ver tabla).'],
-    ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir.'],
-            ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
-    ['🏘️','PoblAR: el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
+    ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar.'],
+    ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir. Cada juego tiene logros, 3 retos por semana y apariencias para destrabar.'],
+    ['🏆','Tablas de cada juego (☰ › Tablas): mirá quién va primero en rango, nivel y logros.'],
+    ['🚩','La Gran Pampa: cada lunes un mapa nuevo con los que se suman (lunes o martes). Lo que ganás en partidas ranked te da leguas para crecer.'],
+    ['🐎','EstanciAR: sembrá, criá animales, poné tapias y salí de malón (ahora se ven a ×2 y te llevás lo que estaba listo).'],
+    ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
+    ['🏘️','PoblAR: ahora de a 2, 3 o 4, contra la compu o en línea con amigos. Y el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
     ['📱','Anda mejor en el celular: menos memoria, gráficos livianos de entrada y el sonido se pausa cuando salís del juego.']]},
   {v:57,grande:true,titulo:'Novedades',items:[
     ['⚔️','Versus más parejo: las líneas que te mandan tardan unos segundos en entrar (la barra se pone naranja) y las podés atajar haciendo líneas. Cuatro líneas mandan 3.'],
@@ -850,12 +1211,15 @@ const LISTA=[
     ['🖥️','BloqueAR arranca con gráficos livianos (anda mejor en el celular). Se cambian en Ajustes › Gráficos.'],
     ['🎵','En línea suena Techno oscuro.'],
     ['🃏','TrucAR: al terminar la mano ya no se ven las cartas que el otro no tiró.'],
-            ['🏘️','PoblAR: siempre se ve quién tiene el camino más largo y la tropilla. Y si te roban, te llevan un recurso o te descartan con un 7, te sale un aviso que explica qué pasó.']]},
+    ['🐎','EstanciAR: los malones se pueden ver a ×2, hay tapias para defender la estancia y en un malón también te llevás lo que estaba listo para juntar.'],
+    ['🚩','La Gran Pampa: malones parejos. Tu estancia defiende al menos como una del nivel del que ataca, y si te sacan un paraje con un malón lo podés recuperar con un relámpago (gratis una vez por semana).'],
+    ['🏘️','PoblAR: siempre se ve quién tiene el camino más largo y la tropilla. Y si te roban, te llevan un recurso o te descartan con un 7, te sale un aviso que explica qué pasó.']]},
   {v:56,grande:true,titulo:'Novedades',items:[
     ['📱','Arreglamos una pérdida de memoria de la música que crecía en partidas largas y duelos. Probablemente era lo que reiniciaba el juego con la pantalla en blanco: si te vuelve a pasar, avisanos.'],
     ['👥','Nuevo botón «Gente» en el menú de juegos: ves a todos, su perfil, les escribís o los invitás a jugar. Desde ahí también está la tabla.'],
     ['👤','«Mi cuenta» tiene su propio lugar: tu avatar, tu nivel y el rango de cada juego, sin abrir BloqueAR.'],
-        ['🔁','Revancha en línea (PoblAR y TrucAR): arranca cuando los dos dicen que sí.'],
+    ['🚩','La Gran Pampa: ahora te sumás a la semana (lunes o martes) y el mapa se arma según cuántos se suman. Las leguas salen sólo de partidas ranked.'],
+    ['🔁','Revancha en línea (PoblAR y TrucAR): arranca cuando los dos dicen que sí.'],
     ['🎮','Al aceptar una invitación entrás directo a la partida, estés donde estés.'],
     ['🃏','TrucAR: al cerrar las reglas te ofrece empezar una partida.'],
     ['🎓','El tutorial de BloqueAR enseña a bajar la pieza más rápido.']]},
@@ -865,7 +1229,8 @@ const LISTA=[
     ['🧱','Retos de BloqueAR: si te arrepentís, tocá «No, jugar normal» y jugás sin el reto.'],
     ['🃏','TrucAR: la mesa se acomoda a cada pantalla y las cartas ya no se salen del paño.'],
     ['🎮','El botón para volver a los juegos ahora dice «Juegos».'],
-        ['📱','Si BloqueAR se cierra de golpe en tu celular, al volver pasa solo a gráficos livianos.']]},
+    ['🗺️','La Gran Pampa: las fichas de arriba (leguas, puesto y reloj) ya entran en los celulares chicos.'],
+    ['📱','Si BloqueAR se cierra de golpe en tu celular, al volver pasa solo a gráficos livianos.']]},
 ];
 const K='bloques-novedades';
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}}};
@@ -905,7 +1270,7 @@ function items(ns){return ns[0].todos?ns[0].items:ns.flatMap(n=>n.items).slice(0
 function sinCuenta(){try{const a=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');return !(a&&a.usuario);}catch(_){return false;}}
 function abrir(ns,alCerrar){
   css();const w=document.createElement('div');w.className='nv-scrim';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','nv-t');
-  const v=ns[0].v;
+  const v=ns[0].todos?ULT:ns[0].v;
   w.innerHTML=`<div class="nv-card"><h2 id="nv-t">${esc(ns[0].titulo||'Novedades')}</h2><p class="nv-v">${ns[0].todos?`Versión ${v}: lo nuevo y todo lo que ya había`:`Versión ${v}${ns.length>1?(ns.length===2?' y la anterior':` y las ${ns.length-1} anteriores`):''}`}</p><ul>${items(ns).map(([e,t])=>`<li><i aria-hidden="true">${e}</i><span>${esc(t)}</span></li>`).join('')}</ul><div class="nv-pie">${ns[0].todos&&sinCuenta()?'<button type="button" id="nv-cta">Crear mi cuenta</button><button type="button" id="nv-ok" class="nv-alt">Ahora no</button>':'<button type="button" id="nv-ok">Dale</button>'}</div></div>`;
   const cerrar=()=>{w.remove();document.removeEventListener('keydown',tecla,true);alCerrar&&alCerrar();};
   const tecla=e=>{if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();e.stopPropagation();cerrar();}};
@@ -935,7 +1300,6 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
 })();
 
 </script>
-<style id="sin-estancia">.hub-game[data-game=estancia],.hub-game[data-game=pampa],.hub-campo-h,.hub-campo,a[href^="estancia.html"],a[href^="pampa.html"],[data-g=estancia],[data-pick=estancia]{display:none!important}</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -1026,8 +1390,9 @@ function acciones(M,p){const H=M.H;if(!H||H.fin||M.fin)return [];
     if(H.robo&&H.robo.p===p){const c=H.robo.c;if(c&&H.manos[p].includes(c)&&sePuede(M,c))out.push({t:'jugar',c});out.push({t:'pasar'});}
     else{for(const c of H.manos[p])if(sePuede(M,c))out.push({t:'jugar',c});out.push({t:'robar'});}
   }
-  // ¡UNO!: el que va a quedar con una (tiene 2 y le toca) o el que quedó con una sin avisar
-  if(!H.uno[p]&&((H.turno===p&&H.manos[p].length===2)||(H.olvido===p&&H.manos[p].length===1)))out.push({t:'uno'});
+  // ¡UNO!: el que va a quedar con una (tiene 2, le toca y tiene alguna para tirar) o el que quedó con una sin avisar
+  const vaAQuedar=H.turno===p&&H.manos[p].length===2&&!(H.robo&&H.robo.p===p)&&H.manos[p].some(c=>sePuede(M,c));
+  if(!H.uno[p]&&(vaAQuedar||(H.olvido===p&&H.manos[p].length===1)))out.push({t:'uno'});
   if(H.olvido!==null&&H.olvido!==p&&H.manos[H.olvido].length===1)out.push({t:'cantar',a:H.olvido});
   return out;}
 function quienJuega(M){return M.H&&!M.H.fin&&!M.fin?M.H.turno:null;}
@@ -1303,7 +1668,16 @@ function aplicar(q,a){
   if(M.mano!==mano0||M.H.fin||M.fin){seguir();return null;}
   seguir();return null;
 }
-function anunciarUltimo(desde){const u=E&&E.ultimo;if(!u)return;
+// Logros y retos (v60): cada jugada mía se cuenta una vez (la clave es la partida y el número de jugada).
+const LG=()=>window.LOGROS&&(!AUTO||window.LOGROS_TEST);
+function lgJugada(){const u=E&&E.ultimo;if(!LG()||!u||u.p!==0)return;const k='u'+(E.id||'')+':'+E.acc,a=u.a;
+  try{if(a.t==='uno')LOGROS.evento('uno','uno_dicho',1,k);else if(a.t==='cantar')LOGROS.evento('uno','cantadas',1,k);else if(a.t==='jugar'&&cVal(a.c)==='X')LOGROS.evento('uno','mas4',1,k);}catch(e){console.warn('logros',e);}}
+function lgMano(){if(!LG()||!E||!E.finMano||E.finMano.gano!==0)return;const F=E.finMano,k='u'+(E.id||'')+':m'+E.mano,u=E.ultimo;
+  try{LOGROS.evento('uno','manos',1,k);if(F.pts)LOGROS.evento('uno','puntos',F.pts,k);LOGROS.marca('uno','mano_max',F.pts||0,k);
+    if(u&&u.p===0&&u.a.t==='jugar'){const v=cVal(u.a.c);if(v==='X')LOGROS.evento('uno','cierre4',1,k);else if(v==='W')LOGROS.evento('uno','cierre_comodin',1,k);}}catch(e){console.warn('logros',e);}}
+function lgFin(gane){if(!LG())return '';const amigo=E.tipos.some((t,q)=>q!==0&&t!=='bot');
+  try{return LOGROS.fin('uno',{gano:gane,modo:amigo?'online':'compu',dif:MODO==='compu'?CFG.dif:'normal',n:E.n},'u'+(E.id||'')).html;}catch(e){console.warn('logros',e);return '';}}
+function anunciarUltimo(desde){const u=E&&E.ultimo;if(!u)return;lgJugada();
   const q=u.p,a=u.a;
   if(a.t==='jugar'){volar(desde,a.c);sfx('carta');const v=cVal(a.c);
     if(v==='X'||v==='D'||v==='S'||v==='R'||v==='W'){const t=v==='X'?`+4 · ${CNOM[a.color]}`:v==='W'?`Comodín · ${CNOM[a.color]}`:v==='D'?'+2':v==='S'?'¡Salta!':'¡Reversa!';if(q!==0)dicho(q,t);}}
@@ -1364,7 +1738,7 @@ let ON_T=0;
 function lineas(){return E.nombres.map((nm,q)=>`<div${E.finMano&&E.finMano.gano===q?' class="win"':''}><span>${esc(nm)}</span><b>${fmt(E.puntos[q])}</b></div>`).join('');}
 function mostrarFinMano(){
   if(!E||!E.finMano||E.fin)return;const key=(E.id||'')+':'+E.mano;if(FIN_VISTO===key)return;FIN_VISTO=key;
-  const F=E.finMano,gane=F.gano===0;sfx(gane?'gano':'pierdo');clearInterval(TMR);
+  const F=E.finMano,gane=F.gano===0;sfx(gane?'gano':'pierdo');clearInterval(TMR);lgMano();
   over(`<div class="ic">${gane?'🏆':'🃏'}</div><h3>${gane?'¡Te quedaste sin cartas!':esc(E.nombres[F.gano])+' se quedó sin cartas'}</h3>
     <p>Suma <b>${fmt(F.pts)}</b> ${F.pts===1?'punto':'puntos'} con lo que les quedaba a los demás.</p>
     <div class="lines">${lineas()}</div><p class="cap">Gana el primero que llega a ${E.meta}.</p>
@@ -1380,7 +1754,7 @@ function siguienteMano(){hideOver();
 function mostrarFin(){
   if(!E||!E.fin)return;const key='fin:'+(E.id||'');if(FIN_VISTO===key)return;FIN_VISTO=key;clearInterval(TMR);clearTimeout(ON_T);LIMITE=0;
   const gane=E.gano===0;sfx(gane?'gano':'pierdo');if(MODO==='compu')ls.set(SAVE,null);
-  const rk=premios(gane);
+  lgMano();const rk=premios(gane);rk.html+=lgFin(gane);
   over(`<div class="ic">${gane?'🏆':'🃏'}</div><h3>${gane?'¡Ganaste la partida!':`Ganó ${esc(E.nombres[E.gano])}`}</h3>
     ${E.meta?`<div class="lines">${lineas()}</div>`:''}${rk.html}
     <div class="row"><button class="btn go" id="pf-otra">${MODO==='guest'?'Esperar otra':'Otra partida'}</button></div>
@@ -1445,12 +1819,14 @@ function openMenu(){
   openSide(`<div class="side-head"><h2>Menú</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div>${window.RANGOS?RANGOS.mine('uno'):''}<div class="menu-list">
     <button id="m-new">🃏 Partida nueva</button><button id="m-friend">👥 Armar una mesa con amigos</button><button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 58</p>`);
+    ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=uno">🏆 Tabla</a>
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 60</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='juego'&&!(E&&E.fin)){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});
   $('m-friend').onclick=go(openMesa);$('m-log').onclick=go(openLog);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-snd').onclick=()=>{SND=!SND;ls.set('uno-sonido',SND?'1':'0');openMenu();};
+  if($('m-logros'))$('m-logros').onclick=()=>LOGROS.abrir('uno',{side:openSide,volver:openMenu,cerrar:closeSide});
 }
 $('btn-menu').onclick=openMenu;
 function openLog(){const L=(E&&E.log)||[];sheet('Lo que pasó',L.length?`<ol class="log">${L.slice().reverse().map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:'<p>Todavía no pasó nada.</p>');}
@@ -1769,6 +2145,7 @@ function esperarInvitacion(){
   setTimeout(()=>pollInbox(true),300);
 }
 (function start(){
+  try{window.LOGROS&&LOGROS.aplicar('uno');}catch(_){}
   // Para las pruebas: #auto hace que la compu juegue también por vos (#auto-rapido, sin esperas).
   if(/[#&]auto/.test(location.hash)){FAST=/rapido/.test(location.hash);AUTO=true;const d=(location.hash.match(/dif=(\w+)/)||[])[1];if(d&&DIFN[d])CFG.dif=d;
     const b=(location.hash.match(/bots=(\d)/)||[])[1];if(b)CFG.bots=Math.max(1,Math.min(5,Number(b)));
@@ -1795,12 +2172,6 @@ window.UNO={refrescar,get M(){return M;},get E(){return E;},get MODO(){return MO
   decidir,vistaDe,estadoPara,quienJuega,acciones,repartir,jugar,seguir,mostrarFinMano,mostrarFin,siguienteMano,render,enviarEstados,perdioLugar,
   set FAST(v){FAST=v;},set AUTO(v){AUTO=v;},get BUSY(){return BUSY;}};
 
-</script>
-<script>/* Paquete sin EstanciAR ni La Gran Pampa */
-(function(){try{if(window.RANGOS)RANGOS.premio=function(){return null;};}catch(e){}
-function limpiar(){document.querySelectorAll('.wel-row').forEach(function(r){if(/EstanciAR|La Gran Pampa/.test(r.textContent))r.remove();});}
-limpiar();document.addEventListener('DOMContentLoaded',limpiar);
-try{var u=localStorage.getItem('bloques-ultimo-juego');if(u==='estancia'||u==='pampa')localStorage.setItem('bloques-ultimo-juego','bloquear');}catch(e){}})();
 </script>
 </body>
 </html>
