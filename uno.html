@@ -460,13 +460,23 @@ estancia:{n:'EstanciAR',e:'🐎',
     {id:'aguante',e:'🛡️',n:'Aguante',d:'Rechazá un malón de otro jugador.',k:'aguantes'},
     {id:'nivel5',e:'🏡',n:'Estancia en marcha',d:'Llevá tu estancia a nivel 5.',k:'nivel',m:5,marca:true},
     {id:'nivel10',e:'🏰',n:'Gran estancia',d:'Llevá tu estancia a nivel 10.',k:'nivel',m:10,marca:true},
+    {id:'pinta',e:'🤠',n:'Pinta de gaucho',d:'Vestí a tu personaje.',k:'pinta'},
+    {id:'mascota',e:'🐾',n:'Compañero fiel',d:'Comprá una mascota.',k:'mascotas'},
+    {id:'mimos50',e:'💛',n:'Malcriador',d:'Cuidá a tu mascota 50 veces.',k:'mimos',m:50},
+    {id:'pedidos10',e:'📜',n:'Buen vecino',d:'Entregá 10 pedidos de los vecinos.',k:'pedidos',m:10},
+    {id:'racha7',e:'🧰',n:'Siete de siete',d:'Abrí el cofre del día 7 días seguidos.',k:'racha',m:7,marca:true},
+    {id:'latifundio',e:'🗺️',n:'Latifundista',d:'Ampliá tu campo a 24×24.',k:'casco',m:7,marca:true},
+    {id:'visitas5',e:'🎸',n:'Casa de puertas abiertas',d:'Recibí 5 visitas.',k:'visitas',m:5},
+    {id:'feria',e:'🎪',n:'De feria',d:'Comprá algo en la feria del fin de semana.',k:'feria'},
+    {id:'mejoras',e:'⚒️',n:'Fortificado',d:'Mejorá defensas 5 veces.',k:'mejoras',m:5},
     {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
   retos:[
     {id:'c',k:'cosechas',v:[10,20],t:n=>`Cosechá ${n} veces`,xp:50},
     {id:'j',k:'juntar',v:[15,25],t:n=>`Juntá lo de tus animales ${n} veces`,xp:45},
     {id:'m',k:'malones',v:[1,3],t:n=>n===1?'Ganá un malón':`Ganá ${n} malones`,xp:60},
     {id:'o',k:'compras',v:[2,4],t:n=>`Comprá o construí ${n} cosas`,xp:45},
-    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55}],
+    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55},
+    {id:'p',k:'pedidos',v:[2,4],t:n=>`Entregá ${n} pedidos de los vecinos`,xp:50}],
   ap:{}},
 pampa:{n:'La Gran Pampa',e:'🗺️',
   logros:[
@@ -544,11 +554,17 @@ function fin(j,d,key){
 /* ── Cartelito: aparece debajo de la barra de arriba, chico, y se va solo ── */
 const COLA=[];let MOSTRANDO=false;
 function avisar(j,r){for(const L of r.nuevos)COLA.push({e:L.e,t:'Logro: '+L.n,s:L.d});for(const x of r.cumplidos)COLA.push({e:'🎯',t:'Reto cumplido',s:`${x.txt} · +${x.xp} XP`});if(!MOSTRANDO)siguiente();}
-function siguiente(){const a=COLA.shift();if(!a){MOSTRANDO=false;return;}MOSTRANDO=true;css();
+// Si el juego está mostrando su propio cartel (.toast), espera a que se vaya; y si aparece uno mientras se ve éste,
+// se corre y vuelve después, para que nunca queden uno encima del otro.
+const hayToast=()=>!!document.querySelector('.toast');
+function siguiente(espera=0){if(!COLA.length){MOSTRANDO=false;return;}MOSTRANDO=true;
   if(!document.body){MOSTRANDO=false;return;}
+  if(hayToast()&&espera<25){setTimeout(()=>siguiente(espera+1),400);return;}
+  const a=COLA.shift();css();
   const el=document.createElement('div');el.className='lg-aviso';el.setAttribute('role','status');el.innerHTML=`<i>${a.e}</i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span>`;
   document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
-  setTimeout(()=>{el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);},3400);}
+  let t=0;const iv=setInterval(()=>{t+=300;const corta=hayToast()&&t<3000;
+    if(t>=3400||corta){clearInterval(iv);if(corta)COLA.unshift(a);el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);}},300);}
 
 /* ── Apariencias ── */
 function nivel(j){try{const R=window.RANGOS;return R?R.levelInfo(R.xp(j)).lv:1;}catch(_){return 1;}}
@@ -1181,6 +1197,12 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:61,grande:true,titulo:'Novedades',items:[
+    ['🃏','TrucAR de a 2, 4 o 6, en dos equipos: contra la compu o con amigos, con señas entre compañeros.'],
+    ['🐎','EstanciAR: tu gauchito camina por el campo y lo vestís como quieras. Ampliá el terreno, hay muchas cosas nuevas en la tienda, pedidos de los vecinos, cofre del día, visitas y feria el fin de semana.'],
+    ['🐶','EstanciAR: comprá una mascota (perro, gato, carpincho, mulita o ñandú). Tocala para darle de comer, bañarla, jugar y hacerla dormir.'],
+    ['🗺️','La Gran Pampa: cada semana arrancás con 5 leguas. Los terrenos se distinguen mejor y cada uno sirve para algo: la laguna riega la pastura, desde la sierra llegás más lejos y el monte cuesta más desafiarlo.'],
+    ['📲','El QR y el enlace para pasarle la app a alguien abren el menú de juegos.']]},
   {v:60,grande:true,titulo:'Novedades',items:[
     ['🏅','Logros en todos los juegos: TrucAR, UnoAR, PoblAR, EstanciAR y La Gran Pampa. Y BloqueAR suma muchas medallas nuevas.'],
     ['🎯','Retos de la semana: 3 por juego, los mismos para todos. Cambian el lunes y dan XP y pesos para tu estancia.'],
@@ -1193,14 +1215,14 @@ const LISTA=[
     ['👆','PoblAR responde mejor al tacto: los botones ya no quedan corridos y no se hace zoom solo.']]},
   // todos: el resumen completo; lo ven todos (también los que recién llegan o todavía no se crearon la cuenta).
   {v:58,grande:true,todos:true,titulo:'Todo lo que hay',items:[
-    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
+    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR (de a 2, 4 o 6) y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
     ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords, entrás a La Gran Pampa y llevás tu progreso a otro celular.'],
     ['💬','Chat con tus amigos (el botón 💬 de arriba): ahora alcanza con la cuenta, ya no hace falta ingresar el PIN.'],
     ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar.'],
     ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir. Cada juego tiene logros, 3 retos por semana y apariencias para destrabar.'],
     ['🏆','Tablas de cada juego (☰ › Tablas): mirá quién va primero en rango, nivel y logros.'],
     ['🚩','La Gran Pampa: cada lunes un mapa nuevo con los que se suman (lunes o martes). Lo que ganás en partidas ranked te da leguas para crecer.'],
-    ['🐎','EstanciAR: sembrá, criá animales, poné tapias y salí de malón (ahora se ven a ×2 y te llevás lo que estaba listo).'],
+    ['🐎','EstanciAR: tu gauchito, tu mascota, sembrá, criá animales, ampliá el campo, cumplí pedidos de los vecinos y salí de malón.'],
     ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
     ['🏘️','PoblAR: ahora de a 2, 3 o 4, contra la compu o en línea con amigos. Y el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
     ['📱','Anda mejor en el celular: menos memoria, gráficos livianos de entrada y el sonido se pausa cuando salís del juego.']]},
@@ -1820,7 +1842,7 @@ function openMenu(){
     <button id="m-new">🃏 Partida nueva</button><button id="m-friend">👥 Armar una mesa con amigos</button><button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=uno">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 60</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 61</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='juego'&&!(E&&E.fin)){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});

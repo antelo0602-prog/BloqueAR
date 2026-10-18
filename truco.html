@@ -195,6 +195,70 @@ button{font:inherit;color:inherit;cursor:pointer}
   .hand{height:calc(var(--ch) + 8px)}}
 @media (prefers-reduced-motion:reduce){.sheet,.side-panel,.toast,.say,.hand.deal .card,.backs.deal .card{animation:none}.flying{transition:none}}
 
+
+/* ───── De a 4 y de a 6: la mesa por equipos ───── */
+.table[hidden]{display:none}
+:root{--qw:46px;--qh:69px}
+.eq-top{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;padding:8px max(10px,env(safe-area-inset-right)) 4px max(10px,env(safe-area-inset-left))}
+.eq-score{gap:5px;padding:6px 8px}.eq-score .nm{min-width:54px;font-size:11.5px;font-weight:750}
+.qpips{display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.qp{font:700 11px/1 system-ui,sans-serif;color:#a99a7e;padding:3px 6px;border-radius:6px;background:rgba(0,0,0,.22);white-space:nowrap}
+.qp.w{color:#123;background:#7ce9e5}.qp.l{color:#2a140a;background:#e8956a}.qp.p{color:#2a1f12;background:#cdbb98}
+.qpips small{font-size:10.5px;color:#bfae8a}
+.eq-felt{justify-content:flex-start;padding:0}
+.eq-ring{position:absolute;inset:0;z-index:1}
+.qseat{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;width:80px;text-align:center;z-index:2;pointer-events:none}
+.qseat .av{width:36px;height:36px;font-size:19px;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 0 0 3px var(--tc)}
+.qseat b{max-width:80px;font:700 12px/1.1 var(--serif);color:#f3e9d0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.qseat small{display:flex;gap:4px;align-items:center;min-height:13px}
+.qseat.turn .av{animation:qturn 1.1s ease-in-out infinite}
+@keyframes qturn{50%{box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 0 0 3px var(--tc),0 0 0 8px rgba(246,196,83,.35)}}
+.qt{font:800 9.5px/1 system-ui;font-style:normal;letter-spacing:.03em;color:#2a1f12;background:linear-gradient(#d4b674,#b89550);border-radius:4px;padding:2px 4px 1px;text-transform:uppercase}
+.qbk{display:flex;gap:2px}.qbk i{width:7px;height:10px;border-radius:2px;background:#7e2a21;box-shadow:inset 0 0 0 1px #e8d3a6}
+.qbk.deal i{animation:dealTop .3s ease-out both}
+.qslot{position:absolute;transform:translate(-50%,-50%);width:var(--qw);height:var(--qh);border-radius:7px;box-shadow:inset 0 0 0 1.5px rgba(214,196,150,.12)}
+.qslot .card{position:absolute;inset:0;width:100%;height:100%;box-shadow:0 5px 12px rgba(0,0,0,.4)}
+.qslot .card.win{box-shadow:0 0 0 2px #e9cf86,0 0 16px rgba(233,207,134,.6),0 5px 12px rgba(0,0,0,.45)}
+.qslot .card.lose{filter:saturate(.55) brightness(.8)}
+.qparda{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 11px/1 system-ui;letter-spacing:.06em;color:#e7dcc4;background:rgba(20,16,10,.85);border-radius:6px;padding:5px 8px 4px;z-index:3}
+.qsenas{position:absolute;left:8px;right:8px;bottom:6px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;z-index:3;pointer-events:none}
+.qsenas span{font:700 11px/1.15 system-ui,sans-serif;color:#efe6d2;background:rgba(20,16,10,.62);border:1px solid rgba(124,233,229,.35);border-radius:8px;padding:3px 6px}
+.qsenas small{margin-left:4px;color:#bfae8a;font-weight:600}
+.qsay{position:absolute;z-index:6;max-width:min(220px,62vw);padding:7px 11px;border-radius:12px;background:var(--parch);color:var(--brown);font:700 15.5px/1.15 var(--serif);box-shadow:0 10px 24px rgba(0,0,0,.45);border:1px solid var(--rule);pointer-events:none;white-space:nowrap;animation:sayIn .22s cubic-bezier(.2,1.4,.4,1)}
+.qsay small{display:block;font:600 11.5px/1.25 system-ui,sans-serif;color:#6b5a44;margin-top:1px;white-space:normal}
+.qsay.hot{background:#f5e3c8;border-color:#c9925a;color:#5a1f12}
+.qsay.mi{transform:translate(-50%,32px)}.qsay.ri{transform:translate(calc(-100% - 26px),-50%)}.qsay.le{transform:translate(26px,-50%)}
+.qsay.m{bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);top:auto}
+.qsay.sena{padding:4px 8px;font-size:22px;border-radius:50%;line-height:1}
+.eqt .acts .act.sena{padding:0 10px}.eqt .acts .act.sena small{display:block}
+.qsn{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:min(340px,calc(100vw - 24px))}
+.pick .qsn button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:50px;padding:4px 4px;text-align:center}
+.pick .qsn button span{font-size:19px;line-height:1}.pick .qsn button b{font-size:11.5px;line-height:1.1}
+#eq-pick{max-height:calc(var(--app-h,100vh) - 120px);overflow:auto}
+.ccard .qmosts{display:flex;flex-direction:column;gap:4px;text-align:left}
+.ccard .qmost{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}
+.ccard .qmost>span:first-child{min-width:70px;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccard .qmost .mini{display:flex;gap:4px}.ccard .qmost .mini .card{width:34px;height:51px}
+.qcols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.qcols h5{margin:0 0 4px;font:700 14px/1.2 var(--serif)}
+.qlug{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;border:1px solid var(--rule);background:#fbf7ee;margin-bottom:6px;min-width:0}
+.qlug .av{width:30px;height:30px;font-size:16px}.qlug>div{min-width:0;flex:1}.qlug b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.qlug small{display:block;font-size:11px;color:var(--soft)}
+.qlug.bot{opacity:.75}.qlug .qx{width:28px;height:28px;border-radius:8px;border:1px solid #c9b48c;background:#f3ead6;font-size:12px;flex:none}
+.ulist li button.riv{background:linear-gradient(#e9a07a,#c9744d);border-color:#8a4a2a}
+.ulist li button+button{margin-left:-4px}
+.ulist li small.note{font-size:11.5px}
+.eqt .hand .card{width:calc(var(--cw)*.86);height:calc(var(--ch)*.86)}.eqt .hand{height:calc(var(--ch)*.86 + 16px)}
+@media (max-height:740px){:root{--qw:42px;--qh:63px}.qseat .av{width:32px;height:32px;font-size:17px}}
+@media (max-height:640px){:root{--qw:38px;--qh:57px}.eq-top{padding-top:4px}.qseat b{font-size:11px}}
+@media (max-width:370px){.eq-score .nm{min-width:44px}.qp{font-size:10px}}
+@media (min-width:700px) and (min-height:700px){:root{--qw:62px;--qh:93px}.eqt .eq-felt{width:min(860px,calc(100% - 28px));margin-left:auto;margin-right:auto}.qseat{width:110px}.qseat b{max-width:110px;font-size:14px}.qseat .av{width:44px;height:44px;font-size:23px}}
+@media (orientation:landscape) and (max-height:520px){
+  :root{--qw:36px;--qh:54px}
+  .table.eqt{grid-template-columns:minmax(0,1fr) minmax(240px,36%)}
+  .eqt .eq-top{grid-column:1;grid-row:1;padding-top:3px;padding-bottom:2px;min-width:0}.eq-score{gap:2px;padding:4px 8px}.eq-score .meta{display:none}.qpips{flex-direction:row;align-items:center;flex-wrap:wrap}
+  .eqt .eq-felt{grid-column:1;grid-row:2;flex-direction:column}
+  .eqt .me{grid-column:2;grid-row:1/3}
+  .qseat .av{width:28px;height:28px;font-size:15px}.qseat b{font-size:10.5px}.qseat{width:70px}
+  .eqt .hand .card{width:var(--cw);height:var(--ch)}.eqt .hand{height:calc(var(--ch) + 8px)}}
 /* el botón de juegos dice «Juegos» (un amigo no lo reconocía) */
 .games-btn{grid-template-columns:repeat(2,6px)!important;grid-template-rows:6px 6px auto!important;gap:2px!important;min-width:44px;align-content:center}.games-btn i{width:6px!important;height:6px!important}.games-btn b{grid-column:1/-1;font:800 9px/1 system-ui,-apple-system,sans-serif;letter-spacing:.02em;color:#d5e6ea;margin-top:2px;text-align:center;white-space:nowrap}
 </style>
@@ -466,13 +530,23 @@ estancia:{n:'EstanciAR',e:'🐎',
     {id:'aguante',e:'🛡️',n:'Aguante',d:'Rechazá un malón de otro jugador.',k:'aguantes'},
     {id:'nivel5',e:'🏡',n:'Estancia en marcha',d:'Llevá tu estancia a nivel 5.',k:'nivel',m:5,marca:true},
     {id:'nivel10',e:'🏰',n:'Gran estancia',d:'Llevá tu estancia a nivel 10.',k:'nivel',m:10,marca:true},
+    {id:'pinta',e:'🤠',n:'Pinta de gaucho',d:'Vestí a tu personaje.',k:'pinta'},
+    {id:'mascota',e:'🐾',n:'Compañero fiel',d:'Comprá una mascota.',k:'mascotas'},
+    {id:'mimos50',e:'💛',n:'Malcriador',d:'Cuidá a tu mascota 50 veces.',k:'mimos',m:50},
+    {id:'pedidos10',e:'📜',n:'Buen vecino',d:'Entregá 10 pedidos de los vecinos.',k:'pedidos',m:10},
+    {id:'racha7',e:'🧰',n:'Siete de siete',d:'Abrí el cofre del día 7 días seguidos.',k:'racha',m:7,marca:true},
+    {id:'latifundio',e:'🗺️',n:'Latifundista',d:'Ampliá tu campo a 24×24.',k:'casco',m:7,marca:true},
+    {id:'visitas5',e:'🎸',n:'Casa de puertas abiertas',d:'Recibí 5 visitas.',k:'visitas',m:5},
+    {id:'feria',e:'🎪',n:'De feria',d:'Comprá algo en la feria del fin de semana.',k:'feria'},
+    {id:'mejoras',e:'⚒️',n:'Fortificado',d:'Mejorá defensas 5 veces.',k:'mejoras',m:5},
     {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
   retos:[
     {id:'c',k:'cosechas',v:[10,20],t:n=>`Cosechá ${n} veces`,xp:50},
     {id:'j',k:'juntar',v:[15,25],t:n=>`Juntá lo de tus animales ${n} veces`,xp:45},
     {id:'m',k:'malones',v:[1,3],t:n=>n===1?'Ganá un malón':`Ganá ${n} malones`,xp:60},
     {id:'o',k:'compras',v:[2,4],t:n=>`Comprá o construí ${n} cosas`,xp:45},
-    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55}],
+    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55},
+    {id:'p',k:'pedidos',v:[2,4],t:n=>`Entregá ${n} pedidos de los vecinos`,xp:50}],
   ap:{}},
 pampa:{n:'La Gran Pampa',e:'🗺️',
   logros:[
@@ -550,11 +624,17 @@ function fin(j,d,key){
 /* ── Cartelito: aparece debajo de la barra de arriba, chico, y se va solo ── */
 const COLA=[];let MOSTRANDO=false;
 function avisar(j,r){for(const L of r.nuevos)COLA.push({e:L.e,t:'Logro: '+L.n,s:L.d});for(const x of r.cumplidos)COLA.push({e:'🎯',t:'Reto cumplido',s:`${x.txt} · +${x.xp} XP`});if(!MOSTRANDO)siguiente();}
-function siguiente(){const a=COLA.shift();if(!a){MOSTRANDO=false;return;}MOSTRANDO=true;css();
+// Si el juego está mostrando su propio cartel (.toast), espera a que se vaya; y si aparece uno mientras se ve éste,
+// se corre y vuelve después, para que nunca queden uno encima del otro.
+const hayToast=()=>!!document.querySelector('.toast');
+function siguiente(espera=0){if(!COLA.length){MOSTRANDO=false;return;}MOSTRANDO=true;
   if(!document.body){MOSTRANDO=false;return;}
+  if(hayToast()&&espera<25){setTimeout(()=>siguiente(espera+1),400);return;}
+  const a=COLA.shift();css();
   const el=document.createElement('div');el.className='lg-aviso';el.setAttribute('role','status');el.innerHTML=`<i>${a.e}</i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span>`;
   document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
-  setTimeout(()=>{el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);},3400);}
+  let t=0;const iv=setInterval(()=>{t+=300;const corta=hayToast()&&t<3000;
+    if(t>=3400||corta){clearInterval(iv);if(corta)COLA.unshift(a);el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);}},300);}
 
 /* ── Apariencias ── */
 function nivel(j){try{const R=window.RANGOS;return R?R.levelInfo(R.xp(j)).lv:1;}catch(_){return 1;}}
@@ -1187,6 +1267,12 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:61,grande:true,titulo:'Novedades',items:[
+    ['🃏','TrucAR de a 2, 4 o 6, en dos equipos: contra la compu o con amigos, con señas entre compañeros.'],
+    ['🐎','EstanciAR: tu gauchito camina por el campo y lo vestís como quieras. Ampliá el terreno, hay muchas cosas nuevas en la tienda, pedidos de los vecinos, cofre del día, visitas y feria el fin de semana.'],
+    ['🐶','EstanciAR: comprá una mascota (perro, gato, carpincho, mulita o ñandú). Tocala para darle de comer, bañarla, jugar y hacerla dormir.'],
+    ['🗺️','La Gran Pampa: cada semana arrancás con 5 leguas. Los terrenos se distinguen mejor y cada uno sirve para algo: la laguna riega la pastura, desde la sierra llegás más lejos y el monte cuesta más desafiarlo.'],
+    ['📲','El QR y el enlace para pasarle la app a alguien abren el menú de juegos.']]},
   {v:60,grande:true,titulo:'Novedades',items:[
     ['🏅','Logros en todos los juegos: TrucAR, UnoAR, PoblAR, EstanciAR y La Gran Pampa. Y BloqueAR suma muchas medallas nuevas.'],
     ['🎯','Retos de la semana: 3 por juego, los mismos para todos. Cambian el lunes y dan XP y pesos para tu estancia.'],
@@ -1199,14 +1285,14 @@ const LISTA=[
     ['👆','PoblAR responde mejor al tacto: los botones ya no quedan corridos y no se hace zoom solo.']]},
   // todos: el resumen completo; lo ven todos (también los que recién llegan o todavía no se crearon la cuenta).
   {v:58,grande:true,todos:true,titulo:'Todo lo que hay',items:[
-    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
+    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR (de a 2, 4 o 6) y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
     ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords, entrás a La Gran Pampa y llevás tu progreso a otro celular.'],
     ['💬','Chat con tus amigos (el botón 💬 de arriba): ahora alcanza con la cuenta, ya no hace falta ingresar el PIN.'],
     ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar.'],
     ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir. Cada juego tiene logros, 3 retos por semana y apariencias para destrabar.'],
     ['🏆','Tablas de cada juego (☰ › Tablas): mirá quién va primero en rango, nivel y logros.'],
     ['🚩','La Gran Pampa: cada lunes un mapa nuevo con los que se suman (lunes o martes). Lo que ganás en partidas ranked te da leguas para crecer.'],
-    ['🐎','EstanciAR: sembrá, criá animales, poné tapias y salí de malón (ahora se ven a ×2 y te llevás lo que estaba listo).'],
+    ['🐎','EstanciAR: tu gauchito, tu mascota, sembrá, criá animales, ampliá el campo, cumplí pedidos de los vecinos y salí de malón.'],
     ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
     ['🏘️','PoblAR: ahora de a 2, 3 o 4, contra la compu o en línea con amigos. Y el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
     ['📱','Anda mejor en el celular: menos memoria, gráficos livianos de entrada y el sonido se pausa cuando salís del juego.']]},
@@ -1329,6 +1415,18 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
       <div class="pick" id="pick" hidden></div>
     </div>
     <div class="center" id="center" hidden></div>
+  </div>
+  <div class="table eqt" id="eqt" hidden>
+    <div class="onl" id="eq-onl"></div>
+    <div class="eq-top" id="eq-top"></div>
+    <div class="felt eq-felt" id="eq-felt"><div class="eq-ring" id="eq-ring"></div></div>
+    <div class="me" id="eq-me">
+      <div class="status" id="eq-status" aria-live="polite"></div>
+      <div class="acts" id="eq-acts"></div>
+      <div class="hand" id="eq-hand"></div>
+      <div class="pick" id="eq-pick" hidden></div>
+    </div>
+    <div class="center" id="eq-center" hidden></div>
   </div>
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
@@ -1612,6 +1710,274 @@ function estadoPara(M,p,revelar=false){
     ultimo:M.ultimo?{p:rel(M.ultimo.p),a:M.ultimo.a}:null,miEnvido:envidoDe(H.repartidas[p]),log:M.log.slice(-60)};
 }
 /* ==== FIN MOTOR ==== */
+/* ==== MOTOR DE EQUIPOS ==== */
+/* TrucAR de a 4 (2 contra 2) o de a 6 (3 contra 3), sin flor. Usa las cartas, el envido y las bazas del motor de a dos.
+   Lugares 0…n-1 alrededor de la mesa en sentido antihorario; los pares son un equipo y los impares el otro
+   (compañeros intercalados). Reparte uno, es mano el de su derecha (el que sigue) y la ronda va siguiendo los lugares.
+   · Bazas: gana la carta más alta. Si las más altas son de los dos equipos, es parda. Si empatan dos del mismo
+     equipo, la gana ese equipo. La baza siguiente la arranca el que la ganó (con parda, el mismo que arrancó).
+   · Envido: en la primera baza, el que tiene el turno y todavía no tiró. Contesta el otro equipo. Al querer cuenta
+     el mejor tanto de cada equipo; los tantos se dicen desde la mano («son buenas» / «son mejores»). Empate: el más mano.
+   · Truco: lo canta el que tiene el turno; sube el equipo que quiso el último. Contesta cualquiera del otro equipo.
+   · Al mazo: se va todo el equipo.
+   · Señas: cada uno le puede hacer señas a sus compañeros; sólo las ven ellos. */
+const EQ_TRUCO_N=['','Truco','Retruco','Vale cuatro'];
+const eqTeam=s=>s%2;
+function eqNueva(o={}){
+  const np=o.np===6?6:4,conSemilla=!!(o.seed>>>0),seed=conSemilla?(o.seed>>>0):0,R=conSemilla?rngDe(seed):azar();
+  const id='e'+Math.floor(azar()()*2**31).toString(36)+Math.floor(azar()()*2**31).toString(36);
+  const nombres=(o.nombres||[]).slice(0,np);while(nombres.length<np)nombres.push('Jugador '+(nombres.length+1));
+  const tipos=(o.tipos||[]).slice(0,np);while(tipos.length<np)tipos.push('bot');
+  return {v:2,eq:true,np,id,meta:o.meta===15?15:30,seed,tantos:[0,0],nombres,tipos,n:0,
+    reparte:o.reparte??Math.floor(R()*np),mano:0,H:null,fin:false,gano:null,log:[],ultimo:null,acc:0};
+}
+function eqAnotar(M,t){M.log.push(t);if(M.log.length>240)M.log.splice(0,M.log.length-240);}
+const eqSig=(M,s,k=1)=>(s+k)%M.np;
+function eqRepartir(M,cartas){
+  M.n++;if(M.n>1)M.reparte=eqSig(M,M.reparte);M.mano=eqSig(M,M.reparte);
+  let d=cartas;if(!d){const R=M.seed?rngDe((M.seed+M.n*2654435761)>>>0):azar();d=mezclar(mazo(),R);}
+  const cs=[];for(let s=0;s<M.np;s++)cs.push(d.slice(s*3,s*3+3));
+  M.H={n:M.n,cartas:cs.map(c=>c.slice()),repartidas:cs.map(c=>c.slice()),jugadas:cs.map(()=>[]),baza:0,bazas:[],abre:M.mano,turno:M.mano,
+    env:{canto:[],hecho:false,res:null},tru:{nivel:0,quiero:null},pend:null,susp:null,fin:false,gano:null,pts:0,por:'',senas:[]};
+  M.ultimo=null;
+  eqAnotar(M,`Mano ${M.n}: reparte ${M.nombres[M.reparte]}, es mano ${M.nombres[M.mano]}.`);
+  return M.H;
+}
+// El orden de esta mano empezando por la mano (para decir los tantos y para desempatar).
+const eqOrden=M=>Array.from({length:M.np},(_,i)=>eqSig(M,M.mano,i));
+const eqHumano=t=>t==='yo'||t==='humano';
+// Quién contesta un canto de «por»: el primero del otro equipo que sigue en la ronda, y si hay una persona en ese equipo, ella.
+function eqResponde(M,por){const eqR=1-eqTeam(por),L=[];for(let i=1;i<M.np;i++){const s=eqSig(M,por,i);if(eqTeam(s)===eqR)L.push(s);}
+  return L.find(s=>eqHumano(M.tipos[s]))??L[0];}
+const eqQuienJuega=M=>{const H=M.H;if(!H||H.fin||M.fin)return -1;return H.pend?H.pend.resp:H.turno;};
+const eqPuedeEnvido=(M,p)=>{const H=M.H;return H.baza===0&&!H.env.hecho&&H.jugadas[p].length===0&&H.tru.nivel===0;};
+const eqPuedeTruco=(M,p)=>{const H=M.H;return !H.pend&&H.turno===p&&H.tru.nivel<3&&(H.tru.nivel===0||H.tru.quiero===eqTeam(p));};
+function eqAcciones(M,p){
+  const H=M.H,out=[];if(!H||H.fin||M.fin)return out;
+  if(H.pend){
+    if(eqTeam(p)===eqTeam(H.pend.por))return out;   // contesta el otro equipo (cualquiera de ellos)
+    out.push({t:'quiero'},{t:'noquiero'});
+    if(H.pend.k==='env'){for(const k of envSiguientes(H.env.canto))out.push({t:'env',k});}
+    else{if(H.pend.nivel<3)out.push({t:'truco'});
+      if(eqPuedeEnvido(M,p))for(const k of ['E','R','F'])out.push({t:'env',k,primero:true});}
+    return out;}
+  if(H.turno!==p)return out;
+  for(const c of H.cartas[p])out.push({t:'carta',c});
+  if(eqPuedeEnvido(M,p))for(const k of ['E','R','F'])out.push({t:'env',k});
+  if(eqPuedeTruco(M,p))out.push({t:'truco'});
+  out.push({t:'mazo'});
+  return out;
+}
+const eqFalta=M=>Math.max(1,M.meta-Math.max(M.tantos[0],M.tantos[1]));
+const SENAS={
+  ae:{e:'🤨',t:'levanta las cejas',d:'el ancho de espadas'},ab:{e:'😉',t:'guiña el ojo',d:'el ancho de bastos'},
+  se:{e:'😏',t:'tuerce la boca a la derecha',d:'el 7 de espadas'},so:{e:'😒',t:'tuerce la boca a la izquierda',d:'el 7 de oros'},
+  t3:{e:'😬',t:'se muerde el labio',d:'un 3'},t2:{e:'😗',t:'tira un beso',d:'un 2'},af:{e:'😮',t:'abre la boca',d:'un ancho falso'},
+  env:{e:'😤',t:'infla los cachetes',d:'tiene envido'},nada:{e:'😑',t:'cierra los ojos',d:'no tiene nada'}};
+// Aplica una acción de p. Devuelve null si se pudo o el motivo si no vale.
+function eqJugar(M,p,a){
+  if(M.fin)return 'La partida terminó.';const H=M.H;if(!H||H.fin)return 'La mano terminó.';
+  if(a&&a.t==='sena'){if(!SENAS[a.s])return 'Esa seña no existe.';if(H.senas.filter(x=>x.p===p).length>=4)return 'Ya hiciste muchas señas.';
+    H.senas.push({p,s:a.s,b:H.baza});M.acc++;return null;}   // no es una jugada: no cambia el turno ni se anota
+  if(!eqAcciones(M,p).some(x=>mismaAccion(x,a)))return eqQuienJuega(M)===p||H.pend?'Eso no se puede ahora.':'No es tu turno.';
+  const yo=M.nombres[p];
+  M.ultimo={p,a:{...a}};M.acc++;
+  if(H.pend){
+    if(H.pend.k==='env'){
+      if(a.t==='quiero')return eqResolverEnvido(M,p,true);
+      if(a.t==='noquiero')return eqResolverEnvido(M,p,false);
+      H.env.canto.push(a.k);H.pend={k:'env',por:p,resp:eqResponde(M,p)};eqAnotar(M,`${yo}: «${ENV_N[a.k]}».`);return null;}
+    const L=H.pend.nivel;
+    if(a.t==='quiero'){H.tru.nivel=L;H.tru.quiero=eqTeam(p);H.pend=null;eqAnotar(M,`${yo}: «Quiero».`);return null;}
+    if(a.t==='noquiero'){eqAnotar(M,`${yo}: «No quiero».`);return eqTerminar(M,eqTeam(H.pend.por),L,'no quiso el '+EQ_TRUCO_N[L].toLowerCase());}
+    if(a.t==='truco'){H.tru.nivel=L;H.tru.quiero=eqTeam(p);H.pend={k:'truco',nivel:L+1,por:p,resp:eqResponde(M,p)};eqAnotar(M,`${yo}: «Quiero ${EQ_TRUCO_N[L+1].toLowerCase()}».`);return null;}
+    if(a.t==='env'){H.susp=H.pend;H.env.canto=[a.k];H.pend={k:'env',por:p,resp:eqResponde(M,p)};eqAnotar(M,`${yo}: «El envido está primero: ${ENV_N[a.k].toLowerCase()}».`);return null;}
+    return 'Eso no se puede ahora.';
+  }
+  if(a.t==='carta'){
+    const i=H.cartas[p].indexOf(a.c);H.cartas[p].splice(i,1);H.jugadas[p].push(a.c);
+    eqAnotar(M,`${yo} tira ${nombreCarta(a.c)}.`);
+    const faltan=eqOrdenBaza(M).filter(s=>H.jugadas[s].length<=H.baza);
+    if(!faltan.length)return eqCerrarBaza(M);
+    H.turno=faltan[0];return null;}
+  if(a.t==='env'){H.env.canto=[a.k];H.pend={k:'env',por:p,resp:eqResponde(M,p)};eqAnotar(M,`${yo}: «${ENV_N[a.k]}».`);return null;}
+  if(a.t==='truco'){H.pend={k:'truco',nivel:H.tru.nivel+1,por:p,resp:eqResponde(M,p)};eqAnotar(M,`${yo}: «${EQ_TRUCO_N[H.tru.nivel+1]}».`);return null;}
+  if(a.t==='mazo'){eqAnotar(M,`${yo} se va al mazo (con su equipo).`);return eqTerminar(M,1-eqTeam(p),valorTruco(H.tru.nivel),'se fue al mazo');}
+  return 'Eso no se puede ahora.';
+}
+// Orden de la baza actual: desde el que la abre.
+const eqOrdenBaza=M=>Array.from({length:M.np},(_,i)=>eqSig(M,M.H.abre,i));
+// Tantos: quién gana y lo que se dice en voz alta, desde la mano.
+function eqEnvidos(M){
+  // Habla la mano; después sólo el que mejora el tanto del otro equipo («son mejores»). Al final, el último del
+  // equipo que perdió dice «son buenas». A igual tanto gana el más mano (el que habló antes).
+  const H=M.H,ord=eqOrden(M),e=H.repartidas.map(envidoDe),dichos=[];let lider=null;// lider: {s,v}
+  for(const s of ord){
+    if(!lider){lider={s,v:e[s]};dichos.push({p:s,txt:`Tengo ${e[s]}`,v:e[s]});continue;}
+    if(eqTeam(s)===eqTeam(lider.s))continue;// el compañero del que va ganando no habla
+    if(e[s]>lider.v){lider={s,v:e[s]};dichos.push({p:s,txt:`${e[s]} son mejores`,v:e[s]});}}
+  const pierde=1-eqTeam(lider.s),ult=ord.filter(s=>eqTeam(s)===pierde).pop();
+  dichos.push({p:ult,txt:'Son buenas',v:null});
+  return {gana:eqTeam(lider.s),quien:lider.s,v:lider.v,e,dichos};
+}
+function eqResolverEnvido(M,p,quiso){
+  const H=M.H,canto=H.env.canto,canta=H.pend.por;let gano,pts,info=null;
+  if(!quiso){gano=eqTeam(canta);pts=envNoQuerido(canto);eqAnotar(M,`${M.nombres[p]}: «No quiero». ${M.nombres[canta]} y los suyos suman ${pts}.`);}
+  else{pts=canto.includes('F')?eqFalta(M):envQuerido(canto,M);info=eqEnvidos(M);gano=info.gana;
+    eqAnotar(M,`${M.nombres[p]}: «Quiero». `+info.dichos.map(d=>`${M.nombres[d.p]}: «${d.txt}»`).join('. ')+'.');
+    eqAnotar(M,`Gana el envido el equipo de ${M.nombres[info.quien]} (${info.v}): ${pts} ${pts===1?'punto':'puntos'}.`);}
+  H.env.hecho=true;H.env.res={quiso,pts,gano,canto:canto.slice(),quien:info?info.quien:canta,v:info?info.v:null,dichos:info?info.dichos:[],e:info?info.e:null};
+  H.pend=null;if(H.susp){H.pend=H.susp;H.susp=null;}
+  eqSumar(M,gano,pts);return null;
+}
+function eqSumar(M,t,pts){M.tantos[t]=Math.min(M.meta,M.tantos[t]+pts);
+  if(M.tantos[t]>=M.meta&&!M.fin){M.fin=true;M.gano=t;if(M.H){M.H.fin=true;M.H.pend=null;M.H.susp=null;if(M.H.gano==null){M.H.gano=t;M.H.por='llegó a '+M.meta;}}
+    eqAnotar(M,`🏆 El equipo de ${M.nombres[t]} llegó a ${M.meta} y gana la partida.`);}}
+function eqCerrarBaza(M){
+  const H=M.H,b=H.baza,ord=eqOrdenBaza(M);let best=-1,quien=null,teams=new Set();
+  for(const s of ord){const r=rango(H.jugadas[s][b]);if(r>best){best=r;quien=s;teams=new Set([eqTeam(s)]);}else if(r===best)teams.add(eqTeam(s));}
+  const w=teams.size>1?'p':eqTeam(quien);
+  H.bazas.push(w);H.ganoBaza=(H.ganoBaza||[]);H.ganoBaza.push(w==='p'?null:quien);
+  eqAnotar(M,w==='p'?`${['Primera','Segunda','Tercera'][b]}: parda.`:`${['Primera','Segunda','Tercera'][b]} para el equipo de ${M.nombres[quien]} (${nombreCarta(H.jugadas[quien][b])}).`);
+  const g=ganadorMano(H.bazas,eqTeam(M.mano));
+  if(g!==null)return eqTerminar(M,g,valorTruco(H.tru.nivel),'ganó las bazas');
+  H.baza++;if(w!=='p')H.abre=quien;H.turno=H.abre;return null;
+}
+function eqTerminar(M,t,pts,por){
+  const H=M.H;H.fin=true;H.gano=t;H.pts=pts;H.por=por;H.pend=null;H.susp=null;
+  eqAnotar(M,`El equipo de ${M.nombres[eqOrden(M).find(s=>eqTeam(s)===t)]} gana la mano: ${pts} ${pts===1?'punto':'puntos'}.`);
+  eqSumar(M,t,pts);return null;
+}
+// Lo que se le muestra a p, con p siempre en el lugar 0, sus compañeros en los pares y «nosotros» como equipo 0.
+function eqEstadoPara(M,p){
+  const H=M.H,n=M.np,rel=s=>s==null?s:(s-p+n)%n,relT=t=>t==null||t==='p'?t:(t===eqTeam(p)?0:1),abs=r=>(r+p)%n,miEq=eqTeam(p);
+  let env=null;
+  if(H.env.res){const r=H.env.res;env={quiso:r.quiso,pts:r.pts,gano:relT(r.gano),canto:r.canto.slice(),quien:rel(r.quien),v:r.v,dichos:r.dichos.map(d=>({p:rel(d.p),txt:d.txt,v:d.v})),mio:envidoDe(H.repartidas[p])};}
+  let fm=null;
+  if(H.fin){const most={};
+    for(let r=1;r<n;r++){const s=abs(r),vis=new Set(H.jugadas[s]);if(H.env.res&&H.env.res.quiso&&H.env.res.quien===s)for(const c of cartasEnvido(H.repartidas[s]))vis.add(c);
+      most[r]=H.repartidas[s].filter(c=>vis.has(c));}
+    fm={gano:relT(H.gano),pts:H.pts,por:H.por,mostradas:most,nivel:H.tru.nivel,porQuien:M.ultimo?rel(M.ultimo.p):null};}
+  const A=eqAcciones(M,p);
+  return {v:2,eq:true,np:n,id:M.id,acc:M.acc||0,n:M.n,meta:M.meta,tantos:[M.tantos[miEq],M.tantos[1-miEq]],
+    nombres:Array.from({length:n},(_,r)=>M.nombres[abs(r)]),tipos:Array.from({length:n},(_,r)=>M.tipos[abs(r)]),
+    mano:rel(M.mano),reparte:rel(M.reparte),mias:H.cartas[p].slice(),misRepartidas:H.repartidas[p].slice(),
+    jugadas:Array.from({length:n},(_,r)=>H.jugadas[abs(r)].slice()),lesQuedan:Array.from({length:n},(_,r)=>H.cartas[abs(r)].length),
+    bazas:H.bazas.map(relT),ganoBaza:(H.ganoBaza||[]).map(rel),baza:H.baza,abre:rel(H.abre),turno:rel(H.turno),
+    pend:H.pend?{k:H.pend.k,nivel:H.pend.nivel,por:rel(H.pend.por),resp:rel(H.pend.resp)}:null,susp:H.susp?{k:H.susp.k,nivel:H.susp.nivel,por:rel(H.susp.por)}:null,
+    tru:{nivel:H.tru.nivel,quiero:relT(H.tru.quiero)},envCanto:H.env.canto.slice(),envHecho:H.env.hecho,env,
+    senas:H.senas.filter(x=>x.p!==p&&eqTeam(x.p)===miEq).map(x=>({p:rel(x.p),s:x.s,b:x.b})),
+    acciones:A,finMano:fm,fin:M.fin,gano:M.fin?relT(M.gano):null,juega:rel(eqQuienJuega(M)),
+    ultimo:M.ultimo?{p:rel(M.ultimo.p),a:M.ultimo.a}:null,miEnvido:envidoDe(H.repartidas[p]),log:M.log.slice(-80)};
+}
+
+/* ───── La compu en equipo ─────
+   Juega con lo que ve (sus cartas y las que salieron). Entre compañeros que son compu se pasan las señas: saben qué
+   tiene el otro (como hacen las parejas de verdad). A una persona de su equipo no le ven las cartas. */
+const EQ_MC={facil:0,normal:40,dificil:120};
+const EQ_IA={
+  facil:{error:.15,envCanta:29,envQuiere:28,truCanta:.80,truQuiere:.55,sube:.95,farol:0},
+  normal:{error:.05,envCanta:27,envQuiere:26,truCanta:.70,truQuiere:.45,sube:.88,farol:.05},
+  dificil:{error:0,envCanta:26,envQuiere:25,truCanta:.66,truQuiere:.42,sube:.84,farol:.07}};
+// Probabilidad de que el equipo de p gane la mano: se imaginan las cartas que no se ven (las de los rivales y las de
+// los compañeros que son personas) y se juega el resto de la mano con una regla simple para todos.
+function eqJuegoSimple(cs,mejor,vaMio,lidera,baza,ganamos){const o=cs.slice().sort((a,b)=>rango(a)-rango(b));
+  if(lidera)return baza===0?o[Math.min(1,o.length-1)]:ganamos?o[0]:o[o.length-1];
+  if(vaMio)return o[0];const m=o.find(c=>rango(c)>mejor);return m||o[0];}
+function eqChance(M,p,N,R,comp){
+  const H=M.H,np=M.np,yo=eqTeam(p),conoce=new Set([p,...comp]),vistas=new Set();
+  for(const s of conoce)for(const c of H.repartidas[s])vistas.add(c);
+  for(let s=0;s<np;s++)for(const c of H.jugadas[s])vistas.add(c);
+  const pool=mazo().filter(c=>!vistas.has(c)),ocultos=[];for(let s=0;s<np;s++)if(!conoce.has(s))ocultos.push(s);
+  let gana=0;
+  for(let k=0;k<N;k++){mezclar(pool,R);let i=0;const manos=[];
+    for(let s=0;s<np;s++){if(conoce.has(s))manos[s]=H.cartas[s].slice();else{manos[s]=pool.slice(i,i+H.cartas[s].length);i+=H.cartas[s].length;}}
+    const bz=H.bazas.slice();let b=H.baza,abre=H.abre;const jug=H.jugadas.map(x=>x.slice());
+    let g=ganadorMano(bz,eqTeam(M.mano)),guard=0;
+    while(g===null&&b<3&&guard++<8){
+      const ord=Array.from({length:np},(_,j)=>(abre+j)%np);let best=-1,quien=null,tms=new Set();
+      for(const s of ord){let c=jug[s][b];
+        if(c===undefined){const vaMio=quien!==null&&tms.size===1&&eqTeam(quien)===eqTeam(s);
+          c=eqJuegoSimple(manos[s],best,vaMio,quien===null,b,bz.includes(eqTeam(s)));manos[s].splice(manos[s].indexOf(c),1);jug[s][b]=c;}
+        const r=rango(c);if(r>best){best=r;quien=s;tms=new Set([eqTeam(s)]);}else if(r===best)tms.add(eqTeam(s));}
+      const w=tms.size>1?'p':eqTeam(quien);bz.push(w);if(w!=='p')abre=quien;b++;g=ganadorMano(bz,eqTeam(M.mano));}
+    if(g===yo)gana++;}
+  return gana/N;
+}
+function eqDecidir(M,p,nivel='normal',R=Math.random){
+  const P=EQ_IA[nivel]||EQ_IA.normal,H=M.H,A=eqAcciones(M,p),has=(t,k)=>A.find(a=>a.t===t&&(k===undefined||a.k===k));
+  if(!A.length)return null;
+  const yo=eqTeam(p),comp=[];for(let s=0;s<M.np;s++)if(s!==p&&eqTeam(s)===yo&&M.tipos[s]==='bot')comp.push(s);
+  const miEnv=envidoDe(H.repartidas[p]),envEq=Math.max(miEnv,...comp.map(s=>envidoDe(H.repartidas[s])));
+  const leFalta=M.meta-M.tantos[1-yo],meFalta=M.meta-M.tantos[yo],falta=eqFalta(M);
+  const gan=H.bazas.filter(b=>b===yo).length,per=H.bazas.filter(b=>b===1-yo).length;
+  // Fuerza del equipo: mis cartas y las de los compañeros compu, más lo que ya se ganó o perdió.
+  const fz=Math.max(fuerza(H.cartas[p].length?H.cartas[p]:H.repartidas[p]),...comp.map(s=>.9*fuerza(H.cartas[s].length?H.cartas[s]:H.repartidas[s])));
+  const mc=EQ_MC[nivel]||0;let estC=null;const estF=()=>{if(estC==null)estC=mc&&H.cartas[p].length?eqChance(M,p,mc,R,comp):Math.max(0,Math.min(1,fz+.22*gan-.28*per-(M.np===6?.06:0)));return estC;};
+  const extraEnv=M.np===6?2:1;
+  // 1) Me cantaron algo
+  if(H.pend){
+    if(H.pend.k==='env'){const canto=H.env.canto,acc=canto.includes('F')?falta:envQuerido(canto,M);
+      if(R()<P.error)return R()<.5?{t:'quiero'}:{t:'noquiero'};
+      if(envEq>=32&&has('env','R'))return {t:'env',k:'R'};
+      if(envEq>=33&&has('env','F')&&meFalta<=falta)return {t:'env',k:'F'};
+      if(canto.includes('F')&&falta>=leFalta&&envEq<30)return {t:'noquiero'};
+      const umbral=P.envQuiere+extraEnv+(canto.includes('R')?1:0)+(acc>=5?1:0);
+      return envEq>=umbral?{t:'quiero'}:{t:'noquiero'};}
+    const L=H.pend.nivel;
+    if(has('env','E')&&envEq>=P.envCanta+extraEnv+1)return {t:'env',k:envEq>=31&&R()<.5?'R':'E'};
+    if(R()<P.error)return R()<.6?{t:'quiero'}:{t:'noquiero'};
+    const est=estF();
+    if(L<3&&est>P.sube&&R()<.7)return {t:'truco'};
+    if(L>=leFalta)return {t:'quiero'};
+    if(L+1>=leFalta&&est<.5)return {t:'noquiero'};
+    // quiero si conviene: ganando vale L+1, sin querer se pierden L
+    return est>=P.truQuiere+(L-1)*.04?{t:'quiero'}:{t:'noquiero'};
+  }
+  // 2) ¿Envido? Lo canta uno solo del equipo: el que tenga más entre los compu (o yo, si no hay otro).
+  if(has('env','E')){
+    const mejorCompu=comp.filter(s=>eqPuedeEnvido(M,s)).some(s=>envidoDe(H.repartidas[s])>miEnv);
+    if(!mejorCompu){let k=null;
+      if(miEnv>=33&&has('env','F')&&(falta<=6||meFalta<=falta))k='F';
+      else if(miEnv>=31)k=R()<.5?'R':'E';
+      else if(miEnv>=P.envCanta+extraEnv)k='E';
+      else if(miEnv<=21&&R()<P.farol)k='E';
+      if(k)return {t:'env',k};}}
+  // 3) ¿Truco?
+  if(has('truco')){const L=H.tru.nivel+1,est=estF();
+    if(est>=P.truCanta+(L-1)*.06||(est>=P.truCanta-.08&&gan>0)||(R()<P.farol&&est>.3))return {t:'truco'};}
+  // 4) Una carta
+  const cartas=A.filter(a=>a.t==='carta').map(a=>a.c);if(!cartas.length)return {t:'mazo'};
+  const ord=cartas.slice().sort((a,b)=>rango(a)-rango(b));
+  if(R()<P.error)return {t:'carta',c:cartas[Math.floor(R()*cartas.length)]};
+  const b=H.baza,orden=eqOrdenBaza(M),yaJ=orden.filter(s=>H.jugadas[s].length>b),despues=orden.slice(yaJ.length+1);
+  const rivDesp=despues.filter(s=>eqTeam(s)!==yo).length;
+  let best=-1,quien=null,teams=new Set();
+  for(const s of yaJ){const r=rango(H.jugadas[s][b]);if(r>best){best=r;quien=s;teams=new Set([eqTeam(s)]);}else if(r===best)teams.add(eqTeam(s));}
+  const gana=c=>rango(c)>best,empata=c=>rango(c)===best;
+  if(!yaJ.length){// arranco la baza
+    if(b===0)return {t:'carta',c:ord[Math.min(1,ord.length-1)]};
+    if(gan>0)return {t:'carta',c:ord[0]};               // ya ganamos una: que se la jueguen los otros
+    return {t:'carta',c:ord[ord.length-1]};}
+  const vaMiEquipo=teams.size===1&&eqTeam(quien)===yo;
+  if(vaMiEquipo){// no pisarle la carta al compañero
+    if(rivDesp===0||best>=11)return {t:'carta',c:ord[0]};
+    const mata=ord.find(gana);if(mata&&best<9&&rango(mata)>=11)return {t:'carta',c:mata};
+    return {t:'carta',c:ord[0]};}
+  const mata=ord.filter(gana);
+  if(mata.length){// la más baja que gana; si quedan rivales, una que aguante
+    if(rivDesp===0)return {t:'carta',c:mata[0]};
+    const firme=mata.find(c=>rango(c)>=10)||mata[mata.length-1];return {t:'carta',c:b===0&&rango(mata[0])>=9?mata[0]:firme};}
+  const tapa=ord.find(empata);
+  if(tapa&&(gan>0||b===0)&&rivDesp===0)return {t:'carta',c:tapa};// parda que sirve
+  return {t:'carta',c:ord[0]};
+}
+// La seña que le haría la compu a sus compañeros al empezar la mano.
+function eqSenaCompu(M,p){const cs=M.H.repartidas[p],has=c=>cs.includes(c);
+  if(has('1e'))return 'ae';if(has('1b'))return 'ab';if(has('7e'))return 'se';if(has('7o'))return 'so';
+  if(envidoDe(cs)>=28)return 'env';if(cs.some(c=>cN(c)===3))return 't3';if(cs.some(c=>cN(c)===2))return 't2';
+  if(has('1o')||has('1c'))return 'af';return 'nada';}
+/* ==== FIN MOTOR DE EQUIPOS ==== */
 
 </script>
 <script>
@@ -1776,7 +2142,7 @@ function sfx(k){if(!SND||FAST)return;try{SX[k]&&SX[k]();}catch(_){}}
 const SAVE='truco-partida-v1';
 let M=null;                 // la partida, cuando la manejo yo (contra la compu, o como anfitrión en línea)
 let MODO='compu';           // 'compu' | 'host' | 'guest'
-let CFG={dif:ls.get('truco-dif')||'normal',meta:Number(ls.get('truco-meta'))===15?15:30};
+let CFG={dif:ls.get('truco-dif')||'normal',meta:Number(ls.get('truco-meta'))===15?15:30,np:[4,6].includes(Number(ls.get('truco-np')))?Number(ls.get('truco-np')):2};
 let E=null;                 // lo que se ve: siempre yo soy 0 y el rival 1
 let BUSY=false,BOTTOK=0,FIN_VISTO=null,PEND_GUEST=false;
 const DICHO=[null,null];    // lo que dijo cada uno (globos)
@@ -1996,7 +2362,7 @@ let AYUDA1=false; // la primera vez: al cerrar las reglas (como sea) sale «Part
 function closeSheet(){$('modal').hidden=true;setTimeout(mesaSinPartida,0);}
 // Si se cierra un cartel y no hay ninguna partida, la mesa no queda vacía: ofrece empezar.
 function mesaSinPartida(){
-  if(AUTO||M||ON||MODO==='guest'||!$('modal').hidden||!$('center').hidden)return;
+  if(AUTO||M||ON||EQ_ON||MODO==='guest'||!$('modal').hidden||!$('center').hidden)return;
   if(AYUDA1){AYUDA1=false;openNew();return;}
   center(`<div class="ic">🃏</div><h3>La mesa está lista</h3><p>Jugá contra la compu o invitá a un amigo.</p><button class="btn go" id="mv-new">Partida nueva</button><button class="btn" id="mv-help">Cómo se juega</button>`);
   $('mv-new').onclick=()=>{hideCenter();openNew();};$('mv-help').onclick=()=>{hideCenter();openHelp();};
@@ -2004,21 +2370,24 @@ function mesaSinPartida(){
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeSheet();});
 function openNew(){
   const ranked=window.RANGOS?RANGOS.isRanked('truco'):true;
-  const paint=()=>{sheet('Partida nueva',`<h4>Contra quién</h4><div class="seg"><button class="btn on" id="nw-compu">🧉 La compu</button><button class="btn" id="nw-amigo">👥 Un amigo</button></div>
+  const paint=()=>{const eq=CFG.np>2;sheet('Partida nueva',`<h4>Jugadores</h4><div class="seg">${[2,4,6].map(n=>`<button class="btn col${CFG.np===n?' on':''}" data-np="${n}">${n}<small>${n===2?'mano a mano':n===4?'2 contra 2':'3 contra 3'}</small></button>`).join('')}</div>
+    <h4>Contra quién</h4><div class="seg"><button class="btn on" id="nw-compu">🧉 ${eq?'Con la compu':'La compu'}</button><button class="btn" id="nw-amigo">👥 ${eq?'Con amigos':'Un amigo'}</button></div>
+    ${eq?`<p class="note">Dos equipos con los compañeros intercalados: ${CFG.np===4?'tu compañero es el de enfrente':'tus compañeros son los de enfrente a cada lado'}. Contra la compu, los demás lugares los juega la compu; con amigos, los que falten también.</p>`:''}
     <h4>Nivel de la compu</h4><div class="seg">${['facil','normal','dificil'].map(d=>`<button class="btn${CFG.dif===d?' on':''}" data-dif="${d}">${DIFN[d]}</button>`).join('')}</div>
     <p class="note">${CFG.dif==='facil'?'Fácil: para aprender. No mueve el rango ni da leguas.':CFG.dif==='normal'?'Normal: juega bien y a veces miente.':'Difícil: cuenta las cartas que salieron y miente cuando le conviene.'} La compu nunca ve tus cartas.</p>
     <h4>A cuántos puntos</h4><div class="seg"><button class="btn${CFG.meta===15?' on':''}" data-meta="15">A 15 <small>corta</small></button><button class="btn${CFG.meta===30?' on':''}" data-meta="30">A 30 <small>malas y buenas</small></button></div>
     ${window.RANGOS?`<h4>Partida</h4><div class="seg"><button class="btn${RANGOS.isRanked('truco')?' on':''}" data-rk="1">Ranked</button><button class="btn${RANGOS.isRanked('truco')?'':' on'}" data-rk="0">Amistosa</button></div>`:''}
     <button class="btn go" id="nw-go">Repartir</button>`);
+    document.querySelectorAll('#sheet [data-np]').forEach(b=>b.onclick=()=>{CFG.np=Number(b.dataset.np);ls.set('truco-np',String(CFG.np));paint();});
     document.querySelectorAll('#sheet [data-dif]').forEach(b=>b.onclick=()=>{CFG.dif=b.dataset.dif;ls.set('truco-dif',CFG.dif);paint();});
     document.querySelectorAll('#sheet [data-meta]').forEach(b=>b.onclick=()=>{CFG.meta=Number(b.dataset.meta);ls.set('truco-meta',String(CFG.meta));paint();});
     document.querySelectorAll('#sheet [data-rk]').forEach(b=>b.onclick=()=>{RANGOS.setRanked('truco',b.dataset.rk==='1');paint();});
-    $('nw-amigo').onclick=()=>{closeSheet();openFriends();};
-    $('nw-go').onclick=()=>{closeSheet();nuevaCompu();};};
+    $('nw-amigo').onclick=()=>{closeSheet();if(CFG.np>2)eqOpenMesa();else openFriends();};
+    $('nw-go').onclick=()=>{closeSheet();if(CFG.np>2)eqNuevaCompu();else nuevaCompu();};};
   paint();
 }
 function nuevaCompu(seed){
-  if(ON)netLeave();
+  eqDesactivar();if(ON)netLeave();
   BOTTOK++;MODO='compu';FIN_VISTO=null;limpiarDichos();hideCenter();closeSheet();
   M=nuevaPartida({meta:CFG.meta,nombres:[miNombre(),'La compu'],seed});repartir(M);sfx('repartir');refrescar();guardar();render();seguir();
 }
@@ -2032,15 +2401,16 @@ function openMenu(){
     <button id="m-new">🃏 Partida nueva</button><button id="m-friend">👥 Jugar con un amigo</button><button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=truco">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">TrucAR · versión 60</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">TrucAR · versión 61</p>`);
   const go=f=>()=>{closeSide();f();};
-  $('m-x').onclick=closeSide;$('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='on'&&!(E&&E.fin)){if(!confirm(`¿Dejar la partida con ${E?E.nombres[1]:'tu amigo'}?`))return;}openNew();});
+  $('m-x').onclick=closeSide;$('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='on'&&!(E&&E.fin)){if(!confirm(`¿Dejar la partida con ${E?E.nombres[1]:'tu amigo'}?`))return;}
+    if(EQ_ON&&eqConAmigos()&&QE&&!QE.fin){if(!confirm('¿Dejar la mesa con tus amigos?'))return;}openNew();});
   $('m-friend').onclick=go(openFriends);$('m-log').onclick=go(openLog);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-snd').onclick=()=>{SND=!SND;ls.set('truco-sonido',SND?'1':'0');openMenu();};
   if($('m-logros'))$('m-logros').onclick=()=>LOGROS.abrir('truco',{side:openSide,volver:openMenu,cerrar:closeSide});
 }
 $('btn-menu').onclick=openMenu;
-function openLog(){const L=(E&&E.log)||[];sheet('Lo que pasó',L.length?`<ol class="log">${L.slice().reverse().map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:'<p>Todavía no pasó nada.</p>');}
+function openLog(){const X=EQ_ON?QE:E,L=(X&&X.log)||[];sheet('Lo que pasó',L.length?`<ol class="log">${L.slice().reverse().map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:'<p>Todavía no pasó nada.</p>');}
 function openHelp(){
   const ladder=['1e','1b','7e','7o','3c','2o','1c','12b','11e','10o','7c','6b','5e','4o'];
   sheet('Cómo se juega',`<p><b>Truco de a dos, sin flor.</b> Cada mano se reparten 3 cartas y se juegan hasta 3 bazas: gana la mano el que gana 2. ${CFG.meta===30?'Se juega a 30 (15 malas y 15 buenas).':'Se juega a 15.'}</p>
@@ -2050,6 +2420,8 @@ function openHelp(){
     <ul><li><b>Envido</b> 2 · <b>Real envido</b> 3 · <b>Falta envido</b>: lo que le falta al que va ganando.</li><li>Se pueden encadenar (envido, envido, real, falta). Si no se quiere, el que cantó suma lo anterior (o 1).</li><li>Si te cantan truco en la primera, podés contestar «el envido está primero».</li></ul>
     <h4>Truco</h4><p>Sin truco la mano vale 1. <b>Truco</b> 2, <b>retruco</b> 3, <b>vale cuatro</b> 4. Sólo puede subir el que quiso el último canto. Si no querés, el otro suma lo que valía antes.</p>
     <h4>Al mazo</h4><p>Si te vas al mazo, el otro suma lo que vale la mano en ese momento.</p>
+    <h4>De a 4 o de a 6</h4><p>Dos equipos, con los compañeros intercalados (el de enfrente es tu compañero). La ronda va hacia la derecha y es mano el que está a la derecha del que reparte. Cada baza la gana la carta más alta; si las más altas son de los dos equipos, es parda.</p>
+    <ul><li>El envido se canta en la primera baza, antes de tirar tu carta. Cuenta el mejor tanto de cada equipo: se dice desde la mano y el que pierde dice «son buenas».</li><li>Cualquiera del equipo puede contestar un canto. Si se va uno al mazo, se va todo el equipo.</li><li><b>Señas:</b> con el botón 😉 le hacés señas a tus compañeros (los rivales no las ven). Los compañeros que son compu también te hacen señas.</li></ul>
     <p class="note">Abajo te mostramos cuánto tenés de envido. La compu decide sólo con lo que ve: sus cartas y las que ya salieron.</p>
     <button class="btn go" id="h-ok">Entendido</button>`);$('h-ok').onclick=closeSheet;
 }
@@ -2073,7 +2445,7 @@ $('acts').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!
 $('hand').addEventListener('click',e=>{const c=e.target.closest('.card');if(!c||!$('hand').classList.contains('play'))return;jugarYo({t:'carta',c:c.dataset.c});});
 $('hand').addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const c=e.target.closest('.card');if(!c||!$('hand').classList.contains('play'))return;e.preventDefault();jugarYo({t:'carta',c:c.dataset.c});});
 document.addEventListener('click',e=>{if(!$('pick').hidden&&!e.target.closest('#pick')&&!e.target.closest('[data-a=pickenv]'))closePick();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('side').hidden)closeSide();else if(!$('modal').hidden)closeSheet();else closePick();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('side').hidden)closeSide();else if(!$('modal').hidden)closeSheet();else{closePick();if(EQ_ON)eqClosePick();}}});
 // Alto real de la pantalla (iPhone con la barra que aparece y desaparece)
 function fitScreen(){document.documentElement.style.setProperty('--app-h',(window.visualViewport?visualViewport.height:innerHeight)+'px');}
 // Que las cartas de la mesa y de la mano entren siempre en el paño, en cualquier pantalla (también con las barras de Safari).
@@ -2147,7 +2519,7 @@ function pedirRevancha(){
 }
 function revanchaArranca(){ON.otraYo=ON.otraEl=false;if(ON.role==='host')nuevaOnline();else center(`<div class="ic">🔁</div><h3>¡Aceptó!</h3><p>Repartiendo…</p>`);}
 function nuevaOnline(){
-  if(!ON||ON.state!=='on'||ON.role!=='host')return;
+  if(!ON||ON.state!=='on'||ON.role!=='host')return;eqDesactivar();
   BOTTOK++;MODO='host';FIN_VISTO=null;limpiarDichos();hideCenter();ON.listo=ON.miListo=0;ON.otraYo=ON.otraEl=false;// la partida contra la compu queda guardada
   M=nuevaPartida({meta:CFG.meta,nombres:[miNombre(),ON.peer.usuario]});repartir(M);sfx('repartir');refrescar();render();enviarEstado();seguir();
 }
@@ -2198,7 +2570,7 @@ function renderOnline(){const el=$('onl');if(!ON||ON.state==='on'){el.className=
 // Invitar: se prepara la conexión y se deja en el buzón del amigo.
 async function inviteFriend(u){
   const a=acct();if(!a){openFriends();return;}
-  if(ON)netLeave();
+  eqDesactivar();if(ON)netLeave();
   ON={role:'host',peer:{usuario:u.usuario,avatar:u.avatar,color:u.color},state:'preparing',msg:'Preparando la invitación…'};renderOnline();friendsWait();
   const me0=ON;
   try{
@@ -2221,7 +2593,9 @@ async function inviteFriend(u){
   }catch(e){if(ON===me0)failOnline(e.message||'No se pudo preparar la conexión.');}
 }
 async function acceptInvite(inv){
-  const a=acct();if(!a)return;UIQ.dismissed.add(inv.id);
+  const a=acct();if(!a)return;
+  {let o=null;try{o=JSON.parse(String(inv.oferta).slice(6));}catch(_){}if(o&&o.np>2){eqAcceptInvite(inv,o);return;}}  // mesa de 4 o 6
+  UIQ.dismissed.add(inv.id);eqDesactivar();
   if(ON)netLeave();BOTTOK++;
   ON={role:'guest',peer:{usuario:inv.de,avatar:inv.avatar,color:inv.color},state:'connecting',msg:`Conectando con ${inv.de}…`,id:inv.id};renderOnline();friendsWait();
   const me0=ON;
@@ -2262,8 +2636,8 @@ async function openFriends(){
 // Buzón: te avisa si alguien te invita (a TrucAR o a otro juego).
 let pollAt=0,polling=false;
 async function pollInbox(force=false){
-  const a=acct();if(!a||polling||document.hidden||ON||AUTO)return;
-  const gap=E&&!E.fin&&E.turno===0?20000:8000;if(!force&&Date.now()-pollAt<gap)return;
+  const a=acct();if(!a||polling||document.hidden||ON||AUTO||eqEnMesa())return;
+  const gap=(E&&!E.fin&&E.turno===0)||eqOcupado()?20000:8000;if(!force&&Date.now()-pollAt<gap)return;
   polling=true;pollAt=Date.now();
   try{const j=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token});const inv=j.invitacion;
     if(inv&&!UIQ.dismissed.has(inv.id)&&!ON){
@@ -2274,13 +2648,470 @@ async function pollInbox(force=false){
   polling=false;
 }
 function showInvite(inv){
-  UIQ.dismissed.add(inv.id);const of=String(inv.oferta||''),tru=of.startsWith('TRUCO:'),pob=of.startsWith('POBLAR:'),uno=of.startsWith('UNO:'),juego=tru?'<b>TrucAR</b> 🃏':pob?'<b>PoblAR</b> 🏘️':uno?'<b>UnoAR</b> 🎴':'<b>BloqueAR</b> 🧱';
+  UIQ.dismissed.add(inv.id);const of=String(inv.oferta||''),tru=of.startsWith('TRUCO:'),pob=of.startsWith('POBLAR:'),uno=of.startsWith('UNO:');let tnp=2;if(tru){try{tnp=JSON.parse(of.slice(6)).np||2;}catch(_){}}
+  const juego=tru?`<b>TrucAR</b> 🃏${tnp>2?` de a ${tnp} (${tnp===4?'2 contra 2':'3 contra 3'})`:''}`:pob?'<b>PoblAR</b> 🏘️':uno?'<b>UnoAR</b> 🎴':'<b>BloqueAR</b> 🧱';
   sheet('Te invitan',`<div style="display:flex;align-items:center;gap:12px">${avHtml(inv.avatar,inv.color)}<div><b style="font:700 18px var(--serif)">${esc(inv.de)}</b><div class="note">te invita a jugar ${juego}</div></div></div>
-    ${tru&&E&&!E.fin&&MODO==='compu'?'<p class="note">Tu partida contra la compu queda guardada.</p>':''}<div class="row"><button class="btn" id="iv-no">Ahora no</button><button class="btn go" id="iv-yes">Aceptar</button></div>`);
+    ${tru&&((E&&!E.fin&&MODO==='compu')||(EQ_ON&&QE&&!QE.fin&&QMODO==='compu'))?'<p class="note">Tu partida contra la compu queda guardada.</p>':''}<div class="row"><button class="btn" id="iv-no">Ahora no</button><button class="btn go" id="iv-yes">Aceptar</button></div>`);
   $('iv-no').onclick=()=>{closeSheet();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
   $('iv-yes').onclick=()=>{closeSheet();if(tru)acceptInvite(inv);else if(uno){try{sessionStorage.setItem('uno-accept',inv.id);}catch(_){}location.href='uno.html';}else if(pob){try{sessionStorage.setItem('poblar-accept',inv.id);}catch(_){}location.href='poblar.html';}else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
 }
 window.addEventListener('pagehide',()=>{if(ON&&ON.state==='on')netSend({t:'bye'});});
+
+/* ───────── TrucAR de a 4 y de a 6: la mesa por equipos ─────────
+   Una mesa aparte (#eqt) para no tocar la de a dos. Nosotros siempre abajo; la ronda sigue en sentido antihorario
+   (el de tu derecha juega después de vos). Compañeros en celeste, rivales en naranja.
+   Contra la compu: los otros lugares los juega la compu. En línea: el que arma la mesa la lleva (como en UnoAR):
+   una conexión directa con cada amigo y a cada uno le manda sólo lo que puede ver. */
+let Q=null,QE=null,QMODO='compu',QON=null,QBUSY=false,QTOK=0,QFIN=null,QPEND=false,QHOLD=0,QHOLD_T=0,QREP='',QLOBBY=false;
+let EQ_ON=false;
+const QSAVE='truco-eq-v1';
+const QD={};                 // lo que dijo cada lugar (relativo a mí)
+const QPERF=[];              // avatar y color de cada lugar (absoluto)
+const TEAMC=['#7ce9e5','#e8956a'];
+const BOTN=['Pocho','Chiche','La Beba','Tito','Coco'],BOTA=['🧉','🐴','🦉','🐢','🦜'],BOTC=['#8a6a3e','#6a3f35','#4a6a3a','#3f5a6a','#5a4a6a'];
+const QPOS={4:[[50,84],[89,47],[50,10],[11,47]],6:[[50,84],[88,70],[88,27],[50,10],[12,27],[12,70]]};
+const QSLOT={4:[[50,70],[68,47],[50,33],[32,47]],6:[[50,72],[68,62],[68,34],[50,31],[32,34],[32,62]]};
+function eqOcupado(){return EQ_ON&&!!(QE&&!QE.fin&&!AUTO);}
+function eqEnMesa(){return !!QON;}
+function eqConAmigos(){return !!(QON&&(QON.role==='guest'||QON.mesa.lugares.some(L=>L.tipo==='humano')));}
+function eqRotar(a,s){return a.map((_,i)=>a[(i+s)%a.length]);}
+
+/* ── Prender y apagar la mesa de equipos ── */
+function eqActivar(){
+  if(EQ_ON)return;EQ_ON=true;
+  BOTTOK++;if(ON)netLeave();if(M&&MODO==='compu')guardar();M=null;E=null;MODO='compu';
+  hideCenter();closePick();limpiarDichos();$('table').hidden=true;$('eqt').hidden=false;
+}
+function eqDesactivar(){
+  if(!EQ_ON)return;EQ_ON=false;QTOK++;if(QON)eqLeave();Q=null;QE=null;QREP='';eqLimpiarDichos();eqHideCenter();
+  $('eqt').hidden=true;$('table').hidden=false;
+}
+function eqRefrescar(){if(!Q)return;QE={...eqEstadoPara(Q,0),perfiles:QPERF.slice()};}
+function eqGuardar(){if(QMODO!=='compu'||!Q||AUTO)return;ls.set(QSAVE,JSON.stringify({Q,cfg:CFG,perf:QPERF,t:Date.now()}));}
+function eqRestaurar(s){eqActivar();Q=s.Q;CFG={...CFG,...(s.cfg||{})};QPERF.length=0;(s.perf||[]).forEach(x=>QPERF.push(x));QMODO='compu';eqRefrescar();eqRender();if(Q.H.fin)eqMostrarFinMano();else eqSeguir();}
+
+/* ── Contra la compu ── */
+function eqNuevaCompu(seed){
+  eqActivar();if(QON)eqLeave();QTOK++;QMODO='compu';QFIN=null;eqLimpiarDichos();eqHideCenter();closeSheet();
+  const np=CFG.np===6?6:4,yo=yoPerfil();QPERF.length=0;QPERF.push({a:yo.avatar,c:yo.color});
+  const nombres=[miNombre()],tipos=['yo'];for(let i=1;i<np;i++){nombres.push(BOTN[i-1]);tipos.push('bot');QPERF.push({a:BOTA[i-1],c:BOTC[i-1]});}
+  Q=eqNueva({np,meta:CFG.meta,nombres,tipos,seed});eqRepartir(Q);sfx('repartir');eqRefrescar();eqGuardar();eqRender();eqSenasCompu();eqSeguir();
+}
+// Los compañeros que son compu le hacen una seña a la persona de su equipo al empezar cada mano.
+function eqSenasCompu(){if(!Q||!Q.H)return;const n=Q.H.n,tk=QTOK;
+  for(let s=0;s<Q.np;s++){if(Q.tipos[s]!=='bot')continue;const hayPersona=Q.tipos.some((t,o)=>o!==s&&eqTeam(o)===eqTeam(s)&&eqHumano(t));if(!hayPersona)continue;
+    if(CFG.dif==='facil'&&Math.random()<.5)continue;
+    setTimeout(()=>{if(!Q||!Q.H||Q.H.n!==n||Q.H.fin)return;const Ea=QE;if(eqJugar(Q,s,{t:'sena',s:eqSenaCompu(Q,s)}))return;eqRefrescar();if(QMODO==='host')eqEnviarEstados();eqRender();eqNuevasSenas(Ea,QE);},FAST?0:900+s*350);}}
+
+/* ── Dibujo ── */
+function eqRender(){if(!QE)return;const nueva=QREP!==(QE.id+':'+QE.n);QREP=QE.id+':'+QE.n;eqRenderTop();eqRenderMesa(nueva);eqRenderMe(nueva);eqRenderDichos();}
+function eqRenderTop(){const E=QE;
+  const pips=[0,1,2].map(b=>{const w=E.bazas[b];return `<span class="qp${w===undefined?'':w==='p'?' p':w===0?' w':' l'}">${['1ª','2ª','3ª'][b]}${w===undefined?'':w==='p'?' parda':w===0?' nuestra':' de ellos'}</span>`;}).join('');
+  $('eq-top').innerHTML=`<div class="score eq-score" aria-label="Tanteador"><div class="ln"><span class="nm" style="color:${TEAMC[0]}">Nosotros</span>${fosforos(E.tantos[0],E.meta)}<span class="n">${E.tantos[0]}</span></div>
+    <div class="ln"><span class="nm" style="color:${TEAMC[1]}">Ellos</span>${fosforos(E.tantos[1],E.meta)}<span class="n">${E.tantos[1]}</span></div></div>
+    <div class="qpips">${pips}<small>${E.meta===30?'A 30':'A 15'}${E.tru.nivel?' · '+TXT_TRUCO(E.tru.nivel).toLowerCase():''}</small></div>`;}
+// Qué baza se muestra: la que se está jugando, o la que se acaba de cerrar (un ratito, para ver quién la ganó).
+function eqBazaVisible(){const E=QE;let b=E.baza;if(Date.now()<QHOLD&&b>0&&E.jugadas.every(j=>j.length<=b))b--;return b;}
+function eqRenderMesa(nueva){
+  const E=QE,n=E.np,P=QPOS[n],S=QSLOT[n],b=eqBazaVisible(),cerrada=E.bazas[b]!==undefined,gw=E.ganoBaza[b];
+  let h='';
+  for(let r=1;r<n;r++){const [x,y]=P[r],pf=(E.perfiles||[])[r]||{a:'🙂',c:'#8a6a3e'},tags=[];
+    if(E.mano===r&&!E.finMano)tags.push('<em class="qt mano">mano</em>');
+    const backs=Array.from({length:E.lesQuedan[r]},()=>'<i></i>').join('');
+    h+=`<div class="qseat${E.juega===r&&!E.finMano&&!E.fin?' turn':''}${r%2?'':' comp'}" data-r="${r}" style="left:${x}%;top:${y}%;--tc:${TEAMC[r%2]}"><span class="av" style="--c:${esc(pf.c)}">${esc(pf.a)}</span><b>${esc(E.nombres[r])}</b><small>${tags.join('')}<span class="qbk${nueva&&E.lesQuedan[r]===3?' deal':''}">${backs}</span></small></div>`;}
+  for(let r=0;r<n;r++){const [x,y]=S[r],c=E.jugadas[r][b];const cls=!c||!cerrada?'':E.bazas[b]==='p'?'':gw===r?'win':'lose';
+    h+=`<div class="qslot${r%2?' riv':''}" data-r="${r}" style="left:${x}%;top:${y}%">${c?cartaHtml(c,cls):''}</div>`;}
+  if(cerrada&&E.bazas[b]==='p')h+='<span class="qparda">PARDA</span>';
+  if(E.senas.length&&!E.finMano){const vis=E.senas.slice(-4);h+=`<div class="qsenas" aria-label="Señas de tus compañeros">${vis.map(x=>`<span>${esc(E.nombres[x.p])} ${SENAS[x.s].e}<small>${esc(SENAS[x.s].d)}</small></span>`).join('')}</div>`;}
+  $('eq-ring').innerHTML=h;
+}
+function eqPuedo(t,k){return QE&&QE.acciones.some(a=>a.t===t&&(k===undefined||a.k===k));}
+function eqRenderMe(nueva){
+  const E=QE,st=$('eq-status'),acts=$('eq-acts'),hand=$('eq-hand');
+  const fin=E.finMano||E.fin,miTurno=!E.pend&&E.turno===0&&!fin,contesto=E.pend&&E.pend.por%2===1&&eqPuedo('quiero');
+  let s='';
+  if(fin)s='';
+  else if(E.pend&&E.pend.por%2===1)s=(E.pend.k==='env'?`${esc(E.nombres[E.pend.por])} cantó ${TXT_ENV(E.envCanto)}`:`${esc(E.nombres[E.pend.por])} cantó ${TXT_TRUCO(E.pend.nivel).toLowerCase()}`)+(contesto?(E.pend.resp===0?': <b>¿quieren?</b>':`: contesta ${esc(E.nombres[E.pend.resp])} (o vos)`):'');
+  else if(E.pend)s=`Esperando qué contestan ${esc(E.nombres[E.pend.resp])} y los suyos…`;
+  else if(miTurno)s=`${E.mano===0&&E.baza===0&&E.jugadas[0].length===0?'Sos mano. ':''}<b>Te toca.</b>`;
+  else s=`Juega ${esc(E.nombres[E.turno])}…`;
+  if(!fin&&E.baza===0&&!E.envHecho&&E.jugadas[0].length===0&&E.tru.nivel===0)s+=` <span class="envhint">· Tenés ${E.miEnvido} de envido</span>`;
+  st.innerHTML=s;
+  let b='';
+  if(!fin&&!QPEND){
+    if(contesto){b+=`<button class="act yes" data-q="quiero">Quiero</button><button class="act no" data-q="noquiero">No quiero</button>`;
+      if(E.pend.k==='truco'&&eqPuedo('truco'))b+=`<button class="act" data-q="truco">${TXT_TRUCO(E.pend.nivel+1)}</button>`;
+      if(E.pend.k==='env'&&eqPuedo('env'))b+=`<button class="act" data-q="pickenv">Subir…</button>`;
+      if(E.pend.k==='truco'&&eqPuedo('env'))b+=`<button class="act" data-q="pickenv">Envido…<small>está primero</small></button>`;}
+    else if(miTurno){
+      if(eqPuedo('env'))b+=`<button class="act" data-q="pickenv">Envido…</button>`;
+      if(eqPuedo('truco'))b+=`<button class="act" data-q="truco">${TXT_TRUCO(E.tru.nivel+1)}</button>`;
+      b+=`<button class="act ghost" data-q="mazo">Al mazo</button>`;}
+    if(!contesto)b+=`<button class="act ghost sena" data-q="senas" aria-label="Hacerle señas a tus compañeros">😉<small>Señas</small></button>`;}
+  acts.innerHTML=b;
+  const juego=miTurno&&!QPEND&&E.acciones.some(a=>a.t==='carta');
+  hand.className='hand'+(juego?' play':'')+(E.mias.length===2?' two':'')+(nueva&&E.mias.length===3&&!FAST?' deal':'');
+  hand.innerHTML=E.mias.map(c=>cartaHtml(c)).join('');
+  if(juego)hand.querySelectorAll('.card').forEach(el=>{el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Tirar '+nombreCarta(el.dataset.c).replace(/^el /,''));});
+}
+// Globos: lo que dijo cada uno (los de la mesa al lado de su lugar; los míos arriba de los botones)
+const QDT={};
+function eqDicho(r,txt,o={}){QD[r]={txt,sub:o.sub||'',hot:!!o.hot,cls:o.cls||''};clearTimeout(QDT[r]);if(!o.keep)QDT[r]=setTimeout(()=>{delete QD[r];eqRenderDichos();},FAST?0:(o.ms||2300));eqRenderDichos();}
+function eqRenderDichos(){document.querySelectorAll('.qsay').forEach(x=>x.remove());if(!QE)return;const P=QPOS[QE.np];
+  for(const k of Object.keys(QD)){const r=Number(k),d=QD[k];if(!d)continue;const el=document.createElement('div');
+    el.className='qsay'+(r===0?' m':'')+(d.hot?' hot':'')+(d.cls?' '+d.cls:'');el.innerHTML=esc(d.txt)+(d.sub?`<small>${esc(d.sub)}</small>`:'');
+    if(r===0){$('eq-me').appendChild(el);continue;}
+    const [x,y]=P[r];el.style.left=Math.max(4,Math.min(96,x))+'%';el.style.top=y+'%';el.classList.add(x>60?'ri':x<40?'le':'mi');if(y<20)el.classList.add('ab');
+    $('eq-felt').appendChild(el);}}
+function eqLimpiarDichos(){for(const k of Object.keys(QD))delete QD[k];eqRenderDichos();}
+function eqVolar(r,c,desde){if(!desde||RM||FAST)return;const el=document.querySelector(`#eq-ring .qslot[data-r="${r}"] .card`);if(!el)return;
+  const to=el.getBoundingClientRect();if(!to.width)return;const dx=desde.left+desde.width/2-(to.left+to.width/2),dy=desde.top+desde.height/2-(to.top+to.height/2),sc=Math.min(1.6,desde.width/to.width);
+  el.style.transition='none';el.style.transform=`translate(${dx}px,${dy}px) scale(${sc}) rotate(${r?9:-7}deg)`;el.getBoundingClientRect();
+  el.style.transition='transform .3s cubic-bezier(.3,.8,.3,1)';el.style.transform='';}
+function eqOrigen(r,c){const el=r===0?document.querySelector(`#eq-hand .card[data-c="${c}"]`):document.querySelector(`#eq-ring .qseat[data-r="${r}"] .av`);return el?el.getBoundingClientRect():null;}
+
+/* ── Cantos ── */
+async function eqAnunciar(q,a,Ea,En){
+  const tk=QREP;
+  if(a.t==='carta'){delete QD[q];return;}
+  const limpia=()=>{for(const k of Object.keys(QD))if(Number(k)!==q)delete QD[k];};
+  if(a.t==='truco'){const n=En.pend?En.pend.nivel:(Ea.pend?Ea.pend.nivel+1:1),sube=Ea.pend&&Ea.pend.k==='truco';limpia();
+    eqDicho(q,sube?`¡Quiero ${TXT_TRUCO(n).toLowerCase()}!`:`¡${TXT_TRUCO(n)}!`,{hot:true,keep:true});sfx('canto');return;}
+  if(a.t==='env'){limpia();const primero=Ea.pend&&Ea.pend.k==='truco';
+    eqDicho(q,primero?'¡El envido está primero!':`¡${ENVN[a.k]}!`,{hot:true,keep:true,sub:primero?ENVN[a.k]:(En.envCanto.length>1?En.envCanto.map(k=>ENVN[k]).join(' · '):'')});sfx('canto');return;}
+  if(a.t==='mazo'){limpia();eqDicho(q,'Nos vamos al mazo');sfx('noquiero');return;}
+  if(a.t==='noquiero'){limpia();eqDicho(q,'No quiero');sfx('noquiero');
+    if(Ea.pend&&Ea.pend.k==='env'&&En.env){await wait(900);toast(`${En.env.gano===0?'Suman':'Suman ellos'} ${En.env.pts} por el envido`);}return;}
+  if(a.t==='quiero'){limpia();eqDicho(q,'¡Quiero!');sfx('quiero');
+    if(Ea.pend&&Ea.pend.k==='env'&&En.env&&En.env.quiso){
+      for(const d of En.env.dichos){await wait(900);if(QREP!==tk)return;eqDicho(d.p,d.txt,{ms:2600});}
+      await wait(700);if(QREP!==tk)return;const ql=En.env.quien;
+      toast(`${En.env.gano===0?'Ganaron':'Ganan ellos'} el envido${ql!=null?` (${esc(ql===0?'vos':En.nombres[ql])}: ${En.env.v})`:''}: ${En.env.pts} ${En.env.pts===1?'punto':'puntos'}`);
+      if(En.env.gano===0)sfx('quiero');}
+    return;}
+}
+// Señas nuevas de los compañeros: aparecen al lado de su lugar.
+function eqNuevasSenas(Ea,En){if(!En||!En.senas)return;const prev=Ea&&Ea.id===En.id&&Ea.n===En.n?Ea.senas.length:0;
+  for(const x of En.senas.slice(prev)){const S=SENAS[x.s];if(!S)continue;eqDicho(x.p,S.e,{cls:'sena',ms:2600});sfx('tap');}}
+
+/* ── El turno ── */
+async function eqAplicar(s,a){
+  const Ea=QE,r=s,desde=a.t==='carta'?eqOrigen(r,a.c):null;
+  const err=eqJugar(Q,s,a);if(err)return err;
+  const cierra=a.t==='carta'&&Q.H.bazas.length>Ea.bazas.length&&!Q.H.fin;
+  if(cierra){QHOLD=Date.now()+(FAST?0:1300);clearTimeout(QHOLD_T);QHOLD_T=setTimeout(()=>{if(QE)eqRender();},FAST?0:1320);}
+  eqRefrescar();eqGuardar();if(QMODO==='host')eqEnviarEstados();
+  eqRender();
+  if(a.t==='sena'){eqNuevasSenas(Ea,QE);return null;}
+  if(a.t==='carta'){eqVolar(r,a.c,desde);sfx('carta');if(cierra){await wait(260);sfx('baza');}}
+  await eqAnunciar(r,a,Ea,QE);
+  eqSeguir();return null;
+}
+async function eqJugarYo(a){
+  if(QBUSY||!QE)return;eqClosePick();
+  if(QMODO==='guest'){if(!QON||QON.state!=='juego'||QPEND)return;QPEND=a.t!=='sena';eqRenderMe();eqSend({t:'accion',a,n:QE.n});if(a.t==='sena')toast('Les hiciste la seña a tus compañeros');
+    setTimeout(()=>{if(QPEND){QPEND=false;if(QE)eqRenderMe();}},6000);return;}
+  if(!Q)return;
+  QBUSY=true;try{const err=await eqAplicar(0,a);if(err)toast(esc(err));else if(a.t==='sena')toast('Les hiciste la seña a tus compañeros');}finally{QBUSY=false;}
+}
+function eqSeguir(){
+  if(QMODO==='guest'||!Q)return;
+  if(Q.fin){setTimeout(eqMostrarFin,FAST?0:900);return;}
+  if(Q.H.fin){setTimeout(eqMostrarFinMano,FAST?0:1100);return;}
+  const q=eqQuienJuega(Q);if(q<0)return;
+  if(Q.tipos[q]==='bot')eqTurnoBot(q);
+  else if(q===0&&AUTO)setTimeout(eqAutoYo,FAST?0:300+Math.max(0,QHOLD-Date.now()));
+}
+async function eqTurnoBot(q){
+  const tok=++QTOK,Q0=Q;let a;
+  try{a=eqDecidir(Q,q,CFG.dif);}catch(e){console.warn('compu',e);a=eqAcciones(Q,q).find(x=>x.t==='carta')||eqAcciones(Q,q)[0];}
+  if(!a)return;
+  const pausa=(a.t==='carta'?600+Math.random()*450:a.t==='quiero'||a.t==='noquiero'?900+Math.random()*600:750+Math.random()*450)+Math.max(0,QHOLD-Date.now());
+  await wait(pausa);
+  if(tok!==QTOK||Q!==Q0||!Q||eqQuienJuega(Q)!==q||Q.tipos[q]!=='bot')return;
+  while(QBUSY)await sleep(60);
+  if(tok!==QTOK||Q!==Q0||eqQuienJuega(Q)!==q)return;
+  QBUSY=true;let err;try{err=await eqAplicar(q,a);}finally{QBUSY=false;}
+  if(err){console.warn('compu',err,a);const A=eqAcciones(Q,q),b=A.find(x=>x.t==='carta')||A.find(x=>x.t==='quiero');if(b){QBUSY=true;try{await eqAplicar(q,b);}finally{QBUSY=false;}}}
+}
+function eqAutoYo(){if(!Q||Q.fin||Q.H.fin||eqQuienJuega(Q)!==0||QBUSY)return;const a=eqDecidir(Q,0,'normal');if(a)eqJugarYo(a);}
+
+/* ── Fin de la mano y de la partida ── */
+function eqCenter(html){document.querySelectorAll('.toast').forEach(x=>x.remove());const el=$('eq-center');el.innerHTML=`<div class="ccard">${html}</div>`;el.hidden=false;return el;}
+function eqHideCenter(){const el=$('eq-center');if(el)el.hidden=true;}
+function eqNom(r){return r===0?'Vos':QE.nombres[r];}
+function eqLineas(){
+  const E=QE,F=E.finMano,L=[],eqn=t=>t===0?'Nosotros':'Ellos';
+  if(E.env){const c=E.env.canto.map(k=>ENVN[k]).join(' · ');
+    L.push([c,E.env.quiso?`${eqn(E.env.gano)} +${E.env.pts} <small>(${esc(eqNom(E.env.quien))}: ${E.env.v}; vos tenías ${E.env.mio})</small>`:`${eqn(E.env.gano)} +${E.env.pts} <small>(no ${E.env.gano===0?'quisieron':'quisimos'})</small>`]);}
+  if(F){const niv=F.nivel?TXT_TRUCO(F.nivel).toLowerCase()+' querido':'sin truco';
+    const como=F.por==='ganó las bazas'?niv:F.por==='se fue al mazo'?(F.gano===0?'se fueron al mazo':'nos fuimos al mazo'):/^no quiso/.test(F.por)?`no ${F.gano===0?'quisieron':'quisimos'} el ${F.por.replace('no quiso el ','')}`:F.por;
+    if(F.pts)L.push([`La mano <small>(${como})</small>`,`${eqn(F.gano)} +${F.pts}`]);}
+  return L.map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join('');
+}
+function eqMostrarFinMano(){
+  if(!QE||!QE.finMano||QE.fin)return;const key=QE.id+':'+QE.n;if(QFIN===key)return;QFIN=key;eqLgMano();
+  eqLimpiarDichos();const F=QE.finMano,gane=F.gano===0;sfx(gane?'quiero':'noquiero');
+  const rows=Object.entries(F.mostradas||{}).filter(([,cs])=>cs.length).map(([r,cs])=>`<div class="qmost"><span style="color:${TEAMC[r%2]}">${esc(QE.nombres[r])}</span><span class="mini">${cs.map(c=>cartaHtml(c)).join('')}</span></div>`).join('');
+  eqCenter(`<h3>${gane?'Ganaron la mano':'La mano es de ellos'}</h3><div class="lines">${eqLineas()||'<div><span>Sin puntos</span><b>—</b></div>'}</div>
+    ${rows?`<div class="qmosts">${rows}</div><p class="cap">Lo que mostró cada uno</p>`:''}
+    <p><b style="color:#3d6b5a">Nosotros ${QE.tantos[0]}</b> · <b style="color:#9a4a2a">Ellos ${QE.tantos[1]}</b> <span class="cap">(a ${QE.meta})</span></p>
+    <button class="btn go" id="q-ok">${QMODO==='guest'?'Listo':'Repartir'}</button>`);
+  $('q-ok').onclick=eqSiguienteMano;
+  if(AUTO)setTimeout(eqSiguienteMano,FAST?0:300);
+}
+function eqSiguienteMano(){
+  eqHideCenter();
+  if(QMODO==='guest'){eqSend({t:'listo',n:QE.n});$('eq-status').textContent=`Esperando que reparta ${QON&&QON.host?QON.host.usuario:'el que armó la mesa'}…`;return;}
+  if(QMODO==='host'){QON.miListo=Q.n;eqIntentarRepartir();return;}
+  if(!Q||Q.fin)return;eqRepartir(Q);sfx('repartir');QFIN=null;eqRefrescar();eqGuardar();eqRender();eqSenasCompu();eqSeguir();
+}
+function eqMostrarFin(){
+  if(!QE||!QE.fin)return;const key='fin:'+QE.id+':'+QE.n;if(QFIN===key)return;QFIN=key;eqLimpiarDichos();
+  const gane=QE.gano===0;sfx(gane?'gano':'pierdo');if(QMODO==='compu')ls.set(QSAVE,null);
+  eqLgMano();const rk=eqPremios(gane);rk.html+=eqLgFin(gane);
+  const host=QON&&QON.role==='guest'?QON.host.usuario:'';
+  eqCenter(`<div class="ic">${gane?'🏆':'🃏'}</div><h3>${gane?'¡Ganó tu equipo!':'Ganaron ellos'}</h3>
+    <p style="font:700 26px/1 var(--serif)">${QE.tantos[0]} a ${QE.tantos[1]}</p>${rk.html}
+    ${QMODO==='guest'?`<p class="cap"><span class="busy"></span>Si ${esc(host)} arma otra, se reparte sola.</p><button class="btn" id="qf-salir">Salir de la mesa</button>`:`<div class="row"><button class="btn go" id="qf-otra">Otra partida</button></div>`}
+    ${window.CHAT&&acct()?'<button class="btn" id="qf-share">💬 Compartir con un amigo</button>':''}<a class="btn" href="./#juegos">Menú de juegos</a>`);
+  if($('qf-otra'))$('qf-otra').onclick=()=>{eqHideCenter();if(QMODO==='host'&&QON)eqEmpezarMesa();else openNew();};
+  if($('qf-salir'))$('qf-salir').onclick=()=>{eqLeave();eqHideCenter();openNew();};
+  if($('qf-share'))$('qf-share').onclick=()=>CHAT.share({j:'truco',t:`TrucAR de a ${QE.np} · ${QMODO==='compu'?'Contra la compu ('+DIFN[CFG.dif]+')':'Con amigos'}`,d:`${gane?'Ganamos':'Perdimos'} ${QE.tantos[0]} a ${QE.tantos[1]}`,r:rk.rank||''});
+}
+// XP, rango y regalo: ganar cuenta para todos los del equipo ganador (cada uno en su celular).
+function eqPremios(gane){
+  const out={html:'',rank:''};if(!window.RANGOS||AUTO)return out;
+  const key='q'+QE.id+':'+QE.tantos.join('-'),hechas=ls.json('truco-xp-hechas',[]),amigo=eqConAmigos(),kind=amigo?'amigo':'compu-'+CFG.dif;
+  let rk=null,xp=0,pr=null;
+  try{if(RANGOS.isRanked('truco')&&kind!=='compu-facil')rk=RANGOS.apply('truco',{key,win:gane,kind});}catch(_){}
+  if(!hechas.includes(key)){xp=30+(gane?30:0)+(CFG.dif==='dificil'&&!amigo?10:0)+(amigo?15:0)+(QE.np-2)*5;try{RANGOS.addXp('truco',xp);pr=RANGOS.premio('TrucAR',xp,!!rk);}catch(_){}hechas.push(key);ls.set('truco-xp-hechas',JSON.stringify(hechas.slice(-60)));}
+  let lv=null;try{lv=RANGOS.levelInfo(RANGOS.xp('truco'));}catch(_){}
+  out.html=(rk?RANGOS.resultHtml(rk):'')+(lv?`<p class="cap">TrucAR nivel ${lv.lv}${xp?` · +${xp} XP`:''}${pr?` · 🎁 +${fmt(pr.pesos)} 🪙 para tu estancia${pr.leguas?` · 🚩 +${pr.leguas} leguas en La Gran Pampa`:''}`:''}${!rk?(kind==='compu-facil'?' · En Fácil no se mueve el rango ni da leguas':!RANGOS.isRanked('truco')?' · Partida amistosa: no mueve el rango ni da leguas':''):''}</p>`:'');
+  out.rank=rk&&rk.after?rk.after.label:'';return out;
+}
+function eqLgMano(){if(!LG()||!QE||!QE.finMano)return;const E=QE,F=E.finMano,k='q'+E.id+':'+E.n,L=LOGROS;
+  try{let pts=0;
+    if(F.gano===0){L.evento('truco','manos',1,k);pts+=F.pts||0;if(F.nivel>=1&&F.pts>1)L.evento('truco','trucos',1,k);if(F.nivel>=2&&F.pts>2)L.evento('truco','retrucos',1,k);if(F.nivel>=3&&F.pts>=4)L.evento('truco','vale4',1,k);}
+    if(E.env&&E.env.gano===0){pts+=E.env.pts||0;L.evento('truco','envidos',1,k);if(E.env.quiso&&(E.env.canto||[]).includes('F'))L.evento('truco','falta',1,k);}
+    if(E.miEnvido===33)L.evento('truco','env33',1,k);
+    if(pts)L.evento('truco','tantos',pts,k);
+    const d=(E.tantos[1]||0)-(E.tantos[0]||0),T=ls.json('truco-lg-dif',{});if(T.id!==E.id){T.id=E.id;T.max=0;}if(d>T.max)T.max=d;ls.set('truco-lg-dif',JSON.stringify(T));
+  }catch(e){console.warn('logros',e);}}
+function eqLgFin(gane){if(!LG())return '';const T=ls.json('truco-lg-dif',{}),peor=T.id===QE.id?T.max||0:0;
+  try{return LOGROS.fin('truco',{gano:gane,modo:eqConAmigos()?'online':'compu',dif:CFG.dif,meta:QE.meta,tantos:QE.tantos.slice(),n:QE.np,remontada:gane&&peor>=10},'q'+QE.id+':'+QE.tantos.join('-')).html;}catch(e){console.warn('logros',e);return '';}}
+
+/* ── Botones ── */
+function eqClosePick(){$('eq-pick').hidden=true;}
+function eqOpenPick(){const p=$('eq-pick'),E=QE,primero=E.pend&&E.pend.k==='truco',subir=E.pend&&E.pend.k==='env';
+  p.innerHTML=(primero?'<p class="note" style="color:#bfae8a;margin:0 4px">El envido está primero</p>':subir?'<p class="note" style="color:#bfae8a;margin:0 4px">Quieren y suben a…</p>':'')+['E','R','F'].filter(k=>eqPuedo('env',k)).map(k=>`<button data-k="${k}">${ENVN[k]}<small>${k==='E'?'2':k==='R'?'3':eqFaltaTxt()}</small></button>`).join('');
+  p.hidden=false;p.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{eqClosePick();eqJugarYo({t:'env',k:b.dataset.k});});}
+function eqOpenSenas(){const p=$('eq-pick');
+  p.innerHTML=`<p class="note" style="color:#bfae8a;margin:0 4px">Sólo la ven tus compañeros</p><div class="qsn">${Object.entries(SENAS).map(([k,S])=>`<button data-s="${k}" title="${esc(S.t)}"><span>${S.e}</span><b>${esc(S.d[0].toUpperCase()+S.d.slice(1))}</b></button>`).join('')}</div>`;
+  p.hidden=false;p.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{eqClosePick();eqJugarYo({t:'sena',s:b.dataset.s});});}
+function eqFaltaTxt(){const f=Math.max(1,QE.meta-Math.max(...QE.tantos));return f+(f===1?' punto':' puntos');}
+let QMAZO_T=0;
+$('eq-acts').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b||!QE)return;const a=b.dataset.q;sfx('tap');
+  if(a==='pickenv'){$('eq-pick').hidden||$('eq-pick').querySelector('.qsn')?eqOpenPick():eqClosePick();return;}
+  if(a==='senas'){$('eq-pick').hidden||!$('eq-pick').querySelector('.qsn')?eqOpenSenas():eqClosePick();return;}
+  eqClosePick();
+  if(a==='mazo'){if(!b.dataset.ok){b.dataset.ok='1';b.textContent='¿Seguro?';clearTimeout(QMAZO_T);QMAZO_T=setTimeout(()=>{if(b.isConnected){delete b.dataset.ok;b.textContent='Al mazo';}},2500);return;}eqJugarYo({t:'mazo'});return;}
+  eqJugarYo({t:a});});
+$('eq-hand').addEventListener('click',e=>{const c=e.target.closest('.card');if(!c||!$('eq-hand').classList.contains('play'))return;eqJugarYo({t:'carta',c:c.dataset.c});});
+$('eq-hand').addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const c=e.target.closest('.card');if(!c||!$('eq-hand').classList.contains('play'))return;e.preventDefault();eqJugarYo({t:'carta',c:c.dataset.c});});
+document.addEventListener('click',e=>{if(!$('eq-pick').hidden&&!e.target.closest('#eq-pick')&&!e.target.closest('[data-q=pickenv]')&&!e.target.closest('[data-q=senas]'))eqClosePick();});
+window.addEventListener('resize',()=>{if(EQ_ON)eqRenderDichos();});
+
+/* ───────── En línea: una mesa de 4 o 6 ───────── */
+function eqSendCh(ch,m){try{if(ch&&ch.readyState==='open')ch.send(JSON.stringify(m));}catch(_){}}
+function eqSend(m){if(!QON)return;if(QON.role==='guest')eqSendCh(QON.ch,m);else for(const L of QON.mesa.lugares)if(L.ch)eqSendCh(L.ch,m);}
+function eqEnviarEstados(){
+  if(!QON||QON.role!=='host'||!Q)return;
+  QON.mesa.lugares.forEach((L,s)=>{if(s===0||s>=Q.np||!L.ch||Q.tipos[s]!=='humano')return;eqSendCh(L.ch,{t:'estado',E:{...eqEstadoPara(Q,s),perfiles:eqRotar(QPERF,s)}});});
+}
+function eqMesaVista(s){const m=QON.mesa;return {id:m.id,np:m.np,meta:m.meta,host:m.lugares[0].usuario,lugares:m.lugares.slice(0,m.np).map((L,i)=>({tipo:L.tipo,usuario:L.usuario||'',avatar:L.avatar||'',color:L.color||'',vos:i===s}))};}
+function eqEnviarMesa(){if(!QON||QON.role!=='host')return;QON.mesa.lugares.forEach((L,s)=>{if(s&&L.ch)eqSendCh(L.ch,{t:'mesa',mesa:eqMesaVista(s)});});eqRenderOnline();if(QLOBBY)eqDrawLobby();}
+function eqRenderOnline(){const el=$('eq-onl');if(!el)return;
+  if(!QON){el.textContent='';return;}
+  const hum=QON.role==='host'?QON.mesa.lugares.filter(L=>L.tipo==='humano').length:0;
+  el.innerHTML=QON.role==='guest'?(QON.state==='juego'||QON.state==='mesa'?`● Mesa de ${esc(QON.host.usuario)}`:`<span class="busy"></span>Conectando…`):hum?`● ${hum} ${hum===1?'amigo':'amigos'} en la mesa`:'';}
+function eqMesaNueva(){const me=yoPerfil();return {id:Math.random().toString(36).slice(2,10),np:CFG.np===6?6:4,meta:CFG.meta,
+  lugares:[{tipo:'yo',usuario:me.usuario,avatar:me.avatar,color:me.color}].concat(Array.from({length:5},()=>({tipo:'libre'})))};}
+function eqOpenMesa(){
+  const a=acct();
+  if(!a){sheet('Mesa con amigos',`<p>Para jugar con amigos necesitás tu cuenta de BloqueAR (usuario y PIN, gratis). Con la cuenta los elegís de una lista y les llega la invitación.</p><a class="btn go" href="./#cuenta" id="fr-acct">Crear cuenta o entrar</a>`);
+    $('fr-acct').onclick=()=>{try{sessionStorage.setItem('blq-volver','truco.html');}catch(_){}};return;}
+  if(QON&&QON.role==='guest'){if(QON.state==='mesa'){eqDrawGuestLobby();return;}if(!confirm('¿Dejar la mesa en la que estás?'))return;eqLeave();}
+  if(QON&&QON.role==='host'&&QON.state==='juego'&&Q&&!Q.fin){toast('Ya están jugando en la mesa.');return;}
+  if(!QON)QON={role:'host',state:'mesa',mesa:eqMesaNueva()};
+  if(QON.state==='juego')QON.state='mesa';
+  QON.mesa.np=CFG.np===6?6:Math.max(4,QON.mesa.np);
+  QLOBBY=true;eqDrawLobby();eqCargarUsuarios();
+}
+function eqLugarHtml(L,i,host=true){
+  const tag=L.tipo==='yo'?(host?'Vos · armás la mesa':'Arma la mesa'):L.tipo==='humano'?'✓ Sentado':L.tipo==='invitado'?(L.msg||'Invitado…'):'La compu juega acá';
+  const av=L.tipo==='libre'?avHtml('🤖','#46555f'):avHtml(L.avatar,L.color);
+  return `<div class="qlug${L.tipo==='libre'?' bot':''}">${av}<div><b>${esc(L.tipo==='libre'?'Lugar libre':L.usuario)}</b><small>${L.tipo==='invitado'?'<span class="busy"></span>':''}${esc(tag)}</small></div>${host&&i&&L.tipo!=='libre'?`<button class="qx" data-x="${i}" aria-label="Sacar a ${esc(L.usuario)}">✕</button>`:''}</div>`;}
+function eqDrawLobby(){
+  if(!QON||QON.role!=='host'||!QLOBBY)return;const m=QON.mesa,a=acct(),me=a?a.usuario.toLowerCase():'';
+  const usados=new Set(m.lugares.filter(L=>L.usuario).map(L=>L.usuario.toLowerCase()));
+  const libre=t=>m.lugares.some((L,i)=>i<m.np&&i%2===t&&L.tipo==='libre');
+  const ocupado6=m.lugares.some((L,i)=>i>=4&&L.tipo!=='libre');
+  const list=(UIQ.users||[]).filter(u=>u.usuario.toLowerCase()!==me).sort((x,y)=>(y.enLinea?1:0)-(x.enLinea?1:0));
+  const col=t=>m.lugares.map((L,i)=>i<m.np&&i%2===t?eqLugarHtml(L,i):'').join('');
+  sheet('Mesa con amigos',`<h4>Jugadores</h4><div class="seg"><button class="btn${m.np===4?' on':''}" data-np="4" ${ocupado6?'disabled':''}>4 <small>2 contra 2</small></button><button class="btn${m.np===6?' on':''}" data-np="6">6 <small>3 contra 3</small></button></div>
+    <div class="qcols"><div><h5 style="color:#3d6b5a">Tu equipo</h5>${col(0)}</div><div><h5 style="color:#9a4a2a">Rivales</h5>${col(1)}</div></div>
+    <p class="note">Los lugares libres los juega la compu (${esc(DIFN[CFG.dif]||'Normal').toLowerCase()}). Si alguien se corta, sigue la compu en su lugar.</p>
+    <h4>Invitar</h4>${UIQ.err?`<p>${esc(UIQ.err)}</p>`:''}
+    ${UIQ.users?`<ul class="ulist">${list.map(u=>{const en=usados.has(u.usuario.toLowerCase());return `<li>${avHtml(u.avatar,u.color)}<span class="nm">${esc(u.usuario)}${u.enLinea?'<i class="dot"></i>':''}</span>${en?'<small class="note">En la mesa</small>':`<button data-u="${esc(u.usuario)}" data-t="0" ${libre(0)?'':'disabled'}>Con vos</button><button data-u="${esc(u.usuario)}" data-t="1" class="riv" ${libre(1)?'':'disabled'}>En contra</button>`}</li>`;}).join('')||'<li>Todavía no hay otras cuentas.</li>'}</ul>`:(UIQ.err?'':'<p><span class="busy"></span>Cargando…</p>')}
+    <h4>A cuántos puntos</h4><div class="seg"><button class="btn${m.meta===15?' on':''}" data-meta="15">A 15</button><button class="btn${m.meta===30?' on':''}" data-meta="30">A 30</button></div>
+    <div class="row"><button class="btn" id="qm-x">Cerrar la mesa</button><button class="btn go" id="qm-go">Repartir</button></div>`);
+  document.querySelectorAll('#sheet [data-np]').forEach(b=>b.onclick=()=>{m.np=Number(b.dataset.np);CFG.np=m.np;ls.set('truco-np',String(m.np));eqEnviarMesa();});
+  document.querySelectorAll('#sheet [data-meta]').forEach(b=>b.onclick=()=>{m.meta=Number(b.dataset.meta);CFG.meta=m.meta;ls.set('truco-meta',String(m.meta));eqEnviarMesa();});
+  document.querySelectorAll('#sheet .ulist button[data-u]').forEach(b=>b.onclick=()=>{const u=list.find(x=>x.usuario===b.dataset.u);if(u)eqInvitar(u,Number(b.dataset.t));});
+  document.querySelectorAll('#sheet [data-x]').forEach(b=>b.onclick=()=>{eqSoltar(Number(b.dataset.x),true);eqEnviarMesa();});
+  $('qm-x').onclick=()=>{QLOBBY=false;eqLeave();closeSheet();};
+  $('qm-go').onclick=()=>{QLOBBY=false;closeSheet();eqEmpezarMesa();};
+  $('sh-x').onclick=()=>{QLOBBY=false;$('modal').hidden=true;};
+}
+async function eqCargarUsuarios(){
+  try{const j=await lbCall({accion:'usuarios'},false);if(!Array.isArray(j.usuarios))throw new Error('Hay que actualizar el código de la planilla.');UIQ.users=j.usuarios;UIQ.err='';}catch(e){UIQ.err=e.message;}
+  if(QLOBBY)eqDrawLobby();
+}
+function eqSoltar(i,cancelar){const L=QON.mesa.lugares[i];if(!L)return;
+  if(cancelar&&L.id&&L.tipo==='invitado'){const a=acct();if(a)lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:L.id}).catch(()=>{});}
+  if(L.ch)eqSendCh(L.ch,{t:'bye'});L.soltado=true;try{L.pc&&L.pc.close();}catch(_){}
+  QON.mesa.lugares[i]={tipo:'libre'};}
+async function eqInvitar(u,team){
+  const a=acct(),m=QON&&QON.mesa;if(!a||!m)return;
+  const i=m.lugares.findIndex((L,k)=>k<m.np&&k%2===team&&L.tipo==='libre');if(i<0){toast(team?'No hay lugares libres en los rivales.':'No hay lugares libres en tu equipo.');return;}
+  const L={tipo:'invitado',usuario:u.usuario,avatar:u.avatar,color:u.color,msg:'Preparando la invitación…'};m.lugares[i]=L;eqEnviarMesa();
+  const quien=QON;
+  try{
+    const pc=new RTCPeerConnection({iceServers:await iceServers()});L.pc=pc;
+    const ch=pc.createDataChannel('truco',{ordered:true});
+    ch.onopen=()=>{if(QON!==quien||m.lugares[i]!==L)return;L.ch=ch;
+      if(QON.state==='juego'){eqSendCh(ch,{t:'bye'});return;}
+      L.tipo='humano';L.msg='';sfx('quiero');toast(`🔗 ${esc(L.usuario)} se sentó a la mesa`);eqEnviarMesa();};
+    ch.onclose=()=>eqPerdioLugar(i,L);
+    ch.onmessage=e=>{let x;try{x=JSON.parse(e.data);}catch(_){return;}eqMsgDeLugar(i,L,x);};
+    pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))eqPerdioLugar(i,L);};
+    await pc.setLocalDescription(await pc.createOffer());await gathered(pc);if(m.lugares[i]!==L)return;
+    const j=await lbCall({accion:'invitar',usuario:a.usuario,token:a.token,para:u.usuario,oferta:'TRUCO:'+JSON.stringify({sdp:pc.localDescription.sdp,meta:m.meta,mesa:m.id,seat:i,np:m.np})});
+    if(m.lugares[i]!==L)return;L.id=j.id;L.msg='Esperando que acepte…';eqEnviarMesa();
+    const t0=Date.now();
+    while(m.lugares[i]===L&&L.tipo==='invitado'&&Date.now()-t0<300000){
+      await sleep(2000);if(m.lugares[i]!==L)return;
+      let r;try{r=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token,id:L.id});}catch(_){continue;}
+      if(m.lugares[i]!==L)return;
+      if(r.estado==='aceptada'&&r.respuesta){L.msg='Conectando…';eqEnviarMesa();await pc.setRemoteDescription({type:'answer',sdp:JSON.parse(r.respuesta).sdp});
+        setTimeout(()=>{if(m.lugares[i]===L&&L.tipo==='invitado'){toast(`No se pudo conectar con ${esc(L.usuario)}.`);eqSoltar(i,false);eqEnviarMesa();}},45000);return;}
+      if(r.estado==='rechazada'){toast(`${esc(L.usuario)} dijo «ahora no».`);eqSoltar(i,false);eqEnviarMesa();return;}
+      if(r.estado==='vencida'||r.estado==='cancelada'){eqSoltar(i,false);eqEnviarMesa();return;}
+    }
+    if(m.lugares[i]===L&&L.tipo==='invitado'){toast(`${esc(L.usuario)} no respondió.`);eqSoltar(i,true);eqEnviarMesa();}
+  }catch(e){if(m.lugares[i]===L){toast(esc(e.message||'No se pudo invitar.'));eqSoltar(i,true);eqEnviarMesa();}}
+}
+function eqPerdioLugar(i,L){
+  if(!QON||QON.role!=='host'||QON.mesa.lugares[i]!==L||L.perdido||L.soltado)return;L.perdido=true;
+  const nom=L.usuario;try{L.pc&&L.pc.close();}catch(_){}L.ch=null;
+  if(QON.state==='juego'&&Q&&Q.tipos[i]==='humano'){
+    Q.tipos[i]='bot';Q.nombres[i]=nom+' (compu)';QON.mesa.lugares[i]={tipo:'libre'};
+    toast(`⚠️ ${esc(nom)} se desconectó. Sigue la compu en su lugar.`);
+    eqRefrescar();eqRender();eqEnviarEstados();eqRenderOnline();eqSeguir();return;}
+  if(L.tipo==='humano'||L.tipo==='invitado'){QON.mesa.lugares[i]={tipo:'libre'};toast(`${esc(nom)} se fue de la mesa.`);eqEnviarMesa();}
+}
+function eqMsgDeLugar(i,L,x){
+  if(x.t==='hola'){if(x.yo){L.avatar=x.yo.avatar||L.avatar;L.color=x.yo.color||L.color;}eqEnviarMesa();return;}
+  if(x.t==='bye'){eqPerdioLugar(i,L);return;}
+  if(x.t==='accion'&&Q&&QON.state==='juego'&&Q.tipos[i]==='humano'){
+    (async()=>{while(QBUSY)await sleep(80);QBUSY=true;try{const err=await eqAplicar(i,x.a||{});if(err){eqSendCh(L.ch,{t:'error',msg:err});eqEnviarEstados();}}finally{QBUSY=false;}})();return;}
+  if(x.t==='listo'&&Q){QON.listos=QON.listos||{};QON.listos[i]=x.n;eqIntentarRepartir();return;}
+}
+function eqEmpezarMesa(){
+  const m=QON&&QON.mesa;if(!m)return;
+  m.lugares.forEach((L,i)=>{if(i<m.np&&L.tipo==='invitado')eqSoltar(i,true);if(i>=m.np&&L.tipo!=='libre')eqSoltar(i,true);});
+  eqActivar();QON.state='juego';QMODO='host';QTOK++;QFIN=null;QON.listos={};QON.miListo=0;eqLimpiarDichos();eqHideCenter();
+  QPERF.length=0;const nombres=[],tipos=[];let b=0;
+  m.lugares.slice(0,m.np).forEach((L,i)=>{if(i===0){nombres.push(miNombre());tipos.push('yo');QPERF.push({a:L.avatar||'🙂',c:L.color||'#7ce9e5'});}
+    else if(L.tipo==='humano'){nombres.push(L.usuario);tipos.push('humano');QPERF.push({a:L.avatar||'🙂',c:L.color||'#7ce9e5'});}
+    else{nombres.push(BOTN[b]);tipos.push('bot');QPERF.push({a:BOTA[b],c:BOTC[b]});b++;}});
+  Q=eqNueva({np:m.np,meta:m.meta,nombres,tipos});eqRepartir(Q);sfx('repartir');eqRefrescar();eqRender();eqRenderOnline();eqEnviarEstados();eqSenasCompu();eqSeguir();
+}
+// Siguiente mano: reparte el que armó la mesa cuando todos tocaron «Listo» (o a los 12 segundos).
+function eqIntentarRepartir(){
+  if(QMODO!=='host'||!Q||!Q.H.fin||Q.fin)return;const n=Q.n,L=QON.listos||{};
+  const faltan=Q.tipos.map((t,i)=>t==='humano'&&L[i]!==n?i:-1).filter(i=>i>0);
+  if(QON.miListo===n&&!faltan.length){clearTimeout(QON.tRep);eqRepartir(Q);sfx('repartir');QFIN=null;eqRefrescar();eqRender();eqEnviarEstados();eqSenasCompu();eqSeguir();return;}
+  if(QON.miListo===n){$('eq-status').textContent=`Esperando a ${faltan.map(i=>Q.nombres[i]).join(', ')}…`;clearTimeout(QON.tRep);
+    QON.tRep=setTimeout(()=>{if(Q&&Q.n===n&&Q.H.fin&&QON){faltan.forEach(i=>{QON.listos[i]=n;});eqIntentarRepartir();}},12000);}
+}
+
+/* ── Sumarse a una mesa (el invitado) ── */
+async function eqAcceptInvite(inv,off){
+  const a=acct();if(!a)return;UIQ.dismissed.add(inv.id);
+  if(QON)eqLeave();eqActivar();QTOK++;Q=null;QMODO='guest';
+  QON={role:'guest',state:'conectando',host:{usuario:inv.de,avatar:inv.avatar,color:inv.color},seat:off.seat,id:inv.id,mesa:null};eqRenderOnline();
+  sheet('Mesa de '+esc(inv.de),`<p><span class="busy"></span>Conectando con la mesa de ${esc(inv.de)}…</p><div class="row"><button class="btn" id="gw-x">Cancelar</button></div>`);$('gw-x').onclick=()=>{eqLeave();closeSheet();openNew();};
+  const me0=QON;
+  try{
+    const pc=new RTCPeerConnection({iceServers:await iceServers()});QON.pc=pc;
+    pc.ondatachannel=e=>{const ch=e.channel;QON.ch=ch;
+      ch.onopen=()=>{if(QON!==me0)return;QON.state='mesa';eqSendCh(ch,{t:'hola',yo:yoPerfil()});eqRenderOnline();sfx('quiero');};
+      ch.onclose=()=>eqHostPerdido('se desconectó');
+      ch.onmessage=ev=>{let x;try{x=JSON.parse(ev.data);}catch(_){return;}eqMsgDelHost(x);};};
+    pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))eqHostPerdido('se desconectó');};
+    await pc.setRemoteDescription({type:'offer',sdp:off.sdp});await pc.setLocalDescription(await pc.createAnswer());await gathered(pc);
+    await lbCall({accion:'responder',usuario:a.usuario,token:a.token,id:inv.id,respuesta:JSON.stringify({sdp:pc.localDescription.sdp})});
+    setTimeout(()=>{if(QON===me0&&QON.state==='conectando')eqFalloGuest('No se pudieron conectar. Prueben con datos móviles en uno de los dos.');},45000);
+  }catch(e){if(QON===me0)eqFalloGuest(e.message||'No se pudo conectar.');}
+}
+function eqFalloGuest(msg){try{QON&&QON.pc&&QON.pc.close();}catch(_){}QON=null;eqRenderOnline();
+  sheet('Mesa',`<p>${esc(msg)}</p><div class="row"><button class="btn" id="fw-x">Cerrar</button><button class="btn go" id="fw-new">Jugar con la compu</button></div>`);
+  $('fw-x').onclick=()=>{closeSheet();if(!QE)openNew();};$('fw-new').onclick=()=>{closeSheet();openNew();};}
+function eqDrawGuestLobby(){const m=QON&&QON.mesa;if(!m)return;const yo=yoPerfil(),mt=QON.seat%2;
+  const col=t=>m.lugares.map((L,i)=>i%2!==t?'':L.vos?`<div class="qlug">${avHtml(yo.avatar,yo.color)}<div><b>Vos</b><small>✓ Sentado</small></div></div>`:eqLugarHtml(L,i,false)).join('');
+  sheet('Mesa de '+esc(m.host),`<p class="note">Truco de a ${m.np} (${m.np===4?'2 contra 2':'3 contra 3'}), a ${m.meta}.</p>
+    <div class="qcols"><div><h5 style="color:#3d6b5a">Tu equipo</h5>${col(mt)}</div><div><h5 style="color:#9a4a2a">Rivales</h5>${col(1-mt)}</div></div>
+    <p><span class="busy"></span>Esperando que ${esc(m.host)} reparta.</p><p class="note">Los lugares libres los juega la compu.</p>
+    <div class="row"><button class="btn" id="gw-x">Salir de la mesa</button></div>`);
+  $('gw-x').onclick=()=>{eqLeave();closeSheet();openNew();};$('sh-x').onclick=()=>{$('modal').hidden=true;};}
+function eqMsgDelHost(x){
+  if(!QON||QON.role!=='guest')return;
+  if(x.t==='mesa'){QON.mesa=x.mesa;if(!QE||QE.fin){if($('modal').hidden||/Mesa de|Conectando/.test($('sheet').textContent))eqDrawGuestLobby();}eqRenderOnline();return;}
+  if(x.t==='estado'&&x.E){eqRecibirEstado(x.E);return;}
+  if(x.t==='error'){QPEND=false;toast(esc(x.msg));if(QE)eqRenderMe();return;}
+  if(x.t==='bye'){eqHostPerdido('cerró la mesa');}
+}
+async function eqRecibirEstado(En){
+  const Ea=QE;QPEND=false;QMODO='guest';Q=null;QON.state='juego';
+  if(!$('modal').hidden&&/Mesa de|Conectando/.test($('sheet').textContent))$('modal').hidden=true;
+  const misma=Ea&&Ea.id===En.id&&Ea.n===En.n,u=En.ultimo,cambio=!!(misma&&u&&JSON.stringify(Ea.ultimo)!==JSON.stringify(u));
+  if(!misma){QFIN=null;eqLimpiarDichos();eqHideCenter();sfx('repartir');}
+  const desde=cambio&&u.a.t==='carta'?eqOrigen(u.p,u.a.c):null;
+  const cierra=cambio&&u.a.t==='carta'&&En.bazas.length>Ea.bazas.length&&!En.finMano;
+  if(cierra){QHOLD=Date.now()+(FAST?0:1300);clearTimeout(QHOLD_T);QHOLD_T=setTimeout(()=>{if(QE)eqRender();},FAST?0:1320);}
+  QE=En;eqRender();eqNuevasSenas(Ea,En);
+  if(cambio){if(u.a.t==='carta'){eqVolar(u.p,u.a.c,desde);sfx('carta');if(cierra){await wait(260);sfx('baza');}}await eqAnunciar(u.p,u.a,Ea,En);}
+  if(QE===En){if(QE.fin)setTimeout(eqMostrarFin,FAST?0:900);else if(QE.finMano)setTimeout(eqMostrarFinMano,FAST?0:1100);}
+}
+function eqHostPerdido(why){
+  if(!QON||QON.role!=='guest'||QON.lost)return;QON.lost=true;const host=QON.host.usuario,jugando=QE&&!QE.fin&&QON.state==='juego';
+  try{QON.pc&&QON.pc.close();}catch(_){}QON=null;eqRenderOnline();
+  if(jugando){eqCenter(`<div class="ic">📡</div><h3>Se cortó</h3><p>${esc(host)} ${esc(why)}. La partida la llevaba su celular, así que desde acá no se puede seguir.</p><button class="btn go" id="qc-new">Jugar con la compu</button><button class="btn" id="qc-x">Cerrar</button>`);
+    $('qc-new').onclick=()=>{eqHideCenter();openNew();};$('qc-x').onclick=eqHideCenter;return;}
+  if(!$('modal').hidden&&/Mesa de/.test($('sheet').textContent)){sheet('Mesa',`<p>${esc(host)} ${esc(why)}.</p><button class="btn go" id="qc-new2">Partida nueva</button>`);$('qc-new2').onclick=openNew;}
+  else toast(`${esc(host)} ${esc(why)}`);
+}
+function eqLeave(){
+  if(!QON)return;const o=QON;QON=null;
+  if(o.role==='host'){for(const L of o.mesa.lugares){if(L.tipo==='invitado'&&L.id){const a=acct();if(a)lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:L.id}).catch(()=>{});}L.soltado=true;if(L.ch)eqSendCh(L.ch,{t:'bye'});try{L.pc&&L.pc.close();}catch(_){}}
+    if(Q&&QMODO==='host'){// lo que queda lo juega la compu
+      Q.tipos=Q.tipos.map((t,i)=>i&&t==='humano'?'bot':t);QMODO='compu';}}
+  else{eqSendCh(o.ch,{t:'bye'});try{o.pc&&o.pc.close();}catch(_){}if(QMODO==='guest'){QE=null;QMODO='compu';}}
+  eqRenderOnline();
+}
+window.addEventListener('pagehide',()=>{if(QON)eqSend({t:'bye'});});
 
 /* ───────── Arranque ───────── */
 function mesaVacia(){$('rival').innerHTML='';$('score').innerHTML='';$('bazas').innerHTML=Array.from({length:3},()=>'<div class="baza"><div class="slot"></div><div class="slot"></div></div>').join('');
@@ -2304,17 +3135,20 @@ function saved0(){const s=ls.json(SAVE,null);return !!(s&&s.M&&!s.M.fin);}
   defsNaipes();try{window.LOGROS&&LOGROS.aplicar('truco');}catch(_){}
   // Para las pruebas: #auto hace que la compu juegue también por vos (#auto-rapido, sin esperas).
   if(/[#&]auto/.test(location.hash)){FAST=/rapido/.test(location.hash);AUTO=true;const d=(location.hash.match(/dif=(\w+)/)||[])[1];if(d&&DIFN[d])CFG.dif=d;
-    const mt=(location.hash.match(/meta=(\d+)/)||[])[1];if(mt)CFG.meta=Number(mt)===15?15:30;nuevaCompu(Number((location.hash.match(/semilla=(\d+)/)||[])[1])||undefined);return;}
+    const mt=(location.hash.match(/meta=(\d+)/)||[])[1];if(mt)CFG.meta=Number(mt)===15?15:30;const sem=Number((location.hash.match(/semilla=(\d+)/)||[])[1])||undefined;
+    const eqn=Number((location.hash.match(/[#&]eq=(\d)/)||[])[1]);if(eqn===4||eqn===6){CFG.np=eqn;eqNuevaCompu(sem);return;}
+    nuevaCompu(sem);return;}
   ls.set('bloques-ultimo-juego','truco');ls.set('bloques-hub-v1','1');
   const hash=location.hash;if(hash){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
-  const saved=ls.json(SAVE,null);
-  if(saved&&saved.M&&saved.M.v===1&&saved.M.H&&!saved.M.fin){M=saved.M;CFG={...CFG,...(saved.cfg||{})};MODO='compu';refrescar();render();if(M.H.fin)mostrarFinMano();else seguir();}
+  const saved=ls.json(SAVE,null),qs=ls.json(QSAVE,null),okQ=!!(qs&&qs.Q&&qs.Q.v===2&&qs.Q.H&&!qs.Q.fin),ok1=!!(saved&&saved.M&&saved.M.v===1&&saved.M.H&&!saved.M.fin);
+  if(okQ&&(!ok1||(qs.t||0)>(saved.t||0))){try{eqRestaurar(qs);}catch(e){console.warn('equipos',e);ls.set(QSAVE,null);mesaVacia();openNew();}}
+  else if(ok1){M=saved.M;CFG={...CFG,...(saved.cfg||{})};MODO='compu';refrescar();render();if(M.H.fin)mostrarFinMano();else seguir();}
   else{mesaVacia();if(!/^#(invitar|amigos)/.test(hash)&&!aceptando()){if(!ls.get('truco-ayuda')){ls.set('truco-ayuda','1');AYUDA1=true;openHelp();}else openNew();}}
   if(aceptando())esperarInvitacion();
   if(/^#amigos/.test(hash))setTimeout(openFriends,200);
   {const m=/^#invitar=([^&]+)/.exec(hash);if(m&&acct()){let u='';try{u=decodeURIComponent(m[1]);}catch(_){u=m[1];}setTimeout(()=>inviteFriend((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#7ce9e5'}),400);}}
   if(window.RANGOS)RANGOS.css();
-  if(window.CHAT)CHAT.init({busy:()=>!!(E&&!E.fin&&!AUTO),account:()=>{location.href='./#cuenta';},game:()=>'truco',inbox:()=>pollInbox(true),
+  if(window.CHAT)CHAT.init({busy:()=>!!(E&&!E.fin&&!AUTO)||eqOcupado(),account:()=>{location.href='./#cuenta';},game:()=>'truco',inbox:()=>pollInbox(true),
     invite:(g,u)=>{if(g==='truco'){inviteFriend((UIQ.users||[]).find(y=>y.usuario.toLowerCase()===String(u).toLowerCase())||{usuario:u,avatar:'🙂',color:'#7ce9e5'});return;}
       if(g==='estancia'){location.href='estancia.html#malon';return;}location.href=(g==='poblar'?'poblar.html':g==='uno'?'uno.html':'./')+'#invitar='+encodeURIComponent(u);},
     play:c=>{if(c.j==='truco')openNew();else location.href=c.j==='poblar'?'poblar.html':c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':c.j==='uno'?'uno.html':'./';}});
@@ -2322,7 +3156,8 @@ function saved0(){const s=ls.json(SAVE,null);return !!(s&&s.M&&!s.M.fin);}
 })();
 window.TRUCO={refrescar,get M(){return M;},get E(){return E;},get MODO(){return MODO;},get ON(){return ON;},get CFG(){return CFG;},jugarYo,nuevaCompu,openNew,openHelp,openFriends,inviteFriend,acceptInvite,onMsg,recibirEstado,enviarEstado,
   decidir,vistaDe,estadoPara,quienJuega,acciones,repartir,jugar,seguir,mostrarFinMano,mostrarFin,siguienteMano,render,pollInbox,
-  set FAST(v){FAST=v;},set AUTO(v){AUTO=v;},get BUSY(){return BUSY;}};
+  set FAST(v){FAST=v;},set AUTO(v){AUTO=v;},get BUSY(){return BUSY;},
+  EQ:{get Q(){return Q;},get QE(){return QE;},get QMODO(){return QMODO;},get QON(){return QON;},get ON(){return EQ_ON;},eqNuevaCompu,eqJugarYo,eqOpenMesa,eqEmpezarMesa,eqInvitar,eqAcceptInvite,eqDesactivar,eqSiguienteMano,eqLeave,eqDecidir,eqAcciones,eqQuienJuega,eqEstadoPara,eqJugar,eqRender}};
 
 </script>
 </body>

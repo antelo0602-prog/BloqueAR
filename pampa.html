@@ -51,7 +51,7 @@ canvas#map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-
 .panel{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));width:min(460px,calc(100% - 16px));background:var(--parch);border:1px solid var(--rule);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.45);padding:11px 13px 12px;display:flex;flex-direction:column;gap:7px}
 .panel[hidden]{display:none}
 .panel h3{margin:0;font:700 18px/1.2 var(--serif);display:flex;align-items:center;gap:8px;padding-right:34px}
-.panel h3 .sw{width:14px;height:14px;border-radius:4px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.panel h3 .sw{width:26px;height:26px;flex:none}
 .panel p{margin:0;color:#4d4031;font-size:14px}
 .panel .x{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:9px;border:0;background:var(--parch2);font-size:13px;color:var(--brown)}
 .panel .stats{display:flex;gap:6px;flex-wrap:wrap}
@@ -93,7 +93,10 @@ canvas#map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-
 .news{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;color:#4d4031}.news small{color:var(--soft)}
 .legend{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .legend span{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:#fbf7ee;border:1px solid #e1d3b6;font-size:13px}
-.legend i{width:22px;height:22px;border-radius:6px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.legend i{width:34px;height:34px;flex:none}
+.roles{margin:4px 0 0;padding-left:18px;font-size:13.5px;line-height:1.45}.roles li{margin:3px 0}
+.note.rol{color:inherit;background:rgba(196,162,101,.14);border-radius:8px;padding:6px 9px}
+.item.ini{background:rgba(196,162,101,.16)}
 .legend b{font-family:var(--serif)}
 /* Cartel en el medio (cuenta, errores, resultados) */
 .center{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:rgba(14,11,7,.55);z-index:5}
@@ -395,13 +398,23 @@ estancia:{n:'EstanciAR',e:'🐎',
     {id:'aguante',e:'🛡️',n:'Aguante',d:'Rechazá un malón de otro jugador.',k:'aguantes'},
     {id:'nivel5',e:'🏡',n:'Estancia en marcha',d:'Llevá tu estancia a nivel 5.',k:'nivel',m:5,marca:true},
     {id:'nivel10',e:'🏰',n:'Gran estancia',d:'Llevá tu estancia a nivel 10.',k:'nivel',m:10,marca:true},
+    {id:'pinta',e:'🤠',n:'Pinta de gaucho',d:'Vestí a tu personaje.',k:'pinta'},
+    {id:'mascota',e:'🐾',n:'Compañero fiel',d:'Comprá una mascota.',k:'mascotas'},
+    {id:'mimos50',e:'💛',n:'Malcriador',d:'Cuidá a tu mascota 50 veces.',k:'mimos',m:50},
+    {id:'pedidos10',e:'📜',n:'Buen vecino',d:'Entregá 10 pedidos de los vecinos.',k:'pedidos',m:10},
+    {id:'racha7',e:'🧰',n:'Siete de siete',d:'Abrí el cofre del día 7 días seguidos.',k:'racha',m:7,marca:true},
+    {id:'latifundio',e:'🗺️',n:'Latifundista',d:'Ampliá tu campo a 24×24.',k:'casco',m:7,marca:true},
+    {id:'visitas5',e:'🎸',n:'Casa de puertas abiertas',d:'Recibí 5 visitas.',k:'visitas',m:5},
+    {id:'feria',e:'🎪',n:'De feria',d:'Comprá algo en la feria del fin de semana.',k:'feria'},
+    {id:'mejoras',e:'⚒️',n:'Fortificado',d:'Mejorá defensas 5 veces.',k:'mejoras',m:5},
     {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
   retos:[
     {id:'c',k:'cosechas',v:[10,20],t:n=>`Cosechá ${n} veces`,xp:50},
     {id:'j',k:'juntar',v:[15,25],t:n=>`Juntá lo de tus animales ${n} veces`,xp:45},
     {id:'m',k:'malones',v:[1,3],t:n=>n===1?'Ganá un malón':`Ganá ${n} malones`,xp:60},
     {id:'o',k:'compras',v:[2,4],t:n=>`Comprá o construí ${n} cosas`,xp:45},
-    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55}],
+    {id:'e',k:'estrellas',v:[3,6],t:n=>`Juntá ${n} estrellas en malones`,xp:55},
+    {id:'p',k:'pedidos',v:[2,4],t:n=>`Entregá ${n} pedidos de los vecinos`,xp:50}],
   ap:{}},
 pampa:{n:'La Gran Pampa',e:'🗺️',
   logros:[
@@ -479,11 +492,17 @@ function fin(j,d,key){
 /* ── Cartelito: aparece debajo de la barra de arriba, chico, y se va solo ── */
 const COLA=[];let MOSTRANDO=false;
 function avisar(j,r){for(const L of r.nuevos)COLA.push({e:L.e,t:'Logro: '+L.n,s:L.d});for(const x of r.cumplidos)COLA.push({e:'🎯',t:'Reto cumplido',s:`${x.txt} · +${x.xp} XP`});if(!MOSTRANDO)siguiente();}
-function siguiente(){const a=COLA.shift();if(!a){MOSTRANDO=false;return;}MOSTRANDO=true;css();
+// Si el juego está mostrando su propio cartel (.toast), espera a que se vaya; y si aparece uno mientras se ve éste,
+// se corre y vuelve después, para que nunca queden uno encima del otro.
+const hayToast=()=>!!document.querySelector('.toast');
+function siguiente(espera=0){if(!COLA.length){MOSTRANDO=false;return;}MOSTRANDO=true;
   if(!document.body){MOSTRANDO=false;return;}
+  if(hayToast()&&espera<25){setTimeout(()=>siguiente(espera+1),400);return;}
+  const a=COLA.shift();css();
   const el=document.createElement('div');el.className='lg-aviso';el.setAttribute('role','status');el.innerHTML=`<i>${a.e}</i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span>`;
   document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
-  setTimeout(()=>{el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);},3400);}
+  let t=0;const iv=setInterval(()=>{t+=300;const corta=hayToast()&&t<3000;
+    if(t>=3400||corta){clearInterval(iv);if(corta)COLA.unshift(a);el.classList.remove('on');setTimeout(()=>{el.remove();siguiente();},260);}},300);}
 
 /* ── Apariencias ── */
 function nivel(j){try{const R=window.RANGOS;return R?R.levelInfo(R.xp(j)).lv:1;}catch(_){return 1;}}
@@ -1116,6 +1135,12 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:61,grande:true,titulo:'Novedades',items:[
+    ['🃏','TrucAR de a 2, 4 o 6, en dos equipos: contra la compu o con amigos, con señas entre compañeros.'],
+    ['🐎','EstanciAR: tu gauchito camina por el campo y lo vestís como quieras. Ampliá el terreno, hay muchas cosas nuevas en la tienda, pedidos de los vecinos, cofre del día, visitas y feria el fin de semana.'],
+    ['🐶','EstanciAR: comprá una mascota (perro, gato, carpincho, mulita o ñandú). Tocala para darle de comer, bañarla, jugar y hacerla dormir.'],
+    ['🗺️','La Gran Pampa: cada semana arrancás con 5 leguas. Los terrenos se distinguen mejor y cada uno sirve para algo: la laguna riega la pastura, desde la sierra llegás más lejos y el monte cuesta más desafiarlo.'],
+    ['📲','El QR y el enlace para pasarle la app a alguien abren el menú de juegos.']]},
   {v:60,grande:true,titulo:'Novedades',items:[
     ['🏅','Logros en todos los juegos: TrucAR, UnoAR, PoblAR, EstanciAR y La Gran Pampa. Y BloqueAR suma muchas medallas nuevas.'],
     ['🎯','Retos de la semana: 3 por juego, los mismos para todos. Cambian el lunes y dan XP y pesos para tu estancia.'],
@@ -1128,14 +1153,14 @@ const LISTA=[
     ['👆','PoblAR responde mejor al tacto: los botones ya no quedan corridos y no se hace zoom solo.']]},
   // todos: el resumen completo; lo ven todos (también los que recién llegan o todavía no se crearon la cuenta).
   {v:58,grande:true,todos:true,titulo:'Todo lo que hay',items:[
-    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
+    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR (de a 2, 4 o 6) y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa. Abajo, «Tu campo»: EstanciAR y La Gran Pampa.'],
     ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords, entrás a La Gran Pampa y llevás tu progreso a otro celular.'],
     ['💬','Chat con tus amigos (el botón 💬 de arriba): ahora alcanza con la cuenta, ya no hace falta ingresar el PIN.'],
     ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar.'],
     ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir. Cada juego tiene logros, 3 retos por semana y apariencias para destrabar.'],
     ['🏆','Tablas de cada juego (☰ › Tablas): mirá quién va primero en rango, nivel y logros.'],
     ['🚩','La Gran Pampa: cada lunes un mapa nuevo con los que se suman (lunes o martes). Lo que ganás en partidas ranked te da leguas para crecer.'],
-    ['🐎','EstanciAR: sembrá, criá animales, poné tapias y salí de malón (ahora se ven a ×2 y te llevás lo que estaba listo).'],
+    ['🐎','EstanciAR: tu gauchito, tu mascota, sembrá, criá animales, ampliá el campo, cumplí pedidos de los vecinos y salí de malón.'],
     ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
     ['🏘️','PoblAR: ahora de a 2, 3 o 4, contra la compu o en línea con amigos. Y el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
     ['📱','Anda mejor en el celular: menos memoria, gráficos livianos de entrada y el sonido se pausa cuando salís del juego.']]},
@@ -1285,7 +1310,7 @@ function hoyLocal(){const d=new Date();return `${d.getFullYear()}-${String(d.get
 const LB_DEF='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';
 const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.token?a:null;};
 // Lo que jugaste hoy en los otros juegos (lo anotan ellos en «pampa-act»): la planilla lo pasa a leguas, con tope.
-function actHoy(){const o=ls.json('pampa-act',null);return o&&o.d===hoyLocal()?{d:o.d,b:o.b|0,p:o.p|0,e:o.e|0,t:o.t|0}:{d:hoyLocal(),b:0,p:0,e:0,t:0};}
+function actHoy(){const o=ls.json('pampa-act',null);return o&&o.d===hoyLocal()?{d:o.d,b:o.b|0,p:o.p|0,e:o.e|0,t:o.t|0,u:o.u|0}:{d:hoyLocal(),b:0,p:0,e:0,t:0,u:0};}
 async function api(p,ms=20000){
   const a=acct(),url=ls.get('bloques-lb-url-v1')||LB_DEF;if(!a)throw new Error('Necesitás tu cuenta de BloqueAR.');
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
@@ -1327,8 +1352,12 @@ function hexAt(wx,wy){if(!GEO)return -1;const q=(SQ3/3*wx-wy/3)/HS,r=(2/3*wy)/HS
 /* ───────── Dibujo ───────── */
 const cv=$('map'),ctx=cv.getContext('2d');
 let W=0,Hh=0,DPR=1;const cam={x:0,y:0,z:.5};let zFit=.5,USERCAM=false;
-const TIPO={p:{n:'Pampa',c:'#c5a24c'},a:{n:'Pastura',c:'#7b964c'},m:{n:'Monte',c:'#56723a'},s:{n:'Sierra',c:'#8c8370'},l:{n:'Laguna',c:'#4d7c8e'},x:{n:'Salitral',c:'#d8cfb8'}};
+// v61: cada paraje con su color, su claridad y su dibujo (trigo en franjas, pasto con vacas y alambrado, monte tupido y oscuro,
+// cerros con nieve, agua con juncos, salitral blanco y cuarteado): se distinguen también sin ver bien los colores.
+const TIPO={p:{n:'Pampa',c:'#ddb548'},a:{n:'Pastura',c:'#6aa346'},m:{n:'Monte',c:'#24421f'},s:{n:'Sierra',c:'#87827b'},l:{n:'Laguna',c:'#2f7ea6'},x:{n:'Salitral',c:'#ece6d7'}};
 const DESC={p:'Trigales de la pampa húmeda: buena tierra.',a:'Pasturas para la hacienda.',m:'Monte de talas y espinillos.',s:'Sierras con piedra y vetas.',l:'Laguna con juncos: la más codiciada.',x:'Salitral: da poco, pero suma.'};
+// v61: el papel de cada paraje (sólo en las semanas con las reglas nuevas: V.reglas.mec)
+const ROL={a:m=>`Si tenés una laguna pegada, la riega: <b>+${m.riego} por día</b>.`,l:m=>`Riega: cada pastura tuya pegada da <b>+${m.riego} por día</b>.`,s:m=>`Mirador: desde acá reclamás parajes libres <b>a ${m.alcance} de distancia</b>, sin estar pegados.`,m:m=>`Se defiende solo: desafiarlo cuesta <b>${m.monte} leguas más</b>.`};
 function oval(g,x,y,rx,ry,col){g.fillStyle=col;g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.fill();}
 function circle(g,x,y,r,col){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,7);g.fill();}
 function line(g,a,b,col,lw){g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.strokeStyle=col;g.lineWidth=lw;g.lineCap='round';g.stroke();}
@@ -1336,24 +1365,44 @@ function line(g,a,b,col,lw){g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]
 function paintTerrain(g,t,x,y,seed){
   const R=rnd(seed),S=HS;g.save();hexPath(g,x,y,S+.6);g.clip();
   g.fillStyle=TIPO[t].c;g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);
-  if(t==='p'){g.strokeStyle='rgba(140,104,38,.42)';g.lineWidth=1.3;for(let i=-8;i<=8;i++){g.beginPath();g.moveTo(x-S*1.1,y+i*6-S*.25);g.lineTo(x+S*1.1,y+i*6+S*.35);g.stroke();}
-    for(let i=0;i<70;i++){const px=x+(R()-.5)*2*S,py=y+(R()-.5)*2*S;g.fillStyle=R()<.5?'#e2c56f':'#a8863a';g.fillRect(px,py,1.3,1.3);}}
-  else if(t==='a'){for(let i=0;i<34;i++){const px=x+(R()-.5)*1.9*S,py=y+(R()-.5)*1.9*S;g.strokeStyle=R()<.5?'#5f7d3a':'#98b066';g.lineWidth=.9;g.beginPath();g.moveTo(px-1.6,py);g.lineTo(px-2,py-3.2);g.moveTo(px,py);g.lineTo(px,py-4);g.moveTo(px+1.6,py);g.lineTo(px+2,py-3.2);g.stroke();}
-    for(let i=0;i<3;i++){const px=x+(R()-.5)*1.1*S,py=y+(R()-.5)*1.1*S;oval(g,px+1,py+2.2,4.6,1.6,'rgba(30,25,10,.25)');oval(g,px,py,4,2.8,'#ece5d3');circle(g,px-3.8,py-.8,1.6,'#3a332c');}}
-  else if(t==='m'){const tr=[];for(let i=0;i<11;i++)tr.push([x+(R()-.5)*1.7*S,y+(R()-.5)*1.7*S,6+R()*4]);tr.sort((a,b)=>a[1]-b[1]);
-    for(const [px,py,r] of tr){oval(g,px+2,py+r*.55,r*.9,r*.38,'rgba(20,25,8,.35)');circle(g,px,py,r,'#3d5a28');circle(g,px-r*.25,py-r*.3,r*.7,'#4e6f31');circle(g,px-r*.4,py-r*.45,r*.32,'#67884a');}}
-  else if(t==='s'){for(let i=0;i<4;i++){const px=x+(R()-.5)*1.3*S,py=y+(R()-.5)*1.1*S+4,w=9+R()*8,h=7+R()*9;
-      g.fillStyle='#6d6656';g.beginPath();g.moveTo(px-w,py+4);g.lineTo(px-w*.2,py-h);g.lineTo(px+w,py+4);g.closePath();g.fill();
-      g.fillStyle='#a69d86';g.beginPath();g.moveTo(px-w,py+4);g.lineTo(px-w*.2,py-h);g.lineTo(px+w*.05,py+4);g.closePath();g.fill();
-      g.fillStyle='#e8e2d4';g.beginPath();g.moveTo(px-w*.38,py-h*.62);g.lineTo(px-w*.2,py-h);g.lineTo(px-w*.02,py-h*.66);g.closePath();g.fill();}
-    for(let i=0;i<30;i++){g.fillStyle=R()<.5?'#7b7362':'#a39a84';g.fillRect(x+(R()-.5)*1.8*S,y+(R()-.5)*1.8*S,1.4,1.1);}}
-  else if(t==='l'){g.fillStyle='#6f8a44';g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);hexPath(g,x,y,S*.78);g.fillStyle='#4d7c8e';g.fill();
-    g.strokeStyle='rgba(170,205,214,.55)';g.lineWidth=1;for(let i=0;i<6;i++){const py=y-S*.45+i*S*.18,w=S*(.3+R()*.25);g.beginPath();g.moveTo(x-w+(R()-.5)*8,py);g.lineTo(x+w+(R()-.5)*8,py);g.stroke();}
-    for(let i=0;i<26;i++){const a=R()*6.283,d=S*(.78+R()*.16),px=x+Math.cos(a)*d,py=y+Math.sin(a)*d*.95;line(g,[px,py],[px+(R()-.5)*2,py-5-R()*4],R()<.5?'#4f6a2e':'#8aa253',1);}}
-  else if(t==='x'){g.strokeStyle='#b4a687';g.lineWidth=1;for(let i=0;i<9;i++){let px=x+(R()-.5)*1.6*S,py=y+(R()-.5)*1.6*S;g.beginPath();g.moveTo(px,py);for(let k=0;k<4;k++){px+=(R()-.5)*16;py+=(R()-.5)*16;g.lineTo(px,py);}g.stroke();}
-    for(let i=0;i<40;i++){g.fillStyle=R()<.6?'#f4efe3':'#c9bd9f';g.fillRect(x+(R()-.5)*1.8*S,y+(R()-.5)*1.8*S,1.2,1.2);}}
-  const gr=g.createLinearGradient(x-S,y-S,x+S,y+S);gr.addColorStop(0,'rgba(255,248,225,.13)');gr.addColorStop(1,'rgba(20,15,5,.16)');g.fillStyle=gr;g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);
-  g.restore();hexPath(g,x,y,S);g.strokeStyle='rgba(38,28,14,.42)';g.lineWidth=1.1;g.stroke();
+  if(t==='p'){// trigal: franjas de surcos dorados y espigas
+    g.save();g.translate(x,y);g.rotate(-.42);
+    for(let i=-9;i<=9;i++){g.fillStyle=i&1?'#c39a33':'#e9c65c';g.fillRect(-S*1.6,i*6-3,S*3.2,6);}
+    g.strokeStyle='#8f6a1f';g.lineWidth=.9;
+    for(let i=-8;i<=8;i+=2)for(let k=-7;k<=7;k++){const px=k*6+(i%4?3:0)+(R()-.5)*1.5,py=i*6+1;g.beginPath();g.moveTo(px,py+2.4);g.lineTo(px,py-2.6);g.stroke();oval(g,px,py-3.2,1,1.9,'#f6e29a');}
+    g.restore();}
+  else if(t==='a'){// pastura: pasto parejo con matitas, alambrado y vacas
+    for(let i=0;i<7;i++)oval(g,x+(R()-.5)*1.7*S,y+(R()-.5)*1.7*S,6+R()*8,3+R()*4,'rgba(150,200,105,.45)');
+    for(let i=0;i<26;i++){const px=x+(R()-.5)*1.9*S,py=y+(R()-.5)*1.9*S;g.strokeStyle=R()<.5?'#3f7a2c':'#9ccc6e';g.lineWidth=1;g.beginPath();g.moveTo(px-2,py);g.lineTo(px-2.6,py-3.6);g.moveTo(px,py);g.lineTo(px,py-4.6);g.moveTo(px+2,py);g.lineTo(px+2.6,py-3.6);g.stroke();}
+    const fy=y-S*.42;line(g,[x-S,fy+5],[x+S,fy-5],'rgba(60,42,24,.75)',.8);line(g,[x-S,fy+7.5],[x+S,fy-2.5],'rgba(60,42,24,.5)',.7);
+    for(let k=-5;k<=5;k++){const px=x+k*7.5,py=fy-(k*7.5)/S*5;g.fillStyle='#5b3d22';g.fillRect(px-.8,py-2,1.6,7.5);}
+    for(let i=0;i<3;i++){const px=x+(R()-.5)*1.15*S,py=y+S*.05+(R()-.2)*.75*S,d=R()<.5?1:-1;
+      oval(g,px+1,py+3.2,6,1.8,'rgba(25,30,10,.3)');g.fillStyle='#3b2c22';g.fillRect(px-3.6,py+1,1.2,3);g.fillRect(px+2.4,py+1,1.2,3);
+      oval(g,px,py,5.4,3.3,'#f3efe4');oval(g,px+1.5*d,py-.6,1.9,1.5,'#2b2622');oval(g,px-1.8*d,py+.6,1.4,1.2,'#2b2622');
+      oval(g,px+5.4*d,py-1.4,2.2,1.8,'#f3efe4');circle(g,px+6.6*d,py-1,1,'#d9a7a0');}}
+  else if(t==='m'){// monte: copas tupidas, una al lado de la otra
+    const tr=[];for(let r=-5;r<=5;r++)for(let q=-5;q<=5;q++){const px=x+(q+(r&1?.5:0))*9+(R()-.5)*3,py=y+r*7.6+(R()-.5)*3;if(Math.abs(px-x)<S*1.05&&Math.abs(py-y)<S*1.05)tr.push([px,py,5.2+R()*2.6]);}
+    tr.sort((a,b)=>a[1]-b[1]);
+    for(const [px,py,r] of tr){oval(g,px+1.5,py+r*.7,r*.95,r*.42,'rgba(5,12,3,.5)');circle(g,px,py,r,'#2c5525');circle(g,px-r*.22,py-r*.28,r*.72,'#3c7230');circle(g,px-r*.42,py-r*.5,r*.32,'#64a04c');}}
+  else if(t==='s'){// sierra: cerros grandes con nieve
+    for(let i=0;i<40;i++){g.fillStyle=R()<.5?'#6f6a63':'#a7a198';g.fillRect(x+(R()-.5)*1.8*S,y+(R()-.5)*1.8*S,1.6,1.2);}
+    const pk=[[-.42,.32,15,20],[.4,.36,14,18],[0,.1,19,27]];
+    for(const [dx,dy,w0,h0] of pk){const px=x+dx*S+(R()-.5)*3,py=y+dy*S+(R()-.5)*3,w=w0+R()*3,h=h0+R()*3;
+      oval(g,px+3,py+1.5,w*.95,3.2,'rgba(20,18,14,.35)');
+      g.fillStyle='#57524b';g.beginPath();g.moveTo(px-w,py);g.lineTo(px-w*.12,py-h);g.lineTo(px+w,py);g.closePath();g.fill();
+      g.fillStyle='#a49d91';g.beginPath();g.moveTo(px-w,py);g.lineTo(px-w*.12,py-h);g.lineTo(px-w*.05,py);g.closePath();g.fill();
+      g.fillStyle='#f4f2ec';g.beginPath();g.moveTo(px-w*.4,py-h*.64);g.lineTo(px-w*.12,py-h);g.lineTo(px+w*.2,py-h*.66);g.lineTo(px+w*.02,py-h*.58);g.lineTo(px-w*.14,py-h*.7);g.closePath();g.fill();}}
+  else if(t==='l'){// laguna: orilla verde, agua azul con brillos y juncos
+    g.fillStyle='#4f7f38';g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);
+    hexPath(g,x,y,S*.8);const wg=g.createRadialGradient(x-S*.2,y-S*.25,2,x,y,S*.85);wg.addColorStop(0,'#5fb0d4');wg.addColorStop(1,'#226d93');g.fillStyle=wg;g.fill();
+    g.strokeStyle='rgba(225,245,250,.75)';g.lineWidth=1.2;for(let i=0;i<5;i++){const py=y-S*.4+i*S*.2,w=S*(.22+R()*.2),px=x+(R()-.5)*14;g.beginPath();g.moveTo(px-w,py);g.quadraticCurveTo(px,py-2.4,px+w,py);g.stroke();}
+    for(let i=0;i<30;i++){const a=R()*6.283,d=S*(.78+R()*.15),px=x+Math.cos(a)*d,py=y+Math.sin(a)*d*.95;line(g,[px,py],[px+(R()-.5)*2,py-5-R()*4],R()<.5?'#2f5a22':'#9fbf62',1.1);if(R()<.25)oval(g,px,py-7,.9,2,'#6b4a2b');}}
+  else if(t==='x'){// salitral: blanco y cuarteado
+    g.strokeStyle='#b9a77f';g.lineWidth=1.1;
+    for(let r=-4;r<=4;r++)for(let q=-4;q<=4;q++){const cx=x+(q+(r&1?.5:0))*12+(R()-.5)*4,cy=y+r*10+(R()-.5)*4;g.beginPath();for(let k=0;k<6;k++){const a=k/6*6.283+R()*.4,rr=6+R()*2.5,px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr*.85;k?g.lineTo(px,py):g.moveTo(px,py);}g.closePath();g.stroke();}
+    for(let i=0;i<40;i++){g.fillStyle=R()<.6?'#ffffff':'#d4c6a5';g.fillRect(x+(R()-.5)*1.8*S,y+(R()-.5)*1.8*S,1.3,1.3);}}
+  const gr=g.createLinearGradient(x-S,y-S,x+S,y+S);gr.addColorStop(0,'rgba(255,248,225,.12)');gr.addColorStop(1,'rgba(20,15,5,.14)');g.fillStyle=gr;g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);
+  g.restore();hexPath(g,x,y,S);g.strokeStyle='rgba(38,28,14,.5)';g.lineWidth=1.2;g.stroke();
 }
 // El mapa sin dueños se pinta una vez (por semana y por zoom) y se estampa.
 const MC={c:null,key:'',s:0};
@@ -1391,12 +1440,16 @@ function drawCasco(g,x,y,P,mine){
   if(P&&P.copas){const cx=x+16,cy=y-14;circle(g,cx,cy,7.5,'rgba(20,15,5,.5)');g.fillStyle='#d4b674';g.beginPath();g.moveTo(cx-4,cy-4);g.lineTo(cx+4,cy-4);g.lineTo(cx+2.6,cy+.6);g.lineTo(cx-2.6,cy+.6);g.closePath();g.fill();g.fillRect(cx-.8,cy+.6,1.6,2.4);g.fillRect(cx-2.6,cy+3,5.2,1.4);
     if(P.copas>1){g.font='700 8px system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillStyle='#f2ead8';g.fillText(String(P.copas),cx+8,cy-6);}}
   if(P){// avatar arriba de la bandera
-    const ax=x-10*s,ay=y-31*s;circle(g,ax,ay,8.5,mine?'#f2ead8':'rgba(242,234,216,.9)');circle(g,ax,ay,7,P.col||'#999');
-    g.font=`11px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(P.av||'🙂',ax,ay+.5);}
+    // v61: el avatar en una medallita más grande, con el color del dueño; el tuyo con aro dorado
+    const ax=x-10*s,ay=y-33*s,rr=mine?11:9.5;
+    g.beginPath();g.moveTo(ax-3.2,ay+rr-1.5);g.lineTo(ax,ay+rr+4.5);g.lineTo(ax+3.2,ay+rr-1.5);g.closePath();g.fillStyle=mine?'#f2c14e':'#f2ead8';g.fill();
+    circle(g,ax+.6,ay+1.2,rr+1.2,'rgba(20,15,5,.4)');circle(g,ax,ay,rr+1.4,mine?'#f2c14e':'#f2ead8');circle(g,ax,ay,rr-.6,P.col||'#999');
+    const hl=g.createRadialGradient(ax-rr*.35,ay-rr*.4,1,ax,ay,rr);hl.addColorStop(0,'rgba(255,255,255,.35)');hl.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=hl;g.beginPath();g.arc(ax,ay,rr-.6,0,7);g.fill();
+    g.font=`${mine?14:12}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillStyle='#000';g.fillText(P.av||'🙂',ax,ay+.8);}
 }
 function drawLances(g,x,y,t){const p=RM?0:Math.sin(t*4)*.5+.5;circle(g,x,y,12+p*2,`rgba(163,72,47,${.35+p*.25})`);
   line(g,[x-7,y+7],[x+7,y-7],'#2a1f15',2.6);line(g,[x+7,y+7],[x-7,y-7],'#2a1f15',2.6);line(g,[x-7,y+7],[x+7,y-7],'#e7dcc4',1.4);line(g,[x+7,y+7],[x-7,y-7],'#e7dcc4',1.4);}
-function token(g,x,y,v,dim){circle(g,x,y+.8,8.8,'rgba(20,15,5,.35)');circle(g,x,y,8.4,dim?'rgba(239,230,207,.82)':'#efe6cf');g.strokeStyle='#8a6a3e';g.lineWidth=.9;g.beginPath();g.arc(x,y,8.4,0,7);g.stroke();
+function token(g,x,y,v,dim,agua){circle(g,x,y+.8,8.8,'rgba(20,15,5,.35)');circle(g,x,y,8.4,dim?'rgba(239,230,207,.82)':'#efe6cf');g.strokeStyle=agua?'#2f7ea6':'#8a6a3e';g.lineWidth=agua?1.8:.9;g.beginPath();g.arc(x,y,8.4,0,7);g.stroke();
   g.font='700 10.5px "Iowan Old Style",Palatino,Georgia,serif';g.textAlign='center';g.textBaseline='middle';g.fillStyle='#3a2a18';g.fillText('+'+v,x,y+.5);}
 function draw(){
   if(!W||!V)return;const t=performance.now()/1000,G=GV();
@@ -1405,13 +1458,13 @@ function draw(){
   const L=mapLayer();ctx.drawImage(L.c,L.x0,L.y0,L.w,L.h);
   const own=V.own,me=ME,disp=new Set(V.disputa||[]),selected=SEL;
   // tierras: color del dueño y borde de cada territorio
-  for(let i=0;i<G.n;i++){const k=own[i];if(!k)continue;const [x,y]=G.xy[i];hexPath(ctx,x,y,HS);ctx.fillStyle=rgba(PCOL(k),k===me?.34:.26);ctx.fill();}
+  for(let i=0;i<G.n;i++){const k=own[i];if(!k)continue;const [x,y]=G.xy[i];hexPath(ctx,x,y,HS);ctx.fillStyle=rgba(PCOL(k),k===me?.2:.15);ctx.fill();}// v61: tinte suave para que se siga viendo el terreno (el borde marca el dueño)
   for(let i=0;i<G.n;i++){const k=own[i];if(!k)continue;const [x,y]=G.xy[i];
     for(let s=0;s<6;s++){const j=G.nb[i][s];if(j>=0&&own[j]===k)continue;const a=corner(x,y,s,HS-1.6),b=corner(x,y,s+1,HS-1.6);line(ctx,a,b,'rgba(20,14,6,.6)',k===me?6:5);line(ctx,a,b,PCOL(k),k===me?3.6:2.8);}}
   // lo que podés reclamar: marcado suave
   if(V.yo&&!BUSY)for(const i of claimables()){const [x,y]=G.xy[i];hexPath(ctx,x,y,HS-5);ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(242,234,216,.55)';ctx.lineWidth=1.6;ctx.stroke();ctx.setLineDash([]);}
   // fichas con lo que da cada paraje
-  if(cam.z>.32)for(let i=0;i<G.n;i++){if(!G.vis[i]||V.cas[own[i]]===i)continue;const [x,y]=G.xy[i];token(ctx,x,y+HS*.46,V.tipos[V.t[i]].v,!!own[i]);}
+  if(cam.z>.32)for(let i=0;i<G.n;i++){if(!G.vis[i]||V.cas[own[i]]===i)continue;const [x,y]=G.xy[i];token(ctx,x,y+HS*.46,valorDe(i),!!own[i],!!(V.bono&&V.bono[i]));}
   // cascos
   for(const P of V.jugadores){if(P.casco==null)continue;const [x,y]=G.xy[P.casco];drawCasco(ctx,x,y,P,P.k===me);}
   for(const i of disp){const [x,y]=G.xy[i];drawLances(ctx,x,y-HS*.12,t);}
@@ -1453,7 +1506,14 @@ function tapAt(cx,cy){if(!V)return;const [wx,wy]=toWorld(cx,cy),i=hexAt(wx,wy);S
 let V=null,ME='',SEL=-1,BUSY=false,LOADED=false;
 const Pof=k=>V.jugadores.find(p=>p.k===k);
 const mineAdj=i=>GEO.nb[i].some(j=>j>=0&&V.own[j]===ME);
-function claimables(){if(!V||!GEO||!V.yo)return [];const out=[];for(let i=0;i<GEO.n;i++)if(GEO.vis[i]&&!V.own[i]&&mineAdj(i))out.push(i);return out;}
+const hdist=(a,b)=>{const A=GEO.c[a],B=GEO.c[b];return (Math.abs(A[0]-B[0])+Math.abs(A[1]-B[1])+Math.abs(A[0]+A[1]-B[0]-B[1]))/2;};
+// v61: desde una sierra tuya (que no sea tu casco) alcanzás parajes libres a 2 de distancia
+function fromSierra(i){const m=V&&V.reglas&&V.reglas.mec;if(!m||!GEO)return false;const cas=V.cas[ME];
+  for(const k in V.own)if(V.own[k]===ME&&V.t[+k]==='s'&&+k!==cas&&hdist(+k,i)<=m.alcance)return true;return false;}
+const canClaim=i=>mineAdj(i)||fromSierra(i);
+function claimables(){if(!V||!GEO||!V.yo)return [];const out=[];for(let i=0;i<GEO.n;i++)if(GEO.vis[i]&&!V.own[i]&&canClaim(i))out.push(i);return out;}
+const valorDe=i=>V.tipos[V.t[i]].v+((V.bono&&V.bono[i])||0);
+const cruceDe=i=>{const T=V.tipos[V.t[i]];return T.cruce!=null?T.cruce:T.costo+V.reglas.cruce;};
 const openDuels=()=>V?V.duelos.filter(d=>!d.fin):[];
 const toDefend=()=>openDuels().filter(d=>!d.yoDe&&d.j==='relampago'&&d.sd!=null&&d.sa==null);
 const toPlay=()=>openDuels().filter(d=>d.yoDe&&d.sd==null);
@@ -1484,7 +1544,8 @@ function renderAlert(){
   if(cg){el.className='alert hot';el.innerHTML=`<span class="tx">🔁 <b>${esc(cg.de)}</b> te sacó un paraje de ${esc(TIPOTXT(cg.hex))} con un malón. Podés recuperarlo con un relámpago ${cg.gratis?'(gratis, 1 por semana)':`(${cg.costo} leguas: el gratis de la semana ya lo usaste)`}. Te quedan ${quedan(cg.hasta-ahoraS())}.</span><button class="go" id="al-go">Recuperar</button>`;el.hidden=false;$('al-go').onclick=()=>contragolpe(cg);return;}
   el.hidden=true;
 }
-function swatch(i){return `<span class="sw" style="background:${TIPO[V.t[i]].c}"></span>`;}
+const THUMB={};function thumb(t){if(THUMB[t])return THUMB[t];try{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.setTransform(.74,0,0,.74,32,32);paintTerrain(g,t,0,0,4242+t.charCodeAt(0));THUMB[t]=c.toDataURL();}catch(_){THUMB[t]='';}return THUMB[t];}
+function swatch(i){const t=V.t[i],u=thumb(t);return `<span class="sw" style="background:${u?`url(${u}) center/contain no-repeat`:TIPO[t].c}"></span>`;}
 function renderPanel(){
   const el=$('panel');if(!V){el.hidden=true;return;}
   if(!V.yo){renderPanelVisita(el);return;}
@@ -1495,11 +1556,11 @@ function renderPanel(){
   else{const k=V.own[i],T=V.tipos[V.t[i]],P=k?Pof(k):null,casco=k&&V.cas[k]===i,inDisp=(V.disputa||[]).includes(i);
     h=`<button class="x" id="pn-x" aria-label="Cerrar">✕</button><h3>${swatch(i)}${casco?`Casco de ${esc(P?P.n:'')}`:esc(T.n)}</h3>`;
     if(casco){h+=`<p>${k===ME?'Tu casco: da +2 por día y no se puede desafiar.':`${esc(P.n)} ${P.nivel>1?`tiene el casco nivel ${P.nivel} en EstanciAR`:'arrancó con su estancia'}${P.copas?` y ganó ${P.copas} ${P.copas===1?'semana':'semanas'}`:''}. El casco no se puede desafiar.`}</p>`;}
-    else{h+=`<p>${esc(DESC[V.t[i]])} Da <b>+${T.v} por día</b>.</p>`;
-      if(!k){const ok=mineAdj(i),c=T.costo;
-        h+=ok?`<div class="row"><button class="btn go" id="pn-claim"${V.yo.leg<c?' disabled':''}>Reclamar · ${c} leguas</button></div>${V.yo.leg<c?`<p class="note">Te faltan ${c-V.yo.leg} leguas. <a href="#" id="pn-how">¿Cómo consigo más?</a></p>`:''}`:'<p class="note">Libre. Para reclamarlo tiene que estar pegado a tu tierra.</p>';}
+    else{const MEC=V.reglas.mec,b=(V.bono&&V.bono[i])||0;h+=`<p>${esc(DESC[V.t[i]])} Da <b>+${T.v+b} por día</b>${b?' (regada por una laguna)':''}.</p>${MEC&&ROL[V.t[i]]?`<p class="note rol">${ROL[V.t[i]](MEC)}</p>`:''}`;
+      if(!k){const ok=canClaim(i),lejos=!mineAdj(i)&&ok,c=T.costo;
+        h+=ok?`<div class="row"><button class="btn go" id="pn-claim"${V.yo.leg<c?' disabled':''}>Reclamar · ${c} leguas</button></div>${lejos?'<p class="note">⛰️ Lo alcanzás desde tu sierra.</p>':''}${V.yo.leg<c?`<p class="note">Te faltan ${c-V.yo.leg} leguas. <a href="#" id="pn-how">¿Cómo consigo más?</a></p>`:''}`:`<p class="note">Libre. Para reclamarlo tiene que estar pegado a tu tierra${V.reglas.mec?' (o a 2 de una sierra tuya)':''}.</p>`;}
       else if(k===ME){h+=`<p class="note">Es tuyo${inDisp?' y está en disputa: si te desafiaron, defendelo desde el aviso de arriba.':'.'}</p>`;}
-      else{const c=T.costo+V.reglas.cruce,ok=mineAdj(i);
+      else{const c=cruceDe(i),ok=mineAdj(i);
         h+=`<div class="stats"><span class="st">De <b>${esc(P?P.n:k)}</b></span>${P?`<span class="st"><b>${P.renta}</b> por día en total</span>`:''}</div>`;
         const cg=(V.contras||[]).find(x=>x.hex===i);
         if(inDisp)h+='<p class="note">Está en disputa: hay un cruce abierto por este paraje.</p>';
@@ -1523,7 +1584,7 @@ function renderPanelVisita(el){
       <p>${I.abierta?'Sumate para plantar tu casco y empezar a juntar parajes. Cuantos más se suman, más grande el mapa.':'Estás mirando: esta semana ya arrancó sin vos. El lunes hay mapa nuevo.'}</p>${I.abierta?'<div class="row"><button class="btn go" id="pn-join">Sumarme a la semana</button></div>':''}`;}
   else{const k=V.own[i],T=V.tipos[V.t[i]],P=k?Pof(k):null,casco=k&&V.cas[k]===i;
     h=`<button class="x" id="pn-x" aria-label="Cerrar">✕</button><h3>${swatch(i)}${casco?`Casco de ${esc(P?P.n:'')}`:esc(T.n)}</h3>
-      <p>${casco?`${esc(P?P.n:'')} plantó acá su casco.`:`${esc(DESC[V.t[i]])} Da <b>+${T.v} por día</b>.`}</p>${casco&&!I.abierta?'':`<p class="note">${casco?'':k?`De <b>${esc(P?P.n:k)}</b>. `:'Libre. '}${I.abierta?'Sumate a la semana para jugar.':''}</p>`}`;}
+      <p>${casco?`${esc(P?P.n:'')} plantó acá su casco.`:`${esc(DESC[V.t[i]])} Da <b>+${valorDe(i)} por día</b>.`}</p>${!casco&&V.reglas.mec&&ROL[V.t[i]]?`<p class="note rol">${ROL[V.t[i]](V.reglas.mec)}</p>`:''}${casco&&!I.abierta?'':`<p class="note">${casco?'':k?`De <b>${esc(P?P.n:k)}</b>. `:'Libre. '}${I.abierta?'Sumate a la semana para jugar.':''}</p>`}`;}
   el.innerHTML=h;el.hidden=false;document.querySelectorAll('.toast').forEach(placeToast);
   if($('pn-x'))$('pn-x').onclick=()=>{SEL=-1;renderPanel();redraw();};
   if($('pn-join'))$('pn-join').onclick=unirse;
@@ -1567,21 +1628,23 @@ function openPos(tab='pos'){
   if($('p-share'))$('p-share').onclick=shareGame;
 }
 function openLeguas(){
-  if(!V)return;const A=V.reglas.act,a=(V.yo&&V.yo.act)||{b:0,p:0,e:0};
+  if(!V)return;const A=V.reglas.act,a=(V.yo&&V.yo.act)||{b:0,p:0,e:0,t:0,u:0};
   const row=(q,txt)=>{const x=A[q],n=Math.min(x.tope,a[q]||0);return `<div class="item"><span class="tx"><b>${txt}</b><small>${x.v} ${x.v===1?'legua':'leguas'} por vez · hoy ${n} de ${x.tope}</small><div class="bar" style="margin-top:6px"><i style="width:${n/x.tope*100}%"></i></div></span></div>`;};
-  sheet('Leguas',`<p>Con leguas reclamás parajes libres pegados a tu tierra (cuestan 3 a 6) y desafiás a un vecino (2 más).</p>
-    ${V.yo?'':'<p class="note">Las leguas son para los que se sumaron a la semana.</p>'}
+  const MEC=V.reglas.mec,ini=V.reglas.inicio||6;
+  sheet('Leguas',`<p>Con leguas reclamás parajes libres pegados a tu tierra (cuestan 3 a 6) y desafiás a un vecino (2 más${MEC?`; un monte, ${MEC.monte} más todavía`:''}).</p>
+    ${V.yo?`<div class="item ini"><span class="tx"><b>🚩 Esta semana arrancaste con ${fmt(V.yo.ini||ini)} leguas</b><small>Las leguas no pasan de una semana a otra: cada lunes todos arrancan con ${ini}${V.reglas.atraso?` (y ${V.reglas.atraso} más por cada día de atraso si te sumás el martes)`:''}.</small></span></div>`:'<p class="note">Las leguas son para los que se sumaron a la semana. Cada lunes todos arrancan con '+ini+'.</p>'}
     <div class="item"><span class="tx"><b>Entrar al mapa cada día</b><small>+${V.reglas.dia} leguas, una vez por día</small></span></div>
-    ${row('b','Terminar una partida ranked de BloqueAR (Maratón ranked, contra la compu o en línea)')}${row('p','Terminar una partida ranked de PoblAR (contra la compu en Normal o Difícil, o con un amigo)')}${A.t?row('t','Terminar una partida ranked de TrucAR (contra la compu en Normal o Difícil, o con un amigo)'):''}${row('e','Cosechar o juntar en EstanciAR')}
+    ${row('b','Terminar una partida ranked de BloqueAR (Maratón ranked, contra la compu o en línea)')}${row('p','Terminar una partida ranked de PoblAR (contra la compu en Normal o Difícil, o con un amigo)')}${A.t?row('t','Terminar una partida ranked de TrucAR (contra la compu en Normal o Difícil, o con un amigo)'):''}${A.u?row('u','Terminar una partida ranked de UnoAR (contra la compu en Normal o Difícil, o con amigos)'):''}${row('e','Cosechar o juntar en EstanciAR')}
     <p class="note">Las partidas amistosas y las de Fácil no dan leguas. Lo que jugás en los otros juegos se cobra cuando abrís el mapa. Quien se suma el martes arranca con las leguas que habría juntado desde el lunes.</p>
-    <div class="row"><a class="btn" href="./">BloqueAR</a><a class="btn" href="poblar.html">PoblAR</a><a class="btn" href="truco.html">TrucAR</a><a class="btn" href="estancia.html">EstanciAR</a></div>`);
+    <div class="row"><a class="btn" href="./">BloqueAR</a><a class="btn" href="poblar.html">PoblAR</a><a class="btn" href="truco.html">TrucAR</a><a class="btn" href="uno.html">UnoAR</a><a class="btn" href="estancia.html">EstanciAR</a></div>`);
 }
 function openHelp(){
-  const legend=Object.keys(TIPO).map(q=>`<span><i style="background:${TIPO[q].c}"></i><b>${TIPO[q].n}</b> +${V?V.tipos[q].v:{p:3,a:2,m:2,s:3,l:4,x:1}[q]}</span>`).join('');
+  const legend=Object.keys(TIPO).map(q=>`<span><i style="background:${thumb(q)?`url(${thumb(q)}) center/contain no-repeat`:TIPO[q].c}"></i><b>${TIPO[q].n}</b> +${V?V.tipos[q].v:{p:3,a:2,m:2,s:3,l:4,x:1}[q]}</span>`).join('');
   sheet('Cómo se juega',`<p><b>Una temporada por semana.</b> Cada lunes hay un mapa nuevo y todos arrancan parejo, con su casco. El domingo a la medianoche gana el que juntó más puntos.</p>
     <h4>Sumarse</h4><p>Para jugar hay que <b>sumarse a la semana</b>: el lunes o el martes. El mapa se arma con los que se suman y crece según cuántos son. Si se suman más de ${V&&V.reglas.liga||12}, se abre otra liga con su propio mapa, sus premios y su copa. Después del martes se puede mirar, pero no jugar.</p>
     <h4>Puntos</h4><p>Cada paraje tuyo da puntos por día, todo el tiempo (también cuando no jugás). Cuanto antes lo tengas, más suma.</p><div class="legend">${legend}</div>
-    <h4>Leguas</h4><p>Se ganan entrando cada día, con partidas <b>ranked</b> de BloqueAR (Maratón ranked, contra la compu o en línea), PoblAR y TrucAR (contra la compu en Normal o Difícil, o con un amigo), y cosechando en EstanciAR. Las amistosas y las de Fácil no dan. Sirven para <b>reclamar</b> parajes libres pegados a tu tierra.</p>
+    ${!V||V.reglas.mec?`<h4>Cada paraje tiene su papel</h4><ul class="roles"><li><b>💧 Laguna:</b> riega. Cada pastura tuya pegada a una laguna tuya da +1 por día.</li><li><b>⛰️ Sierra:</b> mirador. Desde una sierra tuya podés reclamar parajes libres a 2 de distancia, sin estar pegados.</li><li><b>🌳 Monte:</b> se defiende solo. Desafiar un monte cuesta 3 leguas más.</li><li><b>🌾 Pampa</b> da mucho y <b>🧂 salitral</b> es barato: buenos para crecer rápido.</li></ul>`:''}
+    <h4>Leguas</h4><p>${V&&V.reglas.mec?`Cada lunes todos arrancan con <b>${V.reglas.inicio} leguas</b>: no pasan de una semana a otra. `:''}Se ganan entrando cada día, con partidas <b>ranked</b> de BloqueAR (Maratón ranked, contra la compu o en línea), PoblAR y TrucAR (contra la compu en Normal o Difícil, o con un amigo), y cosechando en EstanciAR. Las amistosas y las de Fácil no dan. Sirven para <b>reclamar</b> parajes libres pegados a tu tierra.</p>
     <h4>Cruces</h4><p>Si tu tierra toca la de un vecino, podés desafiarlo por un paraje (no por su casco): <b>relámpago</b> en BloqueAR (los dos con las mismas piezas; el desafiado tiene 24 horas) o <b>malón</b> en EstanciAR contra su estancia (con 2 ⭐ es tuyo). Si gana el que defiende, se queda el paraje.</p>
     <h4>Malones parejos</h4><p>En los cruces por malón tu estancia defiende <b>al menos como una del nivel del que te ataca</b>: si la tuya es más floja, la pampa le presta mangrullos, perros y tapias. Y si igual te sacan un paraje con un malón, tenés <b>24 horas para recuperarlo con un relámpago</b>: el primero de la semana es gratis, no hace falta que esté pegado y no cuenta para tus cruces abiertos.</p>
     <h4>Tu estancia</h4><p>Tu casco en el mapa crece con el de EstanciAR, y cada semana ganada deja una copa. Una buena defensa en EstanciAR también cuida tus parajes de los malones.</p>
@@ -1708,7 +1771,7 @@ function openMenu(){
     <button id="m-help">❓ Cómo se juega</button><button id="m-share">📲 Pasar el juego</button>
     <button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros</button>':''}
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 60</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 61</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-pos').onclick=go(()=>openPos('pos'));$('m-cru').onclick=go(()=>openPos('cruces'));$('m-log').onclick=go(()=>openPos('log'));
   $('m-leg').onclick=go(openLeguas);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
