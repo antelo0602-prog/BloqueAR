@@ -1,7 +1,7 @@
 /* BLOQUES: guarda el juego en el dispositivo para abrirlo sin señal.
    Con internet siempre intenta la versión publicada más nueva; sin internet usa la guardada. */
-const CACHE='bloques-sin-v54';
-const FILES=['./','./index.html','./poblar.html','./truco.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
+const CACHE='bloques-sin-v58';
+const FILES=['./','./index.html','./poblar.html','./truco.html','./uno.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil((async()=>{
     const c=await caches.open(CACHE);

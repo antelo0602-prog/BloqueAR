@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1019">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -24,6 +24,21 @@ button{font:inherit;color:inherit}
 .games-btn{margin-left:0;display:grid;grid-template-columns:repeat(2,7px);grid-template-rows:repeat(2,7px);gap:3px;place-content:center;padding:0;min-width:40px;box-sizing:border-box}
 .games-btn i{background:var(--aqua);border-radius:2px}.games-btn i:nth-child(4){background:var(--gold)}
 .score{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* Los dos bonos de +2, siempre a la vista: de quién son y qué hace falta */
+/* Lo que te hace el otro, contado por el juego (v58): una línea del relato, cartas que vuelan, la carta jugada sobre el tablero */
+.relato{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-radius:12px;background:#1d1610;border-left:4px solid #e0a95a;color:#f6e7cf;font-size:13.5px;line-height:1.35}
+.relato[hidden]{display:none}.relato .ic{font-size:20px;line-height:1.1}.relato b{color:#ffd59a}
+@media (prefers-reduced-motion:no-preference){.relato.nuevo{animation:relIn .35s ease-out}}@keyframes relIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.vuela{position:fixed;z-index:70;pointer-events:none;display:grid;place-items:center;width:44px;height:58px;border-radius:9px;background:#f6ecd8;border:2px solid #8a6a3e;font-size:24px;box-shadow:0 8px 20px #0008}
+.devbig{position:absolute;left:50%;top:50%;z-index:5;width:min(62%,240px);transform:translate(-50%,-50%);pointer-events:none;background:linear-gradient(#fbf3e2,#efe0bf);color:#3a2a16;border:3px solid #8a6a3e;border-radius:18px;padding:16px 14px 14px;text-align:center;box-shadow:0 18px 50px #000b}
+.devbig .e{font-size:44px;line-height:1}.devbig b{display:block;font:800 19px/1.2 Georgia,serif;margin-top:6px}.devbig p{margin:6px 0 0;font-size:13px;line-height:1.35}.devbig small{display:block;margin-top:8px;font-size:12px;color:#7a5a2e;font-weight:700}
+@media (prefers-reduced-motion:no-preference){.devbig{animation:devIn .35s cubic-bezier(.2,1.3,.4,1)}.devbig.va{transition:transform .5s ease-in,opacity .5s ease-in;opacity:0;transform:translate(-50%,-50%) scale(.3)}}
+@keyframes devIn{from{transform:translate(-50%,-30%) scale(.6) rotate(-6deg);opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
+.bonos{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bono{display:flex;align-items:center;gap:7px;min-width:0;padding:4px 9px;border-radius:12px;border:1px dashed var(--line);color:var(--dim);font-size:11.5px;line-height:1.2}
+.bono>span:first-child{font-size:16px;flex:none}.bono b{color:var(--ink);font-size:12px;display:block}
+.bono.si{border-style:solid;border-color:color-mix(in srgb,var(--pc) 70%,transparent);background:color-mix(in srgb,var(--pc) 14%,#111a27);color:var(--ink)}
+.bono.si em{font-style:normal;font-weight:800;color:var(--pc)}
 .pl{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:14px;background:#111a27;transition:border-color .2s,box-shadow .2s}
 .pl.turn{border-color:var(--pc);box-shadow:0 0 0 1px var(--pc) inset,0 0 18px color-mix(in srgb,var(--pc) 25%,transparent)}
 .pl i{width:12px;height:12px;border-radius:50%;background:var(--pc);flex:none}
@@ -57,7 +72,8 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .act.sel{border-color:var(--aqua);background:#173540}
 .wide{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:6px}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.tabs button{min-height:40px;border-radius:12px;border:1px solid var(--line);background:#0f1724;font-weight:800;cursor:pointer}.tabs button.on{border-color:var(--aqua);background:#173540}
-.cnt{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.cnt{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px}
+@media (max-width:400px){.cnt{gap:4px}.cnt .pm{gap:2px}.cnt .pm button{width:26px;height:30px}}
 .cnt>div{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:12px;border:1px solid var(--line);background:#0f1724}
 .cnt .e{font-size:20px}.cnt .n{font-weight:900;font-size:16px}.cnt small{font-size:10px;color:var(--dim)}
 .cnt .pm{display:flex;gap:4px}.cnt .pm button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:#1a2638;font-weight:900;cursor:pointer}
@@ -123,6 +139,11 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 /* Distribución: el tablero ocupa el lugar que queda; en pantallas anchas va al costado del panel */
 /* Pantalla completa sin depender de 100vh/100dvh: en el iPhone con la app instalada calcula mal el alto y quedaba aire abajo */
 .app{position:fixed;top:0;left:0;right:0;margin:0 auto;height:var(--app-h,100%);min-height:0;max-width:640px;overflow-y:auto;overscroll-behavior:contain}
+/* Toques en el celular (v59): la página nunca se desplaza (sólo la app y las ventanas por dentro) y en ningún lado hay zoom de doble toque.
+   El touch-action no pasa de un panel que se desplaza a lo de adentro, por eso se pone en cada uno y en cada botón. */
+html,body{height:100%;overflow:hidden}
+.app,.modal,.sheet,.side,.side-panel,.log,button,a,label,.card,.pl,.bono{touch-action:manipulation}
+@media (pointer:coarse){input,textarea,select{font-size:16px!important}}
 
 .main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
 .panel{display:contents}
@@ -176,6 +197,9 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
   .card .e{font-size:19px;line-height:1.15}.card .n{font-size:19px;line-height:1.15}.card .l{grid-column:1/-1;text-align:center;line-height:1.2}
   .actions,.wide{gap:5px}.act{min-height:46px;border-radius:12px}.pill,.primary{min-height:48px;border-radius:12px}
 }
+
+/* el botón de juegos dice «Juegos» (un amigo no lo reconocía) */
+.games-btn{grid-template-columns:repeat(2,6px)!important;grid-template-rows:6px 6px auto!important;gap:2px!important;min-width:44px;align-content:center}.games-btn i{width:6px!important;height:6px!important}.games-btn b{grid-column:1/-1;font:800 9px/1 system-ui,-apple-system,sans-serif;letter-spacing:.02em;color:#d5e6ea;margin-top:2px;text-align:center;white-space:nowrap}
 </style>
 <script>
 /* ───────── Rangos y niveles de todos los juegos ─────────
@@ -190,7 +214,7 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR'};
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
 const RKEY='bloques-rangos-v1',XKEY='bloques-xpjuegos-v1',PKEY='bloques-progress-v1',DONE='bloques-rangos-hechas-v1';
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
@@ -231,18 +255,19 @@ function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100
 function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
 function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]||0)+Math.max(0,Math.round(n));o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}
 // Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
-function premio(de,xp){
+// ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
+function premio(de,xp,ranked){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
   const p={de,trigo:0,pesos:Math.min(1000,Math.round(n*2)),t:Date.now()};
   const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
-  return {...p,leguas:pampaAct(de==='PoblAR'?'p':de==='TrucAR'?'t':'b')};
+  return {...p,ranked:!!ranked,leguas:ranked?pampaAct(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':'b'):0};
 }
 // La Gran Pampa: lo que jugás cada día da leguas para el mapa (las cobra el mapa al abrirse; la planilla pone los topes).
-// Por día: BloqueAR 1 por partida (hasta 4), PoblAR y TrucAR 2 por partida (hasta 2) y EstanciAR 1 por cosecha (hasta 4).
-const PAMPA_ACT={b:{tope:4,v:1},p:{tope:2,v:2},e:{tope:4,v:1},t:{tope:2,v:2}};
+// Por día: BloqueAR 1 por partida ranked (hasta 4), PoblAR y TrucAR 2 por partida ranked (hasta 2) y EstanciAR 1 por cosecha (hasta 4).
+const PAMPA_ACT={b:{tope:4,v:1},p:{tope:2,v:2},e:{tope:4,v:1},t:{tope:2,v:2},u:{tope:2,v:2}};
 function pampaAct(q){
   const A=PAMPA_ACT[q];if(!A)return 0;
-  const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,X=ls.json('pampa-act',{}),o=X.d===dia?X:{d:dia,b:0,p:0,e:0,t:0};
+  const d=new Date(),dia=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,X=ls.json('pampa-act',{}),o=X.d===dia?X:{d:dia,b:0,p:0,e:0,t:0,u:0};
   o[q]=(o[q]||0)+1;ls.set('pampa-act',JSON.stringify(o));
   const a=ls.json('bloques-acct-v1',null);
   return o[q]<=A.tope&&a&&a.usuario?A.v:0;
@@ -272,10 +297,18 @@ const CSS=`.rk-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 
 .rk-badge i{font-style:normal;font-size:12px}.rk-badge.sm{font-size:10.5px;padding:1px 7px 1px 4px}
 .rk-res{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px;font-weight:800}
 .rk-res .rk-d{font-size:15px}.rk-res .rk-d.up{color:#57d49b}.rk-res .rk-d.down{color:#ff8a6b}
-.rk-bar{height:6px;border-radius:3px;background:#283345;overflow:hidden;margin-top:4px}.rk-bar i{display:block;height:100%;background:var(--rk,#7ce9e5)}`;
+.rk-bar{height:6px;border-radius:3px;background:#283345;overflow:hidden;margin-top:4px}.rk-bar i{display:block;height:100%;background:var(--rk,#7ce9e5)}
+.rk-mine{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:0 0 10px;border-radius:12px;border:1px solid color-mix(in srgb,var(--rk) 35%,#283345);background:color-mix(in srgb,var(--rk) 7%,#0f1622);font:500 13px/1.3 system-ui,-apple-system,sans-serif;color:#f4f7fe}
+.rk-mine>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left}.rk-mine b{font-size:14px;display:block}.rk-mine small{color:#93a1b6;font-size:12px;display:block}
+.rk-mine>.rk-badge{display:inline-flex!important;flex-direction:row!important;flex:none!important;width:auto!important;min-height:0!important;margin:0!important;padding:2px 8px 2px 5px!important;font-size:11.5px!important;background:color-mix(in srgb,var(--rk) 16%,#0c131e)!important;border:1px solid color-mix(in srgb,var(--rk) 60%,transparent)!important;color:var(--rk)!important}
+.rk-mine>.rk-badge i{font-size:12px!important;display:inline!important}
+.rk-mine .rk-bar{width:100%}`;
+// El rango de un juego, para el menú de ese juego.
+function mine(g){if(!GAMES[g])return '';const r=get(g),i=info(r.v),L=levelInfo(xp(g));
+  return `<div class="rk-mine" style="--rk:${i.t.c}"><div><b>Tu rango en ${GAMES[g]}</b><small>Nivel ${L.lv}${r.n?` · ${r.n} ${r.n===1?'partida ranked':'partidas ranked'}`:' · todavía sin partidas ranked'}</small>${i.next!=null?`<div class="rk-bar"><i style="width:${i.pct*100}%"></i></div>`:''}</div>${badge(r.v)}</div>`;}
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
-window.RANGOS={TIERS,GAMES,info,get,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,pampaAct,PAMPA_ACT,DIV};
+window.RANGOS={TIERS,GAMES,info,get,mine,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,pampaAct,PAMPA_ACT,DIV};
 })();
 
 </script>
@@ -298,15 +331,15 @@ const $=(sel,root=document)=>root.querySelector(sel);
 const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.token?a:null;};
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
-const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR'};
+const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null,inbox:null};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
 function estTxt(u){const e=u&&u.estado;if(!u||!u.enLinea)return 'Desconectado';if(!e)return 'Conectado';
   if(e.g&&GAMES[e.j])return '🎮 Jugando '+GAMES[e.j];if(e.m==='dnd')return '⛔ No molestar';if(e.m==='aus')return '🌙 Ausente';return GAMES[e.j]?'Conectado en '+GAMES[e.j]:'Conectado';}
 function dotCls(u){const e=u&&u.estado;if(!u||!u.enLinea)return '';if(e&&e.g)return ' play';if(e&&e.m==='dnd')return ' dnd';if(e&&e.m==='aus')return ' aus';return ' on';}
-const S={users:[],usersAt:0,msgs:[],last:0,read:{},vistos:{},typing:[],open:false,view:'list',con:null,key:null,keys:{},plain:{},
+const S={users:[],usersAt:0,msgs:[],last:0,read:{},vistos:{},typing:[],open:false,view:'list',con:null,key:null,keys:{},plain:{},ver:0,pinAsk:false,
   timer:0,polling:false,prof:null,profData:null,card:null,invFor:null,unsupported:false,err:'',pending:[],typedAt:0,lastSeenSent:{},inited:false,me:'',zbAt:0,errAt:0,pickFor:null};
 
 /* ── Red ── */
@@ -380,7 +413,8 @@ function unreadTotal(){const seen=new Set();let n=0;for(const m of S.msgs){if(lc
 /* ── Consultas periódicas ── */
 function schedule(){
   clearTimeout(S.timer);if(!acct()||S.unsupported)return;
-  const ms=document.hidden?30000:S.open&&S.view==='conv'?2500:5000;
+  // v57: más seguido (los mensajes tardaban). Con la charla abierta, cada 2 s.
+  const ms=document.hidden?30000:S.open&&S.view==='conv'?2000:S.open?3000:4000;
   S.timer=setTimeout(poll,ms);
 }
 async function poll(){
@@ -389,13 +423,15 @@ async function poll(){
   if(lc(a.usuario)!==lc(S.me)){loadLocal();render();}
   if(S.polling){schedule();return;}S.polling=true;
   try{
-    const p={accion:'chat',estado:{m:effMode(),j:String(H.game()||''),g:!!H.busy()}};
+    const p={accion:'chat',estado:{m:effMode(),j:String(H.game()||''),g:!!H.busy()},desde:S.last};
     if(S.open&&S.view==='conv'&&S.con&&Date.now()-S.typedAt<4000)p.escribe=S.con;
     if(S.open&&S.view==='conv'&&S.con&&!document.hidden){const t=lastFrom(S.con);if(t&&S.lastSeenSent[lc(S.con)]!==t){p.leido={con:S.con,t};S.lastSeenSent[lc(S.con)]=t;}}
     const j=await call(auth(p));
-    S.err='';S.typing=j.escribiendo||[];S.vistos=j.vistos||{};
+    S.ver=Number(j.version)||S.ver;S.err='';S.typing=j.escribiendo||[];S.vistos=j.vistos||{};
     if(Date.now()-S.usersAt>30000||(j.t>S.last&&!S.users.length)){await loadUsers();await decryptAll();}
-    if(j.t>S.last)await fetchNew();
+    // Planilla v11: si hay mensajes nuevos vienen en la misma respuesta (una consulta menos), y avisa si te invitaron.
+    if(j.inv&&H.inbox&&j.inv!==S.lastInv){S.lastInv=j.inv;try{H.inbox(j.inv);}catch(_){}}
+    if(j.t>S.last)await fetchNew(Array.isArray(j.mensajes)?j:null);
     else if(S.open)render();
     checkDeferred();
   }catch(e){
@@ -408,8 +444,8 @@ async function poll(){
 }
 async function loadUsers(){try{const j=await call({accion:'usuarios'},false);if(Array.isArray(j.usuarios)){S.users=j.usuarios;S.usersAt=Date.now();}}catch(_){}}
 const lastFrom=n=>{let t=0;for(const m of S.msgs)if(lc(m.de)===lc(n)&&m.t>t)t=m.t;return t;};
-async function fetchNew(){
-  const j=await call(auth({accion:'mensajes',desde:S.last}));
+async function fetchNew(pre){
+  const j=pre||await call(auth({accion:'mensajes',desde:S.last}));
   const known=new Set(S.msgs.map(m=>m.id)),fresh=[];
   for(const m of j.mensajes||[]){if(m.t>S.last)S.last=m.t;if(known.has(m.id))continue;S.msgs.push(m);fresh.push(m);}
   const first=!S.inited;S.inited=true;
@@ -422,9 +458,14 @@ async function fetchNew(){
   render();badges();
 }
 async function decryptAll(){
-  if(!S.key||!cs)return;
-  for(const m of S.msgs){if(S.plain[m.id]||m.tipo==='zumbido'||m.tmp)continue;const o=await unseal(other(m),m.cont).catch(()=>null);S.plain[m.id]=o;}
+  for(const m of S.msgs){if(S.plain[m.id]||m.tipo==='zumbido'||m.tmp)continue;
+    if(typeof m.p==='string'){try{S.plain[m.id]=JSON.parse(m.p);}catch(_){S.plain[m.id]=null;}continue;}
+    if(S.key&&cs)S.plain[m.id]=await unseal(other(m),m.cont).catch(()=>null);}
 }
+// Mensajes viejos (v5–v11) que este dispositivo no puede abrir sin el PIN.
+const viejoCerrado=m=>m.tipo!=='zumbido'&&!m.tmp&&typeof m.p!=='string'&&!S.plain[m.id];
+// Desde la planilla v12 el chat anda con la cuenta: el texto se manda y la planilla lo guarda cerrado.
+function sinV12(e){const t=String(e&&e.message||e);return S.ver&&S.ver<12&&/vacío|cifrado|inválido/i.test(t)?'Para escribir sin PIN hay que actualizar la planilla a la versión 12 (pegar el Codigo.gs nuevo y publicar una Nueva versión).':t;}
 
 /* ── Avisos ── */
 let AC=null;
@@ -435,7 +476,7 @@ function beep(kind){
       g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(kind==='zumbido'?.08:.12,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.start(t);o.stop(t+d+.02);o.onended=()=>{try{o.disconnect();g.disconnect();}catch(_){}};t+=d*.9;}
   }catch(_){}
 }
-function preview(m){if(m.tipo==='zumbido')return '📳 ¡Te mandó un zumbido!';const o=S.plain[m.id];if(o&&o.card)return '🃏 '+(o.card.t||'Compartió una partida')+(o.x?' · '+o.x:'');return o&&o.x?o.x:'🔒 Mensaje nuevo';}
+function preview(m){if(m.tipo==='zumbido')return '📳 ¡Te mandó un zumbido!';const o=S.plain[m.id];if(o&&o.card)return '🃏 '+(o.card.t||'Compartió una partida')+(o.x?' · '+o.x:'');return o&&o.x?o.x:'💬 Mensaje nuevo';}
 function arrived(m){
   if(m.tipo==='reac')return;
   const from=m.de,viewing=S.open&&S.view==='conv'&&lc(S.con)===lc(from)&&!document.hidden;
@@ -515,12 +556,6 @@ function render(){
   const a=acct();
   if(!a){p.innerHTML=head('Chat')+`<div class="cx-empty"><p>Para chatear con tus amigos necesitás una cuenta (la misma de los juegos).</p><button type="button" class="cx-primary" data-a="cuenta">Crear cuenta o entrar</button></div>`;return;}
   if(S.unsupported){p.innerHTML=head('Chat')+`<div class="cx-empty"><p>${esc(S.err)}</p><p class="cx-dim">Es la misma planilla de la tabla: Extensiones › Apps Script, pegar el código nuevo e Implementar › Nueva versión.</p></div>`;return;}
-  if(!cs){p.innerHTML=head('Chat')+`<div class="cx-empty"><p>Este navegador no permite el cifrado del chat. Abrí el juego desde la página (https), no como archivo suelto.</p></div>`;return;}
-  if(!S.key){if(p.dataset.sig==='act'&&$('#cx-pin')){const e=$('#cx-err');if(e)e.textContent=S.err||'';return;}p.dataset.sig='act';p.innerHTML=head('Chat')+`<div class="cx-empty"><p><b>Abrí tu chat</b></p><p>Tus mensajes viajan cifrados: en la planilla nadie los puede leer. Para abrirlos en este dispositivo, escribí tu PIN.</p>
-    <label class="cx-lbl" for="cx-pin">PIN</label><input id="cx-pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" placeholder="••••">
-    <button type="button" class="cx-primary" data-a="activar">Abrir el chat</button><p class="cx-err" id="cx-err">${esc(S.err||'')}</p>
-    <button type="button" class="cx-ask" id="cx-reset" data-a="reset" hidden>¿Te cambiaron el PIN? Empezar el chat de nuevo (los mensajes viejos ya no se van a poder leer)</button>
-    <p class="cx-dim">Con un PIN corto la protección es básica. No mandes contraseñas ni datos de tarjetas por acá.</p></div>`;setTimeout(()=>$('#cx-pin')?.focus(),50);return;}
   if(S.view==='conv'&&S.con){renderConv(p);return;}
   if(S.view==='perfil'&&S.prof){p.dataset.sig='';renderProfile(p);return;}
   if(S.view==='share'&&S.card){if(p.dataset.sig!=='share'){p.dataset.sig='share';renderShare(p);}else{const l=$('#cx-slist');if(l)l.innerHTML=shareRows();}return;}
@@ -528,7 +563,7 @@ function render(){
     const n=unreadFrom(u.usuario),typing=S.typing.some(x=>lc(x)===lc(u.usuario));
     const sub=typing?'<i class="cx-typing">escribiendo…</i>':m?esc((lc(m.de)===lc(S.me)?'Vos: ':'')+(m.tipo==='zumbido'?'📳 Zumbido':m.tipo==='reac'?'Reaccionó a un mensaje':previewOwn(m))):esc(u.frase||estTxt(u));
     return `<button type="button" class="cx-row${n?' unread':''}" data-con="${esc(u.usuario)}">${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}" title="${esc(estTxt(u))}"></i>${u.estado&&u.estado.g?'<em class="cx-st">🎮</em>':''}</b><small>${sub}</small></span><span class="cx-end">${m?`<small>${hora(m.t)}</small>`:''}${n?`<span class="cx-n">${n}</span>`:''}</span></button>`;
-  }).join('')||'<p class="cx-dim cx-pad">Todavía no hay otras cuentas. Cuando tus amigos se creen una, aparecen acá.</p>';
+  }).join('')||'<p class="cx-dim cx-pad">Todavía no hay otras cuentas. Cuando tus amigos se creen una, aparecen acá.</p>'+'<p class="cx-dim cx-pad">Para chatear alcanza con tu cuenta. Los mensajes se guardan protegidos en la planilla del juego y se borran a los 30 días. No mandes contraseñas ni datos de tarjetas.</p>';
   if(p.dataset.sig==='list'&&$('#cx-frase')){$('.cx-list').innerHTML=rows;modeBtns();return;}
   p.dataset.sig='list';
   const a2=acct(),mine=userOf(S.me)||{},canAsk='Notification' in window&&Notification.permission==='default'&&!/iPhone|iPad/.test(navigator.userAgent);
@@ -540,7 +575,7 @@ function render(){
   modeBtns();
 }
 function modeBtns(){document.querySelectorAll('.cx-modes [data-m]').forEach(b=>{const on=b.dataset.m===ST.m;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});}
-function previewOwn(m){const o=S.plain[m.id];if(o&&o.card)return '🃏 '+(o.card.t||'Partida');return o&&o.x||'🔒 Mensaje';}
+function previewOwn(m){const o=S.plain[m.id];if(o&&o.card)return '🃏 '+(o.card.t||'Partida');return o&&o.x||'🔒 Mensaje anterior';}
 async function saveFrase(v){v=String(v||'').replace(/\s+/g,' ').trim().slice(0,60);if(v===(ST.frase??'')&&ST.saved)return;ST.frase=v;ls.set('bloques-chat-frase',v);
   try{await call(auth({accion:'perfil',frase:v}));ST.saved=true;const me=userOf(S.me);if(me)me.frase=v;}catch(e){S.err=String(e.message||e);}}
 /* Perfil de un jugador: nivel, rangos, medallas y récords. */
@@ -561,20 +596,20 @@ function renderProfile(p){
     <div class="cx-list">${body}${me?'':`<div class="cx-pact"><button type="button" class="cx-primary" data-con="${esc(S.prof)}">💬 Escribirle</button>${H.invite?`<button type="button" class="cx-sec" data-a="invitar" data-u="${esc(S.prof)}">🎮 Invitar a jugar</button>`:''}</div>`}</div>
     ${S.invFor?invSheet():''}`;
 }
-function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="truco">🃏 TrucAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
+function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="truco">🃏 TrucAR</button><button type="button" data-a="inv" data-g="uno">🎴 UnoAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
 /* Compartir una partida: elegís a quién y le llega como tarjeta con un botón para jugar. */
-function shareRows(){return convList().map(({u})=>`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(u.usuario)}"${u.pub?'':' disabled'}>${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}"></i></b><small>${u.pub?esc(estTxt(u)):'Todavía no puede leer mensajes'}</small></span></button>`).join('');}
+function shareRows(){return convList().map(({u})=>`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(u.usuario)}">${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}"></i></b><small>${esc(estTxt(u))}</small></span></button>`).join('');}
 function renderShare(p){
   const c=S.card;
   p.innerHTML=head('Compartir')+`<div class="cx-pad"><div class="cx-card big">${cardHtml(c,false)}</div>
     <input id="cx-snote" maxlength="200" placeholder="Agregale algo (opcional): ¿me superás?"></div>
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
-function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏'}[c.j]||'🎮';
+function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏',uno:'🎴'}[c.j]||'🎮';
   return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&H.play?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">▶ Jugar</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
-  const sig=[S.con,S.msgs.length,S.typing.join(','),JSON.stringify(S.vistos),S.err,S.pickFor,S.invFor,Object.keys(S.plain).length,(userOf(S.con)||{}).enLinea,JSON.stringify((userOf(S.con)||{}).estado),(userOf(S.con)||{}).pub?1:0].join('|');
+  const sig=[S.con,S.msgs.length,S.typing.join(','),JSON.stringify(S.vistos),S.err,S.pickFor,S.invFor,S.pinAsk,!!S.key,Object.keys(S.plain).length,(userOf(S.con)||{}).enLinea,JSON.stringify((userOf(S.con)||{}).estado),(userOf(S.con)||{}).pub?1:0].join('|');
   if(p.dataset.sig===sig&&$('#cx-msgs'))return;p.dataset.sig=sig;
   const u=userOf(S.con)||{usuario:S.con,avatar:'🙂',color:'#93a1b6'},me=lc(S.me),con=lc(S.con);
   const list=S.msgs.filter(m=>(lc(m.de)===me&&lc(m.para)===con)||(lc(m.de)===con&&lc(m.para)===me));
@@ -585,18 +620,19 @@ function renderConv(p){
     const d=dia(m.t);if(d!==lastDay){html+=`<div class="cx-day">${esc(d)}</div>`;lastDay=d;}
     const mine=lc(m.de)===me;if(mine)lastMine=m;
     if(m.tipo==='zumbido'){html+=`<div class="cx-zb">${mine?'Le mandaste un zumbido':esc(m.de)+' te mandó un zumbido'} 📳 <small>${hora(m.t)}</small></div>`;continue;}
-    const o=S.plain[m.id],txt=o&&o.card?`<div class="cx-card">${cardHtml(o.card,true,m.id)}</div>${o.x?esc(o.x).replace(/\n/g,'<br>'):''}`:o&&typeof o.x==='string'?esc(o.x).replace(/\n/g,'<br>'):'<i>🔒 No se puede leer este mensaje en este dispositivo</i>';
+    const o=S.plain[m.id],txt=o&&o.card?`<div class="cx-card">${cardHtml(o.card,true,m.id)}</div>${o.x?esc(o.x).replace(/\n/g,'<br>'):''}`:o&&typeof o.x==='string'?esc(o.x).replace(/\n/g,'<br>'):`<i>🔒 Mensaje anterior cifrado con PIN</i>${S.key?'':' <button type="button" class="cx-lnk" data-a="verpin">Ver con mi PIN</button>'}`;
     const R=reacs[m.id]||{},chips=Object.entries(R).filter(([,e])=>e).map(([who,e])=>`<span title="${esc(who)}">${esc(e)}</span>`).join('');
     html+=`<div class="cx-msg${mine?' me':''}" data-id="${esc(m.id)}"><div class="cx-bub" data-a="reac" data-id="${esc(m.id)}">${txt}<small>${hora(m.t)}</small></div>${chips?`<div class="cx-reacs">${chips}</div>`:''}${S.pickFor===m.id?`<div class="cx-pick">${REACS.map(e=>`<button type="button" data-a="dar" data-id="${esc(m.id)}" data-e="${e}">${e}</button>`).join('')}</div>`:''}</div>`;
   }
   if(lastMine&&(S.vistos[u.usuario]||S.vistos[S.con]||0)>=lastMine.t)html+=`<div class="cx-seen">Visto</div>`;
   if(typing)html+=`<div class="cx-msg"><div class="cx-bub cx-dots"><i></i><i></i><i></i></div></div>`;
-  const can=!!u.pub;
+  const can=true;// v12: alcanza con la cuenta (antes hacía falta que el otro hubiera abierto su chat con el PIN)
   const keep=$('#cx-in');const draft=keep?keep.value:'';const focused=document.activeElement===keep;
   p.innerHTML=`<div class="cx-head cx-chead"><button type="button" class="cx-back" data-a="volver" aria-label="Volver a la lista">‹</button><button type="button" class="cx-whob" data-a="perfil" data-u="${esc(u.usuario)}" aria-label="Ver el perfil de ${esc(u.usuario)}">${avatar(u)}<span class="cx-who"><b>${esc(u.usuario)}</b><small class="${typing?'cx-typing':''}">${esc(status)}</small></span></button>
     ${H.invite?`<button type="button" class="cx-zbtn" data-a="invitar" data-u="${esc(u.usuario)}" aria-label="Invitar a jugar" title="Invitar a jugar">🎮</button>`:''}<button type="button" class="cx-zbtn" data-a="zumbido" aria-label="Mandar un zumbido" title="Mandar un zumbido">📳</button><button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>
     <div class="cx-msgs" id="cx-msgs">${html||`<p class="cx-dim cx-pad">${can?`Mandale el primer mensaje a ${esc(u.usuario)}.`:`${esc(u.usuario)} todavía no entró con su cuenta desde que existe el chat. Cuando entre, le vas a poder escribir. Mientras, le podés mandar un zumbido 📳.`}</p>`}</div>
     ${S.err?`<p class="cx-err cx-pad">${esc(S.err)}</p>`:''}
+    ${S.pinAsk?`<div class="cx-sheet cx-pinask"><b>Mensajes anteriores</b><span class="cx-dim">Los mensajes de antes se cerraban con tu PIN. Escribilo para verlos en este dispositivo (los nuevos no lo necesitan).</span><input id="cx-pin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN" autocomplete="current-password"><button type="button" class="cx-primary" data-a="activar">Ver</button><button type="button" class="cx-ask" data-a="pinx">Ahora no</button></div>`:''}
     ${S.invFor?invSheet():''}
     <div class="cx-bar"><textarea id="cx-in" rows="1" maxlength="1000" placeholder="${can?'Escribí un mensaje':'Todavía no te puede leer'}"${can?'':' disabled'}></textarea><button type="button" class="cx-send" data-a="enviar" aria-label="Enviar"${can?'':' disabled'}>➤</button></div>`;
   const box=$('#cx-msgs');box.scrollTop=box.scrollHeight;
@@ -619,52 +655,50 @@ async function onClick(e){
   else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
   else if(a==='cuenta'){close();H.account();}
   else if(a==='activar')activate();
-  else if(a==='reset')activate(true);
+  else if(a==='verpin'){S.pinAsk=true;$('.cx-panel').dataset.sig='';render();setTimeout(()=>$('#cx-pin')?.focus(),50);}
+  else if(a==='pinx'){S.pinAsk=false;S.err='';$('.cx-panel').dataset.sig='';render();}
   else if(a==='enviar')send();
   else if(a==='zumbido')buzz();
   else if(a==='permiso'){try{await Notification.requestPermission();}catch(_){}render();}
   else if(a==='reac'){if(window.getSelection&&String(window.getSelection()).length)return;S.pickFor=S.pickFor===b.dataset.id?null:b.dataset.id;render();}
   else if(a==='dar')react(b.dataset.id,b.dataset.e);
 }
-// Abre (o crea) la llave del chat con el PIN. Se llama sola al entrar a la cuenta, así a cualquiera
-// le pueden escribir aunque nunca haya abierto el chat.
-async function ensureKey(pin,reset=false){
+// Chat viejo (v5–v11): abre con el PIN la llave que ya existía, sólo para leer los mensajes de antes.
+// Ya no se crean llaves nuevas: desde la v12 alcanza con la cuenta. (Al entrar a la cuenta se llama sola con el PIN.)
+async function ensureKey(pin){
   if(!cs||!acct())return false;
-  loadLocal();if(S.key&&!reset)return true;
+  loadLocal();if(S.key)return true;
   const j=await call(auth({accion:'llave'}));
-  let local;
-  if(j.llave&&!reset){local=await openRemote(JSON.parse(j.llave),pin);}
-  else{const k=await newKeyPair(pin);await call(auth({accion:'llave',pin,llave:JSON.stringify(k.remote),reemplazar:reset||undefined}));local=k.local;}
+  if(!j.llave)return false;
+  const local=await openRemote(JSON.parse(j.llave),pin);
   S.key={pub:local.pub,priv:local.priv};ls.set(kKey,JSON.stringify({usuario:S.me,pub:local.pub,priv:local.priv}));
   return true;
 }
-async function activate(reset=false){
+async function activate(){
   const pin=String(($('#cx-pin')||{}).value||'').trim();
-  const err=t=>{S.err=t;const el=$('#cx-err');if(el)el.textContent=t;};
-  if(!/^\d{4,6}$/.test(pin)){err('El PIN tiene de 4 a 6 números.');return;}
-  err('Abriendo…');
+  if(!/^\d{4,6}$/.test(pin)){S.err='El PIN tiene de 4 a 6 números.';$('.cx-panel').dataset.sig='';render();return;}
   try{
-    try{await ensureKey(pin,reset);}catch(e){if(e&&e.name==='OperationError'){err('PIN incorrecto.');const b=$('#cx-reset');if(b)b.hidden=false;return;}throw e;}
-    S.err='';$('.cx-panel').dataset.sig='';await loadUsers();await decryptAll();render();poll();
-  }catch(e){err(String(e.message||e).replace('Acción desconocida.','Para usar el chat hay que actualizar la planilla a la versión 5.'));}
+    let okk=false;try{okk=await ensureKey(pin);}catch(e){if(e&&e.name==='OperationError'){S.err='PIN incorrecto.';$('.cx-panel').dataset.sig='';render();return;}throw e;}
+    S.err=okk?'':'No hay mensajes anteriores para abrir con el PIN.';S.pinAsk=false;$('.cx-panel').dataset.sig='';await loadUsers();await decryptAll();render();
+  }catch(e){S.err=String(e.message||e);$('.cx-panel').dataset.sig='';render();}
 }
 async function send(){
   const ta=$('#cx-in');if(!ta||!S.con)return;const txt=ta.value.trim();if(!txt)return;
   ta.value='';autoGrow(ta);ta.focus();
   const tmp={id:'tmp'+Date.now(),de:S.me,para:S.con,tipo:'msg',cont:'',ref:'',t:Date.now(),tmp:true};S.plain[tmp.id]={x:txt};S.msgs.push(tmp);render();
   try{
-    const cont=await seal(S.con,{x:txt});const j=await call(auth({accion:'enviar',para:S.con,tipo:'msg',cont}));
+    const pl=JSON.stringify({x:txt}),j=await call(auth({accion:'enviar',para:S.con,tipo:'msg',p:pl}));S.ver=Number(j.version)||S.ver;
     const i=S.msgs.indexOf(tmp);if(i>=0)S.msgs.splice(i,1);
-    const m={id:j.id,de:S.me,para:S.con,tipo:'msg',cont,ref:'',t:j.t};S.msgs.push(m);S.plain[m.id]={x:txt};saveMsgs();S.err='';
-  }catch(e){const i=S.msgs.indexOf(tmp);if(i>=0)S.msgs.splice(i,1);S.err=String(e.message||e);ta.value=txt;}
+    const m={id:j.id,de:S.me,para:S.con,tipo:'msg',cont:'',p:pl,ref:'',t:j.t};S.msgs.push(m);S.plain[m.id]={x:txt};saveMsgs();S.err='';
+  }catch(e){const i=S.msgs.indexOf(tmp);if(i>=0)S.msgs.splice(i,1);S.err=sinV12(e);ta.value=txt;}
   render();
 }
 async function shareTo(name){
   const c=S.card;if(!c)return;const note=String(($('#cx-snote')||{}).value||'').trim().slice(0,200);
-  try{const cont=await seal(name,{x:note,card:c});const j=await call(auth({accion:'enviar',para:name,tipo:'msg',cont}));
-    const m={id:j.id,de:S.me,para:name,tipo:'msg',cont,ref:'',t:j.t};S.msgs.push(m);S.plain[m.id]={x:note,card:c};saveMsgs();
+  try{const pl=JSON.stringify({x:note,card:c}),j=await call(auth({accion:'enviar',para:name,tipo:'msg',p:pl}));
+    const m={id:j.id,de:S.me,para:name,tipo:'msg',cont:'',p:pl,ref:'',t:j.t};S.msgs.push(m);S.plain[m.id]={x:note,card:c};saveMsgs();
     S.card=null;S.con=name;S.view='conv';S.err='';$('.cx-panel').dataset.sig='';render();}
-  catch(e){S.err=String(e.message||e);const el=$('.cx-panel');if(el){el.dataset.sig='';}render();}
+  catch(e){S.err=sinV12(e);const el=$('.cx-panel');if(el){el.dataset.sig='';}render();}
 }
 function share(card){ensureDom();S.card=card;S.view='share';S.open=true;$('.cx-panel').hidden=false;$('.cx-scrim').hidden=false;$('.cx-panel').dataset.sig='';try{H.onOpen();}catch(_){}render();loadUsers().then(()=>{if(S.view==='share')render();});}
 async function buzz(){
@@ -678,9 +712,9 @@ async function react(id,e){
   S.pickFor=null;const m=S.msgs.find(x=>x.id===id);if(!m)return;
   const mine=S.msgs.filter(x=>x.tipo==='reac'&&x.ref===id&&lc(x.de)===lc(S.me)).pop(),cur=mine&&S.plain[mine.id]&&S.plain[mine.id].e;
   const val=cur===e?'':e;
-  try{const cont=await seal(S.con,{e:val});const j=await call(auth({accion:'enviar',para:S.con,tipo:'reac',cont,ref:id}));
-    const r={id:j.id,de:S.me,para:S.con,tipo:'reac',cont,ref:id,t:j.t};S.msgs.push(r);S.plain[r.id]={e:val};saveMsgs();S.err='';}
-  catch(err){S.err=String(err.message||err);}
+  try{const pl=JSON.stringify({e:val}),j=await call(auth({accion:'enviar',para:S.con,tipo:'reac',p:pl,ref:id}));
+    const r={id:j.id,de:S.me,para:S.con,tipo:'reac',cont:'',p:pl,ref:id,t:j.t};S.msgs.push(r);S.plain[r.id]={e:val};saveMsgs();S.err='';}
+  catch(err){S.err=sinV12(err);}
   render();
 }
 function open(name){
@@ -697,6 +731,8 @@ function close(){
 
 /* ── Estilos ── */
 const CSS=`
+.cx-lnk{border:0;background:none;color:#7ce9e5;font:inherit;font-size:12px;text-decoration:underline;padding:0;cursor:pointer}
+.cx-pinask{gap:8px}.cx-pinask input{min-height:44px;border-radius:12px;border:1px solid #334056;background:#0c131e;color:#f4f7fe;padding:0 12px;font-size:16px}
 #cx-root{font:500 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#f4f7fe}
 .cx-scrim{position:fixed;inset:0;z-index:80;background:#05080dcc}.cx-scrim[hidden],.cx-panel[hidden]{display:none}
 .cx-panel{position:fixed;top:0;right:0;bottom:0;z-index:81;width:min(420px,100vw);box-sizing:border-box;background:#0f1724;border-left:1px solid #283345;box-shadow:-24px 0 60px #000b;display:flex;flex-direction:column;
@@ -796,12 +832,124 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 })();
 
 </script>
-<style id="sin-estancia">.hub-game[data-game=estancia],.hub-game[data-game=pampa],a[href^="estancia.html"],a[href^="pampa.html"],[data-g=estancia],[data-pick=estancia]{display:none!important}</style>
+<script>
+/* ───────── Novedades: un cartel por versión, una sola vez ─────────
+   · Va en todas las páginas (BloqueAR, PoblAR, EstanciAR, La Gran Pampa, TrucAR) y comparte la marca
+     «bloques-novedades» (la última versión que se mostró), así que se ve una vez en el juego que abras primero.
+   · grande: true → cartel en el medio con la lista. Si no, un aviso chico abajo que se va solo.
+   · Quien abre el juego por primera vez no ve nada (no hay "cambios" para él).
+   · Para una versión nueva: agregar arriba {v, grande, titulo, items}. */
+(function(){
+'use strict';
+const LISTA=[
+  // todos: el resumen completo; lo ven todos (también los que recién llegan o todavía no se crearon la cuenta).
+  {v:58,grande:true,todos:true,titulo:'Todo lo que hay',items:[
+    ['🎮','Juegos: BloqueAR, PoblAR, TrucAR y el nuevo UnoAR, de 2 a 6 jugadores con chat de la mesa.'],
+    ['👤','Creá tu cuenta gratis, con un nombre y un PIN: jugás en línea con tus amigos, cargás récords y llevás tu progreso a otro celular.'],
+    ['💬','Chat con tus amigos (el botón 💬 de arriba): ahora alcanza con la cuenta, ya no hace falta ingresar el PIN.'],
+    ['👥','«Gente»: ves a todos, su perfil y sus rangos, les escribís o los invitás a jugar. Y la tabla de récords tiene su propio lugar (☰ › Ver tabla).'],
+    ['🏅','Rangos y niveles en cada juego: jugá ranked (contra la compu o con amigos) para subir.'],
+            ['⚔️','BloqueAR: el versus es más parejo (las líneas que te mandan avisan antes de entrar), el tutorial está en el medio y explica cada gesto, y los bloques vienen en Ladrillo.'],
+    ['🏘️','PoblAR: el juego te cuenta lo que te hace el otro: el cuatrero camina, la carta que te sacan vuela y la carta que juega aparece sobre el tablero.'],
+    ['📱','Anda mejor en el celular: menos memoria, gráficos livianos de entrada y el sonido se pausa cuando salís del juego.']]},
+  {v:57,grande:true,titulo:'Novedades',items:[
+    ['⚔️','Versus más parejo: las líneas que te mandan tardan unos segundos en entrar (la barra se pone naranja) y las podés atajar haciendo líneas. Cuatro líneas mandan 3.'],
+    ['🎮','Al armar una partida en línea elegís a la vista: Versus o Por puntaje.'],
+    ['💬','Los mensajes y las invitaciones llegan más rápido.'],
+    ['🖥️','BloqueAR arranca con gráficos livianos (anda mejor en el celular). Se cambian en Ajustes › Gráficos.'],
+    ['🎵','En línea suena Techno oscuro.'],
+    ['🃏','TrucAR: al terminar la mano ya no se ven las cartas que el otro no tiró.'],
+            ['🏘️','PoblAR: siempre se ve quién tiene el camino más largo y la tropilla. Y si te roban, te llevan un recurso o te descartan con un 7, te sale un aviso que explica qué pasó.']]},
+  {v:56,grande:true,titulo:'Novedades',items:[
+    ['📱','Arreglamos una pérdida de memoria de la música que crecía en partidas largas y duelos. Probablemente era lo que reiniciaba el juego con la pantalla en blanco: si te vuelve a pasar, avisanos.'],
+    ['👥','Nuevo botón «Gente» en el menú de juegos: ves a todos, su perfil, les escribís o los invitás a jugar. Desde ahí también está la tabla.'],
+    ['👤','«Mi cuenta» tiene su propio lugar: tu avatar, tu nivel y el rango de cada juego, sin abrir BloqueAR.'],
+        ['🔁','Revancha en línea (PoblAR y TrucAR): arranca cuando los dos dicen que sí.'],
+    ['🎮','Al aceptar una invitación entrás directo a la partida, estés donde estés.'],
+    ['🃏','TrucAR: al cerrar las reglas te ofrece empezar una partida.'],
+    ['🎓','El tutorial de BloqueAR enseña a bajar la pieza más rápido.']]},
+  {v:55,grande:true,titulo:'Novedades',items:[
+    ['👤','Crear cuenta y entrar ahora tienen su propia ventana, con «Soy nuevo» y «Ya tengo cuenta».'],
+    ['🏅','En el menú de juegos se ve sólo tu rango general: tocalo para ver el de cada juego. Y cada juego muestra su rango en su menú.'],
+    ['🧱','Retos de BloqueAR: si te arrepentís, tocá «No, jugar normal» y jugás sin el reto.'],
+    ['🃏','TrucAR: la mesa se acomoda a cada pantalla y las cartas ya no se salen del paño.'],
+    ['🎮','El botón para volver a los juegos ahora dice «Juegos».'],
+        ['📱','Si BloqueAR se cierra de golpe en tu celular, al volver pasa solo a gráficos livianos.']]},
+];
+const K='bloques-novedades';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}}};
+const ULT=LISTA[0].v;
+function esNuevo(){
+  // Nada guardado de ningún juego: es la primera vez que entra.
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k!==K&&k!=='bloques-nv-force'&&/^(bloques-|poblar-|estancia-|pampa-|truco-)/.test(k))return false;}}catch(_){return false;}
+  return true;
+}
+// Se mira al cargar el script (en el <head>), antes de que la página guarde sus cosas.
+const NUEVO=esNuevo();
+function pendientes(){
+  const visto=Number(ls.get(K)||0),ps=LISTA.filter(n=>n.v>visto),todo=ps.find(n=>n.todos);
+  if(todo)return [todo];                                   // el resumen completo reemplaza a los anteriores
+  if(!visto&&NUEVO){ls.set(K,String(ULT));return [];}
+  return ps;
+}
+const CSS=`.nv-scrim{position:fixed;inset:0;z-index:2147483000;background:#05080ee6;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));font:500 15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f4f7fe;-webkit-text-size-adjust:100%}
+.nv-card{width:min(420px,100%);max-height:100%;overflow:auto;background:#141e2c;border:1px solid #283345;border-radius:20px;padding:22px 18px 16px;box-shadow:0 20px 60px #0009}
+.nv-card h2{margin:0 0 2px;font-size:22px;line-height:1.2}
+.nv-card .nv-v{margin:0 0 14px;color:#93a1b6;font-size:13px}
+.nv-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.nv-card li{display:flex;gap:12px;align-items:flex-start}
+.nv-card li i{font-style:normal;font-size:20px;line-height:1.2;width:26px;flex:none;text-align:center}
+.nv-card button{margin-top:18px;width:100%;min-height:50px;border:0;border-radius:14px;background:#7ce9e5;color:#06221f;font:800 16px system-ui,-apple-system,sans-serif;cursor:pointer}
+.nv-pie{position:sticky;bottom:-16px;margin:0 -18px -16px;padding:4px 18px 16px;background:linear-gradient(#141e2c00,#141e2c 18px)}
+.nv-card button.nv-alt{margin-top:8px;background:none;color:#cfe;border:1px solid #3a4a60;min-height:44px;font-weight:700}
+.nv-card button:focus-visible,.nv-toast:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.nv-toast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2147483000;max-width:min(420px,calc(100% - 24px));display:flex;gap:10px;align-items:center;padding:11px 14px;border-radius:14px;background:#141e2cf2;border:1px solid #283345;color:#f4f7fe;font:600 13.5px/1.35 system-ui,-apple-system,sans-serif;box-shadow:0 10px 30px #0008;cursor:pointer;text-align:left}
+.nv-toast small{display:block;color:#93a1b6;font-weight:500}
+@media (prefers-reduced-motion:no-preference){.nv-card{animation:nv-in .28s ease-out}.nv-toast{animation:nv-up .28s ease-out}}
+@keyframes nv-in{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes nv-up{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translateX(-50%)}}`;
+function css(){if(document.getElementById('nv-css'))return;const s=document.createElement('style');s.id='nv-css';s.textContent=CSS;document.head.appendChild(s);}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function items(ns){return ns[0].todos?ns[0].items:ns.flatMap(n=>n.items).slice(0,10);}
+function sinCuenta(){try{const a=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');return !(a&&a.usuario);}catch(_){return false;}}
+function abrir(ns,alCerrar){
+  css();const w=document.createElement('div');w.className='nv-scrim';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','nv-t');
+  const v=ns[0].v;
+  w.innerHTML=`<div class="nv-card"><h2 id="nv-t">${esc(ns[0].titulo||'Novedades')}</h2><p class="nv-v">${ns[0].todos?`Versión ${v}: lo nuevo y todo lo que ya había`:`Versión ${v}${ns.length>1?(ns.length===2?' y la anterior':` y las ${ns.length-1} anteriores`):''}`}</p><ul>${items(ns).map(([e,t])=>`<li><i aria-hidden="true">${e}</i><span>${esc(t)}</span></li>`).join('')}</ul><div class="nv-pie">${ns[0].todos&&sinCuenta()?'<button type="button" id="nv-cta">Crear mi cuenta</button><button type="button" id="nv-ok" class="nv-alt">Ahora no</button>':'<button type="button" id="nv-ok">Dale</button>'}</div></div>`;
+  const cerrar=()=>{w.remove();document.removeEventListener('keydown',tecla,true);alCerrar&&alCerrar();};
+  const tecla=e=>{if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();e.stopPropagation();cerrar();}};
+  w.addEventListener('click',e=>{if(e.target===w)cerrar();});
+  document.body.appendChild(w);w.querySelector('#nv-ok').onclick=cerrar;
+  const cta=w.querySelector('#nv-cta');if(cta)cta.onclick=()=>{cerrar();if(typeof window.openAcct==='function')window.openAcct('crear');else location.href='./#cuenta';};document.addEventListener('keydown',tecla,true);
+  setTimeout(()=>(w.querySelector('#nv-cta')||w.querySelector('#nv-ok')).focus({preventScroll:true}),50);
+}
+function chico(ns){
+  css();const its=items(ns),b=document.createElement('button');b.type='button';b.className='nv-toast';
+  b.innerHTML=`<span aria-hidden="true">🔧</span><span>Versión ${ns[0].v}: ${esc(its.length===1?its[0][1]:`${its.length} arreglos chicos`)}${its.length>1?'<small>Tocá para verlos</small>':''}</span>`;
+  b.setAttribute('role','status');
+  let t=setTimeout(()=>b.remove(),7000);
+  b.onclick=()=>{clearTimeout(t);b.remove();if(its.length>1)abrir(ns);};
+  document.body.appendChild(b);
+}
+function mostrar(){
+  if(window.top!==window)return;
+  if(navigator.webdriver&&ls.get('bloques-nv-force')!=='1')return; // las pruebas automáticas no lo ven (salvo que lo pidan)
+  const ns=pendientes();if(!ns.length)return;
+  ls.set(K,String(ULT));
+  if(ns.some(n=>n.grande))abrir(ns);else chico(ns);
+}
+function arrancar(){if(document.visibilityState==='hidden'){document.addEventListener('visibilitychange',function v(){if(document.visibilityState==='visible'){document.removeEventListener('visibilitychange',v);setTimeout(mostrar,700);}});return;}setTimeout(mostrar,900);}
+if(document.readyState==='complete')arrancar();else window.addEventListener('load',arrancar,{once:true});
+window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.slice(0,1)),pendientes};
+})();
+
+</script>
+<style id="sin-estancia">.hub-game[data-game=estancia],.hub-game[data-game=pampa],.hub-campo-h,.hub-campo,a[href^="estancia.html"],a[href^="pampa.html"],[data-g=estancia],[data-pick=estancia]{display:none!important}</style>
 </head>
 <body>
 <div class="app" id="app">
   <div class="top">
-    <a class="icon-btn games-btn" id="btn-games" href="./#juegos" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i></a>
+    <a class="icon-btn games-btn" id="btn-games" href="./#juegos" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i><b>Juegos</b></a>
     <div class="brand">POBL<span>AR</span></div>
     <button class="icon-btn" id="btn-chat" aria-label="Chat" title="Chat" data-chat-btn>💬</button>
     <button class="icon-btn" id="btn-help" aria-label="Cómo se juega">?</button>
@@ -817,7 +965,9 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
   <div class="score">
     <div class="pl" id="pl0" style="--pc:var(--me)"><i></i><div><b id="pn0">Vos</b><small id="ps0"></small></div><div class="vp"><span id="vp0">0</span><small>/8</small></div></div>
     <div class="pl" id="pl1" style="--pc:var(--cpu)"><i></i><div><b id="pn1">La compu</b><small id="ps1"></small></div><div class="vp"><span id="vp1">0</span><small>/8</small></div></div>
+    <div class="bonos" id="bonos" aria-live="polite"></div>
   </div>
+  <div class="relato" id="relato" hidden role="status" aria-live="polite"></div>
   <div class="status" id="status"></div>
   <div class="log" id="log"></div>
   <div class="hand" id="hand"></div>
@@ -999,7 +1149,7 @@ async function roll(){
     for(const p of [0,1]){const c=cards(p);
       if(c<=7){if(p===1){rival=`${G.p[1].name} no descarta (tiene ${c})`;addLog(`${G.p[1].name} tiene ${c} cartas: no descarta.`);}continue;}
       const lose=Math.floor(c/2);
-      if(G.p[p].bot||p!==0){discard(p,lose);if(p===1){rival=`${G.p[1].name} descarta ${lose} de ${c}`;addLog(`${G.p[1].name} tenía ${c} cartas y descartó ${lose}.`);}else addLog(`Tenías ${c} cartas y descartaste ${lose}.`);}
+      if(G.p[p].bot||p!==0){const fue=discard(p,lose);if(p===1){rival=`${G.p[1].name} descarta ${lose} de ${c}`;addLog(`${G.p[1].name} tenía ${c} cartas y descartó ${lose}.`);aviso(1,'🎲','Salió 7: descartaste '+lose,`tenías ${c} cartas (más de 7) y se fue la mitad, de lo que más tenías: ${fue.map(r=>RI[r].e).join(' ')}. Para que no pase, gastá cartas antes de pasar de 7.`,{k:'siete',r:fue});}else addLog(`Tenías ${c} cartas y descartaste ${lose}.`);}
       else{G.phase='discard';G.discardN=lose;}}
     banner(`🤠 7 · ${rival.toUpperCase()}`);
     if(G.phase==='discard'){save();render(true);openDiscard();return;}
@@ -1013,12 +1163,46 @@ async function roll(){
   save();render(true);
 }
 // Descartar la mitad: se van las cartas de lo que más tenés.
-function discard(p,n){const h=G.p[p].hand;for(let i=0;i<n;i++){const r=RES.reduce((a,b)=>h[b]>h[a]?b:a);h[r]--;}}
+function discard(p,n){const h=G.p[p].hand,out=[];for(let i=0;i<n;i++){const r=RES.reduce((a,b)=>h[b]>h[a]?b:a);h[r]--;out.push(r);}return out;}
+/* Avisos para el que «sufre» una jugada del otro (le roban, le descartan con un 7, le llevan todo un recurso):
+   viajan con la partida, así en línea también le llegan al otro celular, y se muestran una sola vez. */
+function nombreReal(p){if(p===0){try{return ON?me().usuario:'Vos';}catch(_){return 'Vos';}}return G.p[1].name;}
+function aviso(para,e,t,txt,x){if(G.p[para].bot)return;G.avn=(G.avn||0)+1;G.avisos=(G.avisos||[]).slice(-5);G.avisos.push({n:G.avn,para,e,t,txt,...(x||{})});}
+const AVV={seed:null,n:0};
+// Se cuentan dentro del juego: la línea del relato, la carta jugada sobre el tablero y las cartas que vuelan.
+function mostrarAvisos(){
+  if(!G||!G.avisos)return;
+  if(AVV.seed!==G.seed){AVV.seed=G.seed;AVV.n=G.avisos.reduce((m,a)=>Math.max(m,a.n),0);return;}// al abrir una partida guardada, no se repite lo viejo
+  for(const a of G.avisos){if(a.para!==0||a.n<=AVV.n)continue;AVV.n=a.n;contar(a);}
+}
+function contar(a){
+  const delay=a.carta?1500:0;
+  if(a.carta)cartaGrande(a.carta,a.quien||G.p[1].name,1);
+  setTimeout(()=>{relato(a.e,a.t,a.txt);
+    if(a.r&&a.r.length){const destino=a.k==='siete'?$('dice-zone')||$('boardwrap'):$('pl1');a.r.forEach((r,i)=>setTimeout(()=>vuela(r,$('c-'+r),destino),i*140));}},delay);
+}
+let RELT=0;
+function relato(e,t,txt){const el=$('relato');if(!el)return;el.innerHTML=`<span class="ic">${e}</span><span><b>${escHtml(t)}</b>${txt?' · '+escHtml(txt):''}</span>`;el.hidden=false;el.classList.remove('nuevo');void el.offsetWidth;el.classList.add('nuevo');clearTimeout(RELT);RELT=setTimeout(()=>{el.hidden=true;},9000);}
+// Una carta que viaja de un lugar de la pantalla a otro (de tu mano al otro, o al descarte).
+function vuela(r,from,to){
+  if(!from||!to||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();if(!a.width||!b.width)return;
+  const c=document.createElement('div');c.className='vuela';c.textContent=RI[r]?RI[r].e:r;document.body.appendChild(c);
+  const x0=a.left+a.width/2-22,y0=a.top+a.height/2-29,x1=b.left+b.width/2-22,y1=b.top+b.height/2-29;
+  c.animate([{transform:`translate(${x0}px,${y0}px) scale(1)`,opacity:1},{transform:`translate(${(x0+x1)/2}px,${Math.min(y0,y1)-40}px) scale(1.1) rotate(-8deg)`,opacity:1,offset:.45},{transform:`translate(${x1}px,${y1}px) scale(.55)`,opacity:.15}],{duration:850,easing:'ease-in-out'}).onfinish=()=>c.remove();
+}
+// La carta de desarrollo que se jugó, grande sobre el tablero, como si la tiraran en la mesa.
+const BIG={k:'',t:0};
+function cartaGrande(k,quien,de){
+  const d=DEV[k];if(!d)return;const now=Date.now();if(BIG.k===k&&now-BIG.t<2500)return;BIG.k=k;BIG.t=now;const w=$('boardwrap');w.querySelectorAll('.devbig').forEach(x=>x.remove());
+  const el=document.createElement('div');el.className='devbig';el.innerHTML=`<div class="e">${d.e}</div><b>${escHtml(d.n)}</b><p>${escHtml(d.d)}</p><small>La jugó ${escHtml(quien)}</small>`;w.appendChild(el);
+  setTimeout(()=>{el.classList.add('va');setTimeout(()=>el.remove(),520);},1500);
+}
 function moveRobber(p,hex){
   if(!G||G.phase!=='robber'||G.turn!==p||hex===G.robber||!B.hexes[hex])return;
   G.robber=hex;const victims=new Set(B.hexes[hex].v.map(v=>G.owner[v]).filter(o=>o!==null&&o!==p));
   let txt=`${who(p)} ${p===0?'mandaste':'mandó'} al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()}`;
-  for(const o of victims){const pool=RES.flatMap(r=>Array(Math.max(0,G.p[o].hand[r])).fill(r));if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;txt+=p===0?` y le robaste ${RI[r].e}`:` y te robó ${RI[r].e}`;
+  for(const o of victims){const pool=RES.flatMap(r=>Array(Math.max(0,G.p[o].hand[r])).fill(r));if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];G.p[o].hand[r]--;G.p[p].hand[r]++;txt+=p===0?` y le robaste ${RI[r].e}`:` y te robó ${RI[r].e}`;aviso(o,'🤠',`${nombreReal(p)} te robó 1 ${RI[r].e}`,`mandó al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()} y te sacó una carta al azar. Ese terreno no produce mientras el cuatrero esté ahí.`,{k:'robo',r:[r]});if(p===0)setTimeout(()=>vuela(r,$('pl1'),$('c-'+r)),60);
     banner(p===0?`🤠 LE ROBASTE 1 ${RI[r].e} A ${G.p[1].name.toUpperCase()}`:`🤠 ${G.p[1].name.toUpperCase()} TE ROBÓ 1 ${RI[r].e}`);}
     else txt+=p===0?' (no tenía cartas para robarle)':' (no tenías cartas)';}
   addLog(txt+'.');G.byGaucho=false;G.phase=G.after||'main';G.after=null;checkWin();save();render();
@@ -1037,10 +1221,11 @@ function playDev(p,i,arg){
   addLog(`${who(p)} ${p===0?'jugaste':'jugó'} ${DEV[c.k].e} ${DEV[c.k].n}.`);
   const fx=c.k==='gaucho'?'mueve al cuatrero':c.k==='obra'?'2 caminos gratis':c.k==='cosecha'?(Array.isArray(arg)?'toma '+arg.map(r=>RI[r].e).join(''):'2 recursos'):c.k==='acopio'&&RI[arg]?(p===0?'te llevás sus '+RI[arg].e:'se lleva tus '+RI[arg].e):'';
   banner(`${DEV[c.k].e} ${p===0?'':G.p[1].name.toUpperCase()+' JUGÓ '}${DEV[c.k].n.toUpperCase()}${fx?' · '+fx.toUpperCase():''}`);
+  if(p===1&&!ON)cartaGrande(c.k,G.p[1].name,1);else if(c.k!=='acopio'&&c.k!=='gaucho')aviso(o,DEV[c.k].e,`${nombreReal(p)} jugó ${DEV[c.k].n}`,fx||'',{carta:c.k,quien:nombreReal(p)});else if(c.k==='gaucho')aviso(o,'🐎',`${nombreReal(p)} jugó Gaucho`,'mueve al cuatrero',{carta:'gaucho',quien:nombreReal(p)});
   if(c.k==='gaucho'){G.p[p].gauchos++;updateArmy();G.after=G.phase;G.phase='robber';G.byGaucho=true;}
   else if(c.k==='obra'){G.free=Math.min(2,LIMIT.road-G.p[p].road);if(!roadSpots(p).length)G.free=0;if(p===0&&G.free)mode='road';}
   else if(c.k==='cosecha'){for(const r of arg)G.p[p].hand[r]++;addLog(`${who(p)} ${p===0?'tomaste':'tomó'} ${arg.map(r=>RI[r].e).join('')}.`);}
-  else if(c.k==='acopio'){const n=G.p[o].hand[arg];G.p[o].hand[arg]=0;G.p[p].hand[arg]+=n;addLog(`${who(p)} se ${p===0?'llevaste':'llevó'} ${n}${RI[arg].e} del rival.`);}
+  else if(c.k==='acopio'){const n=G.p[o].hand[arg];G.p[o].hand[arg]=0;G.p[p].hand[arg]+=n;aviso(o,'🏚️',`${nombreReal(p)} se llevó tus ${RI[arg].e}`,n?`jugó Acopio, eligió ${RI[arg].n.toLowerCase()} y se llevó todas las tuyas: ${n}.`:`jugó Acopio y eligió ${RI[arg].n.toLowerCase()}, pero no tenías.`,{k:'acopio',r:Array(Math.min(n,6)).fill(arg),carta:'acopio',quien:nombreReal(p)});if(p===0&&n)for(let i=0;i<Math.min(n,6);i++)setTimeout(()=>vuela(arg,$('pl1'),$('c-'+arg)),i*140);addLog(`${who(p)} se ${p===0?'llevaste':'llevó'} ${n}${RI[arg].e} del rival.`);}
   checkWin();save();render();return true;
 }
 function updateArmy(){
@@ -1285,6 +1470,7 @@ function boardBox(){
   for(const pt of RB.ports){const {px,py}=portPos(pt);add(px-PW-1,py-PH-1);add(px+PW+1,py+PH+1);}
   const m=3;boxCache={seed:G.seed,rot:ROT,x:Math.floor(x0-m),y:Math.floor(y0-m),w:Math.ceil(x1-x0+2*m),h:Math.ceil(y1-y0+2*m)};return boxCache;
 }
+const RBW={seed:null,last:null,from:null,t0:0};
 function drawBoard(){
   setRB();const svg=$('board'),V=boardBox();
   svg.setAttribute('viewBox',`${V.x} ${V.y} ${V.w} ${V.h}`);
@@ -1293,7 +1479,12 @@ function drawBoard(){
   const T=targets(),top=el('g',{},svg);
   // El cuatrero: sombrero negro con cinta dorada
   {const h=RB.hexes[G.robber];el('polygon',{points:hexPts(h,.985),fill:'#000','fill-opacity':.32,'pointer-events':'none'},top);// el terreno bloqueado se oscurece
-    const x=h.x+31,y=h.y-4,g=el('g',{filter:'url(#f-sombra)'},top);
+    const x=h.x+31,y=h.y-4,g0=el('g',{},top),g=el('g',{filter:'url(#f-sombra)'},g0);
+    // Cuando cambia de lugar, el sombrero camina desde donde estaba (también si lo movió el otro).
+    if(RBW.seed!==G.seed){RBW.seed=G.seed;RBW.last=G.robber;}
+    if(RBW.last!==G.robber){const o=RB.hexes[RBW.last];RBW.from=o?[o.x+31-x,o.y-4-y]:null;RBW.t0=performance.now();RBW.last=G.robber;}
+    {const left=900-(performance.now()-RBW.t0);if(RBW.from&&left>0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const f=left/900,[dx,dy]=RBW.from;
+      g0.style.transform=`translate(${dx*f}px,${dy*f}px)`;requestAnimationFrame(()=>{g0.style.transition=`transform ${left}ms cubic-bezier(.4,0,.2,1)`;g0.style.transform='translate(0px,0px)';});}}
     el('ellipse',{cx:x,cy:y+8,rx:19,ry:6,fill:'#111',stroke:'#fff','stroke-width':2},g);
     el('path',{d:`M${x-10},${y+7} q1-15 10-15 q9 0 10 15 z`,fill:'#111',stroke:'#fff','stroke-width':2},g);
     el('rect',{x:x-10,y:y+1,width:20,height:3.5,fill:'#f2c14e'},g);}
@@ -1328,10 +1519,13 @@ function handDelta(){
   return now-HD.t<4000?HD.d:{};
 }
 function render(rolled=false){
-  if(!G)return;drawBoard();fitBoard();try{soundDiff();}catch(_){}
+  if(!G)return;drawBoard();fitBoard();try{mostrarAvisos();}catch(_){}try{soundDiff();}catch(_){}
   $('pn1').textContent=G.p[1].name;$('pn0').textContent=G.p[0].name;
   for(const p of [0,1]){$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(1);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
     const bits=[`${cards(p)} cartas`];if(G.p[p].dev.length&&p===1)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(' · ');}
+  {const nom=p=>p===0?'Vos':G.p[1].name,col=p=>p===0?'var(--me)':'var(--cpu)',L=G.longLen||[0,0],Gc=[G.p[0].gauchos||0,G.p[1].gauchos||0];
+   const bono=(ic,tit,dueno,cuanto,falta)=>dueno!==null&&dueno!==undefined?`<div class="bono si" style="--pc:${col(dueno)}"><span>${ic}</span><span><b>${tit} +2</b><em>${escHtml(nom(dueno))}</em> · ${cuanto}</span></div>`:`<div class="bono"><span>${ic}</span><span><b>${tit}</b>Nadie · ${falta}</span></div>`;
+   $('bonos').innerHTML=bono('🛣️','Camino más largo',G.longest,`${L[G.longest]||0} tramos`,'desde 5 tramos')+bono('🐎','Tropilla más grande',G.army,`${Gc[G.army]||0} gauchos`,'desde 3 gauchos');}
   const h=G.p[0].hand,dl=handDelta();$('hand').innerHTML=RES.map(r=>`<div class="card${h[r]?'':' zero'}${dl[r]>0?' got':dl[r]<0?' lost':''}" id="c-${r}"><span class="e">${RI[r].e}</span><span class="n">${h[r]}</span><span class="l">${RI[r].n}</span>${dl[r]?`<span class="dl">${dl[r]>0?'+':'−'}${Math.abs(dl[r])}</span>`:''}</div>`).join('');
   const mine=G.turn===0&&G.phase==='main';
   for(const [id,k] of [['b-road','road'],['b-ranch','ranch'],['b-town','town']]){const b=$(id);
@@ -1420,6 +1614,26 @@ function fitScreen(){
   document.documentElement.style.setProperty('--app-h',h+'px');
 }
 fitScreen();window.addEventListener('resize',fitScreen);window.addEventListener('orientationchange',()=>setTimeout(fitScreen,300));
+/* Toques corridos y zoom en el celular (v59).
+   - Al abrir el teclado (el chat) el iPhone corre la página para arriba y a veces no la devuelve: lo que se ve queda más abajo que
+     donde el teléfono cree que están los botones, y cada toque cae corrido. Acá la página vuelve a su lugar apenas se corre sola.
+   - Pellizcar o hacer doble toque fuera del tablero no agranda la página (Safari no respeta el «maximum-scale»); si igual quedó
+     agrandada, vuelve a su tamaño. En el tablero se sigue pudiendo pellizcar (es el zoom del juego).
+   - Arrastrar hacia abajo arriba de todo no recarga la página. */
+const escribe=()=>{const a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);};
+function pageBack(){if(!escribe()&&(window.scrollX||window.scrollY))window.scrollTo(0,0);}
+function resetZoom(){const vv=window.visualViewport;if(!vv||vv.scale<=1.01||escribe())return;const m=$('vp');if(!m)return;const c=m.getAttribute('content');
+  m.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');setTimeout(()=>{m.setAttribute('content',c);window.scrollTo(0,0);},60);}
+window.addEventListener('scroll',()=>{if(!escribe())requestAnimationFrame(pageBack);},{passive:true});
+document.addEventListener('focusout',e=>{if(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))setTimeout(()=>{pageBack();resetZoom();fitScreen();},120);});
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(escribe())return;fitScreen();setTimeout(pageBack,60);if(visualViewport.scale>1.01)setTimeout(resetZoom,400);});
+for(const ev of ['gesturestart','gesturechange'])document.addEventListener(ev,e=>{if(!(e.target.closest&&e.target.closest('#boardwrap,input,textarea')))e.preventDefault();},{passive:false});
+{let y0=0;const scroller=t=>{for(let n=t;n&&n.nodeType===1&&n!==document.body;n=n.parentElement){const o=getComputedStyle(n).overflowY;if((o==='auto'||o==='scroll')&&n.scrollHeight>n.clientHeight+1)return n;}return null;};
+  document.addEventListener('touchstart',e=>{if(e.touches.length===1)y0=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!e.cancelable)return;const t=e.target;
+    if(e.touches.length>1){if(!(t.closest&&t.closest('#boardwrap')))e.preventDefault();return;}
+    if(t.closest&&t.closest('#boardwrap,input,textarea,select'))return;
+    const box=scroller(t);if(box&&!(e.touches[0].clientY-y0>0&&box.scrollTop<=0))return;e.preventDefault();},{passive:false});}
 if(window.ResizeObserver)new ResizeObserver(()=>fitBoard()).observe($('boardcol'));
 window.addEventListener('resize',fitBoard);
 function closeModal(){$('modal').hidden=true;}
@@ -1506,7 +1720,7 @@ function openDiscard(){
 function rankedRow(facil){
   if(!window.RANGOS)return '';const on=RANGOS.isRanked('poblar'),i=RANGOS.info(RANGOS.get('poblar').v);
   return `<b style="display:block;margin-top:10px">Partida</b><div class="diff" id="rk" style="grid-template-columns:1fr 1fr"><button data-r="1" class="${on?'on':''}">🏆 Ranked</button><button data-r="0" class="${on?'':'on'}">🤝 Amistoso</button></div>
-    <p class="note">${on?(facil?'En Fácil la partida es amistosa: para el rango jugá en Normal o Difícil.':`Ganar suma y perder resta puntos de rango. Tu rango: ${RANGOS.badge(i.v,true)}`):'No se mueve tu rango: jugás tranquilo.'}</p>`;
+    <p class="note">${on?(facil?'En Fácil la partida es amistosa: para el rango y las leguas de La Gran Pampa jugá en Normal o Difícil.':`Ganar suma y perder resta puntos de rango. Tu rango: ${RANGOS.badge(i.v,true)}`):'No se mueve tu rango ni da leguas: jugás tranquilo.'}</p>`;
 }
 function openNew(first=false,kind='compu'){
   if(ON&&ON.state==='on'){openModal(`<h2>Estás jugando en línea</h2><p>Para empezar otra contra la compu, primero salí de la partida en línea (Menú › Salir).</p><div class="row"><button class="primary" id="x1">OK</button></div>`);$('x1').onclick=closeModal;return;}
@@ -1552,7 +1766,7 @@ function rankEnd(){
   const key='p'+G.seed+'-'+G.rolls+'-'+(G.p[1].name||'');if(RK_LAST&&RK_LAST.key===key)return RK_LAST.r;
   const w=G.winner===0,amigo=!G.p[1].bot&&!!ON,kind=amigo?'amigo':G.diff==='facil'?null:'compu-'+G.diff;
   const done=(()=>{try{return JSON.parse(localStorage.getItem('poblar-xp-hechas')||'[]');}catch(_){return [];}})();
-  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{const pr=RANGOS.premio('PoblAR',xp);if(pr&&pr.leguas)OVER.leguas={key,n:pr.leguas};}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
+  let xp=0;if(!done.includes(key)){xp=40+(w?40:0)+(G.diff==='dificil'?15:0)+(amigo?20:0);RANGOS.addXp('poblar',xp);try{const pr=RANGOS.premio('PoblAR',xp,!!(kind&&RANGOS.isRanked('poblar')));if(pr&&pr.leguas)OVER.leguas={key,n:pr.leguas};}catch(_){}done.push(key);try{localStorage.setItem('poblar-xp-hechas',JSON.stringify(done.slice(-60)));}catch(_){}}
   const r=kind?RANGOS.apply('poblar',{key,win:w,kind}):null;
   RK_LAST={key,r,xp};return r;
 }
@@ -1560,7 +1774,7 @@ function showEnd(){
   if(!G||G.phase!=='over'||G.winner==null)return;// (si ya se empezó otra partida, no mostrar un final viejo)
   const w=G.winner===0,rk=rankEnd(),xp=RK_LAST&&RK_LAST.xp,lvl=window.RANGOS?RANGOS.levelInfo(RANGOS.xp('poblar')):null;
   openModal(`<h2>${w?'🏆 ¡Ganaste!':`Ganó ${rivalName()}`}</h2><p>Vos ${vp(0)} · ${rivalName()} ${vp(1)}${hidden(1)?` (con ${hidden(1)} 🏛️ escondido${hidden(1)>1?'s':''})`:''} · ${G.rolls} tiradas · ${DIFF[G.diff]}.</p>
-    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP${OVER.leguas&&OVER.leguas.key===(RK_LAST&&RK_LAST.key)?` · 🚩 +${OVER.leguas.n} leguas en La Gran Pampa`:''}`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango':''):' · Partida amistosa'):''}</p>`:''}
+    ${rk?RANGOS.resultHtml(rk):''}${lvl?`<p class="note" style="text-align:center">PoblAR nivel ${lvl.lv}${xp?` · +${xp} XP${OVER.leguas&&OVER.leguas.key===(RK_LAST&&RK_LAST.key)?` · 🚩 +${OVER.leguas.n} leguas en La Gran Pampa`:''}`:''}${!rk&&window.RANGOS?(RANGOS.isRanked('poblar')?(G.diff==='facil'&&G.p[1].bot?' · En Fácil no se mueve el rango ni da leguas':''):' · Partida amistosa: no mueve el rango ni da leguas'):''}</p>`:''}
     ${window.CHAT&&acct()?'<button class="pill" id="e-share" style="width:100%;margin-top:10px;min-height:44px">💬 Compartir con un amigo</button>':''}
     <div class="row"><button class="pill" id="e-see">Ver el tablero</button><button class="primary" id="e-new">OTRA PARTIDA</button></div>`);
   if($('e-share'))$('e-share').onclick=()=>{closeModal();CHAT.share({j:'poblar',t:w?'Gané en PoblAR':'Perdí en PoblAR',d:`${vp(0)} a ${vp(1)} contra ${G.p[1].bot?'la compu ('+DIFF[G.diff]+')':G.p[1].name} · ${G.rolls} tiradas`,r:rk&&rk.after?rk.after.label:''});};
@@ -1584,25 +1798,27 @@ $('btn-menu').addEventListener('click',openMenu);
 $('btn-friend').addEventListener('click',openFriends);
 // Ir al menú de juegos. Si hay una partida en línea, primero se pregunta (se cortaría).
 function goGames(e){
+  const dest=e&&e.currentTarget&&e.currentTarget.getAttribute?e.currentTarget.getAttribute('href'):'./#juegos';
   if(!(ON&&ON.state==='on'))return;
   e.preventDefault();
   openModal(`<h2>¿Salir de la partida?</h2><p>Si vas al menú de juegos se corta la partida con ${escHtml(rivalName())}.</p>
     <div class="row"><button class="pill" id="gg-no">Seguir jugando</button><button class="pill" id="gg-yes" style="background:var(--aqua);color:#062a2a;border:0">Salir</button></div>`);
-  $('gg-no').onclick=closeModal;$('gg-yes').onclick=()=>{netLeave();location.href='./#juegos';};
+  $('gg-no').onclick=closeModal;$('gg-yes').onclick=()=>{netLeave();location.href=(e.currentTarget&&e.currentTarget.getAttribute&&e.currentTarget.getAttribute('href'))||dest||'./#juegos';};
 }
 $('btn-games').addEventListener('click',goGames);
 function openMenu(){
-  openSide(`<div class="side-head"><h2>Menú</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div><div class="menu-list">
+  openSide(`<div class="side-head"><h2>Menú</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div>${window.RANGOS?RANGOS.mine('poblar'):''}<div class="menu-list">
     <button id="m-new">🎲 Partida nueva</button>
     <button id="m-friend">👥 Jugar en línea <small>con un amigo</small></button>
     <button id="m-help">❓ Cómo se juega</button>
     <button id="m-log">📜 Lo que pasó</button>
     <button id="m-snd">${SND_ON?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
+    <a href="./#cuenta" id="m-acct">👤 Mi cuenta</a>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 54</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 58</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
-  $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};
+  $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};$('m-acct').onclick=e=>{closeSide();goGames(e);};
   $('m-new').onclick=go(()=>{if(ON)netLeave();openNew(false);});$('m-friend').onclick=go(openFriends);$('m-help').onclick=go(openHelp);$('m-log').onclick=go(toggleLog);
   if($('m-leave'))$('m-leave').onclick=go(netLeave);
 }
@@ -1710,6 +1926,7 @@ function flip(g){// la misma partida vista desde el otro lado
   const x=JSON.parse(JSON.stringify(g)),sw=v=>v===0?1:v===1?0:v;
   x.owner=x.owner.map(sw);x.road=x.road.map(sw);x.p.reverse();x.turn=sw(x.turn);x.first=sw(x.first);x.setup=x.setup.map(sw);
   x.longest=sw(x.longest);x.army=sw(x.army);x.winner=sw(x.winner);if(x.diceBy!==undefined)x.diceBy=sw(x.diceBy);x.longLen=x.longLen.slice().reverse();
+  if(x.avisos)x.avisos=x.avisos.map(a=>({...a,para:sw(a.para)}));
   for(const pl of x.p)pl.bot=false;return x;
 }
 function netSend(m){try{if(ON&&ON.ch&&ON.ch.readyState==='open')ON.ch.send(JSON.stringify(m));}catch(_){}}
@@ -1722,10 +1939,18 @@ function attach(ch){
   ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}onMsg(m);};
 }
 // Otra partida: en línea la arma siempre el que invitó (así los dos quedan con la misma).
+// En línea, la revancha arranca cuando los dos dijeron que sí (antes, cada toque armaba un tablero nuevo).
 function playAgain(){
-  if(ON&&ON.state==='on'){if(ON.role==='host')onlineNewGame();else{netSend({t:'again'});banner(`⏳ LE PEDISTE LA REVANCHA A ${ON.peer.usuario.toUpperCase()}`);}return;}
+  if(ON&&ON.state==='on'){
+    if(G&&G.phase!=='over'){closeModal();return;}           // ya hay una partida nueva andando
+    ON.otraYo=true;netSend({t:'again'});
+    if(ON.otraEl){revanchaArranca();return;}
+    openModal(`<h2>🔁 Revancha</h2><p>Le preguntamos a <b>${escHtml(ON.peer.usuario)}</b>. Arranca cuando acepte.</p><div class="row"><button class="pill" id="rv-x">Cancelar</button></div>`);
+    $('rv-x').onclick=()=>{ON.otraYo=false;netSend({t:'again-no'});closeModal();};return;
+  }
   newGame();
 }
+function revanchaArranca(){ON.otraYo=ON.otraEl=false;if(ON.role==='host'){closeModal();onlineNewGame();}else openModal(`<h2>🔁 Revancha</h2><p>¡Aceptó! Armando el tablero…</p>`);}
 function onlineNewGame(){
   newGame();G.p[1].bot=false;G.p[1].name=ON.peer.usuario;G.diff='normal';
   G.log=[];addLog(`Partida en línea con ${ON.peer.usuario}. Empieza ${G.first===0?'vos':ON.peer.usuario}.`);
@@ -1736,7 +1961,7 @@ function onMsg(m){
   if(m.t==='state'&&m.G){
     const g=m.G;g.p[0].bot=false;// ya viene dada vuelta (desde tu lado)
    g.p[1].bot=false;g.p[1].name=ON.peer.usuario;g.p[0].name='Vos';
-    const fresh=!G||!B||G.seed!==g.seed;G=g;if(fresh)B=buildBoard(G.seed);closeModalIfGame();
+    const fresh=!G||!B||G.seed!==g.seed;G=g;if(fresh){B=buildBoard(G.seed);ON.otraYo=ON.otraEl=false;if(!$('modal').hidden&&/Revancha|revancha|Ganaste|Ganó/.test($('sheet').textContent))closeModal();}closeModalIfGame();
     mode=null;render(true);renderLog();
     if(G.phase==='over'&&G.winner!==null)setTimeout(showEnd,400);else next();return;
   }
@@ -1747,7 +1972,12 @@ function onMsg(m){
       <div class="row"><button class="pill" id="fo-no">No</button><button class="primary" id="fo-yes" ${RES.every(r=>G.p[0].hand[r]>=m.want[r])?'':'disabled'}>ACEPTAR</button></div>`);
     $('fo-no').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:false});};$('fo-yes').onclick=()=>{closeModal();netSend({t:'offer-reply',id:m.id,ok:true});};return;}
   if(m.t==='offer-reply'&&UIQ.pending&&UIQ.pending.id===m.id){UIQ.pending.res(!!m.ok);UIQ.pending=null;return;}
-  if(m.t==='again'&&ON.role==='host'){banner(`🔁 ${ON.peer.usuario.toUpperCase()} QUIERE LA REVANCHA`);onlineNewGame();return;}
+  if(m.t==='again'){
+    if(G&&G.phase!=='over')return;                          // pedido viejo: ya se está jugando otra
+    ON.otraEl=true;if(ON.otraYo){revanchaArranca();return;}
+    openModal(`<h2>🔁 ${escHtml(ON.peer.usuario)} quiere la revancha</h2><p>Si aceptás, arranca una partida nueva con otro tablero.</p><div class="row"><button class="pill" id="rv-no">Ahora no</button><button class="primary" id="rv-si">DALE</button></div>`);
+    $('rv-no').onclick=()=>{ON.otraEl=false;netSend({t:'again-no'});closeModal();};$('rv-si').onclick=()=>playAgain();return;}
+  if(m.t==='again-no'){ON.otraEl=false;if(ON.otraYo){ON.otraYo=false;closeModal();}banner(`${ON.peer.usuario.toUpperCase()} NO QUIERE LA REVANCHA AHORA`);return;}
   if(m.t==='bye'){onLost('salió de la partida');}
 }
 function closeModalIfGame(){const s=$('sheet');if(s&&!$('modal').hidden&&/Jugar con un amigo|Te invitan/.test(s.textContent))closeModal();}
@@ -1834,11 +2064,11 @@ async function openFriends(){
 let pollAt=0,polling=false;
 async function pollInbox(force=false){
   const a=acct();if(!a||polling||document.hidden||ON)return;
-  const gap=G&&G.turn===0&&G.phase!=='over'?20000:12000;if(!force&&Date.now()-pollAt<gap)return;
+  const gap=G&&G.turn===0&&G.phase!=='over'?20000:8000;if(!force&&Date.now()-pollAt<gap)return;
   polling=true;pollAt=Date.now();
   try{const j=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token});const inv=j.invitacion;
     if(inv&&!UIQ.dismissed.has(inv.id)&&!ON){
-      const pob=String(inv.oferta||'').startsWith('POBLAR:'),tru=String(inv.oferta||'').startsWith('TRUCO:');
+      const pob=String(inv.oferta||'').startsWith('POBLAR:'),tru=String(inv.oferta||'').startsWith('TRUCO:')?true:String(inv.oferta||'').startsWith('UNO:')?'uno':false;
       let want='';try{want=sessionStorage.getItem('poblar-accept')||'';}catch(_){}
       if(pob&&want===inv.id){try{sessionStorage.removeItem('poblar-accept');}catch(_){}acceptInvite(inv);}
       else showInvite(inv,pob,tru);
@@ -1847,14 +2077,20 @@ async function pollInbox(force=false){
 }
 function showInvite(inv,pob,tru=false){
   UIQ.dismissed.add(inv.id);
-  openModal(`<h2>🤝 Te invitan</h2><div style="display:flex;align-items:center;gap:12px;margin:10px 0">${avHtml(inv.avatar,inv.color)}<div><b style="font-size:18px">${escHtml(inv.de)}</b><div class="note">te invita a jugar ${pob?'<b>PoblAR</b> 🏘️':tru?'<b>TrucAR</b> 🃏':'<b>BloqueAR</b> 🧱'}</div></div></div>
+  openModal(`<h2>🤝 Te invitan</h2><div style="display:flex;align-items:center;gap:12px;margin:10px 0">${avHtml(inv.avatar,inv.color)}<div><b style="font-size:18px">${escHtml(inv.de)}</b><div class="note">te invita a jugar ${pob?'<b>PoblAR</b> 🏘️':tru==='uno'?'<b>UnoAR</b> 🎴':tru?'<b>TrucAR</b> 🃏':'<b>BloqueAR</b> 🧱'}</div></div></div>
     <div class="row"><button class="pill" id="iv-no">Ahora no</button><button class="primary" id="iv-yes">ACEPTAR</button></div>`);
   $('iv-no').onclick=()=>{closeModal();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
-  $('iv-yes').onclick=()=>{closeModal();if(pob)acceptInvite(inv);else if(tru){try{sessionStorage.setItem('truco-accept',inv.id);}catch(_){}location.href='truco.html';}else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
+  $('iv-yes').onclick=()=>{closeModal();if(pob)acceptInvite(inv);else if(tru==='uno'){try{sessionStorage.setItem('uno-accept',inv.id);}catch(_){}location.href='uno.html';}else if(tru){try{sessionStorage.setItem('truco-accept',inv.id);}catch(_){}location.href='truco.html';}else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
 }
 if(!/[#&]auto/.test(location.hash)){
   setInterval(()=>pollInbox(),5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>pollInbox(true),500);});
   setTimeout(()=>pollInbox(true),1500);
+  // Venís de aceptar en otro juego: reintentar seguido unos segundos (la planilla a veces tarda).
+  {let want='';try{want=sessionStorage.getItem('poblar-accept')||'';}catch(_){}
+   if(want){let n=0;const t=setInterval(()=>{let w='';try{w=sessionStorage.getItem('poblar-accept')||'';}catch(_){}
+     if(ON||!w){clearInterval(t);return;}
+     if(++n>12){clearInterval(t);try{sessionStorage.removeItem('poblar-accept');}catch(_){}openModal(`<h2>No encontramos la invitación</h2><p>Puede que haya vencido (duran 5 minutos) o que tu amigo la haya cancelado. Pedile que te invite de nuevo, o invitalo vos.</p><div class="row"><button class="pill" id="ia-x">Cerrar</button><button class="primary" id="ia-inv">INVITAR</button></div>`);$('ia-x').onclick=closeModal;$('ia-inv').onclick=()=>{closeModal();$('btn-friend').click();};return;}
+     pollInbox(true);},2500);}}
 }
 window.addEventListener('pagehide',()=>{if(ON&&ON.state==='on')netSend({t:'bye'});});
 
@@ -1871,13 +2107,13 @@ let FAST=false,AUTO=false;
 })();
 // Chat (viene con el sitio; si se abre este archivo suelto, no está).
 if(window.RANGOS)RANGOS.css();
-if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{location.href='./#cuenta';},game:()=>'poblar',
-  invite:(g,u)=>{if(g==='estancia'){location.href='estancia.html#malon';return;}if(g==='truco'){location.href='truco.html#invitar='+encodeURIComponent(u);return;}if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
+if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{location.href='./#cuenta';},game:()=>'poblar',inbox:()=>pollInbox(true),
+  invite:(g,u)=>{if(g==='estancia'){location.href='estancia.html#malon';return;}if(g==='truco'){location.href='truco.html#invitar='+encodeURIComponent(u);return;}if(g==='uno'){location.href='uno.html#invitar='+encodeURIComponent(u);return;}if(g!=='poblar'){location.href='./#invitar='+encodeURIComponent(u);return;}
     if(ON){openFriends();return;}const x=(UIQ.users||[]).find(y=>y.usuario.toLowerCase()===String(u).toLowerCase())||{usuario:u,avatar:'🙂',color:'#7ce9e5'};inviteFriend(x);},
-  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':c.j==='truco'?'truco.html':'./';}});
+  play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':c.j==='truco'?'truco.html':c.j==='uno'?'uno.html':'./';}});
 {const m=/^#invitar=([^&]+)/.exec(location.hash);if(m&&acct()){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
   const u=decodeURIComponent(m[1]);setTimeout(()=>{closeModal();inviteFriend((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#7ce9e5'});},400);}}
-window.POBLAR={showEnd,rankEnd,pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
+window.POBLAR={save,showEnd,rankEnd,pollInbox,get ON(){return ON},flip,onMsg,acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
 </script>
 <script>/* Paquete sin EstanciAR ni La Gran Pampa */
 (function(){try{if(window.RANGOS)RANGOS.premio=function(){return null;};}catch(e){}
