@@ -478,10 +478,10 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 // ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 function premio(de,xp,ranked){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
-  // v63: para no inflar la estancia, cada partida da su XP en pesos (hasta 300) y, en el mismo día, rinde menos a medida que juntás:
-  // los primeros 600 🪙 enteros, hasta 1.200 a la mitad y después a un cuarto (nunca menos de 5).
+  // v65: para no inflar la estancia, cada partida da la mitad de su XP en pesos (hasta 150) y, en el mismo día, rinde menos a medida
+  // que juntás: los primeros 300 🪙 enteros, hasta 600 a la mitad y después a un cuarto (nunca menos de 5). Iguales a ECO.premio de EstanciAR.
   const d=new Date(),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya=PD.d===dia?PD.n||0:0;
-  const pesos=Math.max(5,Math.round(Math.min(300,n)*(ya<600?1:ya<1200?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
+  const pesos=Math.max(5,Math.round(Math.min(150,Math.round(n*.5))*(ya<300?1:ya<600?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
   const p={de,trigo:0,pesos,t:Date.now()};
   const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
   return {...p,ranked:!!ranked,leguas:ranked?pampaAct(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':de==='AjedrezAR'?'a':'b'):0};
@@ -935,7 +935,7 @@ function aplicar(j){const G=D[j];if(!G)return;css();
 function diasHastaLunes(){const w=lunesAR(),next=Date.parse(w+'T03:00:00Z')+7*864e5,ms=next-Date.now(),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/3600e3);return d>=1?`${d} ${d===1?'día':'días'}`:`${Math.max(1,h)} ${h===1?'hora':'horas'}`;}
 function panelHtml(j){const G=D[j];if(!G)return '';css();const o=load(),c=o.c[j]||{},rs=retos(j),tot=G.logros.length,got=G.logros.filter(L=>tiene(o,j,L.id)).length;
   const retH=rs.length?`<section class="lg-sec"><h3>Retos de la semana</h3><p class="lg-lead">Los mismos para todos. Se renuevan el lunes: faltan ${diasHastaLunes()}.</p>
-    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y ${fmt(Math.min(300,r.xp))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
+    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y hasta ${fmt(Math.min(150,Math.round(r.xp*.5)))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
   const logH=`<section class="lg-sec"><h3>Logros <small>${got} de ${tot}</small></h3><div class="lg-list">${G.logros.map(L=>{const on=tiene(o,j,L.id),m=L.m||1,v=Math.min(m,c[L.k]||0);
     return `<div class="lg-l${on?' on':''}"><i>${L.e}</i><div><b>${esc(L.n)}</b><small>${esc(L.d)}</small>${!on&&m>1?`<div class="lg-bar"><i style="width:${(v/m*100).toFixed(1)}%"></i></div><small>${fmt(v)} de ${fmt(m)}</small>`:''}</div>${on?'<em>✓</em>':''}</div>`;}).join('')}</div></section>`;
   const tipos=Object.entries(G.ap);
@@ -1647,6 +1647,14 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:65,grande:true,titulo:'Novedades',items:[
+    ['🎲','PoblAR: dados parejos. Los números salen en la proporción justa (el 6 y el 8 son los más comunes) y no hay rachas raras del mismo número.'],
+    ['🎴','UnoAR: reparto parejo, ya no te tocan manos casi todas del mismo color.'],
+    ['🐎','EstanciAR: las cosas cuestan más y se gana menos: progresar lleva su esfuerzo. Lo que ya tenés queda igual.']]},
+  {v:64,grande:true,titulo:'Novedades',items:[
+    ['🎨','PoblAR: cada jugador tiene su color, el mismo en todos los celulares. Lo elegís al armar la partida.'],
+    ['🧭','PoblAR: el tablero ya no se gira, y los avisos aparecen abajo del tablero sin taparlo.'],
+    ['🛠️','PoblAR: si no podés construir, te dice por qué; y un cambio que llega tarde ya no deja a nadie con recursos en negativo.']]},
   {v:63,grande:true,titulo:'Novedades',items:[
     ['♟️','Nuevo: AjedrezAR. Con reloj (bala, blitz, rápida), sin reloj o distendido: cada uno mueve cuando puede, te avisa por el chat cuando te toca y podés tener varias partidas a la vez.'],
     ['📌','Fijá tus juegos favoritos arriba de todo (📌 Favoritos o mantené apretado un juego).'],
@@ -2205,7 +2213,7 @@ function openMenu(){
   openSide(`<div class="side-head"><h2>Menú</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div>${nivelHtml()}<div class="menu-list">
     <button id="m-new">🂠 Partida nueva</button><button id="m-dia">📅 Partida del día</button><button id="m-recs">⏱️ Tus récords</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
-    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 63</p>`);
+    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 65</p>`);
   const go=f=>()=>{$('side').hidden=true;f();};
   $('m-x').onclick=closeSide;$('m-new').onclick=go(openNew);$('m-dia').onclick=go(()=>nuevo({fecha:fechaSol()}));$('m-recs').onclick=go(openRecs);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-snd').onclick=()=>{SND=!SND;ls.set('solitario-sonido',SND?'1':'0');openMenu();};

@@ -548,10 +548,10 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 // ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 function premio(de,xp,ranked){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
-  // v63: para no inflar la estancia, cada partida da su XP en pesos (hasta 300) y, en el mismo día, rinde menos a medida que juntás:
-  // los primeros 600 🪙 enteros, hasta 1.200 a la mitad y después a un cuarto (nunca menos de 5).
+  // v65: para no inflar la estancia, cada partida da la mitad de su XP en pesos (hasta 150) y, en el mismo día, rinde menos a medida
+  // que juntás: los primeros 300 🪙 enteros, hasta 600 a la mitad y después a un cuarto (nunca menos de 5). Iguales a ECO.premio de EstanciAR.
   const d=new Date(),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya=PD.d===dia?PD.n||0:0;
-  const pesos=Math.max(5,Math.round(Math.min(300,n)*(ya<600?1:ya<1200?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
+  const pesos=Math.max(5,Math.round(Math.min(150,Math.round(n*.5))*(ya<300?1:ya<600?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
   const p={de,trigo:0,pesos,t:Date.now()};
   const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
   return {...p,ranked:!!ranked,leguas:ranked?pampaAct(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':de==='AjedrezAR'?'a':'b'):0};
@@ -1005,7 +1005,7 @@ function aplicar(j){const G=D[j];if(!G)return;css();
 function diasHastaLunes(){const w=lunesAR(),next=Date.parse(w+'T03:00:00Z')+7*864e5,ms=next-Date.now(),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/3600e3);return d>=1?`${d} ${d===1?'día':'días'}`:`${Math.max(1,h)} ${h===1?'hora':'horas'}`;}
 function panelHtml(j){const G=D[j];if(!G)return '';css();const o=load(),c=o.c[j]||{},rs=retos(j),tot=G.logros.length,got=G.logros.filter(L=>tiene(o,j,L.id)).length;
   const retH=rs.length?`<section class="lg-sec"><h3>Retos de la semana</h3><p class="lg-lead">Los mismos para todos. Se renuevan el lunes: faltan ${diasHastaLunes()}.</p>
-    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y ${fmt(Math.min(300,r.xp))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
+    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y hasta ${fmt(Math.min(150,Math.round(r.xp*.5)))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
   const logH=`<section class="lg-sec"><h3>Logros <small>${got} de ${tot}</small></h3><div class="lg-list">${G.logros.map(L=>{const on=tiene(o,j,L.id),m=L.m||1,v=Math.min(m,c[L.k]||0);
     return `<div class="lg-l${on?' on':''}"><i>${L.e}</i><div><b>${esc(L.n)}</b><small>${esc(L.d)}</small>${!on&&m>1?`<div class="lg-bar"><i style="width:${(v/m*100).toFixed(1)}%"></i></div><small>${fmt(v)} de ${fmt(m)}</small>`:''}</div>${on?'<em>✓</em>':''}</div>`;}).join('')}</div></section>`;
   const tipos=Object.entries(G.ap);
@@ -1717,6 +1717,14 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:65,grande:true,titulo:'Novedades',items:[
+    ['🎲','PoblAR: dados parejos. Los números salen en la proporción justa (el 6 y el 8 son los más comunes) y no hay rachas raras del mismo número.'],
+    ['🎴','UnoAR: reparto parejo, ya no te tocan manos casi todas del mismo color.'],
+    ['🐎','EstanciAR: las cosas cuestan más y se gana menos: progresar lleva su esfuerzo. Lo que ya tenés queda igual.']]},
+  {v:64,grande:true,titulo:'Novedades',items:[
+    ['🎨','PoblAR: cada jugador tiene su color, el mismo en todos los celulares. Lo elegís al armar la partida.'],
+    ['🧭','PoblAR: el tablero ya no se gira, y los avisos aparecen abajo del tablero sin taparlo.'],
+    ['🛠️','PoblAR: si no podés construir, te dice por qué; y un cambio que llega tarde ya no deja a nadie con recursos en negativo.']]},
   {v:63,grande:true,titulo:'Novedades',items:[
     ['♟️','Nuevo: AjedrezAR. Con reloj (bala, blitz, rápida), sin reloj o distendido: cada uno mueve cuando puede, te avisa por el chat cuando te toca y podés tener varias partidas a la vez.'],
     ['📌','Fijá tus juegos favoritos arriba de todo (📌 Favoritos o mantené apretado un juego).'],
@@ -1956,7 +1964,7 @@ const KEY='estancia-v2';
 let E=null;
 function fresh(){
   const t=Date.now();let id=1;const it=(k,x,y,o={})=>({id:id++,k,x,y,...o});
-  const s={v:2,t,pesos:ECO.inicio,eco:63,xp:0,lv:1,casco:1,trofeos:0,escudo:0,npc:0,seen:0,tut:0,tropas:{gaucho:0,boleador:0,toro:0},cola:[],colaT:0,log:[],regalos:[],nextId:0,
+  const s={v:2,t,pesos:ECO.inicio,eco:ECO.ver,xp:0,lv:1,casco:1,trofeos:0,escudo:0,npc:0,seen:0,tut:0,tropas:{gaucho:0,boleador:0,toro:0},cola:[],colaT:0,log:[],regalos:[],nextId:0,
     items:[it('casco',8,4),
       it('parcela',4,9,{crop:{k:'trigo',at:t-3*MIN}}),it('parcela',6,9,{crop:{k:'trigo',at:t-3*MIN}}),it('parcela',4,11),it('parcela',6,11),
       it('gallinero',10,10,{at:t-HOUR}),it('arbol',5,5),it('arbol',12,8),it('flores',7,5),it('flores',11,5),it('camino',9,7),it('camino',9,8),it('camino',9,9)]};
@@ -2636,40 +2644,56 @@ Object.assign(ART,{
    · Adornos: cada uno igual sale 12 % más que el anterior (como mucho 4 veces el precio). Lo caro y lindo, bien caro.
    · Pedidos, cofre, visitas, malones repetidos a la compu y regalos de los otros juegos pagan menos.
    · Las primeras sesiones siguen siendo generosas: arrancás con 500 🪙 y cada nivel hasta el 10 te regala 60 🪙 por nivel.
-   Tabla de equilibrio (node /tmp/claude-0/eco/sim.js; compra lo que más rinde por peso; v62 → v63):
-                         ingreso del día 3     día 7            día 14            día 30            juntado en 30 días   campo el día 30
-     típico (3 veces/día)    43.000 → 6.300    67.000 → 21.000  103.000 → 30.000  164.000 → 51.000   3,3 M → 0,97 M        28 → 24
-     muy activo (6 veces)   111.000 → 20.000  174.000 → 42.000  265.000 → 58.000  261.000 → 81.000   6,9 M → 1,7 M         28 → 24
-     1 vez por día            2.100 → 950      14.500 → 3.300    33.000 → 7.700    40.000 → 13.000   0,81 M → 0,23 M       22 → 20
-   Nivel el día 30: típico 22 → 17, muy activo 31 → 21, 1 vez por día 14 → 11.
-   Lo más caro: ampliar el campo (1.500 → 500.000, total 1,23 M), capilla 50.000, mejorar un ñandú a nivel 5 ≈ 100.000. */
+   v65 (19/10, 01:38, el usuario: «todo tiene que dar menos monedas y las cosas tienen que salir más… Tiene que sentirse un esfuerzo»):
+   animales y obras dan ~70 % de v63 y salen el doble (y cada uno nuevo del mismo tipo, el doble del anterior); cosechas ~20 % menos;
+   adornos lindos, mascotas, ropa del personaje y defensas, ×1,5 a ×2; ampliar el campo ×1,6 (hasta 800.000); mejoras más caras y con
+   más nivel (la 4 y la 5 tardan semanas); pedidos, feria (+30 %), cofre, visitas, malones a la compu, juego de la mascota (3 por día)
+   y regalos de los otros juegos (la mitad de la XP, hasta 150, y en el día rinden menos desde los 300) dan bastante menos.
+   Tabla de equilibrio (node /tmp/claude-0/eco/sim.js estancia.html 30 estancia_v63.html; compra lo que más rinde por peso; v63 → v65):
+                         ingreso del día 3     día 7            día 14            día 30            juntado en 30 días   nivel día 30   campo día 30
+     típico (3 veces/día)     6.300 → 3.600    17.500 → 8.100    31.000 → 9.600    56.000 → 14.000   0,94 M → 0,29 M       17 → 14        24 → 18
+     muy activo (6 veces)    21.700 → 10.900   40.700 → 13.800   53.600 → 20.700   88.000 → 32.500   1,66 M → 0,62 M       21 → 18        26 → 20
+     1 vez por día              950 → 630       3.300 → 2.100     7.800 → 2.600    12.800 → 5.300   0,22 M → 0,09 M       11 → 10        20 → 16
+   (Contra v62, el típico juntaba 3,3 M en 30 días.)
+   Lo más caro: ampliar el campo (2.400 → 800.000, total 2 M), capilla 100.000, mejorar un ñandú a nivel 5 ≈ 275.000. */
 /*ECO*/const ECO={
-  inicio:500,
+  ver:65,   // v65 (pedido del 19/10, 01:38: «todo tiene que dar menos monedas y las cosas tienen que salir más… Tiene que sentirse un esfuerzo»)
+  inicio:400,
   // Cultivos: [costo, tiempo, da, xp]
-  seeds:{trigo:[8,3*MIN,14,1],papa:[20,HOUR,55,2],maiz:[25,30*MIN,52,3],girasol:[45,2*HOUR,120,5],tomate:[60,3*HOUR,170,6],alfalfa:[70,6*HOUR,240,8],zapallo:[90,8*HOUR,300,9],sandia:[130,12*HOUR,420,13]},
+  seeds:{trigo:[8,3*MIN,12,1],papa:[20,HOUR,45,2],maiz:[25,30*MIN,44,3],girasol:[45,2*HOUR,100,5],tomate:[60,3*HOUR,125,6],alfalfa:[70,6*HOUR,170,8],zapallo:[90,8*HOUR,210,9],sandia:[130,12*HOUR,280,13]},
   // Animales y producción: [costo, cada cuánto, da]
-  prod:{gallinero:[250,HOUR,24],huerta:[200,90*MIN,26],patos:[450,2*HOUR,45],colmena:[500,2*HOUR,45],chiquero:[700,3*HOUR,70],tambo:[1200,4*HOUR,125],cabras:[1500,5*HOUR,165],
-    frutales:[900,5*HOUR,110],ovejas:[2500,8*HOUR,310],harinero:[1800,3*HOUR,85],queseria:[2600,6*HOUR,250],panaderia:[2200,4*HOUR,170],caballeriza:[3200,10*HOUR,470],
-    llamas:[4200,9*HOUR,500],vinedo:[2000,8*HOUR,265],bodega:[4800,12*HOUR,700],nandues:[5500,12*HOUR,780],pulperia:[6000,8*HOUR,485],empanadas:[500,4*HOUR,95]},
-  // Lo caro y lindo (y las mascotas)
-  precio:{ombu:700,molino:1800,carreta:600,laguna:1200,sauce:300,eucalipto:220,glorieta:6000,estatua:9000,capilla:50000,piedra:3500,calesita:12000,fuente:6000,telescopio:900,tablado:1100,guitarrero:700},
-  mascotas:{perro:600,gato:600,carpincho:1350,mulita:1050,nandu:1800},
-  crece:{prod:1.8,parcela:1.15,adorno:1.12,adornoTope:4,feria:1.3,torre:1.4},
+  prod:{gallinero:[500,HOUR,17],huerta:[400,90*MIN,18],patos:[900,2*HOUR,32],colmena:[1000,2*HOUR,32],chiquero:[1400,3*HOUR,50],tambo:[2400,4*HOUR,88],cabras:[3000,5*HOUR,115],
+    frutales:[1800,5*HOUR,77],ovejas:[5000,8*HOUR,215],harinero:[3600,3*HOUR,60],queseria:[5200,6*HOUR,175],panaderia:[4400,4*HOUR,120],caballeriza:[6400,10*HOUR,330],
+    llamas:[8400,9*HOUR,350],vinedo:[4000,8*HOUR,185],bodega:[9600,12*HOUR,490],nandues:[11000,12*HOUR,545],pulperia:[12000,8*HOUR,340],empanadas:[1000,4*HOUR,65]},
+  // Adornos, cosas para usar, feria y defensas: precio base (lo que no está, queda como estaba)
+  precio:{ombu:1400,molino:3600,carreta:1200,laguna:2400,sauce:600,eucalipto:450,glorieta:12000,estatua:18000,capilla:100000,piedra:7000,calesita:24000,fuente:12000,
+    telescopio:1800,tablado:2200,guitarrero:1400,banco:200,aljibe:450,fogon:350,parrilla:450,farol:150,palenque:200,mesamate:300,mecedora:380,hamaca:450,columpio:500,banderines:350,arbol:120,
+    mangrullo:700,perrera:1100,fortin:7000,corral:500,tapia:90,cerco:45,trampa:200,herreria:4800},
+  parcela:60,
+  mascotas:{perro:1100,gato:1100,carpincho:2400,mulita:1900,nandu:3200},
+  ropa:2,            // la ropa y los caballos del personaje que se compran, y la ropa de la mascota: el doble
+  crece:{prod:2,parcela:1.2,adorno:1.15,adornoTope:5,feria:1.3,torre:1.5},
   tope:{cada:7,antes:3,max:3},
   parcelas:l=>Math.min(16,5+Math.floor(l/2)),
-  mejora:{prod:{max:5,precio:[1.2,2.5,5,9],nivel:[3,7,12,18],mat:[3,6,10,15],da:[1,1.2,1.4,1.6,1.8],tiempo:[1,.95,.9,.85,.8],cant:[1,1,2,2,3]},
-          def:{max:3,precio:[1.5,3],nivel:[3,6]}},
-  pedido:{valor:l=>200+35*l,paga:(v,l)=>Math.round(v*.6+25+6*l)},
-  cofre:[80,120,160,200,260,320,600],cofreMult:l=>1+Math.min(1,l*.04),
-  visita:{vecina:l=>60+10*l,caballo:l=>100+15*l,carpincho:l=>40+8*l},
-  nivelPremio:l=>l<=10?60*l:0,
-  repetirMalon:.35,
-  // Regalos de los otros juegos (los pone RANGOS.premio): por partida, y menos a medida que juntás en el día.
-  premio:{por:xp=>Math.min(300,Math.round(xp)),dia:n=>n<600?1:n<1200?.5:.25}
+  // Ampliar el campo: [lado, costo, nivel]
+  casco:[0,0,{cost:2400,lv:3},{cost:10000,lv:5},{cost:40000,lv:8},{cost:100000,lv:11},{cost:200000,lv:13},{cost:320000,lv:15},{cost:520000,lv:17},{cost:800000,lv:19}],
+  mejora:{prod:{max:5,precio:[1.5,3.5,7,13],nivel:[3,8,14,20],mat:[4,8,14,20],da:[1,1.2,1.4,1.6,1.8],tiempo:[1,.95,.9,.85,.8],cant:[1,1,2,2,3]},
+          def:{max:3,precio:[2,4],nivel:[3,6]}},
+  pedido:{valor:l=>150+25*l,paga:(v,l)=>Math.round(v*.45+15+4*l)},
+  feria:.3,
+  cofre:[50,80,110,140,180,220,400],cofreMult:l=>1+Math.min(.6,l*.03),
+  visita:{vecina:l=>40+6*l,caballo:l=>60+10*l,carpincho:l=>25+5*l},
+  nivelPremio:l=>l<=8?30*l:0,
+  malonCompu:.6,repetirMalon:.25,
+  mascotaJuegos:3,mascotaPorPunto:2,balanceado:40,
+  // Regalos de los otros juegos (los pone RANGOS.premio en chat/rangos.js, con estos mismos números): por partida, y menos a medida que juntás en el día.
+  premio:{por:xp=>Math.min(150,Math.round(xp*.5)),dia:n=>n<300?1:n<600?.5:.25}
 };/*/ECO*/
 for(const [k,[c,t,g,x]] of Object.entries(ECO.seeds))if(SEEDS[k])Object.assign(SEEDS[k],{cost:c,time:t,gain:g,xp:x});
 for(const [k,[c,e,g]] of Object.entries(ECO.prod))if(CAT[k]){CAT[k].cost=c;CAT[k].prod.every=e;CAT[k].prod.gain=g;}
 for(const [k,c] of Object.entries(ECO.precio))if(CAT[k])CAT[k].cost=c;
+CAT.parcela.cost=ECO.parcela;
+ECO.casco.forEach((c,i)=>{if(c&&CASCO_UP[i])Object.assign(CASCO_UP[i],c);});
 // Qué se mejora: animales y producción (salvo lo de la feria) por un lado; torres y fortín (los que ya tenían niveles) por el otro.
 const upTipo=k=>{const c=CAT[k];if(!c)return null;if(c.prod&&c.cat!=='feria')return 'prod';if(c.up)return 'def';return null;};
 for(const [k,c] of Object.entries(CAT))if(upTipo(k)==='prod'&&!c.max){const lv0=c.lv;c.max=l=>Math.min(ECO.tope.max,1+Math.floor(Math.max(0,l-lv0+ECO.tope.antes)/ECO.tope.cada));}
@@ -3145,14 +3169,14 @@ function npcBase(L){
 let RIV=null,RIVAT=0;
 function openMalon(tab='compu'){
   const army=TORDER.reduce((a,k)=>a+(E.tropas[k]||0),0);
-  const npcHtml=()=>{let h='';for(let L=1;L<=Math.min(E.npc+2,30);L++){const done=L<=E.npc,b=npcBase(L);h+=`<button class="item" data-npc="${L}"><span class="ic">${done?'🏚️':'🏠'}</span><span class="tx"><b>${b.name}</b><small>Nivel ${L} · ${done?`ya la saqueaste: se puede repetir (botín hasta ${fmt(b.pesos*.25*ECO.repetirMalon)}<i class="co"></i>), pero no mueve el rango`:`botín hasta ${fmt(b.pesos*.25)}<i class="co"></i>`}</small></span></button>`;}return h;};
+  const npcHtml=()=>{let h='';for(let L=1;L<=Math.min(E.npc+2,30);L++){const done=L<=E.npc,b=npcBase(L);h+=`<button class="item" data-npc="${L}"><span class="ic">${done?'🏚️':'🏠'}</span><span class="tx"><b>${b.name}</b><small>Nivel ${L} · ${done?`ya la saqueaste: se puede repetir (botín hasta ${fmt(b.pesos*.25*ECO.malonCompu*ECO.repetirMalon)}<i class="co"></i>), pero no mueve el rango`:`botín hasta ${fmt(b.pesos*.25*ECO.malonCompu)}<i class="co"></i>`}</small></span></button>`;}return h;};
   const frHtml=()=>{if(!acct())return '<p>Para visitar y hacer malones a tus amigos necesitás tu cuenta de BloqueAR.</p>';if(!RIV)return '<p class="note">Cargando estancias…</p>';if(RIV.error)return `<p>${esc(RIV.error)}</p>`;
     if(!RIV.length)return '<p>Todavía ningún amigo tiene estancia. ¡Pasales el juego!</p>';
     return RIV.map(r=>`<div class="item"><span class="ic">${esc(r.avatar)}</span><span class="tx"><b>${esc(r.usuario)}</b><small>Casco ${r.casco} · 🏆 ${fmt(r.trofeos)}${r.escudo?' · 🛡️ '+dur(r.escudo-Date.now()):''}</small></span><button class="btn" data-visit="${esc(r.usuario)}" title="Visitar">👀</button>${r.escudo?'':`<button class="btn red" data-friend="${esc(r.usuario)}" title="Malón">⚔️</button>`}</div>`).join('');};
   const paint=()=>{sheet('Malón',`<p class="note" style="font-size:13.5px">Atacás una estancia: largás tu tropa, rompen lo que encuentran y te llevás parte de sus pesos y lo que tenía listo para juntar.</p><p>${army?`Llevás ${TORDER.filter(k=>E.tropas[k]).map(k=>`${E.tropas[k]} ${TT[k].e}`).join(' · ')}.`:count('corral')?'No tenés tropa: entrená en el corral.':'Primero necesitás un corral de gauchos (Tienda › Defensa, nivel 2).'}</p>${tab==='compu'?npcHtml():frHtml()}`,
     `<div class="tabs"><button data-tab="compu" class="${tab==='compu'?'on':''}">🤖 La compu</button><button data-tab="amigos" class="${tab==='amigos'?'on':''}">👥 Amigos</button></div>`);
     document.querySelectorAll('#sheet [data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;paint();if(tab==='amigos')loadRiv(paint);});
-    document.querySelectorAll('#sheet [data-npc]').forEach(b=>b.onclick=()=>{if(!army){toast(count('corral')?'Primero entrená tropa en el corral.':'Primero comprá un corral de gauchos.');return;}closeSheet();const L=Number(b.dataset.npc),base=npcBase(L);if(L<=E.npc)base.pesos=Math.floor(base.pesos*ECO.repetirMalon);startBattle(base);});
+    document.querySelectorAll('#sheet [data-npc]').forEach(b=>b.onclick=()=>{if(!army){toast(count('corral')?'Primero entrená tropa en el corral.':'Primero comprá un corral de gauchos.');return;}closeSheet();const L=Number(b.dataset.npc),base=npcBase(L);base.pesos=Math.floor(base.pesos*ECO.malonCompu*(L<=E.npc?ECO.repetirMalon:1));startBattle(base);});
     document.querySelectorAll('#sheet [data-visit]').forEach(b=>b.onclick=async()=>{b.disabled=true;await visitar(b.dataset.visit);b.disabled=false;});
     document.querySelectorAll('#sheet [data-friend]').forEach(b=>b.onclick=async()=>{if(!army){toast('Primero entrená tropa en el corral.');return;}b.disabled=true;try{const v=await fetchFriend(b.dataset.friend);closeSheet();startBattle(v);}catch(e){toast(e.message);b.disabled=false;}});};
   paint();if(tab==='amigos')loadRiv(paint);
@@ -3368,7 +3392,7 @@ function openMenu(){
     <button id="m-help">❓ Cómo se juega</button><button id="m-log">⚔️ Últimos malones</button>
     <button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=estancia">🏆 Tabla</a>
-    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 63</p>`);
+    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 65</p>`);
   $('m-x').onclick=closeSide;$('m-help').onclick=()=>{closeSide();openHelp();};$('m-pj').onclick=()=>{closeSide();openPersonaje();};$('m-ped').onclick=()=>{closeSide();openPedidos();};
   if($('m-pets'))$('m-pets').onclick=()=>{closeSide();openShop('mascotas');};
   $('m-snd').onclick=()=>{SND=!SND;ls.set('estancia-sonido',SND?'1':'0');openMenu();};
@@ -3399,7 +3423,7 @@ function migrar(s){
   s.ofe=s.ofe||null;
   for(const it of s.items)if(CAT[it.k]&&CAT[it.k].up&&!it.n)it.n=1;
   // v63: precios nuevos. A las estancias que ya existían no se les saca nada: la plata y lo comprado quedan; se avisa una vez.
-  if(!s.eco){s.eco=63;if(s.xp>0)s.ecoAviso=1;}
+  if(!(s.eco>=ECO.ver)){if(s.xp>0)s.ecoAviso=1;s.eco=ECO.ver;}
   return s;}
 /* ── Ganancias: lindura, obras que mejoran a otras y la mascota contenta ── */
 function lindura(list=E.items){let s=0;for(const i of list)s+=CAT[i.k]&&CAT[i.k].lin||0;return s;}
@@ -3427,7 +3451,7 @@ function tickPedidos(now=Date.now()){let ch=false;
   while(E.ped.l.length<PED_MAX&&now-E.ped.t>=PED_EVERY){E.ped.t+=PED_EVERY;const p=nuevoPedido(E.ped.t);if(p){E.ped.l.push(p);ch=true;}else break;}
   if(E.ped.l.length>=PED_MAX&&now-E.ped.t>PED_EVERY)E.ped.t=now-PED_EVERY;
   return ch;}
-const pedPaga=p=>Math.round(p.pesos*(1+buffOf('pedidos')+(feriaOn()?.5:0)));
+const pedPaga=p=>Math.round(p.pesos*(1+buffOf('pedidos')+(feriaOn()?ECO.feria:0)));
 const pedListo=p=>Object.entries(p.items).every(([k,q])=>(E.desp[k]||0)>=q);
 const pedListos=()=>E.ped.l.filter(pedListo).length;
 function openPedidos(){tickPedidos();
@@ -3497,6 +3521,7 @@ const PJ_OPTS=[
   {id:'acc:boleadoras',t:'acc',v:'boleadoras',n:'Boleadoras',logro:['estancia','malon1']},{id:'acc:guitarra',t:'acc',v:'guitarra',n:'Guitarra',logro:['uno','gane1']},{id:'acc:farolito',t:'acc',v:'farolito',n:'Farolito',cofre:1},
   {id:'cab:ninguno',t:'cab',v:'ninguno',n:'A pie'},{id:'cab:bayo',t:'cab',v:'bayo',n:'Caballo bayo',lv:4,pesos:1500},{id:'cab:negro',t:'cab',v:'negro',n:'Caballo negro',lv:6,pesos:2500},
   {id:'cab:tobiano',t:'cab',v:'tobiano',n:'Caballo tobiano',logro:['poblar','tropilla']},{id:'cab:blanco',t:'cab',v:'blanco',n:'Caballo blanco',cofre:1}];
+for(const o of PJ_OPTS)if(o.pesos)o.pesos=Math.round(o.pesos*ECO.ropa);
 const PJ_TIPOS=[['som','Sombrero'],['ropa','Ropa'],['botas','Calzado'],['acc','En la mano'],['cab','Caballo']];
 function pjLibre(o){if(E.pj.own.includes(o.id))return true;if(o.cofre||o.pesos)return false;if(o.logro)return lgHas(o.logro[0],o.logro[1]);return !o.lv||E.lv>=o.lv;}
 function pjReq(o){if(o.logro)return `Logro «${lgNombre(o.logro[0],o.logro[1])}» de ${LGN[o.logro[0]]}`;if(o.cofre)return 'Sale en el cofre del día 7';if(o.lv&&E.lv<o.lv)return `Nivel ${o.lv}`;if(o.pesos)return `${fmt(o.pesos)}<i class="co"></i>`;return '';}
@@ -3662,7 +3687,7 @@ const PETS={
   nandu:{n:'Charito (ñandú bebé)',e:'🐣',cost:1200,lv:5,fav:['trigo','maiz','verdura'],cols:['#9a9282'],agua:0}};
 for(const [k,c] of Object.entries(ECO.mascotas))if(PETS[k])PETS[k].cost=c;
 const PET_MAX=3,PET_DECAY={h:6.5,l:4.5,a:5.5,e:5.5};
-const PET_ACC=[{id:'panuelo',n:'Pañuelo',lv:1},{id:'collar',n:'Collar con medalla',lv:2},{id:'mono',n:'Moño',lv:3},{id:'sombrero',n:'Sombrerito',lv:4,pesos:300},{id:'anteojos',n:'Anteojos',lv:6,pesos:500},{id:'boina',n:'Boinita',lv:8}];
+const PET_ACC=[{id:'panuelo',n:'Pañuelo',lv:1},{id:'collar',n:'Collar con medalla',lv:2},{id:'mono',n:'Moño',lv:3},{id:'sombrero',n:'Sombrerito',lv:4,pesos:600},{id:'anteojos',n:'Anteojos',lv:6,pesos:1000},{id:'boina',n:'Boinita',lv:8}];
 const petLv=p=>1+Math.floor(Math.sqrt((p.xp||0)/25));
 // Las barras bajan con el tiempo real, de a poco. Nunca se muere: si la descuidás se pone triste.
 function petStats(p,now=Date.now()){const h=(now-(p.t||now))/HOUR,s={...p.st};
@@ -3714,9 +3739,9 @@ function renderBars(){if(!PETUI)return;const st=petStats(PETUI.p);document.query
 const COMIDA={empanada:32,huevo:28,leche:24,miel:20,verdura:22,fruta:22,lechon:40,queso:34,quesillo:30,pan:36,trigo:14,maiz:18,papa:20,alfalfa:16,pluma:6,harina:12};
 function petAct(a){const U=PETUI,p=U.p,S=PETS[p.s],sub=$('pet-sub');
   if(a==='food'){const opts=Object.keys(COMIDA).filter(k=>(E.desp[k]||0)>0);
-    sub.hidden=false;sub.innerHTML=`<p class="note">¿Qué le das? Sale de tu despensa.${S.fav.length?` Le encanta: ${S.fav.map(k=>DESP[k]?DESP[k].e:'').join(' ')}`:''}</p><div class="foods">${opts.map(k=>`<button class="fd${S.fav.includes(k)?' fav':''}" data-fd="${k}">${DESP[k].e}<small>×${E.desp[k]}</small></button>`).join('')}<button class="fd" data-fd="balanceado">🥣<small>Balanceado · 25<i class="co"></i></small></button></div>`;
+    sub.hidden=false;sub.innerHTML=`<p class="note">¿Qué le das? Sale de tu despensa.${S.fav.length?` Le encanta: ${S.fav.map(k=>DESP[k]?DESP[k].e:'').join(' ')}`:''}</p><div class="foods">${opts.map(k=>`<button class="fd${S.fav.includes(k)?' fav':''}" data-fd="${k}">${DESP[k].e}<small>×${E.desp[k]}</small></button>`).join('')}<button class="fd" data-fd="balanceado">🥣<small>Balanceado · ${ECO.balanceado}<i class="co"></i></small></button></div>`;
     sub.onclick=e=>{const b=e.target.closest('[data-fd]');if(!b)return;const k=b.dataset.fd;let v;
-      if(k==='balanceado'){if(E.pesos<25){toast('No te alcanza la plata.');return;}E.pesos-=25;v=25;}else{if(!(E.desp[k]>0))return;E.desp[k]--;v=COMIDA[k];}
+      if(k==='balanceado'){if(E.pesos<ECO.balanceado){toast('No te alcanza la plata.');return;}E.pesos-=ECO.balanceado;v=25;}else{if(!(E.desp[k]>0))return;E.desp[k]--;v=COMIDA[k];}
       const fav=S.fav.includes(k);petGain(p,'h',v);petGain(p,'a',fav?12:3);p.xp=(p.xp||0)+(fav?4:2);lgEv('mimos');U.anim='eat';U.at=performance.now();U.food=k==='balanceado'?'🥣':DESP[k].e;sfx('harvest');petSay(fav?'¡Le encantó!':'¡Rico!');save();renderBars();sub.hidden=true;};return;}
   sub.hidden=true;
   if(a==='bath'){petGain(p,'l',100);petGain(p,'a',S.agua>0?12:S.agua<0?-6:3);p.xp=(p.xp||0)+3;lgEv('mimos');U.anim='bath';U.at=performance.now();sfx('plant');petSay(S.agua>0?'¡Al agua! Le fascina.':S.agua<0?'No le gustó mucho… pero quedó limpito.':'¡Limpito!');save();renderBars();return;}
@@ -3749,7 +3774,7 @@ function petLoop(){const U=PETUI;if(!U)return;const cv=$('pet-cv');if(!cv){retur
     G.items=G.items.filter(i=>!i.got&&i.y<H2+20);for(const it of G.items)emoji(g,it.e,it.x,it.y,22);
     g.save();g.translate(G.x,cy);g.scale(sc,sc);drawPetBig(g,p,t,true,face,0);g.restore();
     g.fillStyle='rgba(30,26,20,.8)';g.fillRect(12,12,150,30);g.fillStyle='#f2ead8';g.font='700 15px system-ui';g.textAlign='left';g.textBaseline='middle';g.fillText(`⭐ ${G.caught} · ${Math.max(0,Math.ceil((G.dur-el)/1000))} s`,22,27);
-    if(el>=G.dur){const pts=G.caught;U.game=null;$('pet-acts').style.visibility='';petGain(p,'a',Math.min(40,8+pts*3));petGain(p,'e',-12);p.xp=(p.xp||0)+Math.min(20,pts);const pe=pts*4;E.pesos+=pe;lgEv('mimos');sfx('win');petSay(`¡Atrapó ${pts}! Quedó contentísimo. +${pe} 🪙`);save();renderBars();renderHud();}}
+    if(el>=G.dur){const pts=G.caught;U.game=null;$('pet-acts').style.visibility='';petGain(p,'a',Math.min(40,8+pts*3));petGain(p,'e',-12);p.xp=(p.xp||0)+Math.min(20,pts);const dj=dayAR();if(!E.petJ||E.petJ.d!==dj)E.petJ={d:dj,n:0};const pe=E.petJ.n<ECO.mascotaJuegos?pts*ECO.mascotaPorPunto:0;E.petJ.n++;E.pesos+=pe;lgEv('mimos');sfx('win');petSay(`¡Atrapó ${pts}! Quedó contentísimo.${pe?` +${pe} 🪙`:''}`);save();renderBars();renderHud();}}
   else{const k=(now-U.at)/1000;if(U.anim==='happy'&&k<.8)jump=Math.abs(Math.sin(k*Math.PI*2.5))*7;
     g.save();g.translate(cx,cy-jump*sc*.6);g.scale(sc,sc);drawPetBig(g,p,t,false,1,k);g.restore();
     if(U.anim==='eat'&&k<1.2){emoji(g,U.food||'🍖',cx-sc*12+k*sc*4,cy-sc*10-Math.sin(k*3)*sc*3,30*(1-k/1.4));}
@@ -4116,12 +4141,13 @@ async function visitar(u){if(!acct()){toast('Para visitar necesitás tu cuenta d
   try{toast(`Yendo a lo de ${esc(u)}…`);const v=await fetchFriend(u);v.live=true;closeSheet();startVisit(v);}catch(e){toast(e.message);}}
 
 // Una sola vez, a los que ya jugaban: qué cambió con los precios.
-function avisoEco(){if(!$('modal').hidden||BAT){setTimeout(avisoEco,1500);return;}ls.set('estancia-eco63','1');delete E.ecoAviso;save();
-  sheet('Cambiamos los precios',`<div class="big">⚖️</div><p>La estancia daba demasiada plata y todo salía barato. Ahora:</p>
-    <ul class="eco-l"><li>🐔 Los animales y la producción dan menos, hay un máximo de cada uno según tu nivel y cada uno nuevo sale más que el anterior.</li>
-    <li>⬆️ <b>Nuevo:</b> tocá un animal o una obra y <b>mejoralo</b> hasta nivel 5: da más, tarda menos y deja más en la despensa.</li>
-    <li>🟫 Las parcelas tienen un máximo (sube con tu nivel).</li>
-    <li>💰 <b>Tu plata y todo lo que tenés quedan igual.</b> Usala en mejoras, en ampliar el campo o en lo más lindo de la tienda.</li></ul>
+function avisoEco(){if(!$('modal').hidden||BAT){setTimeout(avisoEco,1500);return;}ls.set('estancia-eco'+ECO.ver,'1');delete E.ecoAviso;save();
+  sheet('Cambiamos los precios',`<div class="big">⚖️</div><p>La estancia tiene que costar un esfuerzo: ahora todo da menos y sale más.</p>
+    <ul class="eco-l"><li>🐔 Animales, obras y cosechas dan menos. De cada cosa podés tener pocas (más a medida que subís de nivel) y cada una nueva sale el doble que la anterior.</li>
+    <li>🏷️ Animales, obras, adornos lindos, mascotas, ropa del personaje y ampliar el campo salen bastante más caros.</li>
+    <li>⬆️ Las mejoras de nivel 4 y 5 piden mucho: son para ir juntando de a poco.</li>
+    <li>🎁 Los pedidos, el cofre, las visitas, la feria, los malones a la compu y los regalos de los otros juegos dan menos.</li>
+    <li>💰 <b>Tu plata y todo lo que tenés quedan igual.</b></li></ul>
     <button class="btn go" id="eco-ok">¡Dale!</button>`);$('eco-ok').onclick=closeSheet;}
 (function start(){
   const habia=!!ls.get(KEY);load();if(!habia&&!ls.get(SKEY)){SY.virgen=true;SY.dirty=false;}readCopas();fitScreen();cuentaCambio();
@@ -4130,7 +4156,7 @@ function avisoEco(){if(!$('modal').hidden||BAT){setTimeout(avisoEco,1500);return
   resize();focusLand();renderAll();
   if(pm){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}ls.set(KEY+'-ayuda','1');let q='';try{q=decodeURIComponent(pm[1]);}catch(_){q=pm[1];}setTimeout(()=>pampaMalon(q,pm[2]||''),300);}
   else if(first){ls.set(KEY+'-ayuda','1');setTimeout(openHelp,400);}
-  else if(E.ecoAviso&&ls.get('estancia-eco63')!=='1')setTimeout(avisoEco,500);
+  else if(E.ecoAviso&&ls.get('estancia-eco'+ECO.ver)!=='1')setTimeout(avisoEco,500);
   setInterval(()=>{if(BAT)return;let ch=tick();if(tickPedidos())ch=true;if(tickVisita())ch=true;if(ch)save(true);renderAll();},1000);
   requestAnimationFrame(loop);
   if(window.RANGOS)RANGOS.css();

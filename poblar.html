@@ -26,7 +26,14 @@ button{font:inherit;color:inherit}
 .score{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 /* Los dos bonos de +2, siempre a la vista: de quién son y qué hace falta */
 /* Lo que te hace el otro, contado por el juego (v58): una línea del relato, cartas que vuelan, la carta jugada sobre el tablero */
-.relato{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-radius:12px;background:#1d1610;border-left:4px solid #e0a95a;color:#f6e7cf;font-size:13.5px;line-height:1.35}
+/* v64: el aviso tapa el renglón de estado un rato (no empuja ni achica el tablero); tocalo para sacarlo */
+.stline{position:relative;min-width:0}
+.relato{position:absolute;inset:-2px 0;z-index:2;display:flex;gap:10px;align-items:center;padding:6px 12px;border-radius:12px;background:#1d1610;border-left:4px solid var(--rc,#e0a95a);color:#f6e7cf;font-size:13px;line-height:1.3;overflow:hidden;cursor:pointer;box-shadow:0 4px 14px #0006}
+.relato>span:last-child{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.relato.suave{background:#151c27;border-left-color:#3a4a60;color:#dfe8f3}.relato.suave b{color:#fff}
+.colpick{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 2px}.colpick button{width:38px;height:38px;border-radius:50%;border:3px solid var(--cd);background:var(--cc);padding:0;cursor:pointer;box-shadow:0 0 0 2px transparent}
+.colpick button.on{box-shadow:0 0 0 3px #fff}.colpick button:disabled{opacity:.25;cursor:default}
+.colh{display:block;margin-top:10px}.cdot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--cc);margin-right:6px;flex:none;box-shadow:0 0 0 2px #0006}
 .relato[hidden]{display:none}.relato .ic{font-size:20px;line-height:1.1}.relato b{color:#ffd59a}
 @media (prefers-reduced-motion:no-preference){.relato.nuevo{animation:relIn .35s ease-out}}@keyframes relIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .vuela{position:fixed;z-index:70;pointer-events:none;display:grid;place-items:center;width:44px;height:58px;border-radius:9px;background:#f6ecd8;border:2px solid #8a6a3e;font-size:24px;box-shadow:0 8px 20px #0008}
@@ -68,7 +75,7 @@ svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .act{min-height:54px;border-radius:14px;border:1px solid var(--line);background:#142133;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:4px}
 .act b{font-size:13px}.act small{font-size:11px;color:var(--dim);letter-spacing:.02em}
-.act:disabled{opacity:.38;cursor:default}
+.act:disabled,.act.off{opacity:.38;cursor:default}
 .act.sel{border-color:var(--aqua);background:#173540}
 .wide{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:6px}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.tabs button{min-height:40px;border-radius:12px;border:1px solid var(--line);background:#0f1724;font-weight:800;cursor:pointer}.tabs button.on{border-color:var(--aqua);background:#173540}
@@ -147,7 +154,7 @@ html,body{height:100%;overflow:hidden}
 
 .main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
 .panel{display:contents}
-.score{order:0}.boardcol{order:1}.status{order:2;min-height:40px}.log{order:3}.hand{order:4}.actions{order:5}.wide{order:6}
+.score{order:0}.boardcol{order:1}.stline{order:2}.status{min-height:40px}.log{order:3}.hand{order:4}.actions{order:5}.wide{order:6}
 .boardcol{flex:1 1 0;min-height:150px;display:flex;align-items:center;justify-content:center}
 .boardwrap{flex:none;max-width:100%}
 @media (min-width:760px) and (min-aspect-ratio:1/1),(orientation:landscape) and (max-height:560px){
@@ -579,10 +586,10 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 // ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 function premio(de,xp,ranked){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
-  // v63: para no inflar la estancia, cada partida da su XP en pesos (hasta 300) y, en el mismo día, rinde menos a medida que juntás:
-  // los primeros 600 🪙 enteros, hasta 1.200 a la mitad y después a un cuarto (nunca menos de 5).
+  // v65: para no inflar la estancia, cada partida da la mitad de su XP en pesos (hasta 150) y, en el mismo día, rinde menos a medida
+  // que juntás: los primeros 300 🪙 enteros, hasta 600 a la mitad y después a un cuarto (nunca menos de 5). Iguales a ECO.premio de EstanciAR.
   const d=new Date(),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya=PD.d===dia?PD.n||0:0;
-  const pesos=Math.max(5,Math.round(Math.min(300,n)*(ya<600?1:ya<1200?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
+  const pesos=Math.max(5,Math.round(Math.min(150,Math.round(n*.5))*(ya<300?1:ya<600?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
   const p={de,trigo:0,pesos,t:Date.now()};
   const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
   return {...p,ranked:!!ranked,leguas:ranked?pampaAct(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':de==='AjedrezAR'?'a':'b'):0};
@@ -1036,7 +1043,7 @@ function aplicar(j){const G=D[j];if(!G)return;css();
 function diasHastaLunes(){const w=lunesAR(),next=Date.parse(w+'T03:00:00Z')+7*864e5,ms=next-Date.now(),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/3600e3);return d>=1?`${d} ${d===1?'día':'días'}`:`${Math.max(1,h)} ${h===1?'hora':'horas'}`;}
 function panelHtml(j){const G=D[j];if(!G)return '';css();const o=load(),c=o.c[j]||{},rs=retos(j),tot=G.logros.length,got=G.logros.filter(L=>tiene(o,j,L.id)).length;
   const retH=rs.length?`<section class="lg-sec"><h3>Retos de la semana</h3><p class="lg-lead">Los mismos para todos. Se renuevan el lunes: faltan ${diasHastaLunes()}.</p>
-    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y ${fmt(Math.min(300,r.xp))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
+    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y hasta ${fmt(Math.min(150,Math.round(r.xp*.5)))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
   const logH=`<section class="lg-sec"><h3>Logros <small>${got} de ${tot}</small></h3><div class="lg-list">${G.logros.map(L=>{const on=tiene(o,j,L.id),m=L.m||1,v=Math.min(m,c[L.k]||0);
     return `<div class="lg-l${on?' on':''}"><i>${L.e}</i><div><b>${esc(L.n)}</b><small>${esc(L.d)}</small>${!on&&m>1?`<div class="lg-bar"><i style="width:${(v/m*100).toFixed(1)}%"></i></div><small>${fmt(v)} de ${fmt(m)}</small>`:''}</div>${on?'<em>✓</em>':''}</div>`;}).join('')}</div></section>`;
   const tipos=Object.entries(G.ap);
@@ -1748,6 +1755,14 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:65,grande:true,titulo:'Novedades',items:[
+    ['🎲','PoblAR: dados parejos. Los números salen en la proporción justa (el 6 y el 8 son los más comunes) y no hay rachas raras del mismo número.'],
+    ['🎴','UnoAR: reparto parejo, ya no te tocan manos casi todas del mismo color.'],
+    ['🐎','EstanciAR: las cosas cuestan más y se gana menos: progresar lleva su esfuerzo. Lo que ya tenés queda igual.']]},
+  {v:64,grande:true,titulo:'Novedades',items:[
+    ['🎨','PoblAR: cada jugador tiene su color, el mismo en todos los celulares. Lo elegís al armar la partida.'],
+    ['🧭','PoblAR: el tablero ya no se gira, y los avisos aparecen abajo del tablero sin taparlo.'],
+    ['🛠️','PoblAR: si no podés construir, te dice por qué; y un cambio que llega tarde ya no deja a nadie con recursos en negativo.']]},
   {v:63,grande:true,titulo:'Novedades',items:[
     ['♟️','Nuevo: AjedrezAR. Con reloj (bala, blitz, rápida), sin reloj o distendido: cada uno mueve cuando puede, te avisa por el chat cuando te toca y podés tener varias partidas a la vez.'],
     ['📌','Fijá tus juegos favoritos arriba de todo (📌 Favoritos o mantené apretado un juego).'],
@@ -1909,8 +1924,7 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
     <div class="pl" id="pl1" style="--pc:var(--cpu)"><i></i><div><b id="pn1">La compu</b><small id="ps1"></small></div><div class="vp"><span id="vp1">0</span><small>/8</small></div></div>
     <div class="bonos" id="bonos" aria-live="polite"></div>
   </div>
-  <div class="relato" id="relato" hidden role="status" aria-live="polite"></div>
-  <div class="status" id="status"></div>
+  <div class="stline" id="stline"><div class="status" id="status"></div><div class="relato" id="relato" hidden role="status" aria-live="polite"></div></div>
   <div class="log" id="log"></div>
   <div class="hand" id="hand"></div>
   <div class="actions">
@@ -2011,6 +2025,7 @@ function newGame(seed=(Math.random()*2**32)>>>0,opt={}){
     // Armado en serpiente: 1-2-3-4 y de vuelta 4-3-2-1 (de a 2 queda como siempre: A B B A)
     longest:null,longLen:Array(n).fill(0),turn:first,first,setup:[...order,...order.slice().reverse()],setupStep:0,setupPhase:'ranch',lastRanch:null,
     phase:'setup',dice:null,winner:null,log:[],rolls:0};
+  {const ks=asignarCols(n,opt.cols||[miCol()]);G.p.forEach((x,i)=>{x.col=ks[i];if(x.bot&&BOTN.includes(x.name))x.name='Compu '+COLFEM[ks[i]];});}
   addLog(`Empieza ${first===0?'vos':G.p[first].name}.`);
   if(opt.quiet)return;
   save();render();next();
@@ -2021,7 +2036,9 @@ const hidden=p=>G.p[p].dev.filter(c=>c.k==='procer').length;
 const shown=p=>G.p[p].ranch+2*G.p[p].town+(G.longest===p?2:0)+(G.army===p?2:0);
 const vp=p=>shown(p)+hidden(p);
 const can=(p,what)=>Object.entries(COST[what]).every(([r,n])=>G.p[p].hand[r]>=n);
-function pay(p,what){for(const [r,n] of Object.entries(COST[what]))G.p[p].hand[r]-=n;}
+function pay(p,what){for(const [r,n] of Object.entries(COST[what]))G.p[p].hand[r]-=n;sanoMano('pay '+what);}
+// Red de seguridad: ningún recurso queda negativo. Si pasara (un estado viejo, una carrera en línea), se corrige y se anota en la consola.
+function sanoMano(donde){if(!G||!G.p)return false;let mal=false;for(const [i,pl] of G.p.entries())for(const r of RES){const v=pl&&pl.hand?pl.hand[r]:0;if(!(v>=0)){mal=true;console.warn('[PoblAR] recurso negativo corregido',{donde,jugador:i,recurso:r,valor:v});pl.hand[r]=0;}}if(mal)window.POB_NEG=(window.POB_NEG||0)+1;return mal;}
 function addLog(t){G.log.push(t);if(G.log.length>60)G.log.shift();renderLog();}
 function save(){if(ON&&ON.state==='on'){sendState();return;}if(ON)return;try{localStorage.setItem(SAVE,JSON.stringify(G));}catch(_){}}
 
@@ -2057,7 +2074,7 @@ function updateLongest(){
   const top=c=>{if(!c.length)return null;const m=Math.max(...c.map(p=>L[p])),t=c.filter(p=>L[p]===m);return t.length===1?t[0]:undefined;};
   if(h===null||L[h]<5){const t=top(seats().filter(p=>L[p]>=5));G.longest=t===undefined?null:t;}
   else{const t=top(others(h).filter(p=>L[p]>L[h]));if(t!==null&&t!==undefined)G.longest=t;}
-  if(G.longest!==prev&&G.longest!==null){addLog(`🛣️ ${W(G.longest)} ${V(G.longest,'tenés','tiene')} el camino más largo (+2).`);banner(`🛣️ CAMINO MÁS LARGO · ${G.p[G.longest].name.toUpperCase()}`);}
+  if(G.longest!==prev&&G.longest!==null){addLog(`🛣️ ${W(G.longest)} ${V(G.longest,'tenés','tiene')} el camino más largo (+2).`);banner(`🛣️ Camino más largo: ${G.p[G.longest].name}`);}
 }
 const who=p=>p===0?'Vos':G.p[p].name;
 // El otro: de a 2, el rival; de a más, el que está jugando (o el que ganó).
@@ -2100,9 +2117,21 @@ function build(p,kind,at){
   checkWin();save();render();
 }
 function checkWin(){for(const p of seats())if(vp(p)>=goal()&&G.phase!=='over'){G.phase='over';G.winner=p;addLog(p===0&&!ON?'🏆 ¡Ganaste!':`🏆 ${W(p)} ganó.`);save();render();setTimeout(showEnd,500);}}
+/* Dados parejos (v65): como un mazo con las 36 combinaciones de dos dados. Cada tirada saca una al azar y, cuando quedan
+   pocas, se vuelve a mezclar el mazo entero. Así, en pocas tiradas los números salen en la proporción que tienen que salir
+   (el 6 y el 8 son los más comunes, el 2 y el 12 los menos) y no hay rachas raras de un mismo número. El mazo viaja con la
+   partida (G.dm), así que en línea es el mismo para todos. */
+function tirarParejo(){
+  const R=()=>{try{const u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]/4294967296;}catch(_){return Math.random();}};
+  if(!Array.isArray(G.dm)||G.dm.length<=6){G.dm=[];for(let a=1;a<=6;a++)for(let b=1;b<=6;b++)G.dm.push(a*10+b);}
+  // evita el mismo total tres veces seguidas (salvo que no quede otra)
+  const ult=G.dmU||[];let i=Math.floor(R()*G.dm.length);
+  for(let k=0;k<8&&ult.length>=2&&ult[0]===ult[1];k++){const c=G.dm[i];if(Math.floor(c/10)+c%10!==ult[0])break;i=Math.floor(R()*G.dm.length);}
+  const c=G.dm.splice(i,1)[0],d=[Math.floor(c/10),c%10];G.dmU=[d[0]+d[1],...ult].slice(0,2);return d;
+}
 async function roll(){
   if(!G||G.phase!=='roll')return;
-  const d=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],n=d[0]+d[1];G.dice=d;G.diceBy=G.turn;G.rolls++;
+  const d=tirarParejo(),n=d[0]+d[1];G.dice=d;G.diceBy=G.turn;G.rolls++;
   addLog(`${W(G.turn)} ${V(G.turn,'sacaste','sacó')} ${n}.`);
   if(n===7){
     G.phase='robber';G.after='main';G.disc={};
@@ -2116,7 +2145,7 @@ async function roll(){
         else addLog(`Tenías ${c} cartas y descartaste ${lose}.`);}
       else{G.disc[p]=lose;if(p!==0){rival=`${G.p[p].name} elige ${lose} para descartar`;parts.push(`${G.p[p].name} elige ${lose}`);}}}
     if(Object.keys(G.disc).length){G.phase='discard';G.discardN=G.disc[0]||0;}
-    banner(`🤠 7 · ${(NP()===2?rival:parts.length?'descartan: '+parts.join(', '):'nadie más descarta').toUpperCase()}`);
+    banner(`🤠 Salió 7 · ${NP()===2?rival:parts.length?'descartan: '+parts.join(', '):'nadie más descarta'}`);
     if(G.phase==='discard'){save();render(true);if(dn(0)&&!G.p[0].bot)openDiscard();next();return;}
   }else{
     const got=seats().map(hand0);
@@ -2161,7 +2190,12 @@ function contar(a){
     if(a.r&&a.r.length){const destino=a.k==='siete'?$('dice-zone')||$('boardwrap'):$('pl'+(a.de??1))||$('pl1');a.r.forEach((r,i)=>setTimeout(()=>vuela(r,$('c-'+r),destino),i*140));}},delay);
 }
 let RELT=0;
-function relato(e,t,txt){const el=$('relato');if(!el)return;el.innerHTML=`<span class="ic">${e}</span><span><b>${escHtml(t)}</b>${txt?' · '+escHtml(txt):''}</span>`;el.hidden=false;el.classList.remove('nuevo');void el.offsetWidth;el.classList.add('nuevo');clearTimeout(RELT);RELT=setTimeout(()=>{el.hidden=true;},9000);}
+// Lo que te hacen (importante): se queda 7 s. Lo que pasa en la mesa (suave): 3,5 s y no pisa algo importante que se esté leyendo.
+let RELIMP=0;
+function relato(e,t,txt,suave=false){const el=$('relato');if(!el)return;if(suave&&Date.now()<RELIMP)return;
+  el.innerHTML=`<span class="ic">${e}</span><span><b>${escHtml(t)}</b>${txt?' · '+escHtml(txt):''}</span>`;el.classList.toggle('suave',!!suave);el.hidden=false;el.classList.remove('nuevo');void el.offsetWidth;el.classList.add('nuevo');
+  const ms=suave?3500:7000;if(!suave)RELIMP=Date.now()+ms;clearTimeout(RELT);RELT=setTimeout(()=>{el.hidden=true;},ms);}
+function nota(e,t){relato(e,t,'',true);}
 // Una carta que viaja de un lugar de la pantalla a otro (de tu mano al otro, o al descarte).
 function vuela(r,from,to){
   if(!from||!to||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -2190,7 +2224,7 @@ function moveRobber(p,hex,victim){
       txt+=ON?` y le robó una carta a ${W(o)}`:p===0?` y le robaste ${RI[r].e}${two?'':' a '+on}`:o===0?` y te robó ${RI[r].e}`:` y le robó una carta a ${on}`;
       aviso(o,'🤠',`${nombreReal(p)} te robó 1 ${RI[r].e}`,`mandó al cuatrero a ${RI[B.hexes[hex].res].hex.toLowerCase()} y te sacó una carta al azar. Ese terreno no produce mientras el cuatrero esté ahí.`,{k:'robo',r:[r],de:p});
       if(p===0)setTimeout(()=>vuela(r,$('pl'+o),$('c-'+r)),60);
-      banner(p===0?`🤠 LE ROBASTE 1 ${RI[r].e} A ${on.toUpperCase()}`:o===0?`🤠 ${G.p[p].name.toUpperCase()} TE ROBÓ 1 ${RI[r].e}`:`🤠 ${G.p[p].name.toUpperCase()} LE ROBÓ A ${on.toUpperCase()}`);}
+      if(o!==0)banner(p===0?`🤠 Le robaste 1 ${RI[r].e} a ${on}`:`🤠 ${G.p[p].name} le robó a ${on}`);}
     else txt+=ON?` (${W(o)} no tenía cartas)`:p===0?' (no tenía cartas para robarle)':o===0?' (no tenías cartas)':` (${on} no tenía cartas)`;}
   addLog(txt+'.');G.byGaucho=false;G.phase=G.after||'main';G.after=null;checkWin();save();render();
 }
@@ -2207,7 +2241,7 @@ function playDev(p,i,arg){
   G.p[p].dev.splice(i,1);G.devUsed=true;if(p===0)lgEv('cartas');const o=NP()===2?1-p:null,os=others(p);
   addLog(`${W(p)} ${V(p,'jugaste','jugó')} ${DEV[c.k].e} ${DEV[c.k].n}.`);
   const fx=c.k==='gaucho'?'mueve al cuatrero':c.k==='obra'?'2 caminos gratis':c.k==='cosecha'?(Array.isArray(arg)?'toma '+arg.map(r=>RI[r].e).join(''):'2 recursos'):c.k==='acopio'&&RI[arg]?(NP()>2?(p===0?'te llevás todas las '+RI[arg].e:'se lleva todas las '+RI[arg].e):p===0?'te llevás sus '+RI[arg].e:'se lleva tus '+RI[arg].e):'';
-  banner(`${DEV[c.k].e} ${p===0?'':G.p[p].name.toUpperCase()+' JUGÓ '}${DEV[c.k].n.toUpperCase()}${fx?' · '+fx.toUpperCase():''}`);
+  banner(`${DEV[c.k].e} ${p===0?'Jugaste ':G.p[p].name+' jugó '}${DEV[c.k].n}${fx?' · '+fx:''}`);
   if(p!==0&&!ON)cartaGrande(c.k,G.p[p].name,1);else for(const q of os){if(c.k!=='acopio'&&c.k!=='gaucho')aviso(q,DEV[c.k].e,`${nombreReal(p)} jugó ${DEV[c.k].n}`,fx||'',{carta:c.k,quien:nombreReal(p),de:p});else if(c.k==='gaucho')aviso(q,'🐎',`${nombreReal(p)} jugó Gaucho`,'mueve al cuatrero',{carta:'gaucho',quien:nombreReal(p),de:p});}
   if(c.k==='gaucho'){G.p[p].gauchos++;updateArmy();G.after=G.phase;G.phase='robber';G.byGaucho=true;}
   else if(c.k==='obra'){G.free=Math.min(2,LIMIT.road-G.p[p].road);if(!roadSpots(p).length)G.free=0;if(p===0&&G.free)mode='road';}
@@ -2222,7 +2256,7 @@ function playDev(p,i,arg){
 function updateArmy(){
   const g=seats().map(p=>G.p[p].gauchos||0),prev=G.army;
   for(const p of seats())if(g[p]>=3&&G.army!==p&&(G.army===null?others(p).every(q=>g[p]>g[q]):g[p]>g[G.army]))G.army=p;
-  if(G.army!==prev){addLog(`🐎 ${W(G.army)} ${V(G.army,'tenés','tiene')} la tropilla más grande (+2).`);banner(`🐎 TROPILLA MÁS GRANDE · ${G.p[G.army].name.toUpperCase()}`);}
+  if(G.army!==prev){addLog(`🐎 ${W(G.army)} ${V(G.army,'tenés','tiene')} la tropilla más grande (+2).`);banner(`🐎 Tropilla más grande: ${G.p[G.army].name}`);}
 }
 /* ── Cambios con el rival ── */
 // Cuánto le sirve a la compu cada recurso según lo que le falta para construir.
@@ -2242,7 +2276,9 @@ for(const r of RES)if(G.p[b].hand[r]<want[r])return {ok:false,why:'No tengo esas
   const k={facil:.85,normal:1.1,dificil:1.35}[G.diff]||1.1;
   return inV>=outV*k?{ok:true}:{ok:false,why:'Mmm, no me conviene.'};
 }
-function swapCards(give,want,t=1){lgEv('cambios');for(const r of RES){G.p[0].hand[r]-=give[r];G.p[t].hand[r]+=give[r];G.p[t].hand[r]-=want[r];G.p[0].hand[r]+=want[r];}
+// v64: el cambio se hace sólo si los dos todavía tienen esas cartas (en línea la respuesta puede llegar tarde).
+const puedeCambiar=(give,want,t)=>!!(G&&G.p[0]&&G.p[t]&&RES.every(r=>G.p[0].hand[r]>=(give[r]||0)&&G.p[t].hand[r]>=(want[r]||0)));
+function swapCards(give,want,t=1){if(!puedeCambiar(give,want,t)){addLog('El cambio no se hizo: alguno ya no tenía esas cartas.');render();return false;}lgEv('cambios');for(const r of RES){G.p[0].hand[r]-=give[r];G.p[t].hand[r]+=give[r];G.p[t].hand[r]-=want[r];G.p[0].hand[r]+=want[r];}
   const f=o=>RES.filter(r=>o[r]).map(r=>`${o[r]}${RI[r].e}`).join(' ');addLog(ON?`🤝 ${W(0)} cambió con ${W(t)}: dio ${f(give)} y recibió ${f(want)}.`:`🤝 Cambio con ${quien(t)}: das ${f(give)} y recibís ${f(want)}.`);save();render();}
 
 /* ── Turno de la compu ── */
@@ -2340,7 +2376,7 @@ async function botOffer(p,alive=()=>true){
     G.offers++;const give=spare[0];
     const yes=await askOffer(give,want,G.p[p].name,g);
     if(!alive())return false;
-    if(yes){const gv=hand0(),wv=hand0();gv[want]=1;wv[give]=1;swapCards(gv,wv,p);return true;}
+    if(yes){const gv=hand0(),wv=hand0();gv[want]=1;wv[give]=1;return swapCards(gv,wv,p)!==false;}
     addLog(`No aceptaste el cambio de ${quien(p)}.`);return false;}
   return false;
 }
@@ -2380,8 +2416,9 @@ function targets(){
   if(mode==='town')return {v:townSpots(p),e:[],h:[]};
   return {v:[],e:[],h:[]};
 }
+let TAPN=0;
 function onBoardTap(kind,i){
-  if(G.turn!==0)return;
+  TAPN++;if(G.turn!==0)return;
   if(G.phase==='robber'&&kind==='h'){const vs=victimsAt(i,0);if(vs.length>1){pickVictim(i,vs);return;}moveRobber(0,i);mode=G.free>0?'road':null;render();return;}
   if(G.phase==='setup'){build(0,G.setupPhase,i);return;}
   if(mode&&(kind==='v'||kind==='e')){const m=mode;mode=null;build(0,m,i);}
@@ -2390,7 +2427,7 @@ function onBoardTap(kind,i){
 // En un terreno con más de un rival, elegís a quién robarle.
 function pickVictim(hex,vs){
   openModal(`<h2>🤠 ¿A quién le robás?</h2><p>En ${RI[B.hexes[hex].res].hex.toLowerCase()} hay ${vs.length} rivales. Elegí a quién sacarle una carta (sale al azar de su mano).</p>
-    <div class="vpick" id="vk">${vs.map(o=>`<button data-o="${o}" style="--pc:${PC[o]}"><i></i><b>${escHtml(G.p[o].name)}</b><small>${cards(o)} carta${cards(o)===1?'':'s'} · ${shown(o)} punto${shown(o)===1?'':'s'}</small></button>`).join('')}</div>
+    <div class="vpick" id="vk">${vs.map(o=>`<button data-o="${o}" style="--pc:${PCo(o)}"><i></i><b>${escHtml(G.p[o].name)}</b><small>${cards(o)} carta${cards(o)===1?'':'s'} · ${shown(o)} punto${shown(o)===1?'':'s'}</small></button>`).join('')}</div>
     <div class="row"><button class="pill" id="vk-x">Elegir otro lugar</button></div>`);
   $('vk').onclick=e=>{const b=e.target.closest('button[data-o]');if(!b)return;closeModal();if(G.phase!=='robber'||G.turn!==0)return;moveRobber(0,hex,Number(b.dataset.o));mode=G.free>0?'road':null;render();};
   $('vk-x').onclick=closeModal;
@@ -2402,7 +2439,19 @@ function pickVictim(hex,vs){
    se arma una sola vez por tablero; en cada jugada sólo se redibujan las piezas. */
 const NS='http://www.w3.org/2000/svg';
 function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
-const PC=['#4fc3f7','#e5383b','#f39c34','#a06ae0'],PCD=['#0d5f86','#7d1216','#8a4a08','#4b2580'];
+// v64: cada jugador tiene SU color toda la partida, el mismo en todos los celulares (viaja en G.p[i].col).
+const COLS={celeste:{n:'Celeste',c:'#4fc3f7',d:'#0d5f86',t:'#04263a'},rojo:{n:'Rojo',c:'#e5383b',d:'#7d1216',t:'#fff'},naranja:{n:'Naranja',c:'#f39c34',d:'#8a4a08',t:'#3a1d00'},
+  violeta:{n:'Violeta',c:'#a06ae0',d:'#4b2580',t:'#fff'},blanco:{n:'Blanco',c:'#eef0f3',d:'#5b6474',t:'#1b2230'},rosa:{n:'Rosa',c:'#ff6fae',d:'#8a1f52',t:'#3a0a20'}};
+const COLK=Object.keys(COLS),COLFEM={celeste:'celeste',rojo:'roja',naranja:'naranja',violeta:'violeta',blanco:'blanca',rosa:'rosa'};
+const miCol=()=>{try{const c=localStorage.getItem('poblar-color');return COLS[c]?c:'celeste';}catch(_){return 'celeste';}};
+// Reparte colores sin repetir: cada uno el que pidió si está libre (en orden de asiento), si no el primero libre.
+function asignarCols(n,quiero){const out=[],us=new Set();
+  for(let i=0;i<n;i++){const q=quiero&&quiero[i];if(q&&COLS[q]&&!us.has(q)){out[i]=q;us.add(q);}}
+  for(let i=0;i<n;i++)if(!out[i]){const k=COLK.find(k=>!us.has(k));out[i]=k;us.add(k);}return out;}
+// Partidas guardadas o mandadas por un PoblAR anterior (sin colores): se los pone una vez.
+function fixCols(g){if(!g||!g.p||g.p.every(x=>x&&COLS[x.col]))return;const ks=asignarCols(g.p.length,g.p.map((x,i)=>x.col||(i===0?miCol():null)));g.p.forEach((x,i)=>{x.col=ks[i];});}
+const CK=p=>G&&G.p[p]&&COLS[G.p[p].col]?G.p[p].col:COLK[p]||'celeste';
+const PCo=p=>COLS[CK(p)].c,PCDo=p=>COLS[CK(p)].d,PCT=p=>COLS[CK(p)].t;
 const TERR={
   madera:{base:'#2f7d43',dark:'#1d5230',pat:`<pattern id="p-madera" width="26" height="24" patternUnits="userSpaceOnUse"><path d="M7 19 l6-12 l6 12z" fill="#1c5a30"/><path d="M8.5 13 l4.5-8 l4.5 8z" fill="#2a8a45"/><rect x="12" y="19" width="2" height="3" fill="#5b3a1e"/></pattern>`},
   ladrillo:{base:'#c4602f',dark:'#7f3416',pat:`<pattern id="p-ladrillo" width="22" height="12" patternUnits="userSpaceOnUse"><path d="M0 0.75H22M0 6.75H22M5 0v6M16 6v6" stroke="#8c3a17" stroke-width="1.6" fill="none"/></pattern>`},
@@ -2496,16 +2545,16 @@ function drawBoard(){
   RB.edges.forEach((e,i)=>{if(G.road[i]===null)return;const A=RB.verts[e.a],C=RB.verts[e.b],o=G.road[i];
     const ax=A.x+(C.x-A.x)*.14,ay=A.y+(C.y-A.y)*.14,cx=C.x+(A.x-C.x)*.14,cy=C.y+(A.y-C.y)*.14;
     el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:'#fff','stroke-width':14,'stroke-linecap':'round'},top);
-    el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PCD[o],'stroke-width':10,'stroke-linecap':'round'},top);
-    el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PC[o],'stroke-width':6,'stroke-linecap':'round'},top);});
+    el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PCDo(o),'stroke-width':10,'stroke-linecap':'round'},top);
+    el('line',{x1:ax,y1:ay,x2:cx,y2:cy,stroke:PCo(o),'stroke-width':6,'stroke-linecap':'round'},top);});
   // Ranchos y pueblos
   RB.verts.forEach((v,i)=>{const o=G.owner[i];if(o===null)return;const g=el('g',{filter:'url(#f-sombra)'},top),x=v.x,y=v.y;
-    if(G.town[i]){el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PC[o],stroke:'#fff','stroke-width':5,'stroke-linejoin':'round'},g);
-      el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PC[o],stroke:PCD[o],'stroke-width':2.2,'stroke-linejoin':'round'},g);
-      el('rect',{x:x-11,y:y+2,width:5,height:6,fill:PCD[o]},g);el('rect',{x:x+3,y:y-6,width:4,height:5,fill:PCD[o]},g);}
-    else{el('path',{d:`M${x-11},${y+10} v-10 l11,-10 l11,10 v10 z`,fill:PC[o],stroke:'#fff','stroke-width':5,'stroke-linejoin':'round'},g);
-      el('path',{d:`M${x-11},${y+10} v-10 l11,-10 l11,10 v10 z`,fill:PC[o],stroke:PCD[o],'stroke-width':2.2,'stroke-linejoin':'round'},g);
-      el('rect',{x:x-3,y:y+2,width:6,height:8,fill:PCD[o]},g);}
+    if(G.town[i]){el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PCo(o),stroke:'#fff','stroke-width':5,'stroke-linejoin':'round'},g);
+      el('path',{d:`M${x-17},${y+12} v-14 l9,-8 l9,8 v-9 l5,-5 l5,5 v23 z`,fill:PCo(o),stroke:PCDo(o),'stroke-width':2.2,'stroke-linejoin':'round'},g);
+      el('rect',{x:x-11,y:y+2,width:5,height:6,fill:PCDo(o)},g);el('rect',{x:x+3,y:y-6,width:4,height:5,fill:PCDo(o)},g);}
+    else{el('path',{d:`M${x-11},${y+10} v-10 l11,-10 l11,10 v10 z`,fill:PCo(o),stroke:'#fff','stroke-width':5,'stroke-linejoin':'round'},g);
+      el('path',{d:`M${x-11},${y+10} v-10 l11,-10 l11,10 v10 z`,fill:PCo(o),stroke:PCDo(o),'stroke-width':2.2,'stroke-linejoin':'round'},g);
+      el('rect',{x:x-3,y:y+2,width:6,height:8,fill:PCDo(o)},g);}
   });
   // Lugares que se pueden tocar
   T.h.forEach(hi=>{const h=RB.hexes[hi];const p=el('polygon',{points:hexPts(h,.93),class:'hexhit on'},top);p.addEventListener('click',()=>onBoardTap('h',hi));});
@@ -2523,7 +2572,7 @@ function handDelta(){
   return now-HD.t<4000?HD.d:{};
 }
 // Color de cada uno en pantalla (vos, siempre celeste)
-const pcol=p=>p===0?'var(--me)':p===1?'var(--cpu)':PC[p];
+const pcol=p=>PCo(p);
 function ensurePanels(){
   const n=NP(),sc=document.querySelector('.score');if(sc.dataset.n===String(n))return;sc.dataset.n=n;
   sc.classList.toggle('multi',n>2);sc.style.setProperty('--np',n);sc.querySelectorAll('.pl').forEach(e=>e.remove());const bon=$('bonos');
@@ -2543,11 +2592,11 @@ function lgFin(){if(!LG()||!G||G.phase!=='over')return '';const amigo=!!ON&&G.p.
   if(LG_FIN&&LG_FIN.key===key)return LG_FIN.html;
   try{LG_FIN={key,html:LOGROS.fin('poblar',{gano:G.winner===0,modo:amigo?'online':'compu',dif:G.diff,n:NP()},key).html};return LG_FIN.html;}catch(e){console.warn('logros',e);return '';}}
 function render(rolled=false){
-  if(!G)return;ensurePanels();drawBoard();fitBoard();try{mostrarAvisos();}catch(_){}try{soundDiff();}catch(_){}try{lgRender();}catch(_){}
+  if(!G)return;sanoMano('render');ensurePanels();drawBoard();fitBoard();try{mostrarAvisos();}catch(_){}try{soundDiff();}catch(_){}try{lgRender();}catch(_){}
   const multi=NP()>2;
   // De a 3 o 4 el panel es chico: «Compu roja» se ve como «Roja» (el color ya dice que es esa)
   const corto=p=>multi?String(G.p[p].name).replace(/^Compu (\w)/,(_,c)=>c.toUpperCase()):G.p[p].name;
-  for(const p of seats()){$('pn'+p).textContent=corto(p);$('pl'+p).title=G.p[p].name;$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(p);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
+  for(const p of seats()){$('pl'+p).style.setProperty('--pc',PCo(p));$('pn'+p).textContent=corto(p);$('pl'+p).title=G.p[p].name;$('vp'+p).textContent=p===0||G.phase==='over'?vp(p):shown(p);$('pl'+p).classList.toggle('turn',G.turn===p&&G.phase!=='over');
     $('pl'+p).classList.toggle('desc',G.phase==='discard'&&!!dn(p));
     const bits=[multi?`🎴${cards(p)}`:`${cards(p)} cartas`];if(G.p[p].dev.length&&p!==0)bits.push(`🃏${G.p[p].dev.length}`);if(G.longest===p)bits.push('🛣️+2');else if(G.longLen[p]>=3)bits.push(`🛣️${G.longLen[p]}`);if(G.army===p)bits.push('🐎+2');else if(G.p[p].gauchos)bits.push(`🐎${G.p[p].gauchos}`);$('ps'+p).textContent=bits.join(multi?' ':' · ');}
   {const nom=p=>p===0?'Vos':G.p[p].name,col=pcol,L=G.longLen||[],Gc=seats().map(p=>G.p[p].gauchos||0);
@@ -2557,7 +2606,7 @@ function render(rolled=false){
   const mine=G.turn===0&&G.phase==='main';const wait=G.phase==='discard'?others(0).filter(q=>dn(q)):[];
   for(const [id,k] of [['b-road','road'],['b-ranch','ranch'],['b-town','town']]){const b=$(id);
     const spots=k==='road'?roadSpots(0):k==='ranch'?ranchSpots(0):townSpots(0);
-    b.disabled=!(mine&&(can(0,k)||(k==='road'&&G.free>0))&&G.p[0][k]<LIMIT[k]&&spots.length);b.classList.toggle('sel',mode===k);}
+    const off=!(mine&&(can(0,k)||(k==='road'&&G.free>0))&&G.p[0][k]<LIMIT[k]&&spots.length);b.disabled=false;b.classList.toggle('off',off);b.setAttribute('aria-disabled',String(off));b.classList.toggle('sel',mode===k);}
   $('b-trade').disabled=!mine;
   {const n=G.p[0].dev.length,ok=G.turn===0&&['roll','main'].includes(G.phase);$('b-dev').disabled=!ok;$('b-dev').textContent=n?`🃏 Cartas (${n})`:'🃏 Cartas';}
   const main=$('b-main');
@@ -2571,7 +2620,7 @@ function render(rolled=false){
   else if(G.phase==='discard'){main.textContent='ESPERANDO EL DESCARTE…';main.disabled=true;}
   else{main.textContent=mode?'CANCELAR':'TERMINAR TURNO';main.disabled=false;}
   // Línea de estado
-  const by=G.diceBy??G.turn,st=$('status'),d=G.dice?`<span class="dice" title="Tiró ${by===0?'vos':escHtml(G.p[by]?.name||'')}"><span class="die p${by}${rolled?' roll':''}">${G.dice[0]}</span><span class="die p${by}${rolled?' roll':''}">${G.dice[1]}</span></span>`:'';
+  const by=G.diceBy??G.turn,st=$('status'),d=G.dice?`<span class="dice" title="Tiró ${by===0?'vos':escHtml(G.p[by]?.name||'')}"><span class="die${rolled?' roll':''}" style="background:${PCo(by)};color:${PCT(by)};box-shadow:0 0 0 2px ${PCDo(by)} inset">${G.dice[0]}</span><span class="die${rolled?' roll':''}" style="background:${PCo(by)};color:${PCT(by)};box-shadow:0 0 0 2px ${PCDo(by)} inset">${G.dice[1]}</span></span>`:'';
   let msg='';
   const lista=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' y '+a[a.length-1];
   if(G.phase==='over')msg=G.winner===0?'🏆 ¡Ganaste!':`${escHtml(G.p[G.winner]?.name||rivalName())} ganó esta vez.`;
@@ -2591,23 +2640,22 @@ function floatGains(n,got){
   RB.hexes.forEach((h,hi)=>{if(h.num!==n||hi===G.robber)return;const f=document.createElement('div');f.className='float';f.textContent='+'+RI[h.res].e;f.style.left=(bb.left-wr.left+(h.x-vb.x)*sc)+'px';f.style.top=(bb.top-wr.top+(h.y-vb.y)*sc)+'px';wrap.appendChild(f);setTimeout(()=>f.remove(),1300);});
   setTimeout(()=>{for(const r of RES)if(got[0][r])$('c-'+r)?.classList.add('bump');},30);
 }
-function banner(t){const w=$('boardwrap');let box=w.querySelector('.banners');if(!box){box=document.createElement('div');box.className='banners';w.appendChild(box);}
-  const b=document.createElement('div');b.className='banner';b.textContent=t;box.appendChild(b);while(box.children.length>3)box.firstChild.remove();setTimeout(()=>b.remove(),2600);}
+function banner(t){const m=/^(\p{Extended_Pictographic}\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*)\s*/u.exec(t);nota(m?m[1]:'📣',m?t.slice(m[0].length):t);}
 
 /* ── Ventanas: cambiar, ayuda, final ── */
 function openModal(html){$('sheet').innerHTML=html;$('modal').hidden=false;}
 function openSide(html){$('side-panel').innerHTML=html;$('side').hidden=false;}
 function closeSide(){$('side').hidden=true;}
 $('side').addEventListener('click',e=>{if(e.target.id==='side')closeSide();});
+$('relato').addEventListener('click',()=>{$('relato').hidden=true;RELIMP=0;});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('side').hidden)closeSide();else if(!$('modal').hidden&&$('sheet').querySelector('#fl-x,#m-x,#n-no'))closeModal();}});
 // El tablero toma el lugar que queda libre, sin pasarse de ancho ni de alto (nada de scrollear para jugar).
 function fitBoard(){
   const col=$('boardcol'),bw=$('boardwrap');
   if(G&&B&&col.clientWidth&&col.clientHeight){
-    const cw=col.clientWidth,ch=col.clientHeight,keep=ROT;
-    ROT=false;const a=boardBox();const s0=Math.min(cw/a.w,ch/a.h);ROT=true;const b=boardBox();const s1=Math.min(cw/b.w,ch/b.h);
-    ROT=keep;setRB();const want=keep?s0<s1*1.03?true:false:s1>s0*1.04;
-    if(want!==ROT){ROT=want;drawBoard();}
+    // v64: el tablero queda siempre igual (misma orientación en todos los celulares); antes se giraba 90° si así entraba mejor,
+    // y cuando aparecía o se iba un aviso cambiaba el lugar libre y se daba vuelta un momento.
+    if(ROT){ROT=false;setRB();drawBoard();}
   }
   const vb=$('board').viewBox.baseVal;if(!vb||!vb.width)return;
   const ar=vb.width/vb.height,w=Math.floor(Math.min(col.clientWidth,col.clientHeight*ar));
@@ -2623,14 +2671,17 @@ function zApply(){const w=$('boardwrap'),W=w.clientWidth,H=w.clientHeight,on=ZM.
 function zTo(s,cx,cy){const k=s/ZM.s;ZM.x=cx-(cx-ZM.x)*k;ZM.y=cy-(cy-ZM.y)*k;ZM.s=s;zApply();}
 function zReset(){ZM.s=1;ZM.x=0;ZM.y=0;zApply();}
 {const w=$('boardwrap'),P=new Map();let g=null,swallow=0;
-  w.addEventListener('pointerdown',e=>{if(e.target.closest('#b-zoom'))return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  w.addEventListener('pointerdown',e=>{if(e.target.closest('#b-zoom'))return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});if(P.size===1)w._tap={x:e.clientX,y:e.clientY,t:Date.now(),n:TAPN};
     if(P.size===2){const [a,b]=[...P.values()],r=w.getBoundingClientRect();g={pinch:Math.hypot(a.x-b.x,a.y-b.y)||1,s:ZM.s,mx:(a.x+b.x)/2-r.left,my:(a.y+b.y)/2-r.top,x:ZM.x,y:ZM.y};}
     else if(P.size===1)g={sx:e.clientX,sy:e.clientY,x:ZM.x,y:ZM.y,moved:false};});
   w.addEventListener('pointermove',e=>{if(!P.has(e.pointerId)||!g)return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(g.pinch){if(P.size<2)return;const [a,b]=[...P.values()],r=w.getBoundingClientRect(),d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2-r.left,my=(a.y+b.y)/2-r.top;
       const s=Math.max(1,Math.min(ZMAX,g.s*d/g.pinch)),cx=(g.mx-g.x)/g.s,cy=(g.my-g.y)/g.s;ZM.s=s;ZM.x=mx-cx*s;ZM.y=my-cy*s;zApply();swallow=Date.now();return;}
     if(ZM.s<=1.001)return;const dx=e.clientX-g.sx,dy=e.clientY-g.sy;if(!g.moved&&Math.hypot(dx,dy)<8)return;g.moved=true;ZM.x=g.x+dx;ZM.y=g.y+dy;zApply();});
-  const up=e=>{if(!P.has(e.pointerId))return;P.delete(e.pointerId);if(g&&(g.moved||g.pinch))swallow=Date.now();
+  const up=e=>{if(!P.has(e.pointerId))return;const tp=w._tap;w._tap=null;
+    // v64: un toque corto que no llegó a ningún lugar (el tablero se redibujó justo, o el dedo cayó al lado): se busca el más cercano
+    if(e.type==='pointerup'&&tp&&P.size===1&&g&&!g.moved&&!g.pinch&&Date.now()-tp.t<700&&Math.hypot(e.clientX-tp.x,e.clientY-tp.y)<12){const x=e.clientX,y=e.clientY;setTimeout(()=>{if(TAPN===tp.n)boardPick(x,y);},90);}
+    P.delete(e.pointerId);if(g&&(g.moved||g.pinch))swallow=Date.now();
     if(!P.size)g=null;else if(g&&g.pinch){const [a]=[...P.values()];g={sx:a.x,sy:a.y,x:ZM.x,y:ZM.y,moved:true};}};
   w.addEventListener('pointerup',up);w.addEventListener('pointercancel',up);
   // Después de arrastrar o pellizcar, soltar el dedo no cuenta como jugada.
@@ -2667,6 +2718,15 @@ for(const ev of ['gesturestart','gesturechange'])document.addEventListener(ev,e=
 if(window.ResizeObserver)new ResizeObserver(()=>fitBoard()).observe($('boardcol'));
 window.addEventListener('resize',fitBoard);
 function closeModal(){$('modal').hidden=true;}
+// El lugar marcado más cercano al dedo (en coordenadas del tablero). Generoso: hasta ~medio hexágono.
+function boardPick(cx,cy){
+  if(!G||!RB||G.turn!==0||!$('modal').hidden||!$('side').hidden)return false;const svg=$('board'),M=svg.getScreenCTM&&svg.getScreenCTM();if(!M)return false;
+  const pt=svg.createSVGPoint();pt.x=cx;pt.y=cy;const q=pt.matrixTransform(M.inverse()),T=targets();let best=null;
+  const seg=(A,C)=>{const dx=C.x-A.x,dy=C.y-A.y,l=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,((q.x-A.x)*dx+(q.y-A.y)*dy)/l));return Math.hypot(q.x-A.x-t*dx,q.y-A.y-t*dy);};
+  for(const ei of T.e){const e=RB.edges[ei],d=seg(RB.verts[e.a],RB.verts[e.b]);if(d<26&&(!best||d<best.d))best={k:'e',i:ei,d};}
+  for(const vi of T.v){const v=RB.verts[vi],d=Math.hypot(q.x-v.x,q.y-v.y);if(d<32&&(!best||d<best.d))best={k:'v',i:vi,d};}
+  if(!best)for(const hi of T.h){const h=RB.hexes[hi],d=Math.hypot(q.x-h.x,q.y-h.y);if(d<40&&(!best||d<best.d))best={k:'h',i:hi,d};}
+  if(!best)return false;onBoardTap(best.k,best.i);return true;}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
 function openTrade(tab='banco'){
   if(tab==='compu'){openOffer();return;}
@@ -2689,7 +2749,7 @@ function openOffer(){
   const give=hand0(),want=hand0();let msg='';if(!G.p[OFT]||OFT===0)OFT=1;
   const draw=()=>{
     const t=OFT,P=G.p[t],h=G.p[0].hand,tg=RES.reduce((s,r)=>s+give[r],0),tw=RES.reduce((s,r)=>s+want[r],0);
-    const pick=NP()>2?`<div class="vpick row3" id="o-to">${others(0).map(q=>`<button data-o="${q}" class="${q===t?'on':''}" style="--pc:${PC[q]}"><i></i><b>${escHtml(String(G.p[q].name).replace(/^Compu (\w)/,(_,c)=>c.toUpperCase()))}</b><small>${cards(q)} cartas</small></button>`).join('')}</div>`:'';
+    const pick=NP()>2?`<div class="vpick row3" id="o-to">${others(0).map(q=>`<button data-o="${q}" class="${q===t?'on':''}" style="--pc:${PCo(q)}"><i></i><b>${escHtml(String(G.p[q].name).replace(/^Compu (\w)/,(_,c)=>c.toUpperCase()))}</b><small>${cards(q)} cartas</small></button>`).join('')}</div>`:'';
     const row=(o,lim,id)=>`<div class="cnt" id="${id}">${RES.map(r=>`<div><span class="e">${RI[r].e}</span><span class="n">${o[r]}</span><span class="pm"><button data-r="${r}" data-d="-1" ${o[r]?'':'disabled'}>−</button><button data-r="${r}" data-d="1" ${o[r]<lim(r)?'':'disabled'}>+</button></span></div>`).join('')}</div>`;
     openModal(`<h2>🔁 Cambiar</h2>${tabsHtml('compu')}${pick}<p class="note">Proponele un cambio. ${NP()>2?escHtml(P.name):P.bot?'La compu':escHtml(P.name)} tiene ${cards(t)} cartas${P.bot?'; acepta si le conviene':''}. Hasta 3 propuestas por turno.</p>
       <b>Das</b>${row(give,r=>h[r],'o-give')}<b style="display:block;margin-top:10px">Pedís</b>${row(want,r=>4,'o-want')}
@@ -2700,8 +2760,11 @@ function openOffer(){
     pm(give,'o-give');pm(want,'o-want');
     $('of-x').onclick=closeModal;
     $('of-ok').onclick=()=>{
-      if(!P.bot){G.offers++;msg='<span class="busy"></span>Esperando qué dice '+escHtml(P.name)+'…';draw();friendOffer(give,want,t).then(ok=>{if(ok){swapCards(give,want,t);closeModal();banner('🤝 '+P.name.toUpperCase()+' ACEPTÓ');}else{msg=`${escHtml(P.name)} dijo que no.`;draw();}});return;}
-      G.offers++;const r=botAcceptsOffer(give,want,t);if(r.ok){swapCards(give,want,t);closeModal();banner(NP()>2?'🤝 '+P.name.toUpperCase()+' ACEPTÓ':'🤝 LA COMPU ACEPTÓ');}else{msg=`🤖 «${r.why}»`;addLog(`${NP()>2?P.name:'La compu'} no aceptó tu cambio.`);save();draw();}};
+      if(!P.bot){G.offers++;msg='<span class="busy"></span>Esperando qué dice '+escHtml(P.name)+'…';draw();friendOffer(give,want,t).then(ok=>{const abierta=!$('modal').hidden&&$('sheet').querySelector('#of-ok');// si cerraste la ventana, se avisa abajo sin volver a abrirla
+        if(!ok){if(abierta){msg=`${escHtml(P.name)} dijo que no.`;draw();}else nota('🤝',`${P.name} dijo que no al cambio.`);return;}
+        if(!G||G.phase!=='main'||G.turn!==0||!puedeCambiar(give,want,t)){addLog(`🤝 ${P.name} aceptó, pero el cambio no se hizo: ya no estaban esas cartas.`);if(abierta){msg=`${escHtml(P.name)} dijo que sí, pero el cambio ya no se puede hacer (ya no están esas cartas o terminó tu turno).`;draw();}relato('🤝',`El cambio con ${P.name} no se hizo`,'ya no estaban esas cartas.');return;}
+        if(swapCards(give,want,t)===false)return;if(abierta)closeModal();relato('🤝',`${P.name} aceptó el cambio`,'');});return;}
+      G.offers++;const r=botAcceptsOffer(give,want,t);if(r.ok){if(swapCards(give,want,t)===false){draw();return;}closeModal();banner(NP()>2?`🤝 ${P.name} aceptó el cambio`:'🤝 La compu aceptó el cambio');}else{msg=`🤖 «${r.why}»`;addLog(`${NP()>2?P.name:'La compu'} no aceptó tu cambio.`);save();draw();}};
   };draw();
 }
 // La compu te ofrece un cambio en su turno.
@@ -2770,10 +2833,12 @@ function openNew(first=false,kind='compu'){
     <div class="diff" id="df">${Object.entries(DIFF).map(([k,n])=>`<button data-d="${k}" class="${d===k?'on':''}">${n}</button>`).join('')}</div>
     <p class="note">${d==='facil'?'Para aprender: construye de a una cosa por turno, no compra cartas y casi no cambia con el banco.':d==='dificil'?'A fondo: elige los mejores lugares, cambia mucho, compra cartas y no te regala nada.':'Pareja: juega bien, pero se le puede ganar.'}</p>${rankedRow(d==='facil')}`
     :`<p>Jugás con amigos, cada uno en su celular o compu. Usás tu cuenta de BloqueAR: elegís a quién invitar y le llega la invitación.</p>${nrow}${rankedRow(false)}`}
+    <b style="display:block;margin-top:8px">Tu color</b>${colPick('n-col',miCol())}
     <div class="row">${first?'':'<button class="pill" id="n-no">Volver</button>'}<button class="primary" id="n-yes">${compu?'JUGAR':np>2?'ELEGIR AMIGOS':'ELEGIR AMIGO'}</button></div>`);
     $('np').onclick=e=>{const b=e.target.closest('button[data-n]');if(b){try{localStorage.setItem(compu?'poblar-jugadores':'poblar-jugadores-online',b.dataset.n);}catch(_){}draw();}};
     $('mk').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!==kind){kind=b.dataset.k;draw();}};
     $('rk')&&($('rk').onclick=e=>{const b=e.target.closest('button');if(b&&window.RANGOS){RANGOS.setRanked('poblar',b.dataset.r==='1');draw();}});
+    $('n-col').onclick=e=>{const b=e.target.closest('button[data-col]');if(b){colSet(b.dataset.col);draw();}};
     if(compu)$('df').onclick=e=>{const b=e.target.closest('button');if(b){d=b.dataset.d;draw();}};
     if(!first)$('n-no').onclick=closeModal;
     $('n-yes').onclick=()=>{
@@ -2824,7 +2889,22 @@ function showEnd(){
 }
 
 /* ── Botones ── */
-document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;mode=mode===b.dataset.build?null:b.dataset.build;render();}));
+// v64: el botón apagado no queda mudo: dice por qué no se puede (antes no pasaba nada y parecía trabado).
+function porQueNo(k){
+  if(!G)return '';const nom={road:'camino',ranch:'rancho',town:'pueblo'}[k],plu={road:'caminos',ranch:'ranchos',town:'pueblos'}[k];
+  if(G.phase==='over')return 'La partida terminó.';
+  if(G.turn!==0)return `Esperá tu turno: ahora juega ${G.p[G.turn].name}.`;
+  if(G.phase==='setup')return 'Ahora tocá un lugar marcado en el tablero.';
+  if(G.phase==='roll')return 'Primero tirá los dados.';
+  if(G.phase==='robber')return 'Primero mové al cuatrero.';
+  if(G.phase==='discard')return 'Esperando el descarte del 7.';
+  if(G.p[0][k]>=LIMIT[k])return `Ya usaste tus ${LIMIT[k]} ${plu}.`;
+  if(!(k==='road'&&G.free>0)&&!can(0,k)){const f=RES.filter(r=>(COST[k][r]||0)>G.p[0].hand[r]).map(r=>`${COST[k][r]-G.p[0].hand[r]} ${RI[r].e} ${RI[r].n.toLowerCase()}`);return `Para un ${nom} te falta${f.length>1||/^[2-9]/.test(f[0])?'n':''}: ${f.join(', ')}.`;}
+  const spots=k==='road'?roadSpots(0):k==='ranch'?ranchSpots(0):townSpots(0);
+  if(!spots.length)return k==='road'?'No hay lugar para un camino pegado a lo tuyo.':k==='ranch'?'No hay esquinas libres: el rancho va pegado a tus caminos y nunca al lado de otro rancho.':'No tenés ranchos para convertir en pueblo.';
+  return '';
+}
+document.querySelectorAll('[data-build]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.build;if(b.classList.contains('off')){const w=porQueNo(k);if(w)relato('🚫',w,'',false);return;}mode=mode===k?null:k;render();}));
 $('b-main').addEventListener('click',()=>{
   if(G.phase==='over'){playAgain();return;}
   if(G.phase==='discard'){if(dn(0)&&DSENT!==discKey())openDiscard();return;}
@@ -2858,7 +2938,7 @@ function openMenu(){
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=poblar" id="m-tabla">🏆 Tabla</a>
     <a href="./#cuenta" id="m-acct">👤 Mi cuenta</a>
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 63</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div><p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 65</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};$('m-acct').onclick=e=>{closeSide();goGames(e);};$('m-tabla').onclick=e=>{closeSide();goGames(e);};
@@ -2996,10 +3076,10 @@ const remoteDisc=()=>!!(ON&&ON.state==='on'&&ON.cap);
 function netDisc(out){if(!ON||!G)return;const auth=G.p[G.turn].bot?0:gSeat(G.turn);route({t:'disc',seat:mySeat(),out,to:auth});}
 // Nombres de verdad de los otros jugadores (cada uno se ve como «Vos»)
 function setNames(g){const n=g.p.length;g.p[0].name='Vos';g.p[0].bot=false;if(!ON||!ON.names)return;for(let i=1;i<n;i++){const nm=ON.names[(i+mySeat())%n];if(!g.p[i].bot&&nm)g.p[i].name=nm;}}
-const me=()=>{const a=acct();return {usuario:a?a.usuario:'Vos',avatar:a?a.avatar:'🙂',color:a?a.color:'#7ce9e5'};};
+const me=()=>{const a=acct();return {usuario:a?a.usuario:'Vos',avatar:a?a.avatar:'🙂',color:a?a.color:'#7ce9e5',col:miCol()};};
 function attach(ch){
   ON.ch=ch;
-  ch.onopen=()=>{ON.state='on';renderOnline();closeModal();banner('🔗 CONECTADOS');sound('turn');
+  ch.onopen=()=>{ON.state='on';renderOnline();closeModal();banner('🔗 Conectados');sound('turn');
     netSend({t:'hola',yo:me(),v:4});if(ON.role==='host')onlineNewGame();else if(ON.mesa)mesaWait();};
   ch.onclose=()=>onLost();
   ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}onMsg(m);};
@@ -3021,7 +3101,7 @@ function playAgain(){
 }
 function revanchaArranca(){ON.otraYo=ON.otraEl=false;if(ON.role==='host'){closeModal();onlineNewGame();}else openModal(`<h2>🔁 Revancha</h2><p>¡Aceptó! Armando el tablero…</p>`);}
 function onlineNewGame(){
-  newGame(undefined,{n:2,humans:[ON.peer.usuario],quiet:true});G.p[1].bot=false;G.p[1].name=ON.peer.usuario;G.diff='normal';
+  newGame(undefined,{n:2,humans:[ON.peer.usuario],quiet:true,cols:[miCol(),ON.peer&&ON.peer.col]});G.p[1].bot=false;G.p[1].name=ON.peer.usuario;G.diff='normal';
   G.log=[];addLog(`Partida en línea: ${me().usuario} y ${ON.peer.usuario}. Empieza ${G.first===0?me().usuario:ON.peer.usuario}.`);
   save();render();next();
 }
@@ -3029,11 +3109,12 @@ function onMsg(m,from){
   if(!ON)return;
   if(ON.multi&&m.to!==undefined&&m.to!==0){route(m);return;}// no es para el que armó: se le pasa a quien va
   if(m.t==='hola'){
-    if(from){Object.assign(from,{usuario:m.yo&&m.yo.usuario||from.usuario,avatar:m.yo&&m.yo.avatar||from.avatar,color:m.yo&&m.yo.color||from.color,cap:(m.v||0)>=4});
+    if(from){Object.assign(from,{usuario:m.yo&&m.yo.usuario||from.usuario,avatar:m.yo&&m.yo.avatar||from.avatar,color:m.yo&&m.yo.color||from.color,col:m.yo&&COLS[m.yo.col]?m.yo.col:from.col,cap:(m.v||0)>=4});
       // De a 3 o 4 hace falta el PoblAR nuevo del otro lado
       if(!from.cap){chSend(from.ch,{t:'bye'});from.state='vieja';try{from.pc.close();}catch(_){}}
       mesaDraw();mesaTell();return;}
     if(m.yo)ON.peer={...ON.peer,...m.yo};ON.cap=(m.v||0)>=4;renderOnline();return;}
+  if(m.t==='col'&&from&&COLS[m.c]){from.col=m.c;mesaDraw();mesaTell();return;}
   if(m.t==='lobby'){ON.mesa=true;ON.n=m.n;ON.names=m.names;ON.lobby=m;if(!ON.started)mesaWait();return;}
   if(m.t==='start'){ON.mesa=true;ON.started=true;ON.seat=m.seat;ON.n=m.n;ON.names=m.names;ON.cap=true;if(m.mesa)ON.mesaId=m.mesa;return;}
   if(m.t==='corte'&&window.RECON){RECON.cartel('pob-c-'+m.nom,`${m.nom} se cortó · esperándolo…`,Date.now()+(m.ms||60000));return;}
@@ -3046,15 +3127,15 @@ function onMsg(m,from){
     else if(g.p.length===2&&!ON.mesa){g.p[0].bot=false;// ya viene dada vuelta (desde tu lado)
       g.p[1].bot=false;g.p[1].name=ON.peer.usuario;g.p[0].name='Vos';}
     else setNames(g);
-    const fresh=!G||!B||G.seed!==g.seed;G=g;if(fresh){B=buildBoard(G.seed);ON.otraYo=ON.otraEl=false;DSENT='';if(!$('modal').hidden&&/Revancha|revancha|Ganaste|Ganó|Otra partida|Mesa de/.test($('sheet').textContent))closeModal();}closeModalIfGame();
+    fixCols(g);const fresh=!G||!B||G.seed!==g.seed;G=g;if(fresh){B=buildBoard(G.seed);ON.otraYo=ON.otraEl=false;DSENT='';if(!$('modal').hidden&&/Revancha|revancha|Ganaste|Ganó|Otra partida|Mesa de/.test($('sheet').textContent))closeModal();}closeModalIfGame();
     if(G.phase!=='discard'||!dn(0))DSENT='';
     if(ON.multi)sendState(from);// el que armó se la pasa a los demás
-    mode=null;render(true);renderLog();
+    if(!(mode&&['road','ranch','town'].includes(mode)&&G.turn===0&&G.phase==='main'&&!porQueNo(mode)))mode=null;render(true);renderLog();
     try{if(window.RECON&&ON.role==='guest'&&ON.mesaId){if(G.phase==='over')RECON.olvidar('poblar');else RECON.recordar('poblar',{mesa:ON.mesaId,host:ON.peer.usuario,seat:ON.seat,n:ON.n,names:ON.names,mesaFlag:!!ON.mesa});}}catch(_){}
     if(G.phase==='over'&&G.winner!==null)setTimeout(showEnd,400);else next();return;
   }
   if(m.t==='disc'&&G){applyDisc(lSeat(m.seat),m.out||{});return;}
-  if(m.t==='again'&&(ON.multi||ON.mesa)){if(ON.multi&&from)banner(`🔁 ${String(from.usuario).toUpperCase()} QUIERE OTRA`);return;}
+  if(m.t==='again'&&(ON.multi||ON.mesa)){if(ON.multi&&from)banner(`🔁 ${from.usuario} quiere otra`);return;}
   if(m.t==='bye'&&from){if(!m.corte)from.salio=true;peerLost(from,'salió de la partida');return;}
   if(m.t==='offer-n'){// propuesta de otro jugador
     const t=o=>RES.filter(r=>o[r]).map(r=>`${o[r]} ${RI[r].e}`).join(' '),de=m.de!==undefined&&ON.names?ON.names[m.de]||'Alguien':ON.peer.usuario;
@@ -3069,7 +3150,7 @@ function onMsg(m,from){
     ON.otraEl=true;if(ON.otraYo){revanchaArranca();return;}
     openModal(`<h2>🔁 ${escHtml(ON.peer.usuario)} quiere la revancha</h2><p>Si aceptás, arranca una partida nueva con otro tablero.</p><div class="row"><button class="pill" id="rv-no">Ahora no</button><button class="primary" id="rv-si">DALE</button></div>`);
     $('rv-no').onclick=()=>{ON.otraEl=false;netSend({t:'again-no'});closeModal();};$('rv-si').onclick=()=>playAgain();return;}
-  if(m.t==='again-no'){ON.otraEl=false;if(ON.otraYo){ON.otraYo=false;closeModal();}banner(`${ON.peer.usuario.toUpperCase()} NO QUIERE LA REVANCHA AHORA`);return;}
+  if(m.t==='again-no'){ON.otraEl=false;if(ON.otraYo){ON.otraYo=false;closeModal();}banner(`${ON.peer.usuario} no quiere la revancha ahora`);return;}
   if(m.t==='bye'){if(m.corte)onLost();else{ON.salio=true;onLost('salió de la partida');}}
 }
 function closeModalIfGame(){const s=$('sheet');if(s&&!$('modal').hidden&&/Jugar con un amigo|Te invitan|Mesa de/.test(s.textContent))closeModal();}
@@ -3086,7 +3167,7 @@ function vueltaAttach(ch,quien,prev){
   ON.ch=ch;
   ch.onopen=()=>{if(ON!==quien)return;ON.state='on';RECON.quitar('pob-c');if(ON.rv)ON.rv.cancelar();renderOnline();closeModal();sound('turn');
     if(prev){Object.assign(ON,{seat:prev.seat,n:prev.n,names:prev.names,mesa:prev.mesa,started:prev.started,cap:prev.cap});}
-    netSend({t:'hola',yo:me(),v:4});banner(`🔗 ${ON.role==='host'?String(ON.peer.usuario).toUpperCase()+' VOLVIÓ':'VOLVISTE A LA PARTIDA'}`);
+    netSend({t:'hola',yo:me(),v:4});banner(`🔗 ${ON.role==='host'?ON.peer.usuario+' volvió':'Volviste a la partida'}`);
     if(ON.role==='host'&&G){G.p[1].bot=false;G.p[1].name=ON.peer.usuario;addLog(`🔗 ${ON.peer.usuario} volvió a la partida.`);save();sendState();render();next();}};
   ch.onclose=()=>onLost();
   ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}onMsg(m);};
@@ -3117,9 +3198,9 @@ function onLost(why='se desconectó'){
   try{window.RECON&&RECON.olvidar('poblar');RECON.quitar('pob-c');if(ON.busca)ON.busca.cancelar();if(ON.rv)ON.rv.cancelar();}catch(_){}
   const was=ON.state==='on';ON.state='lost';let hold=false;
   if(G&&was&&G.phase!=='over'){
-    if(NP()===2&&!ON.mesa){G.p[1].bot=true;addLog(`⚠️ ${G.p[1].name} ${why}. Sigue la compu en su lugar.`);G.p[1].name='La compu';banner('⚠️ SE CORTÓ: SIGUE LA COMPU');}
+    if(NP()===2&&!ON.mesa){G.p[1].bot=true;addLog(`⚠️ ${G.p[1].name} ${why}. Sigue la compu en su lugar.`);G.p[1].name='La compu';banner('⚠️ Se cortó: sigue la compu');}
     else{const host=ON.peer&&ON.peer.usuario||'El que armó la partida';for(const q of others(0))if(!G.p[q].bot){G.p[q].bot=true;G.p[q].name+=' (compu)';}
-      addLog(`⚠️ Se cortó con ${host}, que armó la mesa (${why}). Siguen las compus en lugar de los demás.`);banner('⚠️ SE CORTÓ LA MESA: SIGUEN LAS COMPUS');
+      addLog(`⚠️ Se cortó con ${host}, que armó la mesa (${why}). Siguen las compus en lugar de los demás.`);banner('⚠️ Se cortó la mesa: siguen las compus');
       // Se avisa y se espera a que lo leas: recién al tocar SEGUIR juegan las compus.
       hold=true;openModal(`<h2>⚠️ Se cortó la mesa</h2><p>Se cortó la conexión con <b>${escHtml(host)}</b>, que armó la partida, y con eso con todos. Podés seguir: la compu juega por los demás.</p><div class="row"><button class="primary" id="lo-ok">SEGUIR</button></div>`);$('lo-ok').onclick=()=>{closeModal();if(G)next();};}
   }
@@ -3133,20 +3214,26 @@ function netLeave(){if(ON&&ON.multi){mesaCancel(true);return;}netSend({t:'bye'})
    y él se la manda a los demás (cada uno la ve desde su lado). Si se va un invitado, sigue la compu en su lugar. */
 function mesaNew(){const n=Math.max(3,jugadores(true));ON={role:'host',multi:true,n,state:'lobby',peers:[],seat:0,cap:true,peer:{usuario:'',avatar:'🙂',color:'#7ce9e5'},msg:'Armando la mesa…'};renderOnline();}
 const vivo=x=>!['lost','fail','vieja'].includes(x.state);
-function mesaTell(){if(!ON||!ON.multi||ON.state!=='lobby')return;const names=[me().usuario,...ON.peers.filter(x=>x.state==='on').map(x=>x.usuario)];
-  for(const x of ON.peers)if(x.state==='on')chSend(x.ch,{t:'lobby',n:ON.n,names,host:me().usuario});}
+function mesaTell(){if(!ON||!ON.multi||ON.state!=='lobby')return;const on=ON.peers.filter(x=>x.state==='on'),names=[me().usuario,...on.map(x=>x.usuario)],cols=asignarCols(names.length,[miCol(),...on.map(x=>x.col)]);
+  for(const x of ON.peers)if(x.state==='on')chSend(x.ch,{t:'lobby',n:ON.n,names,cols,host:me().usuario});}
+// Los colores para elegir (en la mesa de espera y en Partida nueva). «tomados»: los que ya tiene otro.
+function colPick(id,actual,tomados=[]){return `<div class="colpick" id="${id}" role="group" aria-label="Tu color">${COLK.map(k=>`<button type="button" data-col="${k}" class="${k===actual?'on':''}" style="--cc:${COLS[k].c};--cd:${COLS[k].d}" ${tomados.includes(k)&&k!==actual?'disabled':''} aria-pressed="${k===actual}" aria-label="${COLS[k].n}" title="${COLS[k].n}"></button>`).join('')}</div>`;}
+function colSet(k){if(!COLS[k])return;try{localStorage.setItem('poblar-color',k);}catch(_){}}
 function mesaDraw(){
   if(!ON||!ON.multi||ON.state!=='lobby')return;const n=ON.n,live=ON.peers.filter(vivo),ready=ON.peers.filter(x=>x.state==='on'&&x.cap);
   const st=x=>x.state==='on'?'✅ Listo':x.state==='vieja'?'Tiene un PoblAR viejo: que lo actualice':x.state==='fail'||x.state==='lost'?escHtml(x.msg||'No se pudo'):`<span class="busy"></span>${escHtml(x.msg||'Invitando…')}`;
   const xb=(x,i)=>vivo(x)?`<button class="mx" data-mx="${i}" aria-label="${x.state==='on'?'Sacar a':'Cancelar la invitación a'} ${escHtml(x.usuario)}" title="${x.state==='on'?'Sacar de la mesa':'Cancelar la invitación'}">✕</button>`:'';
-  const rows=[`<li>${avHtml(me().avatar,me().color)}<span class="nm">${escHtml(me().usuario)} (vos)</span><small>✅</small></li>`,...ON.peers.map((x,i)=>`<li>${avHtml(x.avatar,x.color)}<span class="nm">${escHtml(x.usuario)}</span><small>${st(x)}</small>${xb(x,i)}</li>`)];
+  const onp=ON.peers.filter(x=>x.state==='on'),cl=asignarCols(1+onp.length,[miCol(),...onp.map(x=>x.col)]),cdot=k=>k?`<i class="cdot" style="--cc:${COLS[k].c}" title="${COLS[k].n}"></i>`:'';
+  const rows=[`<li>${cdot(cl[0])}${avHtml(me().avatar,me().color)}<span class="nm">${escHtml(me().usuario)} (vos)</span><small>✅</small></li>`,...ON.peers.map((x,i)=>`<li>${cdot(x.state==='on'?cl[1+onp.indexOf(x)]:null)}${avHtml(x.avatar,x.color)}<span class="nm">${escHtml(x.usuario)}</span><small>${st(x)}</small>${xb(x,i)}</li>`)];
   const espera=ON.peers.filter(x=>['preparing','waiting'].includes(x.state)).length;
   for(let i=live.length+1;i<n;i++)rows.push(`<li><span class="av">🤖</span><span class="nm">La compu</span><small>si no se suma nadie</small></li>`);
   openModal(`<h2>👥 Mesa de ${n}</h2><p class="note">Invitá hasta ${n-1} amigos; los lugares que queden los juega la compu. Cuando estén, tocá EMPEZAR. Gana el primero en llegar a 10 puntos.</p><ul class="ulist mesa">${rows.join('')}</ul>
+    <b class="colh">Tu color</b>${colPick('ms-col',cl[0],cl.slice(1))}
     ${espera>1?'<div class="row"><button class="pill" id="ms-xinv">Cancelar las invitaciones</button></div>':''}
     <div class="row"><button class="pill" id="ms-x">Cancelar</button>${live.length<n-1?'<button class="pill" id="ms-inv">+ Invitar</button>':''}<button class="primary" id="ms-go" ${ready.length?'':'disabled'}>EMPEZAR</button></div>`);
   document.querySelectorAll('#sheet [data-mx]').forEach(b=>b.onclick=()=>{const x=ON&&ON.peers[Number(b.dataset.mx)];if(x)mesaQuitar(x);});
   if($('ms-xinv'))$('ms-xinv').onclick=()=>{for(const x of ON.peers.slice())if(['preparing','waiting'].includes(x.state))mesaQuitar(x);};
+  $('ms-col').onclick=e=>{const b=e.target.closest('button[data-col]');if(!b||b.disabled)return;colSet(b.dataset.col);mesaDraw();mesaTell();};
   $('ms-x').onclick=()=>mesaCancel(true);if($('ms-inv'))$('ms-inv').onclick=openFriends;$('ms-go').onclick=mesaStart;
 }
 // Cancela la invitación a una persona de la mesa (o la saca si ya estaba sentada).
@@ -3156,7 +3243,10 @@ function mesaQuitar(x){const M=ON;if(!M||!M.multi)return;const a=acct();
   M.peers=M.peers.filter(y=>y!==x);mesaDraw();mesaTell();}
 function mesaWait(){if(!ON||!ON.mesa||ON.multi)return;const L=ON.lobby,host=ON.peer.usuario,n=ON.n||(L&&L.n)||3;
   openModal(`<h2>👥 Mesa de ${n}</h2><p>Estás en la mesa de <b>${escHtml(host)}</b>. Arranca cuando toque EMPEZAR; los lugares que queden los juega la compu.</p>
-    ${L?`<ul class="ulist mesa">${L.names.map(u=>`<li><span class="nm">${escHtml(u)}</span><small>✅</small></li>`).join('')}</ul>`:''}<div class="row"><button class="pill" id="mw-x">Salir</button></div>`);
+    ${L?`<ul class="ulist mesa">${L.names.map((u,i)=>`<li>${L.cols&&COLS[L.cols[i]]?`<i class="cdot" style="--cc:${COLS[L.cols[i]].c}" title="${COLS[L.cols[i]].n}"></i>`:''}<span class="nm">${escHtml(u)}</span><small>✅</small></li>`).join('')}</ul>`:''}
+    <b class="colh">Tu color</b>${(()=>{const yo=L&&L.names?L.names.findIndex(u=>u&&u.toLowerCase()===me().usuario.toLowerCase()):-1,act=yo>=0&&L.cols?L.cols[yo]:miCol();return colPick('mw-col',act,L&&L.cols?L.cols.filter((_,i)=>i!==yo):[]);})()}
+    <p class="note">Si dos piden el mismo, se lo queda el primero de la mesa.</p><div class="row"><button class="pill" id="mw-x">Salir</button></div>`);
+  $('mw-col').onclick=e=>{const b=e.target.closest('button[data-col]');if(!b||b.disabled)return;colSet(b.dataset.col);netSend({t:'col',c:b.dataset.col});if(ON&&ON.lobby&&ON.lobby.cols){const yo=ON.lobby.names.findIndex(u=>u&&u.toLowerCase()===me().usuario.toLowerCase());if(yo>=0)ON.lobby.cols[yo]=b.dataset.col;}mesaWait();};
   $('mw-x').onclick=()=>{netLeave();closeModal();if(!G)openNew(true,'online');};}
 async function invitePeer(u){
   const a=acct();if(!a||!ON||!ON.multi||ON.state!=='lobby')return;if(ON.peers.some(x=>vivo(x)&&x.usuario.toLowerCase()===u.usuario.toLowerCase())){mesaDraw();return;}
@@ -3164,7 +3254,7 @@ async function invitePeer(u){
   const fail=t=>{if(x.state==='on')return;if(x.id&&x.state==='waiting')lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:x.id}).catch(()=>{});x.state='fail';x.msg=t;try{x.pc&&x.pc.close();}catch(_){}if(ON===M)mesaDraw();};
   try{
     const pc=new RTCPeerConnection({iceServers:await iceServers()});x.pc=pc;const ch=pc.createDataChannel('poblar',{ordered:true});x.ch=ch;
-    ch.onopen=()=>{if(ON!==M){try{pc.close();}catch(_){}return;}x.state='on';x.msg='';chSend(ch,{t:'hola',yo:me(),v:4,n:M.n});banner(`🔗 ${x.usuario.toUpperCase()} SE SUMÓ`);sound('turn');mesaDraw();mesaTell();};
+    ch.onopen=()=>{if(ON!==M){try{pc.close();}catch(_){}return;}x.state='on';x.msg='';chSend(ch,{t:'hola',yo:me(),v:4,n:M.n});banner(`🔗 ${x.usuario} se sumó`);sound('turn');mesaDraw();mesaTell();};
     ch.onclose=()=>peerLost(x);ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}if(ON===M)onMsg(m,x);};
     pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))peerLost(x);};
     await pc.setLocalDescription(await pc.createOffer());await gathered(pc);if(ON!==M||x.state!=='preparing')return;
@@ -3196,7 +3286,7 @@ function peerLost(x,why='se desconectó'){
   x.state='lost';x.msg='Se desconectó';try{x.pc.close();}catch(_){}
   if(ON.state==='lobby'){mesaDraw();mesaTell();return;}
   if(G&&was&&G.phase!=='over'&&G.p[x.seat]&&!G.p[x.seat].bot){const q=x.seat;G.p[q].bot=true;G.p[q].name=x.usuario+' (compu)';
-    addLog(`⚠️ ${x.usuario} ${why}. Sigue la compu en su lugar.`);banner(`⚠️ ${x.usuario.toUpperCase()} SE FUE: SIGUE LA COMPU`);
+    addLog(`⚠️ ${x.usuario} ${why}. Sigue la compu en su lugar.`);banner(`⚠️ ${x.usuario} se fue: sigue la compu`);
     if(UIQ.pending&&UIQ.pending.t===q){UIQ.pending.res(false);UIQ.pending=null;}
     if(!ON.peers.some(y=>y.state==='on')){ON=null;renderOnline();save();render();next();return;}// ya no queda nadie: sigue con las compus
     save();render();next();return;}
@@ -3209,7 +3299,7 @@ async function mesaVuelta(M,x,hasta){
     ch.onopen=()=>{if(!sigue()||!G){try{pc.close();}catch(_){}return;}
       nx.state='on';M.peers=M.peers.map(y=>y===x?nx:y);RECON.quitar('pob-'+x.seat);if(rv)rv.cancelar();
       chSend(ch,{t:'hola',yo:me(),v:4,n:M.n});chSend(ch,{t:'start',seat:nx.seat,n:M.n,names:M.names});
-      G.p[nx.seat].bot=false;G.p[nx.seat].name=nx.usuario;addLog(`🔗 ${nx.usuario} volvió a la partida.`);netSend({t:'volvio',nom:nx.usuario});banner(`🔗 ${nx.usuario.toUpperCase()} VOLVIÓ`);sound('turn');
+      G.p[nx.seat].bot=false;G.p[nx.seat].name=nx.usuario;addLog(`🔗 ${nx.usuario} volvió a la partida.`);netSend({t:'volvio',nom:nx.usuario});banner(`🔗 ${nx.usuario} volvió`);sound('turn');
       save();sendState();render();renderOnline();next();};
     ch.onclose=()=>peerLost(nx);ch.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}if(ON===M)onMsg(m,nx);};
     pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))peerLost(nx);};
@@ -3219,7 +3309,7 @@ async function mesaVuelta(M,x,hasta){
   }catch(e){console.warn('vuelta',e);}
 }
 function mesaNoVolvio(M,x){if(ON!==M||!M.peers.includes(x)||x.state!=='ausente')return;try{x.rv&&x.rv.cancelar();}catch(_){}x.state='lost';
-  if(G&&G.p[x.seat]){G.p[x.seat].name=x.usuario+' (compu)';addLog(`⚠️ ${x.usuario} no volvió: sigue la compu en su lugar.`);banner(`⚠️ ${x.usuario.toUpperCase()} NO VOLVIÓ: SIGUE LA COMPU`);netSend({t:'volvio',nom:x.usuario,no:1});}
+  if(G&&G.p[x.seat]){G.p[x.seat].name=x.usuario+' (compu)';addLog(`⚠️ ${x.usuario} no volvió: sigue la compu en su lugar.`);banner(`⚠️ ${x.usuario} no volvió: sigue la compu`);netSend({t:'volvio',nom:x.usuario,no:1});}
   if(!M.peers.some(y=>y.state==='on'||y.state==='ausente')){ON=null;}renderOnline();save();render();next();}
 function mesaCancel(tell=true){
   const M=ON;if(!M||!M.multi)return;const a=acct();
@@ -3235,7 +3325,7 @@ function mesaStart(){
   M.names=[me().usuario,...ready.map(x=>x.usuario)];while(M.names.length<n)M.names.push(null);
   M.state='on';M.peer=ready[0];M.otraYo=M.otraEl=false;M.mesaId=M.mesaId||Math.random().toString(36).slice(2,10);closeModal();renderOnline();
   for(const x of ready)chSend(x.ch,{t:'start',seat:x.seat,n,names:M.names,mesa:M.mesaId});
-  newGame(undefined,{n,humans:ready.map(x=>x.usuario),botName:i=>n-ready.length>2?'Compu '+(i-ready.length):'La compu',quiet:true});G.diff='normal';
+  newGame(undefined,{n,humans:ready.map(x=>x.usuario),botName:i=>n-ready.length>2?'Compu '+(i-ready.length):'La compu',quiet:true,cols:[miCol(),...ready.map(x=>x.col)]});G.diff='normal';
   G.log=[];addLog(`Partida en línea de a ${n}: ${ready.map(x=>x.usuario).join(', ')}${n-1>ready.length?` y ${n-1-ready.length===1?'la compu':(n-1-ready.length)+' compus'}`:''}. Empieza ${W(G.first)}.`);
   save();render();next();
 }
@@ -3390,7 +3480,7 @@ if(window.CHAT)CHAT.init({busy:()=>!!(G&&G.phase!=='over'&&!AUTO),account:()=>{l
   play:c=>{if(c.j==='poblar')openNew(!G||G.phase==='over');else location.href=c.j==='estancia'?'estancia.html#malon':c.j==='pampa'?'pampa.html':c.j==='truco'?'truco.html':c.j==='uno'?'uno.html':'./';}});
 {const m=/^#invitar=([^&]+)/.exec(location.hash);if(m&&acct()){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
   const u=decodeURIComponent(m[1]);setTimeout(()=>{closeModal();inviteFriend((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#7ce9e5'});},400);}}
-window.POBLAR={save,showEnd,rankEnd,pollInbox,get ON(){return ON},flip,rot,onMsg,newGame,applyDisc,openDiscard,moveRobber,endTurn,botAcceptsOffer,mesaStart,invitePeer,openFriends,openNew,get DSENT(){return DSENT},acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade};
+window.POBLAR={save,showEnd,rankEnd,pollInbox,get ON(){return ON},flip,rot,onMsg,newGame,applyDisc,openDiscard,moveRobber,endTurn,botAcceptsOffer,mesaStart,invitePeer,openFriends,openNew,get DSENT(){return DSENT},acceptInvite,inviteFriend,get G(){return G},get B(){return B},vp,shown,longestRoad,cards,roll,render,next,askOffer,botOffer,openDev,openTrade,relato,nota,porQueNo,boardPick,puedeCambiar,swapCards,asignarCols,COLS,sanoMano,get ROT(){return ROT},get mode(){return mode},set mode(v){mode=v},build,targets};
 </script>
 </body>
 </html>

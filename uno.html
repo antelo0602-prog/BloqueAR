@@ -557,10 +557,10 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 // ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 function premio(de,xp,ranked){
   const n=Math.max(0,Math.round(xp||0));if(!n)return null;
-  // v63: para no inflar la estancia, cada partida da su XP en pesos (hasta 300) y, en el mismo día, rinde menos a medida que juntás:
-  // los primeros 600 🪙 enteros, hasta 1.200 a la mitad y después a un cuarto (nunca menos de 5).
+  // v65: para no inflar la estancia, cada partida da la mitad de su XP en pesos (hasta 150) y, en el mismo día, rinde menos a medida
+  // que juntás: los primeros 300 🪙 enteros, hasta 600 a la mitad y después a un cuarto (nunca menos de 5). Iguales a ECO.premio de EstanciAR.
   const d=new Date(),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya=PD.d===dia?PD.n||0:0;
-  const pesos=Math.max(5,Math.round(Math.min(300,n)*(ya<600?1:ya<1200?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
+  const pesos=Math.max(5,Math.round(Math.min(150,Math.round(n*.5))*(ya<300?1:ya<600?.5:.25)));ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));
   const p={de,trigo:0,pesos,t:Date.now()};
   const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));
   return {...p,ranked:!!ranked,leguas:ranked?pampaAct(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':de==='AjedrezAR'?'a':'b'):0};
@@ -1014,7 +1014,7 @@ function aplicar(j){const G=D[j];if(!G)return;css();
 function diasHastaLunes(){const w=lunesAR(),next=Date.parse(w+'T03:00:00Z')+7*864e5,ms=next-Date.now(),d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/3600e3);return d>=1?`${d} ${d===1?'día':'días'}`:`${Math.max(1,h)} ${h===1?'hora':'horas'}`;}
 function panelHtml(j){const G=D[j];if(!G)return '';css();const o=load(),c=o.c[j]||{},rs=retos(j),tot=G.logros.length,got=G.logros.filter(L=>tiene(o,j,L.id)).length;
   const retH=rs.length?`<section class="lg-sec"><h3>Retos de la semana</h3><p class="lg-lead">Los mismos para todos. Se renuevan el lunes: faltan ${diasHastaLunes()}.</p>
-    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y ${fmt(Math.min(300,r.xp))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
+    ${rs.map(r=>`<div class="lg-reto${r.hecho?' ok':''}"><div class="lg-rt"><b>${esc(r.txt)}</b><small>${r.hecho?'✅ Cumplido':`${fmt(r.va)} de ${fmt(r.n)}`} · +${r.xp} XP${window.RANGOS&&!OCULTOS.includes('estancia')?` y hasta ${fmt(Math.min(150,Math.round(r.xp*.5)))} 🪙`:''}</small></div><div class="lg-bar"><i style="width:${(r.va/r.n*100).toFixed(1)}%"></i></div></div>`).join('')}</section>`:'';
   const logH=`<section class="lg-sec"><h3>Logros <small>${got} de ${tot}</small></h3><div class="lg-list">${G.logros.map(L=>{const on=tiene(o,j,L.id),m=L.m||1,v=Math.min(m,c[L.k]||0);
     return `<div class="lg-l${on?' on':''}"><i>${L.e}</i><div><b>${esc(L.n)}</b><small>${esc(L.d)}</small>${!on&&m>1?`<div class="lg-bar"><i style="width:${(v/m*100).toFixed(1)}%"></i></div><small>${fmt(v)} de ${fmt(m)}</small>`:''}</div>${on?'<em>✓</em>':''}</div>`;}).join('')}</div></section>`;
   const tipos=Object.entries(G.ap);
@@ -1726,6 +1726,14 @@ window.CHAT={share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then((
 (function(){
 'use strict';
 const LISTA=[
+  {v:65,grande:true,titulo:'Novedades',items:[
+    ['🎲','PoblAR: dados parejos. Los números salen en la proporción justa (el 6 y el 8 son los más comunes) y no hay rachas raras del mismo número.'],
+    ['🎴','UnoAR: reparto parejo, ya no te tocan manos casi todas del mismo color.'],
+    ['🐎','EstanciAR: las cosas cuestan más y se gana menos: progresar lleva su esfuerzo. Lo que ya tenés queda igual.']]},
+  {v:64,grande:true,titulo:'Novedades',items:[
+    ['🎨','PoblAR: cada jugador tiene su color, el mismo en todos los celulares. Lo elegís al armar la partida.'],
+    ['🧭','PoblAR: el tablero ya no se gira, y los avisos aparecen abajo del tablero sin taparlo.'],
+    ['🛠️','PoblAR: si no podés construir, te dice por qué; y un cambio que llega tarde ya no deja a nadie con recursos en negativo.']]},
   {v:63,grande:true,titulo:'Novedades',items:[
     ['♟️','Nuevo: AjedrezAR. Con reloj (bala, blitz, rápida), sin reloj o distendido: cada uno mueve cuando puede, te avisa por el chat cuando te toca y podés tener varias partidas a la vez.'],
     ['📌','Fijá tus juegos favoritos arriba de todo (📌 Favoritos o mantené apretado un juego).'],
@@ -1938,6 +1946,10 @@ function repartir(M,cartas){
   M.mano++;M.reparte=(M.reparte+1)%M.n;
   let d=cartas?cartas.slice():null;if(!d){const R=M.seed?rngDe((M.seed+M.mano*2654435761)>>>0):azar();d=mezclar(mazoUno(),R);}
   const manos=Array.from({length:M.n},()=>[]);for(let i=0;i<7;i++)for(let p=0;p<M.n;p++)manos[p].push(d.pop());
+  // Reparto parejo (v65): si a alguien le tocan 5 o más del mismo color, se le cambian las que sobran por otras del mazo
+  // (van al fondo). La mezcla ya es al azar de verdad; esto sólo evita las manos «todas del mismo color» que molestan.
+  for(const m of manos){for(let g=0;g<6;g++){const k={};for(const c of m){const x=cCol(c);if(x&&!esComodin(c))k[x]=(k[x]||0)+1;}
+    const x=Object.keys(k).find(q=>k[q]>=5);if(!x)break;const i=m.findIndex(c=>cCol(c)===x&&!esComodin(c));d.unshift(m.splice(i,1)[0]);m.push(d.pop());}}
   // La primera del pozo es siempre un número (si sale otra cosa, va al fondo del mazo).
   let top=d.pop(),g=0;while((esComodin(top)||!/[0-9]/.test(cVal(top)))&&g++<120){d.unshift(top);top=d.pop();}
   M.H={n:M.mano,manos,mazo:d,pozo:[top],color:cCol(top),dir:1,turno:(M.reparte+1)%M.n,robo:null,olvido:null,uno:Array(M.n).fill(false),pena:0,fin:false,gano:null,pts:0,jugadas:0};
@@ -2415,7 +2427,7 @@ function openMenu(){
     <button id="m-new">🃏 Partida nueva</button><button id="m-friend">👥 Armar una mesa con amigos</button><button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=uno">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 63</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 65</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='juego'&&!(E&&E.fin)){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});
