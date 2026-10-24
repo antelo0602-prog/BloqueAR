@@ -2098,7 +2098,7 @@ async function poll(){
     if(Array.isArray(j.grupos)){S.grSup=true;S.pollOk=Date.now();const gch=guardarGrupos(j.grupos);if(S.open&&(gch||(S.view==='conv'&&esGK(S.con)&&S.gPido&&S.gPido.k===S.con))){$('.cx-panel').dataset.sig='';render();}}
     if(j.t>S.last)await fetchNew(Array.isArray(j.mensajes)?j:null);
     else if(S.open)render();
-    checkDeferred();
+    checkDeferred();invCorregir();
   }catch(e){
     const m=String(e.message||e);
     if(/desconocida/i.test(m)){S.unsupported=true;S.err='Para usar el chat hay que actualizar el código de la planilla a la versión 5.';}
@@ -2434,7 +2434,7 @@ async function onClick(e){
   else if(a==='inv'){const who=S.invFor,g=b.dataset.g;S.invFor=null;close();if((g==='ajedrez'||g==='ludo'||g==='pool')&&H.game()!==g){location.href=g+'.html#invitar='+encodeURIComponent(who);return;}try{H.invite&&H.invite(g,who);}catch(_){}}
   else if(a==='sharecon')shareTo(b.dataset.u);
   else if(a==='inventrar'||a==='invno'||a==='invcancel')invAccion(a,b.dataset.id,b.dataset.j);
-  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&o.card.j==='ludo'&&H.game()!=='ludo'){close();location.href='ludo.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
+  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
   else if(a==='cuenta'){close();H.account();}
   else if(a==='activar')activate();
   else if(a==='verpin'){S.pinAsk=true;$('.cx-panel').dataset.sig='';render();setTimeout(()=>$('#cx-pin')?.focus(),50);}
@@ -2693,11 +2693,26 @@ async function mePrendo(mid){
   setTimeout(()=>{if(S.open){p0().dataset.sig='';render();}},152000);
 }
 // Llegó la invitación del que armó la mesa: se entra solo (es la que pediste con «Me prendo»).
+// v70.1: la planilla 19 no conoce LudAR ni PoolAR: su tarjeta dice «BloqueAR · Duelo en línea». Se mira esa invitación
+// (una sola vez por tarjeta) y se corrige el juego que muestra la tarjeta y adónde lleva «Entrar».
+const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool'};
+async function invCorregir(){
+  if(!(S.ver&&S.ver<20))return;S.invFix=S.invFix||{};
+  for(const m of S.msgs.slice(-40)){const c=invCard(m);
+    if(!c||c.j!=='bloquear'||S.invFix[c.inv]||lc(m.de)===lc(S.me)||(S.invSt[c.inv]&&S.invSt[c.inv]!=='esperando'))continue;
+    S.invFix[c.inv]=1;
+    try{const j=await call(auth({accion:'buzon',ver:c.inv})),iv=j.invitacion,of=String(iv&&iv.id===c.inv&&iv.oferta||''),k=(/^([A-Z]+):/.exec(of)||[])[1],g=k&&INV_PREF[k];
+      if(!g)continue;let o=null;try{o=JSON.parse(of.slice(of.indexOf(':')+1));}catch(_){}
+      c.j=g;c.t='Invitación a '+GAMES[g];c.d=o&&o.re?'Volver a la partida':g==='pool'?(({b8:'Bola 8',b9:'Bola 9',b10:'Bola 10',caram:'Carambola',tres:'Tres bandas'}[o&&o.modo]||'Pool')+(o&&Number(o.n)===4?' · Dobles (2 contra 2)':' · mano a mano')):o&&Number(o.n)>2?'Mesa de '+o.n:'Mano a mano';
+      if($('.cx-panel'))$('.cx-panel').dataset.sig='';if(S.open)render();badges();
+      if(S.espero)esperoRevisar([m]);}catch(_){}}
+}
 function esperoRevisar(fresh){
   const e=S.espero;if(!e||Date.now()-e.t>180000)return;
-  for(const m of fresh){const c=invCard(m);if(!c||lc(m.de)!==lc(e.host)||(e.j&&c.j!==e.j))continue;
+  // v70.1: una planilla vieja no conoce los juegos nuevos (LudAR, PoolAR…) y marca su tarjeta como «bloquear»: también vale.
+  for(const m of fresh){const c=invCard(m);if(!c||lc(m.de)!==lc(e.host)||(e.j&&c.j!==e.j&&!(c.j==='bloquear'&&INV_URL[e.j])))continue;
     S.espero=null;try{sessionStorage.removeItem('bloques-chat-espero');}catch(_){}
-    invAccion('inventrar',c.inv,c.j);return;}
+    invAccion('inventrar',c.inv,c.j==='bloquear'&&e.j&&INV_URL[e.j]?e.j:c.j);return;}
 }
 // Para los juegos: avisar en un grupo que hay lugar en la mesa.
 async function llamar(gid,card){
@@ -3084,6 +3099,11 @@ window.MESA_CHAT={llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerra
 (function(){
 'use strict';
 const LISTA=[
+  {v:71,grande:true,titulo:'Novedades',items:[
+    ['🎱','PoolAR: la mesa se ve más grande en el celular y en la compu el clic fija la puntería justo donde apuntabas.'],
+    ['🎲','LudAR: el dado rueda bien a la vista y ya podés unirte a la mesa de un amigo aunque tengas la tuya abierta (también en UnoAR y PoolAR).'],
+    ['🏘️','PoblAR: el historial de movimientos ya no muestra el numerito.'],
+    ['🐦','EstanciAR: sonido de campo nuevo, más suave, como el de La Gran Pampa.']]},
   {v:70,grande:true,titulo:'Novedades',items:[
     ['🎱','PoolAR, en la sección nueva Casuales: Bola 8, Bola 9, Bola 10, Carambola y Tres bandas, contra la compu o en línea mano a mano y en Dobles 2 contra 2.'],
     ['💣','BuscaminAR en Solitarios: todos los tableros se resuelven con lógica, sin adivinar nunca. Y el buscaminas del día, igual para todos.'],
@@ -3936,7 +3956,7 @@ function openMenu(){
     <button id="m-new">🃏 Partida nueva</button><button id="m-friend">👥 Jugar en línea con amigos</button>${enPartida()?'<button id="m-salir">🚪 Salir de la partida</button>':''}<button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=uno">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 70</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 71</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='juego'&&!(E&&E.fin)){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});
@@ -4336,15 +4356,18 @@ $('btn-mesa').onclick=openChat;
 
 /* ── Buzón: te avisa si alguien te invita (a UnoAR o a otro juego) ── */
 let pollAt=0,polling=false;
+// v70.1: si abriste tu mesa y todavía no invitaste a nadie, igual te llegan las invitaciones (si los dos abren «En línea»
+// a la vez, el primero que invita gana): al aceptar, tu mesa vacía se cierra sola.
+function mesaSola(){return !!(ON&&ON.role==='host'&&ON.state==='mesa'&&ON.mesa&&ON.mesa.lugares.every((L,i)=>i===0||L.tipo==='libre'));}
 async function pollInbox(force=false){
-  const a=acct();if(!a||polling||document.hidden||(ON&&ON.state!=='perdido')||AUTO)return;
+  const a=acct();if(!a||polling||document.hidden||(ON&&ON.state!=='perdido'&&!mesaSola())||AUTO)return;
   const gap=E&&!E.fin&&E.turno===0?20000:8000;if(!force&&Date.now()-pollAt<gap)return;
   polling=true;pollAt=Date.now();
   let ver;try{ver=sessionStorage.getItem('uno-accept')||undefined;}catch(_){}   // la que tocaste en el chat (puede haber varias)
   try{const j=await lbCall({accion:'buzon',usuario:a.usuario,token:a.token,ver});const inv=j.invitacion;
     const rc=window.RECON&&RECON.recuerdo('uno');
     if(inv&&rc&&!UIQ.dismissed.has(inv.id)&&!ON&&RECON.esVuelta(inv,'UNO:',rc.mesa)){acceptInvite(inv,true);polling=false;return;}   // v63: volver a la partida
-    if(inv&&!UIQ.dismissed.has(inv.id)&&!ON){
+    if(inv&&!UIQ.dismissed.has(inv.id)&&(!ON||mesaSola())){
       const uno=String(inv.oferta||'').startsWith('UNO:');
       let want='';try{want=sessionStorage.getItem('uno-accept')||'';}catch(_){}
       if(uno&&want===inv.id){try{sessionStorage.removeItem('uno-accept');}catch(_){}acceptInvite(inv);}
@@ -4352,16 +4375,16 @@ async function pollInbox(force=false){
   polling=false;
 }
 function showInvite(inv){
-  UIQ.dismissed.add(inv.id);const of=String(inv.oferta||''),uno=of.startsWith('UNO:'),tru=of.startsWith('TRUCO:'),pob=of.startsWith('POBLAR:'),aj=of.startsWith('AJEDREZ:');
-  const juego=uno?'<b>UnoAR</b> 🃏 en su mesa':tru?'<b>TrucAR</b> 🃏':pob?'<b>PoblAR</b> 🏘️':aj?'<b>AjedrezAR</b> ♟️':of.startsWith('LUDO:')?'<b>LudAR</b> 🎲':'<b>BloqueAR</b> 🧱';
+  UIQ.dismissed.add(inv.id);const sola=mesaSola();if(sola)LOBBY=false;const of=String(inv.oferta||''),uno=of.startsWith('UNO:'),tru=of.startsWith('TRUCO:'),pob=of.startsWith('POBLAR:'),aj=of.startsWith('AJEDREZ:');
+  const juego=uno?'<b>UnoAR</b> 🃏 en su mesa':tru?'<b>TrucAR</b> 🃏':pob?'<b>PoblAR</b> 🏘️':aj?'<b>AjedrezAR</b> ♟️':of.startsWith('LUDO:')?'<b>LudAR</b> 🎲':of.startsWith('POOL:')?'<b>PoolAR</b> 🎱':'<b>BloqueAR</b> 🧱';
   sheet('Te invitan',`<div style="display:flex;align-items:center;gap:12px">${avHtml(inv.avatar,inv.color)}<div><b style="font:700 18px var(--serif)">${esc(inv.de)}</b><div class="note">te invita a jugar ${juego}</div></div></div>
-    ${uno&&E&&!E.fin&&MODO==='compu'?'<p class="note">Tu partida contra la compu queda guardada.</p>':''}<div class="row"><button class="btn" id="iv-no">Ahora no</button><button class="btn go" id="iv-yes">Aceptar</button></div>`);
-  $('iv-no').onclick=()=>{closeSheet();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
+    ${uno&&E&&!E.fin&&MODO==='compu'?'<p class="note">Tu partida contra la compu queda guardada.</p>':''}${sola?'<p class="note">Si aceptás, se cierra la mesa que abriste (todavía no había nadie).</p>':''}<div class="row"><button class="btn" id="iv-no">Ahora no</button><button class="btn go" id="iv-yes">Aceptar</button></div>`);
+  $('iv-no').onclick=()=>{closeSheet();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});if(sola&&mesaSola()){LOBBY=true;drawLobby();}};
   $('iv-yes').onclick=()=>{closeSheet();if(uno)acceptInvite(inv);
     else if(tru){try{sessionStorage.setItem('truco-accept',inv.id);}catch(_){}location.href='truco.html';}
     else if(pob){try{sessionStorage.setItem('poblar-accept',inv.id);}catch(_){}location.href='poblar.html';}
     else if(aj){try{sessionStorage.setItem('ajedrez-accept',inv.id);}catch(_){}location.href='ajedrez.html';}
-    else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
+    else{const pg=of.startsWith('LUDO:')?'ludo':of.startsWith('POOL:')?'pool':'';try{sessionStorage.setItem(pg?pg+'-accept':'blq-accept',inv.id);}catch(_){}location.href=pg?pg+'.html':'./';}};
 }
 window.addEventListener('pagehide',()=>{if(ON)netSend({t:'bye',corte:1});});   // se cerró la app: puede volver (v63)
 
