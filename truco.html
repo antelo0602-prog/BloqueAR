@@ -351,9 +351,11 @@ const PARTES={
   solos:['sudoku-dif','sudoku-errores','sudoku-choques','sudoku-zona','sudoku-iguales','sudoku-notasAuto','sudoku-faltan','sudoku-ayuda','sudoku-partida-v1',['sudoku-records-v1','min'],['sudoku-dias-v1','claves'],['sudoku-xp-hechas','union'],
     'solitario-robo','solitario-consol','solitario-nivel','solitario-ayuda','solitario-partida-v1','solitario-racha',['solitario-records-v1','recsol'],['solitario-dias-v1','claves'],['solitario-xp-hechas','union'],
     'buscaminas-dif','buscaminas-resaltar','buscaminas-listos','buscaminas-chord','buscaminas-mantener','buscaminas-vibrar','buscaminas-ayuda','buscaminas-partida-v1',['buscaminas-records-v1','min'],['buscaminas-dias-v1','claves'],['buscaminas-stats-v1','nuevo'],['buscaminas-xp-hechas','union']],
+  laberinto:['laberinto-pref','laberinto-dif','laberinto-libre','laberinto-ayuda','laberinto-sonido','laberinto-partida-v1',['laberinto-records-v1','max'],['laberinto-campana-v1','max'],['laberinto-dias-v1','claves'],['laberinto-xp-hechas','union']],   // v73
+  invasores:['invasores-ajustes','invasores-cfg','invasores-taller','invasores-tut','invasores-partida-v1',['invasores-records','max'],['invasores-dia','claves'],['invasores-xp-hechas','union']],   // v73 InvasorAR
   pampa:['pampa-resultado','pampa-visto','pampa-resumen','pampa-cruce','pampa-copas','pampa-ayuda-9'],
   gen:[['bloques-novedades','maxnum'],['bloques-chat-read-{me}','max'],['bloques-chat-borr-{me}','max'],'bloques-chat-frase','bloques-chat-modo',
-    'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-estancia',
+    'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
     'bloques-favoritos-v1','bloques-orden-v1']   // v67: juegos fijados y orden propio del menú de juegos
 };
 const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1'];
@@ -421,7 +423,8 @@ const PREM={exportar(){return {q:ls.json('estancia-premios',[]),c:ls.json(PRC,[]
     ls.set(PRC,JSON.stringify([...c].slice(-200)));if(nuevo!==antes){ls.set('estancia-premios',nuevo);return true;}return false;}};
 // Lo que jugaste hoy para La Gran Pampa: cada dispositivo cuenta lo suyo y en «pampa-act» queda la suma.
 const ACT={hoy(){return new Date(Date.now()-3*3600e3).toISOString().slice(0,10);},   // el mismo día que RANGOS.pampaAct (hora argentina)
-  F:['b','p','e','t','u','a','l','k','s','o','m','r'],   // v70: también ajedrez, pool, ludo, los del día y los retos
+  F:['b','p','e','t','u','a','l','k','s','o','m','r','v','w'],   // v73: v y w, InvasorAR
+    // v70: también ajedrez, pool, ludo, los del día y los retos
   mio(){const L=ls.json('pampa-act',null),O=ls.json('sync-act-otros',null),h=this.hoy(),o={};
     for(const f of this.F)o[f]=L&&L.d===h?Math.max(0,(L[f]|0)-(O&&O.d===h?(O.s[f]|0):0)):0;return o;},
   exportar(){const h=this.hoy(),P=ls.json('sync-act-por',null),por=P&&P.d===h?{...P.por}:{};por[dev]=this.mio();return {d:h,por};},
@@ -485,7 +488,8 @@ async function ahora(bajar=true,keep=false){
     }
     const subir=[...SUC.dirty].map(n=>{const d=datosDe(n);return d?{n,d:JSON.stringify(d),t:Date.now()}:null;}).filter(x=>x&&x.d.length<45000);
     SUC.dirty.clear();
-    if(subir.length){await call({accion:'sync',usuario:a.usuario,token:a.token,subir},15000,keep);SUC.last=Date.now();}
+    // v73: de a 10 partes por pedido (la planilla toma hasta 12 y ya hay más partes que eso)
+    for(let i=0;i<subir.length;i+=10){await call({accion:'sync',usuario:a.usuario,token:a.token,subir:subir.slice(i,i+10)},15000,keep);SUC.last=Date.now();}
     setSt('ok');
     if(partes.length)try{window.dispatchEvent(new CustomEvent('bloques-sync',{detail:{claves:traidos,partes}}));}catch(_){}
   }catch(e){
@@ -513,7 +517,7 @@ function arrancar(){
     else if(Date.now()-SUC.pullT>15000)ahora(true);});
   window.addEventListener('pagehide',()=>{if(!SUC.dirty.size)return;const a=acct();if(!a)return;   // al cerrar: se manda lo que falta, sin esperar
     const subir=[...SUC.dirty].map(n=>{const d=datosDe(n);return d?{n,d:JSON.stringify(d),t:Date.now()}:null;}).filter(Boolean);
-    try{fetch(lbUrl(),{method:'POST',body:JSON.stringify({accion:'sync',usuario:a.usuario,token:a.token,subir}),headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true});}catch(_){}});
+    for(let i=0;i<subir.length;i+=10)try{fetch(lbUrl(),{method:'POST',body:JSON.stringify({accion:'sync',usuario:a.usuario,token:a.token,subir:subir.slice(i,i+10)}),headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true});}catch(_){}});
   window.addEventListener('online',()=>{if(SUC.dirty.size)ahora(true);});
   // Cuando se abre un menú lateral, se muestra el renglón del guardado.
   try{const sp=()=>{const b=document.getElementById('side-panel');if(b)new MutationObserver(()=>engancharMenu()).observe(b,{childList:true});};if(document.getElementById('side-panel'))sp();else document.addEventListener('DOMContentLoaded',sp);}catch(_){}
@@ -800,9 +804,9 @@ window.GESTOS={salida,deslizar};
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR'};
 // Solitarios (v62): no tienen rango (no son competitivos), pero su XP suma al nivel general.
-const SOLOS={sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR'};
+const SOLOS={sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR'};   // v73: LaberintAR (arcade para uno solo, sin rango)
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
 const RKEY='bloques-rangos-v1',XKEY='bloques-xpjuegos-v1',PKEY='bloques-progress-v1',DONE='bloques-rangos-hechas-v1';
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d;}catch(_){return d;}}};
@@ -849,8 +853,8 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 //   info = {j: 'truco' (id del juego), res: 'g' ganó | 'e' empate | 'p' perdió, rival: 'p' personas | 'c' compu | 's' solo,
 //           dif: 'facil'|'normal'|'dificil'|'maestro', esf: true si la partida tuvo «esfuerzo» (cada juego dice cuánto
 //           es: perder en 20 segundos no cuenta), key (para no anotarla dos veces), x: {…datos para las tablas}}
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas'};
-const ACT_DE={bloquear:'b',poblar:'p',truco:'t',uno:'u',ajedrez:'a',pool:'l',ludo:'k'};
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores'};
+const ACT_DE={bloquear:'b',poblar:'p',truco:'t',uno:'u',ajedrez:'a',pool:'l',ludo:'k',invasores:'v'};
 function premio(de,xp,ranked,info,extra){
   const n=Math.max(0,Math.round(xp||0));
   if(info&&window.ORO)info=ORO.norm(info,de);   // v70: acepta {rival:'compu'|'personas', res:'gana'|…}; los solitarios van como «solo»
@@ -914,7 +918,9 @@ function leguasDe(i){
 // «pampa-act» guarda, por día, cuántas leguas juntaste en cada cosa (b BloqueAR, p PoblAR, t TrucAR, u UnoAR, a AjedrezAR,
 // l PoolAR, k LudAR, e EstanciAR, s Sudoku del día, o SolitARio del día, m BuscaminAR del día, r retos de la semana).
 const PAMPA_ACT={b:{tope:4,v:1},p:{tope:4,v:1},t:{tope:4,v:1},u:{tope:4,v:1},a:{tope:4,v:1},l:{tope:4,v:1},k:{tope:4,v:1},
-  e:{tope:4,v:1},s:{tope:1,v:1},o:{tope:1,v:1},m:{tope:1,v:1},r:{tope:3,v:1}};
+  e:{tope:4,v:1},s:{tope:1,v:1},o:{tope:1,v:1},m:{tope:1,v:1},r:{tope:3,v:1},
+  f:{tope:1,v:1},h:{tope:1,v:1},
+  v:{tope:1,v:1},w:{tope:1,v:1}};   // v73 InvasorAR: v el primer intento que vale del día (o un duelo), w el desafío del día   // v73 LaberintAR: f el primer intento que vale del día, h el desafío del día
 const PAMPA_COMPU=2,PAMPA_DIA=12;
 function pampaAct(q,n=1,compu=false){
   const A=PAMPA_ACT[q];n=Math.max(0,Math.floor(n||0));if(!A||!n)return 0;
@@ -975,7 +981,7 @@ async function enviarCola(esta){
 function sacar(it){ls.set(RQ,JSON.stringify(ls.json(RQ,[]).filter(q=>!(q.clave===it.clave&&q.u===it.u))));}
 try{if(typeof window!=='undefined'&&ls.json(RQ,[]).length)setTimeout(()=>enviarCola(),4000);}catch(_){}
 /* ── Para los perfiles: partidas y récords de cada juego ── */
-const PJ=[['poblar','🏘️','PoblAR'],['truco','🃏','TrucAR'],['uno','🎴','UnoAR'],['ajedrez','♟️','AjedrezAR'],['bloquear','🧱','BloqueAR (duelos)'],['pool','🎱','PoolAR'],['ludo','🎲','LudAR']];
+const PJ=[['poblar','🏘️','PoblAR'],['truco','🃏','TrucAR'],['uno','🎴','UnoAR'],['ajedrez','♟️','AjedrezAR'],['bloquear','🧱','BloqueAR (duelos)'],['pool','🎱','PoolAR'],['ludo','🎲','LudAR'],['invasores','👾','InvasorAR (duelos)']];
 function juegosHtml(d){
   css();const P=(d&&d.juegos)||{},X=(d&&d.destacados)||[],f=n=>Number(n||0).toLocaleString('es-AR');
   const filas=PJ.filter(([g])=>P[g]&&P[g].n).map(([g,e,nm])=>{const r=P[g],pc=r.n?Math.round(r.w/r.n*100):0;
@@ -1099,6 +1105,8 @@ const ORO_TABLA={
   sudoku:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
   solitario:i=>i.extra&&i.extra.delDia?6:(i.extra&&i.extra.dificultad==='dificil'?3:2),
   buscaminas:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
+  laberinto:i=>i.extra&&i.extra.delDia?6:Math.min(10,4+2*Math.min(3,(i.extra&&i.extra.mapas)||0)),   // v73: 4 por participar, +2 por mapa limpio (hasta 10); el del día 6
+  invasores:i=>{const x=i.x||i.extra||{};if(x.modo==='duelo')return 6;if(x.modo==='dia')return 6;return Math.min(10,2+(x.olas||0))*(x.dif==='tranquila'?.6:1);},   // v73: 2 + 1 por oleada limpia (hasta 10); duelo y del día 6
   reto:5                                           // cada reto de la semana cumplido
 };
 const ORO_DEF=4;   // un juego que todavía no está en la tabla
@@ -1106,8 +1114,8 @@ const MULT_RES={g:1,e:.6,p:.4,a:0},MULT_RIVAL={p:2,c:1,s:1};
 const MULT_DIF=d=>d==='facil'?.5:(d==='dificil'||d==='maestro')?1.5:1;
 const TOPE=[150,300];   // del día: hasta 150 enteros, hasta 300 a la mitad, después un cuarto
 const CAMBIO={tasa:8,dia:50};
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas'};
-const SOLOS=new Set(['sudoku','solitario','buscaminas']);
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores'};
+const SOLOS=new Set(['sudoku','solitario','buscaminas','laberinto']);
 
 // «info» de cada juego, en la forma corta que usa RANGOS ({res:'g'|'e'|'p'|'a', rival:'p'|'c'|'s', esf}); también acepta la larga
 // ({rival:'compu'|'personas', res:'gana'|'empata'|'pierde'|'abandona', ok, extra}). Los solitarios van como «solo».
@@ -1230,8 +1238,8 @@ const cofreGen=L=>20+5*L;
 // Nivel de cada juego: 5/10/20/30 una apariencia exclusiva (las declara LOGROS con lv); 10 y 30, un título.
 const TIT_J={bloquear:['Apilador','Gran arquitecto'],poblar:['Colono','Fundador de pueblos'],truco:['Gaucho del truco','Mano de oro del truco'],uno:['Cantor del uno','Rey de la mesa'],
   ajedrez:['Alfil del pago','Gran maestro'],ludo:['Fichero','Patrón del ludo'],pool:['Taquero','Mago del paño'],sudoku:['Numerero','Sabio de los números'],solitario:['Paciente','Maestro del solitario'],
-  buscaminas:['Rastreador de minas','Desactivador'],estancia:['Chacarero','Gran estanciero']};
-const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',estancia:'EstanciAR'};
+  buscaminas:['Rastreador de minas','Desactivador'],invasores:['Defensor de la llanura','Azote de la Nodriza'],estancia:['Chacarero','Gran estanciero']};
+const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',invasores:'InvasorAR',estancia:'EstanciAR'};
 const cofreEst=L=>L>=8?10+2*L:0;   // EstanciAR: desde el nivel 8, un cofre chico por nivel (lo cobra la estancia)
 function R(){return window.RANGOS||null;}
 function lvGen(){try{return R().general().level.lv;}catch(_){return 1;}}
@@ -1305,7 +1313,7 @@ function pampaPuesto(pr){if(!pr||!pr.semana)return 0;return cobrar('pm:'+pr.sema
 
 /* ── Hoja «¿Cómo gano oro?» ── */
 function hojaHtml(){css();const o=load(),h=o.h.slice(0,8),y=hoy();
-  const filas=[['🏘️','PoblAR, partida ganada','12'],['🃏','TrucAR a 30 (a 15: 6)','10'],['♟️','AjedrezAR (bala: 4)','8'],['🎴','UnoAR · 🎲 LudAR','6'],['🎱','PoolAR, por mesa','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],
+  const filas=[['🏘️','PoblAR, partida ganada','12'],['🃏','TrucAR a 30 (a 15: 6)','10'],['♟️','AjedrezAR (bala: 4)','8'],['🎴','UnoAR · 🎲 LudAR','6'],['🎱','PoolAR, por mesa','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],['👾','InvasorAR (duelo y del día: 6)','2 + 1 por oleada, hasta 10'],
     ['🧩','Sudoku, Solitario o Buscaminas del día','6'],['🧩','Sudoku, Solitario o Buscaminas común','1 a 3'],['🎯','Cada reto de la semana','5'],['⭐','Cada nivel general','20 + 5 × nivel'],['🗺️','La Gran Pampa: 1.º / 2.º / 3.º','300 / 200 / 120'],['🗺️','Terminar la semana de La Gran Pampa jugando','40']];
   return `<div class="oro-hoja"><p class="oro-saldo">${ico()}<b data-oro-saldo>${fmt(saldoDe(o))}</b><span>de oro</span></p>
   <p>El <b>oro</b> sale de jugar cualquier juego y sirve para lo lindo: apariencias de los juegos, ropa y caballos especiales, adornos únicos para la estancia, gestos y marcos. Los <b>pesos</b> salen de la estancia y sirven para lo de todos los días. Las mejoras grandes de la estancia piden las dos.</p>
@@ -1627,6 +1635,45 @@ buscaminas:{n:'BuscaminAR',e:'💣',
       {id:'oro',n:'Trigal dorado',sw:'#d9b25a',logro:'experto',v:['#d9b25a','#cfa64c','#f3d98f','#8a6a24','#f6ecd2','#efe2c2','#d6c08c']}],
       // (v72) los colores de los números van en «nc»: con «n» se pisaba el nombre y el CSS fallaba (no se veía ninguna).
       css:(o,s)=>`${s} body{--tp1:${o.v[0]};--tp2:${o.v[1]};--tpl:${o.v[2]};--tps:${o.v[3]};--ab1:${o.v[4]};--ab2:${o.v[5]};--abl:${o.v[6]}${Array.isArray(o.nc)?o.nc.map((c,i)=>`;--n${i+1}:${c}`).join(''):''}}`}}},
+laberinto:{n:'LaberintAR',e:'🧉',
+  logros:[
+    {id:'primera',e:'🌾',n:'Primer recorrido',d:'Limpiá un mapa.',k:'limpios'},
+    {id:'pulso',e:'🫡',n:'Pulso firme',d:'Limpiá un mapa sin perder ninguna vida.',k:'sin_morir'},
+    {id:'mate',e:'🧉',n:'Mate justo',d:'Corré a los cuatro con un mismo mate.',k:'combo4'},
+    {id:'baqueano',e:'🦊',n:'Baqueano',d:'Limpiá un mapa en Difícil.',k:'lim_dif'},
+    {id:'torta',e:'🥯',n:'Tortas fritas',d:'Comé 10 tortas fritas (el bonus).',k:'bonus',m:10},
+    {id:'vuelta',e:'🏇',n:'Vuelta de campo',d:'Limpiá los 10 mapas de una partida rápida.',k:'vuelta'},
+    {id:'constancia',e:'📅',n:'Constancia',d:'Limpiá 7 laberintos del día (en días distintos).',k:'dias',m:7},
+    {id:'cartografo',e:'🗺️',n:'Cartógrafo',d:'Limpiá las 15 etapas de la campaña.',k:'etapas',m:15},
+    {id:'cielo',e:'✨',n:'Cielo completo',d:'Juntá las 45 estrellas de la campaña.',k:'estrellas',m:45},
+    {id:'semana',e:'🗓️',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'l',k:'limpios',v:[3,5],t:n=>`Limpiá ${n} mapas`,xp:40},
+    {id:'c',k:'capturas',v:[8,12],t:n=>`Corré a ${n} perseguidores con un mate`,xp:40},
+    {id:'n',k:'sin_morir',v:[1,2],t:n=>n===1?'Limpiá un mapa sin perder vidas':`Limpiá ${n} mapas sin perder vidas`,xp:55},
+    {id:'d',k:'dias',v:[2,3],t:n=>`Limpiá ${n} laberintos del día`,xp:45},
+    {id:'b',k:'bonus',v:[2,3],t:n=>`Comé ${n} tortas fritas`,xp:35}],
+  // Los dibuja el juego (canvas): acá van sólo para elegirlas, comprarlas y saber cuáles tenés. No cambian nada del juego.
+  ap:{
+    pj:{n:'Tu corredor',op:[
+      {id:'semillero',n:'Semillero',sw:'#e8c45a'},
+      {id:'panuelo',n:'Pañuelo rojo',sw:'#d9483b',logro:'primera'},
+      {id:'boina',n:'Boina de campo',sw:'#22324a',lv:3},
+      {id:'matero',n:'Mate viajero',sw:'#8a5a2b',lv:5},
+      {id:'jacaranda',n:'Jacarandá',sw:'#b99be8',oro:120},
+      {id:'fileteado',n:'Fileteado',sw:'#2a6b3a',oro:300},
+      {id:'noche',n:'Noche pampeana',sw:'#3d4f7a',oro:800},
+      {id:'poncho',n:'Poncho de fiesta',sw:'#b8402e',logro:'pulso'},
+      {id:'luciernaga',n:'Luciérnaga',sw:'#d6f27a',logro:'cielo'}],
+      css:()=>''},
+    tema:{n:'Tablero',op:[
+      {id:'campo',n:'Arcade de campo',sw:'#79c97b'},
+      {id:'galpon',n:'Galpón ferroviario',sw:'#d98a52',lv:4},
+      {id:'malvones',n:'Patio de malvones',sw:'#e07aa8',oro:120},
+      {id:'faroles',n:'Noche de faroles',sw:'#f2c14e',oro:300},
+      {id:'jacaranda',n:'Jacarandá en flor',sw:'#a98be8',lv:10},
+      {id:'cielo',n:'Cielo de pampa',sw:'#8fd0ff',logro:'constancia'}],
+      css:()=>''}}},
 ajedrez:{n:'AjedrezAR',e:'♟️',
   logros:[
     {id:'primera',e:'♟️',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
@@ -1667,6 +1714,55 @@ ajedrez:{n:'AjedrezAR',e:'♟️',
       {id:'celeste',n:'Celeste y negro',sw:'#9fd0f0',lv:6,v:['#bfe2f7','#173246','#173246','#1b1d22','#000000','#9fd0f0']},
       {id:'oro',n:'Oro',sw:'#f1cf6a',logro:'veinte',v:['#f3d77a','#5a3d10','#5a3d10','#2a2015','#0c0906','#f1cf6a']}],
       css:(o,s)=>`${s} body{--pw:${o.v[0]};--pws:${o.v[1]};--pwd:${o.v[2]};--pb:${o.v[3]};--pbs:${o.v[4]};--pbd:${o.v[5]}}`}}},
+invasores:{n:'InvasorAR',e:'👾',   // v73
+  logros:[
+    {id:'primera',e:'👾',n:'Primer patrullaje',d:'Terminá una partida.',k:'partidas'},
+    {id:'aprendiz',e:'🎓',n:'Cadete',d:'Completá el tutorial.',k:'aprendiz'},
+    {id:'gane1',e:'🏆',n:'Defensor de la llanura',d:'Ganá una partida: completá el Arcade o el desafío del día, o ganá un duelo.',k:'ganadas'},
+    {id:'centinela',e:'🛸',n:'Abajo el Centinela',d:'Derribá al Centinela.',k:'centinela'},
+    {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
+    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
+    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
+    {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a combo ×4 (40 bajas seguidas).',k:'max_combo',m:4,marca:true},
+    {id:'duelo',e:'⚔️',n:'Duelo ganado',d:'Ganale un duelo a alguien de verdad.',k:'ganadas_online'},
+    {id:'expedicion',e:'♾️',n:'Expedición larga',d:'Llegá a 15 oleadas limpias en Resistencia.',k:'olas_res',m:15,marca:true},
+    {id:'contrabando',e:'📦',n:'Contrabandista',d:'Bajá 10 naves de suministros.',k:'suministros',m:10},
+    {id:'muralla',e:'🛡️',n:'Muralla',d:'Atajá 50 tiros con el escudo.',k:'escudos',m:50},
+    {id:'chatarrero',e:'🔧',n:'Chatarrero',d:'Derribá 500 invasores.',k:'bajas',m:500},
+    {id:'centinela5',e:'🛰️',n:'Taller en órbita',d:'Derribá al Centinela 5 veces.',k:'centinela',m:5},
+    {id:'gane10',e:'🦫',n:'Carpincho estelar',d:'Ganá 10 partidas.',k:'ganadas',m:10},
+    {id:'constancia',e:'📅',n:'Constancia',d:'Jugá 5 desafíos del día (en días distintos).',k:'dias',m:5},
+    {id:'desarmadero',e:'🏭',n:'Desarmadero',d:'Derribá 3000 invasores.',k:'bajas',m:3000},
+    {id:'semana',e:'🗓️',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[3,5],t:n=>`Jugá ${n} partidas`,xp:40},
+    {id:'o',k:'oleadas',v:[8,12],t:n=>`Limpiá ${n} oleadas`,xp:45},
+    {id:'b',k:'bajas',v:[150,250],t:n=>`Derribá ${n} invasores`,xp:45},
+    {id:'s',k:'suministros',v:[2,4],t:n=>`Bajá ${n} naves de suministros`,xp:40},
+    {id:'c',k:'centinela',v:[1,2],t:n=>n===1?'Derribá al Centinela':`Derribá al Centinela ${n} veces`,xp:55},
+    {id:'e',k:'escudos',v:[5,10],t:n=>`Atajá ${n} tiros con el escudo`,xp:40},
+    {id:'d',k:'dias',v:[1,2],t:n=>n===1?'Jugá el desafío del día':`Jugá ${n} desafíos del día`,xp:45}],
+  // Las dibuja el juego (canvas): la nave, el disparo y el fondo cambian sólo cómo se ven (el golpe y el tiro son los mismos).
+  ap:{
+    nave:{n:'Nave',op:[
+      {id:'chispa',n:'Chispa',sw:'#e9f6ff'},
+      {id:'lata',n:'Nave de lata',sw:'#c9ced3',lv:2},
+      {id:'tractor',n:'Tractor orbital',sw:'#d9433b',lv:5},
+      {id:'carpincho',n:'Carpincho estelar',sw:'#a8743e',logro:'gane10'},
+      {id:'mate',n:'Mate volador',sw:'#7a9a3a',oro:300},
+      {id:'faro',n:'Faro de la noche',sw:'#1c2a44',oro:800},
+      {id:'dorada',n:'Chispa dorada',sw:'#ffd36b',lv:10}],css:()=>''},
+    tiro:{n:'Disparo',op:[
+      {id:'celeste',n:'Celeste',sw:'#7ce9e5'},
+      {id:'ambar',n:'Ámbar de alto contraste',sw:'#ffb347',lv:3},
+      {id:'verde',n:'Verde',sw:'#7ddc5a',oro:120},
+      {id:'violeta',n:'Violeta',sw:'#b97cff',lv:20},
+      {id:'arcoiris',n:'Arcoíris',sw:'linear-gradient(90deg,#ff6a5c,#ffd36b,#7ddc5a,#7ce9e5,#b97cff)',oro:800}],css:()=>''},
+    fondo:{n:'Fondo',op:[
+      {id:'molino',n:'Noche de molino',sw:'#1d2550'},
+      {id:'taller',n:'Taller en órbita',sw:'#141a2c',logro:'centinela5'},
+      {id:'aurora',n:'Aurora pampeana',sw:'linear-gradient(180deg,#0a1a2a,#2a8a6a,#0f2a35)',lv:8},
+      {id:'tormenta',n:'Tormenta de verano',sw:'#1b1f2b',oro:300}],css:()=>''}}},
 ludo:{n:'LudAR',e:'🎲',
   logros:[
     {id:'primera',e:'🎲',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
@@ -1802,7 +1898,7 @@ const AP_V70={
 for(const [j,T] of Object.entries(AP_V70))for(const [tipo,L] of Object.entries(T)){const A=D[j]&&D[j].ap&&D[j].ap[tipo];if(!A)continue;for(const op of L)if(!A.op.some(x=>x.id===op.id))A.op.push(op);}
 // Cada apariencia sabe de qué juego y tipo es (para comprarla con oro: «ap:juego:tipo:id»).
 for(const [j,G] of Object.entries(D))for(const [tipo,A] of Object.entries(G.ap||{}))for(const op of A.op)op.k_='ap:'+j+':'+tipo+':'+op.id;
-const ORDEN=['truco','uno','poblar','ajedrez','pool','ludo','estancia','pampa','sudoku','solitario','buscaminas'];
+const ORDEN=['truco','uno','poblar','ajedrez','pool','ludo','estancia','pampa','sudoku','solitario','buscaminas','laberinto','invasores'];
 let OCULTOS=[];
 
 /* ── Datos guardados ── */
@@ -1865,6 +1961,10 @@ function finEventos(j,d){const E=[],win=!!d.gano,compu=d.modo==='compu',dif=d.di
   if(j==='buscaminas'&&win){E.push(['gan_'+dif,1]);if(dif!=='principiante')E.push(['gan_ie',1]);if(d.diario)E.push(['dias',1]);if(d.sinBand)E.push(['sin_band',1]);
     if(d.limpio){E.push(['sin_pistas',1]);if(dif!=='principiante')E.push(['limpios_ie',1]);}
     if(dif==='principiante'&&d.ms<20000)E.push(['rapido_p',1]);if(dif==='intermedio'&&d.ms<120000)E.push(['rapido_i',1]);}
+  if(j==='invasores'){if(d.olas)E.push(['oleadas',d.olas]);if(d.bajas)E.push(['bajas',d.bajas]);if(d.sum)E.push(['suministros',d.sum]);if(d.cen)E.push(['centinela',d.cen]);if(d.nod)E.push(['nodriza',d.nod]);
+    if(d.escudos)E.push(['escudos',d.escudos]);if(d.diario)E.push(['dias',1]);if(win&&d.limpio)E.push(['limpio',1]);if(win&&dif==='experta'&&d.modo==='solo')E.push(['gan_experta',1]);}
+  if(j==='laberinto'){if(d.limpios)E.push(['limpios',d.limpios]);if(d.sinMorir)E.push(['sin_morir',d.sinMorir]);if(d.combo4)E.push(['combo4',1]);if(d.capturas)E.push(['capturas',d.capturas]);
+    if(d.bonus)E.push(['bonus',d.bonus]);if(d.vuelta)E.push(['vuelta',1]);if(d.diario)E.push(['dias',1]);if(d.limDif)E.push(['lim_dif',d.limDif]);}
   return E;}
 function fin(j,d,key){
   const out={nuevos:[],retos:[],html:''};if(!D[j]||!d)return out;const o=load();
@@ -2120,7 +2220,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null,inbox:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -2338,10 +2438,10 @@ function invCard(m){const o=S.plain[m.id];return o&&o.card&&o.card.inv?o.card:nu
 function invPendientes(){const out=[];for(let i=S.msgs.length-1;i>=0&&out.length<20;i--){const m=S.msgs[i],c=invCard(m),e=c&&S.invSt[c.inv];if(c&&!INV_FIN.includes(e)&&!(e==='vencida'&&Date.now()-m.t>2*3600e3))out.push(c.inv);}return out;}
 function invGuardarSt(o){let ch=false;for(const [id,e] of Object.entries(o||{}))if(S.invSt[id]!==e){S.invSt[id]=e;ch=true;}
   if(ch){const keep={};for(const m of S.msgs){const c=invCard(m);if(c&&S.invSt[c.inv])keep[c.inv]=S.invSt[c.inv];}S.invSt=keep;ls.set(kInvSt(),JSON.stringify(keep));}return ch;}
-const INV_URL={bloquear:'./',truco:'truco.html',uno:'uno.html',poblar:'poblar.html',ajedrez:'ajedrez.html',ludo:'ludo.html',pool:'pool.html'},INV_KEY={bloquear:'blq-accept',truco:'truco-accept',uno:'uno-accept',poblar:'poblar-accept',ajedrez:'ajedrez-accept',ludo:'ludo-accept',pool:'pool-accept'};
+const INV_URL={bloquear:'./',truco:'truco.html',uno:'uno.html',poblar:'poblar.html',ajedrez:'ajedrez.html',ludo:'ludo.html',pool:'pool.html',invasores:'invasores.html'},INV_KEY={bloquear:'blq-accept',truco:'truco-accept',uno:'uno-accept',poblar:'poblar-accept',ajedrez:'ajedrez-accept',ludo:'ludo-accept',pool:'pool-accept',invasores:'invasores-accept'};
 function invCardHtml(c,m){
   const mine=lc(m.de)===lc(S.me),otro=mine?m.para:m.de,e=S.invSt[c.inv]||(Date.now()-m.t>6*3600e3?'vieja':'esperando'),busy=S.invBusy[c.inv];
-  const ic={bloquear:'🧱',poblar:'🏘️',truco:'🃏',uno:'🎴',ajedrez:'♟️',ludo:'🎲',pool:'🎱'}[c.j]||'🎮',nom=GAMES[c.j]||'jugar';
+  const ic={bloquear:'🧱',poblar:'🏘️',truco:'🃏',uno:'🎴',ajedrez:'♟️',ludo:'🎲',pool:'🎱',invasores:'👾'}[c.j]||'🎮',nom=GAMES[c.j]||'jugar';
   const est={esperando:mine?'Esperando que entre…':'Te está esperando',aceptada:mine?'✓ Entró':'✓ Entraste',rechazada:mine?'Dijo «ahora no»':'Dijiste «ahora no»',
     cancelada:mine?'La cancelaste':'La canceló',vencida:mine?'Venció':'Ya no está esperando',vieja:'Invitación anterior'}[e]||'';
   let btn='';
@@ -2545,7 +2645,7 @@ function amPerfilBtn(n){const st=amEstado(n),u=esc(n);
   if(st==='te-pidio')return `<button type="button" class="cx-primary" data-a="amSi" data-u="${u}">🤝 Aceptar su solicitud</button><button type="button" class="cx-sec" data-a="amNo" data-u="${u}">Ahora no</button>`;
   if(st==='pediste')return `<button type="button" class="cx-sec" data-a="amCancelar" data-u="${u}">⏳ Solicitud enviada · cancelar</button>`;
   return `<button type="button" class="cx-sec" data-a="amPedir" data-u="${u}">➕ Agregar como amigo</button>`;}
-function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="truco">🃏 TrucAR</button><button type="button" data-a="inv" data-g="uno">🎴 UnoAR</button><button type="button" data-a="inv" data-g="ludo">🎲 LudAR</button><button type="button" data-a="inv" data-g="pool">🎱 PoolAR</button><button type="button" data-a="inv" data-g="ajedrez">♟️ AjedrezAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
+function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="truco">🃏 TrucAR</button><button type="button" data-a="inv" data-g="uno">🎴 UnoAR</button><button type="button" data-a="inv" data-g="ludo">🎲 LudAR</button><button type="button" data-a="inv" data-g="pool">🎱 PoolAR</button><button type="button" data-a="inv" data-g="invasores">👾 InvasorAR (duelo)</button><button type="button" data-a="inv" data-g="ajedrez">♟️ AjedrezAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
 /* Compartir una partida: elegís a quién y le llega como tarjeta con un botón para jugar. */
 function shareRows(){return convList().map(({u,g,k})=>g?`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(k)}">${avatar({avatar:'👥',color:'#8b7cff'})}<span class="cx-mid"><b>${esc(g.n)}</b><small>${esc(grupoSub(g))}</small></span></button>`:`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(u.usuario)}">${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}"></i></b><small>${esc(estTxt(u))}</small></span></button>`).join('');}
 function renderShare(p){
@@ -2554,7 +2654,7 @@ function renderShare(p){
     <input id="cx-snote" maxlength="200" placeholder="Agregale algo (opcional): ¿me superás?"></div>
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
-function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏',uno:'🎴',ajedrez:'',ludo:'🎲',pool:'🎱'}[c.j]??'🎮';
+function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏',uno:'🎴',ajedrez:'',ludo:'🎲',pool:'🎱',invasores:'👾'}[c.j]??'🎮';
   return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&H.play?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">▶ Jugar</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
@@ -2614,10 +2714,10 @@ async function onClick(e){
   else if(a==='perfil')openProfile(b.dataset.u);
   else if(a==='invitar'){S.invFor=b.dataset.u;$('.cx-panel').dataset.sig='';render();}
   else if(a==='invx'){S.invFor=null;$('.cx-panel').dataset.sig='';render();}
-  else if(a==='inv'){const who=S.invFor,g=b.dataset.g;S.invFor=null;close();if((g==='ajedrez'||g==='ludo'||g==='pool')&&H.game()!==g){location.href=g+'.html#invitar='+encodeURIComponent(who);return;}try{H.invite&&H.invite(g,who);}catch(_){}}
+  else if(a==='inv'){const who=S.invFor,g=b.dataset.g;S.invFor=null;close();if((g==='ajedrez'||g==='ludo'||g==='pool'||g==='invasores')&&H.game()!==g){location.href=g+'.html#invitar='+encodeURIComponent(who);return;}try{H.invite&&H.invite(g,who);}catch(_){}}
   else if(a==='sharecon')shareTo(b.dataset.u);
   else if(a==='inventrar'||a==='invno'||a==='invcancel')invAccion(a,b.dataset.id,b.dataset.j);
-  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
+  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario','laberinto','invasores'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
   else if(a==='cuenta'){close();H.account();}
   else if(a==='activar')activate();
   else if(a==='verpin'){S.pinAsk=true;$('.cx-panel').dataset.sig='';render();setTimeout(()=>$('#cx-pin')?.focus(),50);}
@@ -2782,9 +2882,9 @@ function renderGrupoOp(p){
 }
 // Jugar con el grupo: se elige el juego, se abre su mesa en línea y, cuando la armás, se le avisa solo al grupo
 // («¿Quién se prende?»): los que tocan «Me prendo» entran solos.
-const JG=[['truco','🃏 TrucAR','De a 4 o 6, en equipos'],['uno','🎴 UnoAR','De 2 a 6'],['poblar','🏘️ PoblAR','De 2 a 4'],['ludo','🎲 LudAR','De 2 a 4'],['pool','🎱 PoolAR','Mano a mano o de a 4'],['ajedrez','♟️ AjedrezAR','De a 2'],['bloquear','🧱 BloqueAR','Duelo de a 2']];
-const JURL={truco:'truco.html#grupo=',uno:'uno.html#mesa&grupo=',poblar:'poblar.html#amigos&grupo=',ajedrez:'ajedrez.html#grupo=',ludo:'ludo.html#mesa&grupo=',pool:'pool.html#mesa&grupo=',bloquear:'./#grupo='};
-const NOMJ={truco:'TrucAR',uno:'UnoAR',poblar:'PoblAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',bloquear:'BloqueAR',estancia:'EstanciAR'};
+const JG=[['truco','🃏 TrucAR','De a 4 o 6, en equipos'],['uno','🎴 UnoAR','De 2 a 6'],['poblar','🏘️ PoblAR','De 2 a 4'],['ludo','🎲 LudAR','De 2 a 4'],['pool','🎱 PoolAR','Mano a mano o de a 4'],['invasores','👾 InvasorAR','Duelo de a 2'],['ajedrez','♟️ AjedrezAR','De a 2'],['bloquear','🧱 BloqueAR','Duelo de a 2']];
+const JURL={truco:'truco.html#grupo=',uno:'uno.html#mesa&grupo=',poblar:'poblar.html#amigos&grupo=',ajedrez:'ajedrez.html#grupo=',ludo:'ludo.html#mesa&grupo=',pool:'pool.html#mesa&grupo=',invasores:'invasores.html#duelo&grupo=',bloquear:'./#grupo='};
+const NOMJ={truco:'TrucAR',uno:'UnoAR',poblar:'PoblAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',bloquear:'BloqueAR',estancia:'EstanciAR'};
 function grupoJuegoHtml(g){
   const P=(g.p||[]).filter(x=>x&&x.j&&x.id);
   return `<p class="cx-sec-t">${g.tipo==='juego'?'🎮 Grupo de juego':'🎮 Jugar con el grupo'}</p><div class="cx-pad cx-gjugar">${JG.map(([j,t,d])=>`<button type="button" class="cx-sec" data-a="gjugar" data-j="${j}"><b>${t}</b><small>${d}</small></button>`).join('')}</div>
@@ -2856,7 +2956,7 @@ function emoPoner(e){
 /* «¿Quién se prende?» (v66): el que armó una mesa la avisa en un grupo (card.ll). El que toca «Me prendo» le pide lugar
    (pedirLugar); el juego del que armó la mesa lo invita como siempre y acá se entra solo a esa invitación. */
 function llamadoHtml(c,m){
-  const mine=lc(m.de)===lc(S.me),ic={truco:'🃏',uno:'🎴',poblar:'🏘️',bloquear:'🧱',ajedrez:'♟️',ludo:'🎲',pool:'🎱'}[c.j]||'🎮',viejo=Date.now()-m.t>30*60e3;
+  const mine=lc(m.de)===lc(S.me),ic={truco:'🃏',uno:'🎴',poblar:'🏘️',bloquear:'🧱',ajedrez:'♟️',ludo:'🎲',pool:'🎱',invasores:'👾'}[c.j]||'🎮',viejo=Date.now()-m.t>30*60e3;
   const yo=S.espero&&S.espero.mid===m.id,vencio=yo&&Date.now()-S.espero.t>150000;
   let pie='';
   if(mine)pie=`<span class="cx-inv-st st-esperando">Avisaste al grupo: los que se prenden te llegan solos a la mesa.</span>`;
@@ -2878,7 +2978,7 @@ async function mePrendo(mid){
 // Llegó la invitación del que armó la mesa: se entra solo (es la que pediste con «Me prendo»).
 // v70.1: la planilla 19 no conoce LudAR ni PoolAR: su tarjeta dice «BloqueAR · Duelo en línea». Se mira esa invitación
 // (una sola vez por tarjeta) y se corrige el juego que muestra la tarjeta y adónde lleva «Entrar».
-const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool'};
+const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool',INVASOR:'invasores'};
 async function invCorregir(){
   if(!(S.ver&&S.ver<20))return;S.invFix=S.invFix||{};
   for(const m of S.msgs.slice(-40)){const c=invCard(m);
@@ -3344,6 +3444,10 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:73,grande:true,titulo:'Novedades',items:[
+    ['🐤','LaberintAR en Arcade: juntá las semillas, escapale al zorro, la lechuza, el tero y el peludo, y con un mate dales vuelta la persecución. 15 mapas, campaña con estrellas y el laberinto del día.'],
+    ['👾','InvasorAR en Arcade: frená las oleadas y los jefes, rompé y cuidá tus refugios, y desafiá a un amigo a un duelo en línea con las mismas oleadas. Y el desafío del día.'],
+    ['🕹️','Los dos dan oro, leguas, logros y apariencias, y en EstanciAR hay un arcade de cada uno para poner en tu casa o en el patio.']]},
   {v:72,grande:true,titulo:'Novedades',items:[
     ['🃏','Las cartas ahora viajan y se apoyan en la mesa en TrucAR y UnoAR (también en la compu): ves quién jugó qué.'],
     ['💬','El chat de la mesa se puede arrastrar a otro lugar en todos los juegos, y cada juego tiene «🎨 Apariencia» a mano (por ejemplo, los tacos del pool).'],
@@ -4867,7 +4971,7 @@ function openMenu(){
     <button id="m-anot">📝 Anotador <small style="margin-left:auto;color:#a39276;font-size:11.5px">para cartas de verdad</small></button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-anim">${VUELO.etiqueta()}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=truco">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">TrucAR · versión 72</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">TrucAR · versión 73</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='on'&&!(E&&E.fin)){if(!confirm(`¿Dejar la partida con ${E?E.nombres[1]:'tu amigo'}?`))return;}
     if(EQ_ON&&eqConAmigos()&&QE&&!QE.fin){if(!confirm('¿Dejar la mesa con tus amigos?'))return;}openNew();});
@@ -5270,11 +5374,11 @@ async function pollInbox(force=false){
 }
 function showInvite(inv){
   UIQ.dismissed.add(inv.id);const of=String(inv.oferta||''),tru=of.startsWith('TRUCO:'),pob=of.startsWith('POBLAR:'),uno=of.startsWith('UNO:'),aj=of.startsWith('AJEDREZ:');let tnp=2;if(tru){try{tnp=JSON.parse(of.slice(6)).np||2;}catch(_){}}
-  const juego=tru?`<b>TrucAR</b> 🃏${tnp>2?` de a ${tnp} (${tnp===4?'2 contra 2':'3 contra 3'})`:''}`:pob?'<b>PoblAR</b> 🏘️':uno?'<b>UnoAR</b> 🎴':aj?'<b>AjedrezAR</b> ♟️':of.startsWith('LUDO:')?'<b>LudAR</b> 🎲':of.startsWith('POOL:')?'<b>PoolAR</b> 🎱':'<b>BloqueAR</b> 🧱';
+  const juego=tru?`<b>TrucAR</b> 🃏${tnp>2?` de a ${tnp} (${tnp===4?'2 contra 2':'3 contra 3'})`:''}`:pob?'<b>PoblAR</b> 🏘️':uno?'<b>UnoAR</b> 🎴':aj?'<b>AjedrezAR</b> ♟️':of.startsWith('LUDO:')?'<b>LudAR</b> 🎲':of.startsWith('POOL:')?'<b>PoolAR</b> 🎱':of.startsWith('INVASOR:')?'<b>InvasorAR</b> 👾':'<b>BloqueAR</b> 🧱';
   sheet('Te invitan',`<div style="display:flex;align-items:center;gap:12px">${avHtml(inv.avatar,inv.color)}<div><b style="font:700 18px var(--serif)">${esc(inv.de)}</b><div class="note">te invita a jugar ${juego}</div></div></div>
     ${tru&&((E&&!E.fin&&MODO==='compu')||(EQ_ON&&QE&&!QE.fin&&QMODO==='compu'))?'<p class="note">Tu partida contra la compu queda guardada.</p>':''}<div class="row"><button class="btn" id="iv-no">Ahora no</button><button class="btn go" id="iv-yes">Aceptar</button></div>`);
   $('iv-no').onclick=()=>{closeSheet();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
-  $('iv-yes').onclick=()=>{closeSheet();if(tru)acceptInvite(inv);else if(uno){try{sessionStorage.setItem('uno-accept',inv.id);}catch(_){}location.href='uno.html';}else if(aj){try{sessionStorage.setItem('ajedrez-accept',inv.id);}catch(_){}location.href='ajedrez.html';}else if(pob){try{sessionStorage.setItem('poblar-accept',inv.id);}catch(_){}location.href='poblar.html';}else{const pg=of.startsWith('LUDO:')?'ludo':of.startsWith('POOL:')?'pool':'';try{sessionStorage.setItem(pg?pg+'-accept':'blq-accept',inv.id);}catch(_){}location.href=pg?pg+'.html':'./';}};
+  $('iv-yes').onclick=()=>{closeSheet();if(tru)acceptInvite(inv);else if(uno){try{sessionStorage.setItem('uno-accept',inv.id);}catch(_){}location.href='uno.html';}else if(aj){try{sessionStorage.setItem('ajedrez-accept',inv.id);}catch(_){}location.href='ajedrez.html';}else if(pob){try{sessionStorage.setItem('poblar-accept',inv.id);}catch(_){}location.href='poblar.html';}else{const pg=of.startsWith('LUDO:')?'ludo':of.startsWith('POOL:')?'pool':of.startsWith('INVASOR:')?'invasores':'';try{sessionStorage.setItem(pg?pg+'-accept':'blq-accept',inv.id);}catch(_){}location.href=pg?pg+'.html':'./';}};
 }
 window.addEventListener('pagehide',()=>{if(ON&&ON.state==='on')netSend({t:'bye',corte:1});});   // se cerró la app: puede volver (v63)
 
