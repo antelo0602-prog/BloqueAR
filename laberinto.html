@@ -172,6 +172,128 @@ body.zurdo .ctrl{flex-direction:row-reverse}
 @media (prefers-reduced-motion:reduce){.over .rec{animation:none}.aj i,.aj i::after{transition:none}}
 </style>
 <script>
+/* ───────── Latido (v76): UNA sola consulta periódica a la planilla para toda la página ─────────
+   Antes cada parte preguntaba por su lado (el chat cada 4 s, el buzón del juego cada 5–8 s, los amigos del menú
+   cada 4 s, la lista de gente cada 25–30 s, la estancia cada 90 s). Ahora pregunta sólo esto, con la acción «latido»
+   de la planilla, y reparte la respuesta a cada parte.
+   Cada cuánto (los topes que pidió el usuario):
+     · con una charla abierta: cada 2 s, siempre;
+     · con el chat cerrado y la app a la vista: arranca en 4 s y, si no pasa nada, sube de a 1 s hasta 9 s
+       (así el primer mensaje después de un rato llega en menos de 10 s, contando lo que tarda la red);
+     · vuelve a 4 s apenas llega algo, al tocar la pantalla o al volver a la app (en ese caso pregunta enseguida);
+     · en segundo plano: cada 30 s;
+     · con una mesa armándose o conectándose: cada 3 s como mucho.
+   El chat de la mesa durante la partida va directo entre los teléfonos (WebRTC): no pasa por acá.
+   Si la planilla es vieja (no conoce «latido»), se apaga solo y cada parte vuelve a preguntar como antes.
+   API: LATIDO.registrar(nombre, {armar(p), recibir(j), ms(), error(e)}) · LATIDO.activo() · LATIDO.ahora() · LATIDO.buzon()
+        LATIDO.ultimo() → la última respuesta · LATIDO.espera(t0) → cuánto esperar entre consultas del buzón
+        mientras se conecta una mesa (0,7 s los primeros 90 s; después 2 s) · evento «bloques-latido» con la respuesta. */
+(function(){
+'use strict';
+if(window.LATIDO)return;
+const LB_DEF='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')??d;}catch(_){return d;}}};
+const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.token?a:null;};
+const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
+const MIN=4000,MAX=9000,PASO=1000,FONDO=30000,MESA=3000;
+const L={parts:{},timer:0,prox:0,ult:0,enCurso:false,otra:false,quietos:0,viejo:false,ok:false,fallas:0,j:null,jAt:0,mesaHasta:0,tocadoAt:0,limpiado:false,
+  sig:{t:0,inv:'',pr:'',eg:null,pa:null,am:''},n:0};
+async function call(p,ms=15000){
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
+  try{
+    const r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
+    const j=await r.json();
+    if(!j||!j.ok){const e=new Error(j&&j.error||'La planilla respondió con un error.');e.planilla=true;throw e;}
+    return j;
+  }catch(e){
+    if(e.name==='AbortError')throw new Error('La planilla tardó demasiado.');
+    if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');
+    throw e;
+  }finally{clearTimeout(to);}
+}
+function intervalo(){
+  if(document.hidden)return FONDO;
+  let ms=Math.min(MAX,MIN+L.quietos*PASO);
+  if(Date.now()<L.mesaHasta)ms=Math.min(ms,MESA);
+  for(const k in L.parts){try{const m=L.parts[k].ms&&L.parts[k].ms();if(m>0)ms=Math.min(ms,m);}catch(_){}}
+  return ms;
+}
+function programar(ms){
+  if(L.viejo||!acct()||!Object.keys(L.parts).length)return;
+  if(ms===undefined)ms=Math.max(0,L.ult+intervalo()-Date.now());
+  const cuando=Date.now()+ms;
+  if(L.timer&&L.prox&&L.prox<=cuando)return;   // ya hay uno antes
+  clearTimeout(L.timer);L.prox=cuando;L.timer=setTimeout(tick,ms);
+}
+function reprogramar(){clearTimeout(L.timer);L.timer=0;L.prox=0;programar();}
+async function tick(){
+  L.timer=0;L.prox=0;
+  if(L.viejo)return;
+  const a=acct();if(!a)return;
+  if(L.enCurso){L.otra=true;return;}
+  L.enCurso=true;L.ult=Date.now();
+  const p={accion:'latido',usuario:a.usuario,token:a.token,q:{bz:{}}};
+  for(const k in L.parts){try{L.parts[k].armar&&L.parts[k].armar(p);}catch(_){}}
+  let j=null,err=null;
+  try{j=await call(p);L.n++;}catch(e){err=e;}
+  if(j){
+    L.ok=true;L.fallas=0;L.j=j;L.jAt=Date.now();
+    const nuevo=novedad(j);L.quietos=nuevo||L.n<=1?0:Math.min(L.quietos+1,20);
+    for(const k in L.parts){try{const r=L.parts[k].recibir&&L.parts[k].recibir(j);if(r&&r.then)await r.catch(()=>{});}catch(_){}}
+    try{window.dispatchEvent(new CustomEvent('bloques-latido',{detail:j}));}catch(_){}
+    if(j.lp&&!L.limpiado){L.limpiado=true;call({accion:'limpieza',usuario:a.usuario,token:a.token},60000).catch(()=>{});}   // una vez por día, la hace el primero
+  }else{
+    const m=String(err&&err.message||err);
+    if(/desconocida/i.test(m)){apagar();}
+    else if(err&&err.planilla&&!/sesión venció/i.test(m)&&++L.fallas>=3){apagar();}   // algo anda mal con «latido»: mejor como antes
+    for(const k in L.parts){try{L.parts[k].error&&L.parts[k].error(err);}catch(_){}}
+  }
+  L.enCurso=false;
+  if(L.otra){L.otra=false;programar(0);}else programar();
+}
+function novedad(j){
+  // Novedad = algo para vos: un mensaje, una invitación, amigos/solicitudes, tu estancia o La Gran Pampa.
+  // (Que otro se conecte o cambie de juego no cuenta: con mucha gente pasaría todo el tiempo y nunca se iría más lento.)
+  const S=L.sig,am=j.amigos?JSON.stringify(j.amigos):S.am;
+  const ch=(Number(j.t)||0)!==S.t||String(j.inv||'')!==S.inv||(j.eg!==undefined&&j.eg!==S.eg)||(j.pa!==undefined&&j.pa!==S.pa)||am!==S.am||(j.bz&&j.bz.invitacion);
+  const primera=!L.n||L.n===1;
+  S.t=Number(j.t)||0;S.inv=String(j.inv||'');S.am=am;if(j.eg!==undefined)S.eg=j.eg;if(j.pa!==undefined)S.pa=j.pa;
+  return ch&&!primera;
+}
+function apagar(){
+  if(L.viejo)return;L.viejo=true;L.ok=false;clearTimeout(L.timer);
+  try{window.dispatchEvent(new CustomEvent('bloques-latido-viejo'));}catch(_){}
+}
+function despertar(){if(L.viejo)return;L.quietos=0;programar(0);}
+// Tocar la pantalla: vuelve al paso rápido (sin preguntar de más: como mucho a los 4 s de la anterior).
+function tocado(){
+  if(L.viejo||document.hidden)return;const t=Date.now();if(t-L.tocadoAt<1500)return;L.tocadoAt=t;
+  if(L.quietos>0){L.quietos=0;clearTimeout(L.timer);L.timer=0;L.prox=0;programar(Math.max(150,L.ult+MIN-t));}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)despertar();else reprogramar();});
+for(const ev of ['pointerdown','keydown'])document.addEventListener(ev,tocado,{passive:true,capture:true});
+window.addEventListener('online',despertar);
+window.addEventListener('storage',e=>{if(e.key==='bloques-acct-v1'){L.sig={t:0,inv:'',pr:'',eg:null,pa:null,am:''};L.n=0;programar(300);}});
+window.LATIDO={
+  registrar(n,o){L.parts[n]=o||{};programar(L.ult?undefined:1200);},
+  quitar(n){delete L.parts[n];},
+  activo:()=>!L.viejo&&!!acct()&&L.ok,                 // ya respondió bien: las demás partes no preguntan por su lado
+  usable:()=>!L.viejo&&!!acct(),                       // todavía no sabemos si la planilla lo conoce, pero se intenta
+  get viejo(){return L.viejo;},
+  ahora(){if(L.viejo)return;programar(L.enCurso?0:Math.max(0,Math.min(250,L.ult+500-Date.now())));},   // «preguntá ya» (de a una)
+  despertar,
+  ultimo:()=>L.j,ultimoAt:()=>L.jAt,
+  // Lo del buzón que trajo el latido recién (si es de hace menos de 2,5 s): el juego lo usa en vez de preguntar otra vez.
+  buzon(){return L.j&&L.j.bz&&Date.now()-L.jAt<2500?Object.assign({ok:true},L.j.bz):null;},
+  espera(t0){L.mesaHasta=Date.now()+10000;return Date.now()-(t0||0)<90000?700:2000;},
+  mesa(seg){L.mesaHasta=Date.now()+(seg||10)*1000;programar();},
+  intervalo,
+  get estado(){return {quietos:L.quietos,ms:intervalo(),n:L.n,ok:L.ok,viejo:L.viejo};}
+};
+})();
+
+</script>
+<script>
 /* ───────── SYNCRO: tu progreso en todos los dispositivos (v63) ─────────
    Va en todas las páginas. Con la cuenta abierta, lo que cada juego guarda en este dispositivo (preferencias,
    partidas en curso contra la compu, récords, rangos, XP, logros, regalos para la estancia…) también se guarda en
@@ -537,7 +659,8 @@ function reinvitar(o){
   (async()=>{
     const a=acct();if(!a)return;
     while(!fin()&&!id){try{const j=await call({accion:'invitar',usuario:a.usuario,token:a.token,para:o.para,oferta:o.prefijo+JSON.stringify({...o.oferta,re:String(o.re||o.oferta.mesa||'')})});id=j.id;}catch(_){await sleep(2500);}}
-    while(!fin()){await sleep(2000);if(fin())break;
+    const t0=Date.now();   // v76: mientras se reconecta, cada 0,7 s (los primeros 90 s)
+    while(!fin()){await sleep(window.LATIDO?LATIDO.espera(t0):2000);if(fin())break;
       let r;try{r=await call({accion:'buzon',usuario:a.usuario,token:a.token,id});}catch(_){continue;}
       if(r.estado==='aceptada'&&r.respuesta){vivo=false;let sdp='';try{sdp=JSON.parse(r.respuesta).sdp||'';}catch(_){}o.onRespuesta(sdp,id,r.respuesta);return;}   // (raw: para respuestas que no son JSON, como las de BloqueAR)
       if(r.estado==='rechazada'||r.estado==='cancelada'||r.estado==='vencida')break;}
@@ -2075,7 +2198,7 @@ window.LOGROS={hoja,apBoton,D,evento,marca,fin,abrir,panelHtml,cablear,aplicar,a
 'use strict';
 const LB_DEF='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';
 const REACS=['❤️','😂','😮','😢','👍','🔥'];
-const DIAS=30;
+const DIAS=21;   // v76: la planilla guarda 21 días (antes 30)
 const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(_){}},
   json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')??d;}catch(_){return d;}}};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
@@ -2217,26 +2340,44 @@ function guardarGrupos(L){if(!Array.isArray(L))return false;const a=JSON.stringi
 function unreadFrom(n){const r=S.read[lc(n)]||0;if(esGK(n))return S.msgs.filter(m=>conv(m)===lc(n)&&lc(m.de)!==lc(S.me)&&m.tipo!=='reac'&&m.t>r).length;return S.msgs.filter(m=>lc(m.de)===lc(n)&&lc(m.para)===lc(S.me)&&m.tipo!=='reac'&&m.t>r).length;}
 function unreadTotal(){const seen=new Set();let n=0;for(const m of S.msgs){if(esG(m)){if(lc(m.de)!==lc(S.me)&&m.tipo!=='reac'&&m.t>(S.read[conv(m)]||0))n++;continue;}if(lc(m.para)!==lc(S.me)||m.tipo==='reac')continue;const r=S.read[lc(m.de)]||0;if(m.t>r)n++;seen.add(lc(m.de));}return n;}
 
-/* ── Consultas periódicas ── */
+/* ── Consultas periódicas ──
+   v76: si está el «latido» (chat/latido.js), la consulta la hace él para toda la página: el chat sólo le dice qué
+   necesita (armarChat) y procesa la respuesta (recibirChat). Si la planilla es vieja, vuelve a preguntar solo, como antes. */
+const conLatido=()=>!!(window.LATIDO&&LATIDO.usable());
+const msChat=()=>document.hidden?30000:S.open&&S.view==='conv'?2000:S.open?3000:0;
 function schedule(){
   clearTimeout(S.timer);if(!acct()||S.unsupported)return;
+  if(conLatido()){LATIDO.registrar('chat',PARTE);return;}   // el latido ajusta su paso (2 s con una charla abierta)
   // v57: más seguido (los mensajes tardaban). Con la charla abierta, cada 2 s.
   const ms=document.hidden?30000:S.open&&S.view==='conv'?2000:S.open?3000:4000;
   S.timer=setTimeout(poll,ms);
 }
-async function poll(){
-  const a=acct();
-  if(!a){if(S.me){loadLocal();render();}return;}
-  if(lc(a.usuario)!==lc(S.me)){loadLocal();render();}
-  if(S.polling){schedule();return;}S.polling=true;
-  try{
-    const p={accion:'chat',estado:{m:effMode(),j:String(H.game()||''),g:!!H.busy()},desde:S.last};
-    const pend=invPendientes();if(pend.length)p.invs=pend;
-    if(S.open&&S.view==='conv'&&S.con&&!esGK(S.con)&&Date.now()-S.typedAt<4000)p.escribe=S.con;
-    if(S.open&&S.view==='conv'&&S.con&&!esGK(S.con)&&!document.hidden){const t=lastFrom(S.con);if(t&&S.lastSeenSent[lc(S.con)]!==t){p.leido={con:S.con,t};S.lastSeenSent[lc(S.con)]=t;}}
-    const j=await call(auth(p));
+function cuentaAlDia(){const a=acct();if(!a){if(S.me){loadLocal();render();}return null;}if(lc(a.usuario)!==lc(S.me)){loadLocal();render();}return a;}
+function armarChat(p){
+  Object.assign(p,{estado:{m:effMode(),j:String(H.game()||''),g:!!H.busy()},desde:S.last});
+  const pend=invPendientes();if(pend.length)p.invs=pend;
+  if(S.open&&S.view==='conv'&&S.con&&!esGK(S.con)&&Date.now()-S.typedAt<4000)p.escribe=S.con;
+  if(S.open&&S.view==='conv'&&S.con&&!esGK(S.con)&&!document.hidden){const t=lastFrom(S.con);if(t&&S.lastSeenSent[lc(S.con)]!==t){p.leido={con:S.con,t};S.lastSeenSent[lc(S.con)]=t;}}
+  if(conLatido())p.q.pr=1;   // quién está conectado viene en el latido (la lista entera, cada 5 minutos)
+  return p;
+}
+// v76: lo de «en línea» que trae el latido se aplica a la lista que ya tenemos (sin bajarla entera).
+function aplicarPresencia(pr){
+  if(!Array.isArray(pr)||!S.users.length)return false;
+  const M=new Map(pr.map(x=>[lc(x[0]),x[1]]));let falta=false;
+  for(const k of M.keys())if(!S.users.some(u=>lc(u.usuario)===k))falta=true;
+  const on=a=>a.filter(u=>u.enLinea).map(u=>lc(u.usuario)).sort().join(',');const antes=on(S.users);
+  S.users=S.users.map(u=>{const k=lc(u.usuario),en=M.has(k);return en===u.enLinea&&JSON.stringify(u.estado||null)===JSON.stringify(en?M.get(k):null)?u:{...u,enLinea:en,estado:en?M.get(k):null};});
+  S.users.sort((a,b)=>(b.enLinea-a.enLinea)||a.usuario.localeCompare(b.usuario));
+  if(on(S.users)!==antes)avisarAmigos();
+  return falta;
+}
+async function recibirChat(j){
+    if(!cuentaAlDia())return;
     S.ver=Number(j.version)||S.ver;S.err='';S.typing=j.escribiendo||[];S.vistos=j.vistos||{};
-    if(Date.now()-S.usersAt>30000||(j.t>S.last&&!S.users.length)){await loadUsers();await decryptAll();}
+    const falta=j.latido?aplicarPresencia(j.pr):false;
+    const ugCambio=j.latido&&j.ug&&S.ug&&j.ug!==S.ug;if(j.latido&&j.ug)S.ug=j.ug;   // v76: la planilla avisa cuando cambió la lista (frase, estado, avatar…)
+    if(ugCambio||Date.now()-S.usersAt>(j.latido&&Array.isArray(j.pr)?300000:30000)||falta||(j.t>S.last&&!S.users.length)){await loadUsers();await decryptAll();}
     // Planilla v11: si hay mensajes nuevos vienen en la misma respuesta (una consulta menos), y avisa si te invitaron.
     if(j.inv&&H.inbox&&j.inv!==S.lastInv){S.lastInv=j.inv;try{H.inbox(j.inv);}catch(_){}}
     const invCh=j.invs?invGuardarSt(j.invs):false;if(invCh&&$('.cx-panel'))$('.cx-panel').dataset.sig='';
@@ -2246,14 +2387,27 @@ async function poll(){
     if(j.t>S.last)await fetchNew(Array.isArray(j.mensajes)?j:null);
     else if(S.open)render();
     checkDeferred();invCorregir();
-  }catch(e){
-    const m=String(e.message||e);
-    if(/desconocida/i.test(m)){S.unsupported=true;S.err='Para usar el chat hay que actualizar el código de la planilla a la versión 5.';}
+}
+function errorChat(e){
+    const m=String(e&&e.message||e);
+    if(/desconocida/i.test(m)){if(conLatido()||(window.LATIDO&&LATIDO.viejo&&/latido/.test(m)))return;S.unsupported=true;S.err='Para usar el chat hay que actualizar el código de la planilla a la versión 5.';}
     else if(/sesión venció/i.test(m)){S.err='Tu sesión venció: volvé a entrar con tu usuario y PIN.';}
     else S.err=m;
     if(S.open)render();
+}
+const PARTE={armar:p=>{if(cuentaAlDia())armarChat(p);},recibir:j=>recibirChat(j),ms:msChat,error:e=>{if(!/desconocida/i.test(String(e&&e.message||e)))errorChat(e);}};
+async function poll(){
+  if(conLatido()){LATIDO.registrar('chat',PARTE);LATIDO.ahora();return;}   // v76: la consulta la hace el latido
+  const a=cuentaAlDia();if(!a)return;
+  if(S.polling){schedule();return;}S.polling=true;
+  try{
+    const j=await call(auth(armarChat({accion:'chat'})));
+    await recibirChat(j);
+  }catch(e){errorChat(e);
   }finally{S.polling=false;schedule();}
 }
+// Si la planilla no conoce «latido», el chat vuelve a preguntar por su cuenta (como en la v75).
+window.addEventListener('bloques-latido-viejo',()=>{S.err='';schedule();if(!S.polling)setTimeout(poll,200);});
 async function loadUsers(){try{const j=await call({accion:'usuarios'},false);if(Array.isArray(j.usuarios)){try{if(window.TITULOS)TITULOS.guardarLista(j.usuarios,j.cau);}catch(_){}const on=a=>a.filter(u=>u.enLinea).map(u=>lc(u.usuario)).sort().join(',');const ch=on(j.usuarios)!==on(S.users);S.users=j.usuarios;S.usersAt=Date.now();if(ch)avisarAmigos();}}catch(_){}}
 const lastFrom=n=>{let t=0;if(esGK(n)){for(const m of S.msgs)if(conv(m)===lc(n)&&lc(m.de)!==lc(S.me)&&m.t>t)t=m.t;return t;}for(const m of S.msgs)if(!esG(m)&&lc(m.de)===lc(n)&&m.t>t)t=m.t;return t;};
 async function fetchNew(pre){
@@ -2693,7 +2847,7 @@ function open(name){
   if(nombreOk(name)){S.con=name;S.view='conv';}else if(S.view!=='conv'||!nombreOk(S.con)){S.view='list';S.con=null;}
   $('.cx-panel').hidden=false;$('.cx-scrim').hidden=false;document.documentElement.classList.add('cx-on');
   try{H.onOpen();}catch(_){}
-  render();loadUsers().then(render);poll();
+  render();(conLatido()&&S.users.length&&Date.now()-S.usersAt<60000?Promise.resolve():loadUsers()).then(render);poll();
 }
 function close(){
   S.open=false;S.pickFor=null;S.emo=false;const p=$('.cx-panel');if(p){p.hidden=true;$('.cx-scrim').hidden=true;}document.documentElement.classList.remove('cx-on');
@@ -3006,7 +3160,8 @@ function init(opts={}){
     for(const [k,t] of Object.entries(R)){const v=Number(t)||0;if(v>(S.read[k]||0)){S.read[k]=v;ch=true;}}
     if(aplicarBorrados(ls.json(kBorr(),{})||{}))ch=true;if(ch){badges();if(S.open){p0().dataset.sig='';render();}}});
   badges();
-  if(acct())setTimeout(poll,1200);
+  if(conLatido())LATIDO.registrar('chat',PARTE);   // v76: arranca el latido (pregunta en 1,2 s)
+  else if(acct())setTimeout(poll,1200);
 }
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
@@ -3445,6 +3600,9 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:76,grande:true,titulo:'Novedades',items:[
+    ['⚡','Por dentro, la app ahora le pregunta mucho menos a la planilla: más estable con mucha gente conectada, conexiones a las mesas más rápidas y los cambios de tu estancia llegan antes al otro aparato.'],
+    ['🧹','Los mensajes viejos del chat se van limpiando solos; tus partidas, récords, rankings y tu estancia quedan como estaban.']]},
   {v:75,grande:true,titulo:'Novedades',items:[
     ['🐶','EstanciAR: la mascota ya no se muere por abrir la estancia en un aparato con datos viejos, y si se te murió por ese error, podés revivirla desde su ficha.'],
     ['💰','El oro ganado en un aparato ahora llega siempre al otro.'],
