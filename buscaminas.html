@@ -1209,6 +1209,12 @@ window.TITULOS=(function(){
                                       lg = {g:{<juego>:{<idLogro>:timestamp}}, c:{<juego>:{<clave>:n}}, s:{w:'AAAA-MM-DD', c:{…}, h:{<juego>:[idReto]}}, ap:{<juego>:{<tipo>:id}}, at}
                                       La planilla cuenta Object.keys(lg.g[juego]).length para la tabla de logros.
    · ocultar([juegos])                el paquete sin EstanciAR esconde esos juegos del resumen.
+   · hoja(juego)                      (v72) hoja «🎨 Apariencia» de ese juego, encima del juego: tocás una y la ves puesta
+                                      (vista previa), la elegís, la comprás con oro o ves cómo se destraba. Al cerrar vuelve lo elegido.
+                                      Cualquier botón con data-ap-hoja="<juego>" la abre. Se agrega sola al menú ☰ (al lado de
+                                      «Logros y retos»), a la pantalla «La mesa está lista» (#mv-new) y al final de cada partida.
+                                      Mientras se prueba, apariencia(juego,tipo) devuelve la que se está probando (para los lienzos)
+                                      y se avisa con el evento «lg-apariencia» en window.
    Los retos se eligen con el lunes de la semana en hora argentina: son los mismos para todos y cambian el lunes. */
 (function(){
 'use strict';
@@ -1459,9 +1465,10 @@ buscaminas:{n:'BuscaminAR',e:'💣',
       {id:'pasto',n:'Pasto',sw:'#6fae4f'},
       {id:'clasico',n:'Clásico',sw:'#c0c0c0',lv:2,v:['#c0c0c0','#bababa','#ffffff','#7b7b7b','#d4d4d4','#cfcfcf','#a6a6a6']},
       {id:'nieve',n:'Nevado',sw:'#dfe9f2',lv:4,v:['#cfe0ee','#c3d7e8','#f4f9fd','#8aa6bd','#f7f9fb','#eef2f6','#c9d4de']},
-      {id:'noche',n:'De noche',sw:'#34445e',lv:6,v:['#34445e','#2e3d55','#4e6284','#1c2638','#18202c','#1b2431','#2a3546'],n:['#7fb2ff','#7ddc8a','#ff8a7a','#b9a2ff','#ffb36b','#6fe0d6','#e8e8e8','#9aa6b2']},
+      {id:'noche',n:'De noche',sw:'#34445e',lv:6,v:['#34445e','#2e3d55','#4e6284','#1c2638','#18202c','#1b2431','#2a3546'],nc:['#7fb2ff','#7ddc8a','#ff8a7a','#b9a2ff','#ffb36b','#6fe0d6','#e8e8e8','#9aa6b2']},
       {id:'oro',n:'Trigal dorado',sw:'#d9b25a',logro:'experto',v:['#d9b25a','#cfa64c','#f3d98f','#8a6a24','#f6ecd2','#efe2c2','#d6c08c']}],
-      css:(o,s)=>`${s} body{--tp1:${o.v[0]};--tp2:${o.v[1]};--tpl:${o.v[2]};--tps:${o.v[3]};--ab1:${o.v[4]};--ab2:${o.v[5]};--abl:${o.v[6]}${o.n?o.n.map((c,i)=>`;--n${i+1}:${c}`).join(''):''}}`}}},
+      // (v72) los colores de los números van en «nc»: con «n» se pisaba el nombre y el CSS fallaba (no se veía ninguna).
+      css:(o,s)=>`${s} body{--tp1:${o.v[0]};--tp2:${o.v[1]};--tpl:${o.v[2]};--tps:${o.v[3]};--ab1:${o.v[4]};--ab2:${o.v[5]};--abl:${o.v[6]}${Array.isArray(o.nc)?o.nc.map((c,i)=>`;--n${i+1}:${c}`).join(''):''}}`}}},
 ajedrez:{n:'AjedrezAR',e:'♟️',
   logros:[
     {id:'primera',e:'♟️',n:'Primera partida',d:'Terminá una partida.',k:'partidas'},
@@ -1620,10 +1627,10 @@ const AP_V70={
     dorso:[{id:'naranja',n:'Naranja',sw:'#a0461c',oro:120,f:['#a0461c','#6a2c10','#f1e3c4']},{id:'filete',n:'Fileteado',sw:'#1d6b3a',oro:800,f:['#14110d','#1d6b3a','#f2c14e']}]},
   buscaminas:{campo:[{id:'arena',n:'Médanos',sw:'#e3c993',oro:120,v:['#e3c993','#d8bb80','#f4e2b8','#a8884e','#f7efdc','#efe4c8','#d2bf94']},
       {id:'otono',n:'Otoño',sw:'#c7743a',oro:300,v:['#c7743a','#b8662e','#e59a5e','#7a3e16','#f6e8d6','#efdcc4','#d9bd9c']},
-      {id:'lava',n:'Volcán',sw:'#3a1c1a',oro:800,v:['#3a1c1a','#321715','#5a2a24','#1a0c0b','#2a1a18','#24161a','#3a2624'],n:['#ff9d5c','#ffd36b','#ff6a5c','#f29bd6','#ffb36b','#ffe0a0','#ffffff','#c9a0a0']},
+      {id:'lava',n:'Volcán',sw:'#3a1c1a',oro:800,v:['#3a1c1a','#321715','#5a2a24','#1a0c0b','#2a1a18','#24161a','#3a2624'],nc:['#ff9d5c','#ffd36b','#ff6a5c','#f29bd6','#ffb36b','#ffe0a0','#ffffff','#c9a0a0']},
       {id:'menta',n:'Menta',sw:'#8fd4b2',lv:10,v:['#8fd4b2','#82c9a6','#bdeed6','#4a8a6a','#f2fbf6','#e6f6ee','#bfdccc']},
-      {id:'pizarra',n:'Pizarra',sw:'#56636f',lv:20,v:['#56636f','#4c5864','#76838f','#2c343c','#2a3138','#262c33','#3a434c'],n:['#8fc4ff','#7ddc8a','#ff8a7a','#c7a5ff','#ffb36b','#6fe0d6','#e8e8e8','#9aa6b2']},
-      {id:'aurora',n:'Aurora',sw:'#2a4a6a',lv:30,v:['#2a4a6a','#243f5c','#3f6a8f','#142638','#16202c','#131c27','#22303e'],n:['#7fffd4','#a0ff7f','#ff9ad5','#c7a5ff','#ffd36b','#6fe0d6','#ffffff','#9aa6b2']}]},
+      {id:'pizarra',n:'Pizarra',sw:'#56636f',lv:20,v:['#56636f','#4c5864','#76838f','#2c343c','#2a3138','#262c33','#3a434c'],nc:['#8fc4ff','#7ddc8a','#ff8a7a','#c7a5ff','#ffb36b','#6fe0d6','#e8e8e8','#9aa6b2']},
+      {id:'aurora',n:'Aurora',sw:'#2a4a6a',lv:30,v:['#2a4a6a','#243f5c','#3f6a8f','#142638','#16202c','#131c27','#22303e'],nc:['#7fffd4','#a0ff7f','#ff9ad5','#c7a5ff','#ffd36b','#6fe0d6','#ffffff','#9aa6b2']}]},
   ajedrez:{tablero:[{id:'arena',n:'Arena',sw:'#b8935a',oro:120,v:['#f0e2c0','#b8935a']},{id:'menta',n:'Menta',sw:'#6fa58a',oro:300,v:['#e6f2ea','#6fa58a']},{id:'mate',n:'Calabaza y bombilla',sw:'#7a4a28',oro:800,v:['#efe0c4','#7a4a28']},
       {id:'coral',n:'Coral',sw:'#c46a5a',lv:10,v:['#f6e6e0','#c46a5a']},{id:'lavanda',n:'Lavanda',sw:'#8a76b8',lv:20,v:['#ece6f6','#8a76b8']},{id:'gala',n:'Oro y azabache',sw:'#1c1a16',lv:30,v:['#f2d98a','#1c1a16']}],
     piezas:[{id:'jade',n:'Jade y rubí',sw:'#bff0d8',oro:300,v:['#bff0d8','#1f5a44','#1f5a44','#7a2a22','#2a0e0a','#f0b8a8']}]},
@@ -1703,11 +1710,12 @@ function finEventos(j,d){const E=[],win=!!d.gano,compu=d.modo==='compu',dif=d.di
   return E;}
 function fin(j,d,key){
   const out={nuevos:[],retos:[],html:''};if(!D[j]||!d)return out;const o=load();
-  if(visto(o,key&&(j+':fin:'+key))){save(o);return out;}
+  if(visto(o,key&&(j+':fin:'+key))){save(o);out.html=apBoton(j,'fin');return out;}
   for(const [k,n] of finEventos(j,d))sumar(o,j,k,n);
   const r=revisar(o,j);save(o);out.nuevos=r.nuevos;out.retos=r.cumplidos;
   const p=[...r.nuevos.map(L=>`<span class="lg-chip"><i>${L.e}</i>${esc(L.n)}</span>`),...r.cumplidos.map(x=>`<span class="lg-chip reto"><i>🎯</i>${esc(x.txt)} · +${x.xp} XP</span>`)];
   if(p.length){css();out.html=`<div class="lg-fin"><small>${r.nuevos.length?(r.nuevos.length===1?'Logro nuevo':'Logros nuevos'):''}${r.nuevos.length&&r.cumplidos.length?' y ':''}${r.cumplidos.length?(r.cumplidos.length===1?(r.nuevos.length?'reto cumplido':'Reto cumplido'):(r.nuevos.length?'retos cumplidos':'Retos cumplidos')):''}</small>${p.join('')}</div>`;}
+  out.html+=apBoton(j,'fin');   // v72: la apariencia, a mano al terminar
   return out;
 }
 
@@ -1729,12 +1737,14 @@ function siguiente(espera=0){if(!COLA.length){MOSTRANDO=false;return;}MOSTRANDO=
 /* ── Apariencias ── */
 function nivel(j){try{const R=window.RANGOS;return R?R.levelInfo(R.xp(j)).lv:1;}catch(_){return 1;}}
 function libre(j,op,o){if(op.oro)return !!(window.ORO&&ORO.tiene(op.k_));if(!op.lv&&!op.logro)return true;if(op.logro)return tiene(o,j,op.logro);return nivel(j)>=op.lv;}
-function apariencia(j,tipo){const A=D[j]&&D[j].ap[tipo];if(!A)return '';const o=load(),id=(o.ap[j]||{})[tipo],op=A.op.find(x=>x.id===id);return op&&libre(j,op,o)?op.id:A.op[0].id;}
+let PREV=null;   // v72: {j,tipo,id} mientras se prueba una en la hoja
+function apariencia(j,tipo){const A=D[j]&&D[j].ap[tipo];if(!A)return '';if(PREV&&PREV.j===j&&PREV.tipo===tipo&&A.op.some(x=>x.id===PREV.id))return PREV.id;const o=load(),id=(o.ap[j]||{})[tipo],op=A.op.find(x=>x.id===id);return op&&libre(j,op,o)?op.id:A.op[0].id;}
 function elegir(j,tipo,id){const A=D[j]&&D[j].ap[tipo];if(!A)return false;const o=load(),op=A.op.find(x=>x.id===id);if(!op||!libre(j,op,o))return false;
   (o.ap[j]=o.ap[j]||{})[tipo]=id;save(o);aplicar(j);return true;}
-function aplicar(j){const G=D[j];if(!G)return;css();
+let PAGJ='';
+function aplicar(j){const G=D[j];if(!G)return;css();if(!PAGJ)PAGJ=j;
   let st=document.getElementById('lg-ap-'+j);
-  if(!st){let txt='';for(const [tipo,A] of Object.entries(G.ap))for(const op of A.op.slice(1))txt+=A.css(op,`html[data-lg-${tipo}="${op.id}"]`)+'\n';
+  if(!st){let txt='';for(const [tipo,A] of Object.entries(G.ap))for(const op of A.op.slice(1))try{txt+=A.css(op,`html[data-lg-${tipo}="${op.id}"]`)+'\n';}catch(e){console.warn('apariencia',j,tipo,op.id,e);}
     st=document.createElement('style');st.id='lg-ap-'+j;st.textContent=txt;(document.head||document.documentElement).appendChild(st);}
   for(const tipo of Object.keys(G.ap)){const id=apariencia(j,tipo),A=G.ap[tipo];if(id===A.op[0].id)document.documentElement.removeAttribute('data-lg-'+tipo);else document.documentElement.setAttribute('data-lg-'+tipo,id);}
 }
@@ -1767,6 +1777,71 @@ function cablear(root,j,op={}){if(!root)return;
     elegir(j,tipo,id);const top=root.scrollTop;(op.refrescar||(()=>{if(op.side)abrir(j,op);else{root.innerHTML=panelHtml(j);cablear(root,j,op);}}))();root.scrollTop=top;});
 }
 function abrir(j,op={}){if(!op.side)return;op.side(panelHtml(j));const root=document.getElementById('side-panel');cablear(root,j,{...op,cerrar:op.cerrar||(()=>{const s=document.getElementById('side');if(s)s.hidden=true;})});}
+
+/* ── v72: hoja «🎨 Apariencia» de cada juego ── */
+const tieneAp=j=>j==='bloquear'?typeof window.abrirAparienciaBloquear==='function':!!(D[j]&&Object.keys(D[j].ap||{}).length);
+function apBoton(j,donde){if(!tieneAp(j))return '';css();return `<div class="lg-apfin"><button type="button" class="lg-apb" data-ap-hoja="${esc(j)}">🎨 Apariencia de ${esc(j==='bloquear'?'BloqueAR':D[j].n)}</button></div>`;}
+function pagina(){return document.documentElement.dataset.apJuego||PAGJ||'';}
+const avisarCambio=j=>{try{dispatchEvent(new CustomEvent('lg-apariencia',{detail:{j}}));}catch(_){}};
+function prevPoner(j,tipo,id){const A=D[j].ap[tipo];PREV=id?{j,tipo,id}:null;
+  for(const t of Object.keys(D[j].ap)){const v=apariencia(j,t);if(v===D[j].ap[t].op[0].id)document.documentElement.removeAttribute('data-lg-'+t);else document.documentElement.setAttribute('data-lg-'+t,v);}
+  avisarCambio(j);}
+function reqTxt(j,op,o){const G=D[j];if(op.oro)return `${op.oro>=800?'Legendaria':op.oro>=300?'Especial':'Común'} · se compra con oro`;if(op.logro)return 'Con el logro «'+((G.logros.find(L=>L.id===op.logro)||{}).n||op.logro)+'»';if(op.lv)return `Se destraba en el nivel ${op.lv} de ${G.n} (vas por el ${nivel(j)})${op.lv>=10&&!op.oro?' · no se vende':''}`;return 'La de siempre';}
+function hoja(j){
+  if(j==='bloquear'){try{window.abrirAparienciaBloquear();}catch(_){}return;}
+  const G=D[j];if(!tieneAp(j))return;css();aplicar(j);
+  let el=document.getElementById('lg-hoja');if(el)el.remove();
+  el=document.createElement('div');el.id='lg-hoja';el.className='lgh';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Apariencia de '+G.n);
+  const H={sel:null};
+  const pintar=()=>{const o=load(),O=window.ORO;
+    const cards=Object.entries(G.ap).map(([tipo,A])=>{const cur=apariencia(j,tipo),eq=(o.ap[j]||{})[tipo]||A.op[0].id,puesta=A.op.some(x=>x.id===eq&&libre(j,x,o))?eq:A.op[0].id;
+      return `<h4>${esc(A.n)}</h4><div class="lgh-row" role="listbox" aria-label="${esc(A.n)}">${A.op.map(op=>{const ok=libre(j,op,o),sel=H.sel&&H.sel.tipo===tipo&&H.sel.id===op.id,on=puesta===op.id;
+        const est=on?'✓ Puesta':ok?'Tuya':op.oro&&O?`${O.ico()} ${fmt(op.oro)}`:'🔒 '+(op.logro?'Logro':op.lv?'Nivel '+op.lv:'');
+        return `<button type="button" class="lgh-c${on?' on':''}${sel?' sel':''}${ok?'':' lock'}${op.oro&&!ok?' oro':''}" data-t="${tipo}" data-id="${op.id}" aria-selected="${sel||(!H.sel&&on)}"><span class="lgh-sw" style="background:${op.sw}"></span><b>${esc(op.n)}</b><small>${est}</small></button>`;}).join('')}</div>`;}).join('');
+    let act='';
+    if(H.sel){const A=G.ap[H.sel.tipo],op=A.op.find(x=>x.id===H.sel.id),ok=libre(j,op,o),eq=apEquipada(j,H.sel.tipo,o);
+      const tit=`<div class="lgh-sel"><span class="lgh-sw" style="background:${op.sw}"></span><span><b>${esc(op.n)}</b><small>${esc(A.n)} · ${eq===op.id?'la que tenés puesta':ok?'es tuya':esc(reqTxt(j,op,o))}</small></span></div>`;
+      if(eq===op.id)act=tit+`<button type="button" class="lgh-go" disabled>✓ Puesta</button>`;
+      else if(ok)act=tit+`<button type="button" class="lgh-go" data-a="poner">Ponérmela</button>`;
+      else if(op.oro&&O){const sd=O.saldo();act=tit+(sd>=op.oro?`<button type="button" class="lgh-go oro" data-a="comprar">Comprar por ${O.ico()} ${fmt(op.oro)}</button>`:`<button type="button" class="lgh-go" disabled>Te faltan ${O.ico()} ${fmt(op.oro-sd)}</button>`);}
+      else act=tit+`<button type="button" class="lgh-go" disabled>🔒 Todavía no</button>`;}
+    else act=`<p class="lgh-tip">Tocá una para probarla en la mesa. Las de nivel 10, 20 y 30 no se venden.</p>`;
+    el.innerHTML=`<div class="lgh-in"><header><b>🎨 Apariencia · ${esc(G.n)}</b>${window.ORO?`<span class="lgh-oro" title="Tu oro">${ORO.ico()} <b>${fmt(ORO.saldo())}</b></span>`:''}<button type="button" class="lgh-x" aria-label="Cerrar">✕</button></header>
+      <div class="lgh-body">${cards}</div><footer class="lgh-act">${act}</footer></div>`;
+    const x=el.querySelector('.lgh-x');x.onclick=cerrar;};
+  const cerrar=()=>{PREV=null;el.remove();aplicar(j);avisarCambio(j);document.removeEventListener('keydown',tecla,true);};
+  const tecla=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cerrar();}};
+  el.addEventListener('click',e=>{
+    if(e.target===el){cerrar();return;}
+    const c=e.target.closest('.lgh-c');
+    if(c){const sc=el.querySelector('.lgh-body').scrollTop,rows=[...el.querySelectorAll('.lgh-row')].map(r=>r.scrollLeft);
+      H.sel={tipo:c.dataset.t,id:c.dataset.id};prevPoner(j,H.sel.tipo,H.sel.id);pintar();
+      el.querySelector('.lgh-body').scrollTop=sc;el.querySelectorAll('.lgh-row').forEach((r,i)=>r.scrollLeft=rows[i]||0);return;}
+    const a=e.target.closest('[data-a]');if(!a||!H.sel)return;
+    const A=G.ap[H.sel.tipo],op=A.op.find(x=>x.id===H.sel.id);
+    const sc=el.querySelector('.lgh-body').scrollTop,rows=[...el.querySelectorAll('.lgh-row')].map(r=>r.scrollLeft);
+    if(a.dataset.a==='comprar'){if(!window.ORO||!ORO.comprar(op.k_,op.oro,`${G.n} · ${op.n}`))return;try{if(window.SFX_ORO)SFX_ORO();}catch(_){}}
+    PREV=null;elegir(j,H.sel.tipo,H.sel.id);avisarCambio(j);pintar();
+    el.querySelector('.lgh-body').scrollTop=sc;el.querySelectorAll('.lgh-row').forEach((r,i)=>r.scrollLeft=rows[i]||0);
+  });
+  ['pointerdown','touchstart','keydown','keyup','wheel'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:ev!=='keydown'}));
+  document.addEventListener('keydown',tecla,true);
+  document.body.appendChild(el);pintar();try{el.querySelector('.lgh-x').focus({preventScroll:true});}catch(_){}
+}
+function apEquipada(j,tipo,o){const A=D[j].ap[tipo],id=(o.ap[j]||{})[tipo],op=A.op.find(x=>x.id===id);return op&&libre(j,op,o)?op.id:A.op[0].id;}
+// Cualquier botón data-ap-hoja abre la hoja; si estaba dentro del menú ☰, el menú se cierra.
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-ap-hoja]');if(!b)return;e.preventDefault();e.stopPropagation();
+  const j=b.dataset.apHoja||pagina();if(b.closest('#side')){try{typeof window.closeSide==='function'?window.closeSide():(document.getElementById('side').hidden=true);}catch(_){}}
+  hoja(j);},true);
+// Se agrega sola al menú ☰ (junto a «Logros y retos») y a «La mesa está lista» de cada juego.
+function inyectar(){const j=pagina();if(!j||!tieneAp(j)||j==='bloquear')return;
+  const m=document.getElementById('m-logros');
+  if(m&&!m.dataset.apOk){m.dataset.apOk='1';const P=m.parentNode;if(P&&!P.querySelector('[data-ap-hoja]')){const b=document.createElement('button');b.type='button';b.id='m-apariencia';b.dataset.apHoja=j;b.className=m.className;b.textContent='🎨 Apariencia';P.insertBefore(b,m.nextSibling);}}
+  const n=document.getElementById('mv-new');
+  if(n&&!n.dataset.apOk){n.dataset.apOk='1';const P=n.parentNode;if(P&&!P.querySelector('[data-ap-hoja]')){const b=document.createElement('button');b.type='button';b.className='btn';b.dataset.apHoja=j;b.textContent='🎨 Apariencia';P.appendChild(b);}}
+}
+let INY=0;
+try{new MutationObserver(()=>{if(INY)return;INY=requestAnimationFrame(()=>{INY=0;try{inyectar();}catch(_){}});}).observe(document.documentElement,{childList:true,subtree:true});}catch(_){}
 
 /* ── Para el menú de juegos y Mi cuenta ── */
 function contar(){const o=load(),out={};for(const j of ORDEN){if(OCULTOS.includes(j))continue;out[j]={tiene:D[j].logros.filter(L=>tiene(o,j,L.id)).length,total:D[j].logros.length};}return out;}
@@ -1830,10 +1905,32 @@ const CSS=`.lg-panel{display:flex;flex-direction:column;gap:16px;font:500 13.5px
 .lg-res{display:flex;flex-direction:column;gap:8px}
 .lg-rr{display:grid;grid-template-columns:26px 1fr 64px;align-items:center;gap:8px}.lg-rr>i{font-style:normal;font-size:19px;text-align:center}.lg-rr span{display:flex;flex-direction:column;min-width:0}
 .lg-rr b{font-size:13.5px}.lg-rr small{font-size:12px;opacity:.72}
+.lg-apfin{display:flex;justify-content:center;margin:8px 0 2px}
+.lg-apb{min-height:40px;padding:0 14px;border-radius:12px;border:1px solid rgba(242,193,78,.55);background:rgba(242,193,78,.1);color:inherit;font:700 13.5px/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer}
+.lgh{position:fixed;inset:0;z-index:95;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,12,.28)}
+.lgh-in{width:min(560px,100%);max-height:min(72vh,620px);display:flex;flex-direction:column;background:#141b22f7;color:#eef1ea;border:1px solid #33404d;border-bottom:0;border-radius:20px 20px 0 0;box-shadow:0 -16px 40px rgba(0,0,0,.45);font:500 13.5px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+@media (min-width:900px) and (min-height:560px){.lgh{align-items:center;justify-content:flex-end;padding-right:24px;background:rgba(4,7,12,.18)}.lgh-in{width:400px;max-height:88vh;border-radius:20px;border-bottom:1px solid #33404d}}
+.lgh-in header{display:flex;align-items:center;gap:10px;padding:12px 14px 8px}.lgh-in header>b{flex:1;font-size:16px}
+.lgh-oro{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(242,193,78,.12);border:1px solid rgba(242,193,78,.4);font-size:13px}.lgh-oro .oro-i{width:15px;height:15px}
+.lgh-x{width:40px;height:40px;border-radius:12px;border:0;background:#222b33;color:#eef1ea;font-size:16px;cursor:pointer}
+.lgh-body{overflow-y:auto;padding:0 14px 6px;-webkit-overflow-scrolling:touch}
+.lgh-body h4{margin:8px 0 6px;font:700 13px/1.2 system-ui,sans-serif;opacity:.85}
+.lgh-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.lgh-c{flex:none;width:112px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:8px;border-radius:14px;border:1px solid #33404d;background:rgba(255,255,255,.035);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.lgh-c b{font-size:12.5px;line-height:1.2;min-height:30px}.lgh-c small{font-size:11.5px;opacity:.75}
+.lgh-c.on{border-color:#57d49b}.lgh-c.on small{color:#57d49b;opacity:1}
+.lgh-c.sel{border-color:#f2c14e;box-shadow:inset 0 0 0 2px #f2c14e}
+.lgh-c.lock .lgh-sw{filter:saturate(.6) brightness(.85)}.lgh-c.oro{border-style:dashed;border-color:rgba(215,165,49,.6)}.lgh-c.oro small{color:#f5c94c;opacity:1}.lgh-c .oro-i{width:13px;height:13px;vertical-align:-2px}
+.lgh-sw{display:block;width:100%;height:46px;border-radius:9px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.lgh-act{display:flex;align-items:center;gap:10px;padding:10px 14px 12px;border-top:1px solid #26303a;min-height:64px}
+.lgh-sel{flex:1;min-width:0;display:flex;align-items:center;gap:10px}.lgh-sel .lgh-sw{width:44px;height:36px;flex:none}.lgh-sel>span:last-child{display:flex;flex-direction:column;min-width:0}.lgh-sel small{font-size:12px;opacity:.75}
+.lgh-go{flex:none;min-height:44px;padding:0 16px;border-radius:12px;border:0;background:#e0a93b;color:#2a1f12;font:800 14px/1.1 system-ui,sans-serif;cursor:pointer;max-width:55%}
+.lgh-go:disabled{background:#26303a;color:#b6c2cc;cursor:default}.lgh-go .oro-i{width:15px;height:15px;vertical-align:-3px}
+.lgh-tip{margin:0;font-size:12.5px;opacity:.75}
 @media (prefers-reduced-motion:reduce){.lg-aviso{transition:none}}`;
 function css(){if(document.getElementById('lg-css'))return;const s=document.createElement('style');s.id='lg-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 
-window.LOGROS={D,evento,marca,fin,abrir,panelHtml,cablear,aplicar,apariencia,elegir,retos,contar,resumenHtml,exportData,importData,ocultar,css,lunesAR,_retosDe:retosDe};
+window.LOGROS={hoja,apBoton,D,evento,marca,fin,abrir,panelHtml,cablear,aplicar,apariencia,elegir,retos,contar,resumenHtml,exportData,importData,ocultar,css,lunesAR,_retosDe:retosDe};
 })();
 
 </script>
@@ -2825,6 +2922,10 @@ window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.
    · Grupos de juego (v67): si en el chat 💬 tocaste «Jugar» en un grupo, al abrir la pantalla de espera con el botón
      «Avisar a un grupo» (#ms-ll, #qm-ll o cualquier [data-mc-llamar]) se avisa solo a ese grupo, sin preguntar.
      Los juegos que quieran abrir su mesa en línea directo pueden mirar el «#grupo=<id>» de la dirección.
+   · movible(el, juego, op)   (v72) hace arrastrable un panel de chat fijo (el de acá o el propio de UnoAR/LudAR) desde su
+       <header>: con umbral (un toque sigue siendo un toque), se pega al borde izquierdo o derecho, nunca queda fuera de la
+       pantalla y se recuerda por juego y por orientación (localStorage «mesa-chat-pos:<juego>:v|h»). Agrega «⟲» para
+       volver a su lugar. Los globitos de mensajes nuevos salen del lado donde lo dejaste.
    El mensaje en la red: {t:'mchat', de, txt, eq}. eq=1: sólo para el equipo del que lo manda. */
 (function(){
 'use strict';
@@ -2870,6 +2971,11 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-pn{color:#b6c2cc;margin:4px 0 10px}.mc-pl{display:flex;flex-direction:column;gap:8px}
 .mc-pl button{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 12px;border-radius:12px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;text-align:left;font:inherit}
 .mc-pl button span{font-size:20px}.mc-pl button b{flex:1}.mc-pl button small{color:#93a1ad}.mc-pl button:disabled{opacity:.5}
+.mc-mov>header{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}.mc-mov.mc-arr>header{cursor:grabbing}
+.mc-mov.mc-arr{transition:none!important;box-shadow:0 22px 50px rgba(0,0,0,.6);opacity:.96}
+.mc-grip{flex:none;width:18px;color:#7d8b98;font-size:15px;line-height:1;letter-spacing:-1px;text-align:center}
+.mc-mov>header .mc-rst{width:36px;height:36px;border-radius:10px;border:0;background:#222b33;color:#e6ece6;font-size:16px}.mc-mov>header .mc-rst[hidden]{display:none}
+.mc-flot.mc-arr{opacity:.85}
 .mc-pchat{width:100%;min-height:46px;border-radius:12px;border:0;background:#e0a93b;color:#2a1f12;font-weight:800}.mc-burb b{color:#f3dc9a;margin-right:4px}
 @media (prefers-reduced-motion:reduce){.mc-burb{transition:none}}`;document.head.appendChild(s);}
 function boton(){
@@ -2878,7 +2984,7 @@ function boton(){
   b.setAttribute('aria-label','Chat de la mesa');b.title='Chat de la mesa';b.innerHTML='💭<span class="mc-badge" id="mc-badge"></span>';
   const ref=document.querySelector(S.op.antes||'[data-chat-btn]');
   if(ref&&ref.parentNode)ref.parentNode.insertBefore(b,ref);
-  else{b.classList.add('mc-flot');document.body.appendChild(b);}
+  else{b.classList.add('mc-flot');document.body.appendChild(b);b.style.touchAction='none';movible(b,S.op.juego,{q:'btn',handle:true});}
   b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();S.abierto?cerrar():abrir();});
   S.btn=b;return b;
 }
@@ -2914,6 +3020,58 @@ function espera(el,op){
   ['pointerdown','touchstart','keydown','keyup','wheel'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:ev!=='keydown'}));
   cablearForm(el.querySelector('.mc-inl'),null);dibujar();ocultarBurb();
 }
+/* ── (v72) Mover el chat: arrastrando la barra de arriba ──
+   La posición se guarda como {l: lado 'l'|'r', y: alto relativo (0–1) del borde de arriba} por juego y orientación. */
+const POSK=(j,q)=>'mesa-chat-'+(q||'pos')+':'+(j||'x')+':'+(innerWidth>innerHeight?'h':'v');
+function posLeer(j,q){try{const o=JSON.parse(localStorage.getItem(POSK(j,q))||'null');return o&&(o.l==='l'||o.l==='r')&&isFinite(o.y)?o:null;}catch(_){return null;}}
+function posGuardar(j,q,o){try{if(o)localStorage.setItem(POSK(j,q),JSON.stringify(o));else localStorage.removeItem(POSK(j,q));}catch(_){}}
+const MARG=10;
+function topSeguro(){const t=document.querySelector('.topbar,header.top,.top,#topbar,.hdr');let y=MARG;try{const r=t&&t.getBoundingClientRect();if(r&&r.bottom>0&&r.bottom<innerHeight*.3)y=Math.max(y,Math.round(r.bottom)+4);}catch(_){}return y;}
+function ponerEn(el,o){
+  if(!o){el.style.left=el.style.right=el.style.top=el.style.bottom='';return;}
+  const h=el.offsetHeight||200,w=el.offsetWidth||300,minY=Math.min(topSeguro(),Math.max(MARG,innerHeight-h-MARG)),maxY=Math.max(minY,innerHeight-h-MARG);
+  const y=Math.round(Math.max(minY,Math.min(maxY,o.y*innerHeight)));
+  el.style.top=y+'px';el.style.bottom='auto';
+  if(o.l==='l'){el.style.left=`max(${MARG}px, env(safe-area-inset-left))`;el.style.right='auto';}else{el.style.right=`max(${MARG}px, env(safe-area-inset-right))`;el.style.left='auto';}
+  if(w>innerWidth-2*MARG)el.style.left=MARG+'px';
+}
+function movible(el,juego,op={}){
+  if(!el)return;css();const j=juego||(S.op&&S.op.juego)||'x',q=op.q||'pos';el.classList.add('mc-mov');
+  const hd=el.querySelector(':scope>header');
+  if(hd&&!hd.querySelector('.mc-grip')){const g=document.createElement('span');g.className='mc-grip';g.textContent='⠿';g.setAttribute('aria-hidden','true');hd.insertBefore(g,hd.firstChild);
+    hd.title='Arrastrá esta barra para mover el chat';
+    const r=document.createElement('button');r.type='button';r.className='mc-rst';r.setAttribute('aria-label','Volver el chat a su lugar');r.title='Volver a su lugar';r.textContent='⟲';
+    const x=hd.querySelector('button:last-of-type');hd.insertBefore(r,x||null);
+    r.onclick=e=>{e.preventDefault();e.stopPropagation();posGuardar(j,q,null);ponerEn(el,null);r.hidden=true;};}
+  const rst=hd&&hd.querySelector('.mc-rst');
+  const aplicarPos=()=>{const o=posLeer(j,q);ponerEn(el,o);if(rst)rst.hidden=!o;};
+  aplicarPos();requestAnimationFrame(aplicarPos);
+  if(el._mcMov)return;el._mcMov=1;
+  // El panel se vuelve a dibujar (innerHTML) cada vez que se abre: se escucha en el panel y se mira si tocaste su barra.
+  const handle=el;let D=null;
+  handle.addEventListener('pointerdown',e=>{
+    if(e.button>0)return;
+    if(!op.handle){const h=e.target.closest('header');if(!h||h.parentElement!==el||e.target.closest('button,input,a,select,textarea'))return;}
+    const r=el.getBoundingClientRect();D={id:e.pointerId,x0:e.clientX,y0:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,mov:false};
+  });
+  addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;
+    if(!D.mov){if(Math.hypot(e.clientX-D.x0,e.clientY-D.y0)<8)return;D.mov=true;el.classList.add('mc-arr');try{handle.setPointerCapture(e.pointerId);}catch(_){}}
+    e.preventDefault();e.stopPropagation();const w=el.offsetWidth,h=el.offsetHeight;
+    const x=Math.max(0,Math.min(innerWidth-w,e.clientX-D.ox)),y=Math.max(0,Math.min(innerHeight-h,e.clientY-D.oy));
+    el.style.left=x+'px';el.style.top=y+'px';el.style.right=el.style.bottom='auto';},{passive:false,capture:true});
+  const fin=e=>{if(!D||(e&&e.pointerId!==D.id))return;const d=D;D=null;if(!d.mov)return;el.classList.remove('mc-arr');if(e)e.stopPropagation();
+    const r=el.getBoundingClientRect(),o={l:r.left+r.width/2<innerWidth/2?'l':'r',y:Math.max(0,r.top)/innerHeight};
+    posGuardar(j,q,o);ponerEn(el,o);{const r2=el.querySelector(':scope>header .mc-rst');if(r2)r2.hidden=false;}
+    // el clic que viene después de soltar no es un toque
+    if(op.handle){const no=ev=>{ev.stopPropagation();ev.preventDefault();};el.addEventListener('click',no,{capture:true,once:true});setTimeout(()=>el.removeEventListener('click',no,{capture:true}),400);}};
+  addEventListener('pointerup',fin,true);addEventListener('pointercancel',fin,true);
+  addEventListener('resize',()=>{if(el.isConnected&&!el.hidden&&posLeer(j,q))aplicarPos();});
+}
+// Dónde sale el globito: del lado (y a la altura) donde dejaste el chat; si no lo moviste, arriba a la derecha como siempre.
+function burbLugar(){if(!S.burb)return;const o=posLeer(S.op&&S.op.juego,'pos');const b=S.burb.style;
+  if(!o){b.left=b.right=b.top=b.bottom='';return;}
+  const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.y*innerHeight));b.top=y+'px';b.bottom='auto';
+  if(o.l==='l'){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
 function nota(){const n=S.op&&S.op.nota;try{return (typeof n==='function'?n():n)||'Sólo lo ve la gente de esta mesa y se borra al terminar.';}catch(_){return '';}}
 function abrir(){
   if(!S.op)return;css();
@@ -2924,6 +3082,7 @@ function abrir(){
     ${eqs?`<div class="mc-a"><button type="button" data-a="0" class="${S.eq?'':'on'}">A todos</button><button type="button" data-a="1" class="${S.eq?'on':''}">A mi equipo</button></div>`:''}
     ${formHtml(eqs&&S.eq?'Escribile a tu equipo':'Escribile a la mesa')}`;
   S.panel.hidden=false;S.abierto=true;S.no=0;dibujar();ocultarBurb();
+  movible(S.panel,S.op.juego);
   S.panel.querySelector('.mc-x').onclick=cerrar;
   S.panel.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{S.eq=b.dataset.a==='1';abrir();});
   cablearForm(S.panel,cerrar);
@@ -2941,7 +3100,7 @@ function ocultarBurb(){if(S.burb)S.burb.classList.remove('on');clearTimeout(S.bu
 function burbuja(m){
   if(S.abierto)return;css();
   if(!S.burb||!S.burb.isConnected){S.burb=document.createElement('div');S.burb.className='mc-burb';S.burb.setAttribute('role','status');document.body.appendChild(S.burb);}
-  S.burb.innerHTML=`${m.eq?'<span style="color:#7ce9e5">(equipo) </span>':''}<b>${esc(m.de)}:</b>${esc(m.txt)}`;
+  S.burb.innerHTML=`${m.eq?'<span style="color:#7ce9e5">(equipo) </span>':''}<b>${esc(m.de)}:</b>${esc(m.txt)}`;burbLugar();
   requestAnimationFrame(()=>S.burb&&S.burb.classList.add('on'));clearTimeout(S.burbT);S.burbT=setTimeout(ocultarBurb,4200);
 }
 function recibir(m){
@@ -3013,7 +3172,7 @@ function escuchar(op){
 }
 // (v67) Aunque el juego no monte el chat de la mesa (UnoAR tiene el suyo), igual se mira si hay que avisar al grupo.
 S.ivg=setInterval(()=>{if(!S.op)try{grupoJuegoAuto();}catch(_){}},1000);
-window.MESA_CHAT={llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar};
+window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar};
 })();
 
 </script>
@@ -3027,6 +3186,13 @@ window.MESA_CHAT={llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerra
 (function(){
 'use strict';
 const LISTA=[
+  {v:72,grande:true,titulo:'Novedades',items:[
+    ['🃏','Las cartas ahora viajan y se apoyan en la mesa en TrucAR y UnoAR (también en la compu): ves quién jugó qué.'],
+    ['💬','El chat de la mesa se puede arrastrar a otro lugar en todos los juegos, y cada juego tiene «🎨 Apariencia» a mano (por ejemplo, los tacos del pool).'],
+    ['🎱','PoolAR: la bola en mano sólo cuando corresponde, el taco del otro se ve fluido y en la compu los controles van todos juntos al costado.'],
+    ['🏡','EstanciAR: entrá a la casa de tus amigos, Ropero al tocar tu personaje, mudá la casa, baúl a mano al decorar, tienda más clara y 79 cosas nuevas. La huerta crece a la vista y la mascota se sincroniza bien.'],
+    ['🐎','EstanciAR: en el malón, arrastrar mueve el mapa y un toque pone un gaucho. Y los precios de muebles y pisos ahora van con el resto de la estancia.'],
+    ['🗺️','La Gran Pampa: cruces con PoolAR, LudAR, PoblAR y solitarios contra reloj, la Guardia para defender aunque no estés y el Refuerzo de un amigo.']]},
   {v:71,grande:true,titulo:'Novedades',items:[
     ['🎱','PoolAR: la mesa se ve más grande en el celular y en la compu el clic fija la puntería justo donde apuntabas.'],
     ['🎲','LudAR: el dado rueda bien a la vista y ya podés unirte a la mesa de un amigo aunque tengas la tuya abierta (también en UnoAR y PoolAR).'],
@@ -3485,10 +3651,20 @@ async function delDiaEnviar(fecha,valor,extra){
 }
 function premiosHtml(p){if(!p||!p.lv)return '';return `<p class="cap">${JUEGO.n} nivel ${p.lv.lv}${p.xp?` · +${p.xp} XP`:''}${window.ORO?(ORO.premioTxt(p)?' · '+ORO.premioTxt(p):''):p.pesos?` · 🎁 +${fmt(p.pesos)} 🪙 para tu estancia`:''}</p>`;}
 
+/* v72: cruce de La Gran Pampa contra reloj («#pampa-cruce=SEMILLA&duelo=ID»). Los dos juegan el mismo tablero, cada uno
+   cuando puede, y gana el que hace más puntos. No se guarda (tu partida de siempre queda como estaba), no da XP, oro ni
+   leguas, y al final deja el resultado en «pampa-resultado». Si te trabás: ☰ › Terminar el cruce (anota lo que hiciste).
+   Cada juego define window.cruceTerminar (para ese botón) y llama a cruceFin(puntos, texto, cómo se calculó). */
+const CRUCE=(()=>{const m=/[#&]pampa-cruce=(\d+)&duelo=([\w-]+)/.exec(location.hash);return m?{seed:Number(m[1])>>>0,duelo:m[2],fin:false}:null;})();
+function cruceFin(puntos,txt,como){if(!CRUCE)return '';if(!CRUCE.fin){CRUCE.fin=true;
+    ls.set('pampa-resultado',JSON.stringify({j:JUEGO.id,seed:CRUCE.seed,duelo:CRUCE.duelo,puntos,txt,t:Date.now()}));}
+  return `<p>Para el cruce de La Gran Pampa: <b>${fmt(puntos)} puntos</b><br><small>${como}</small></p><a class="btn go" id="f-pampa" href="pampa.html#resultado">🗺️ Volver a La Gran Pampa</a>`;}
+function cruceAviso(txt){setTimeout(()=>toast('⚔️ '+txt,4200),500);}
 /* Menú lateral con lo de siempre al final */
-function menuPie(){return `${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}${JUEGO.id==='buscaminas'?'':`<a href="./#tablas=${JUEGO.id}">🏆 Tabla del día y de la semana</a>`}
+function menuPie(){return `${CRUCE&&!CRUCE.fin?'<button id="m-cruce">⚔️ Terminar el cruce <small>se anota lo que hiciste</small></button>':''}${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}${JUEGO.id==='buscaminas'?'':`<a href="./#tablas=${JUEGO.id}">🏆 Tabla del día y de la semana</a>`}
   <a href="estancia.html" data-campo>🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a>`;}
-function cablearPie(volver){if($('m-logros'))$('m-logros').onclick=()=>LOGROS.abrir(JUEGO.id,{side:openSide,volver,cerrar:closeSide});}
+function cablearPie(volver){if($('m-cruce'))$('m-cruce').onclick=()=>{closeSide();if(confirm('¿Terminar el cruce? Se anota lo que hiciste hasta ahora.')&&window.cruceTerminar)window.cruceTerminar();};
+  if($('m-logros'))$('m-logros').onclick=()=>LOGROS.abrir(JUEGO.id,{side:openSide,volver,cerrar:closeSide});}
 async function shareGame(){const url=location.href.replace(/[#?].*$/,''),data={title:JUEGO.n,text:JUEGO.compartir,url};
   try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}
   try{await navigator.clipboard.writeText(url);toast('Link copiado');}catch(_){toast(esc(url));}}
@@ -3542,7 +3718,7 @@ const banderas=()=>{let f=0;for(let i=0;i<EST.length;i++)if(EST[i]===2)f++;retur
 const abiertas=()=>{let f=0;for(let i=0;i<EST.length;i++)if(EST[i]===1)f++;return f;};
 
 /* ───────── Guardar ───────── */
-function guardar(){if(!P)return;P.est=Array.prototype.join.call(EST,'');ls.set(SAVE,JSON.stringify(P));}
+function guardar(){if(!P||P.cruce)return;P.est=Array.prototype.join.call(EST,'');ls.set(SAVE,JSON.stringify(P));}
 function cargarRuntime(){const n=P.w*P.h;V=vecinas(P.w,P.h);EST=new Uint8Array(n);for(let i=0;i<n;i++)EST[i]=+P.est[i]||0;
   if(P.mi){MI=textoAMinas(P.mi,n);N=numeros(P.w,P.h,MI);}else{MI=null;N=null;}}
 function nuevo(dif,fecha){
@@ -3556,6 +3732,20 @@ function nuevo(dif,fecha){
   cargarRuntime();ULT=Date.now();hideOver();MODO='a';guardar();GRID='';acomodar(true);render();
   if(fecha){const D=ls.json(DIAS,{}),d=D[fecha];if(d&&!d.gano&&d.n)toast(`Intento ${d.n+1} del día · llevás ${reloj(d.t)}`,2600);}
 }
+/* v72: cruce de La Gran Pampa (comun.js): el mismo potrero Intermedio para los dos, ya abierto en el medio, un solo intento.
+   Limpio: 10000 − 5 por segundo − 300 por pista (≥ 1000). Pisaste una mina (o terminaste antes): 5 por cada % abierto (≤ 500). */
+function nuevoCruce(){OLA.clear();VE.clear();OJO.clear();const dif='intermedio',D=MEDIDAS[dif],primer=Math.floor(D.h/2)*D.w+Math.floor(D.w/2);
+  let g=null;for(let k=0;k<20&&!g;k++)g=generar(dif,primer,(CRUCE.seed+k*7919)>>>0);
+  if(!g){toast('No se pudo armar el potrero del cruce. Probá de nuevo.');nuevo(CFG.dif);return;}
+  P={v:1,id:'x'+CRUCE.seed,dif,w:g.w,h:g.h,m:g.m,mi:minasATexto(g.minas),est:'',t:0,empezo:false,hecho:'',boom:-1,pis:0,marca:-1,seed:g.semilla,fecha:null,primer:g.primer,toques:0,usoBandera:false,cruce:1};
+  P.est=Array.prototype.join.call(estadoInicial(g.w,g.h,g.minas,g.primer),'');
+  cargarRuntime();ULT=Date.now();hideOver();MODO='a';GRID='';acomodar(true);render();
+  cruceAviso('Cruce de La Gran Pampa: el mismo potrero que tu rival, un solo intento. Cuenta el tiempo.');}
+function finCruce(gano){P.hecho=gano?'gano':'perdio';render();const pct=Math.round(abiertas()/libres()*100),seg=Math.round(P.t/1000);
+  const puntos=gano?Math.max(1000,10000-5*seg-300*P.pis):Math.min(500,5*pct);
+  setTimeout(()=>over(`<div class="ic">${gano?'😎':'💥'}</div><h3>${gano?'¡Potrero limpio!':'Cruce terminado'}</h3><p>${gano?reloj(P.t)+(P.pis?` · ${P.pis} ${P.pis===1?'pista':'pistas'}`:''):`${pct}% del potrero abierto`}</p>
+    ${cruceFin(puntos,gano?`Limpio en ${reloj(P.t)}`:`${pct}% abierto`,gano?'10000 − 5 por segundo − 300 por pista':'5 por cada % abierto')}`),gano||RM?300:1200);}
+window.cruceTerminar=()=>{if(P&&P.cruce&&!P.hecho)finCruce(false);};
 // El primer toque arma el tablero (esa casilla y sus vecinas, libres) y lo prueba entero con lógica.
 function armar(i){
   let g=null;for(let k=0;k<6&&!g;k++)g=generar(P.dif,i,(P.seed+k*104729)>>>0);
@@ -3605,6 +3795,7 @@ function alrededor(i){
 /* ───────── Ganar y perder ───────── */
 function stats(gano){const S=ls.json(STATS,{});const s=S[P.dif]||{j:0,g:0,r:0,rm:0};s.j++;if(gano){s.g++;s.r++;s.rm=Math.max(s.rm,s.r);}else s.r=0;S[P.dif]=s;ls.set(STATS,JSON.stringify(S));return s;}
 function perder(i){
+  if(P.cruce){P.boom=i;EST[i]=1;sfx('pum');vib([60,40,90]);finCruce(false);return;}
   P.hecho='perdio';P.boom=i;EST[i]=1;guardar();
   const s=stats(false);let dd=null;
   if(P.fecha){const D=ls.json(DIAS,{}),d=D[P.fecha]||{t:0,n:0,exp:0,gano:false};if(!d.gano){d.t+=P.t+MULTA;d.n++;d.exp++;}D[P.fecha]=d;ls.set(DIAS,JSON.stringify(D));dd=d;}
@@ -3623,6 +3814,7 @@ function perder(i){
   },RM?200:1200);
 }
 function ganar(){
+  if(P.cruce){P.marca=-1;for(let i=0;i<EST.length;i++)if(MI[i]&&EST[i]!==2)EST[i]=2;sfx('gano');confeti();finCruce(true);return;}
   P.hecho='gano';P.marca=-1;for(let i=0;i<EST.length;i++)if(MI[i]&&EST[i]!==2)EST[i]=2;guardar();render();sfx('gano');confeti();
   const ms=P.t,s=stats(true);try{window.LOGROS&&LOGROS.marca('buscaminas','racha',s.r,P.id);}catch(_){}
   const R=ls.json(RECS,{}),antes=R[P.dif]||0,rec=!antes||ms<antes,limpio=P.pis===0,sinBand=!P.usoBandera;
@@ -3849,7 +4041,7 @@ function openMenu(){
     <button id="m-aj">⚙️ Ajustes: ayudas y controles</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     <a class="salir" id="m-salir" href="./#juegos">🚪 Salir de la partida</a>
-    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">BuscaminAR · versión 71</p>`);
+    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">BuscaminAR · versión 72</p>`);
   const go=f=>()=>{$('side').hidden=true;f();};
   $('m-x').onclick=closeSide;$('m-new').onclick=go(openNew);$('m-dia').onclick=go(()=>nuevo(null,fechaAR()));$('m-tabla').onclick=go(()=>openTabla('hoy'));$('m-recs').onclick=go(openRecs);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-aj').onclick=go(openAjustes);
@@ -3864,14 +4056,15 @@ function retomar(s){P=s;cargarRuntime();ULT=Date.now();GRID='';acomodar(true);re
 (function start(){
   iniciarComun(()=>!!enCurso());
   const s=ls.json(SAVE,null);
-  if(valida(s)){retomar(s);if(P.hecho)setTimeout(()=>{if(!$('modal').hidden||!$('side').hidden)return;over(`<div class="ic">💣</div><h3>¿Otro buscaminas?</h3><p>${P.hecho==='gano'?'El último lo limpiaste.':'En el último pisaste una mina.'}</p><button class="btn go" id="o-new">Buscaminas nuevo</button><button class="btn" id="o-dia">Buscaminas del día</button><button class="btn" id="o-ver">Ver el potrero</button>`);$('o-new').onclick=()=>{hideOver();openNew();};$('o-dia').onclick=()=>nuevo(null,fechaAR());$('o-ver').onclick=hideOver;},200);}
+  if(CRUCE)nuevoCruce();
+  else if(valida(s)){retomar(s);if(P.hecho)setTimeout(()=>{if(!$('modal').hidden||!$('side').hidden)return;over(`<div class="ic">💣</div><h3>¿Otro buscaminas?</h3><p>${P.hecho==='gano'?'El último lo limpiaste.':'En el último pisaste una mina.'}</p><button class="btn go" id="o-new">Buscaminas nuevo</button><button class="btn" id="o-dia">Buscaminas del día</button><button class="btn" id="o-ver">Ver el potrero</button>`);$('o-new').onclick=()=>{hideOver();openNew();};$('o-dia').onclick=()=>nuevo(null,fechaAR());$('o-ver').onclick=hideOver;},200);}
   else{nuevo(CFG.dif);try{window.SYNCRO&&SYNCRO.auto(SAVE);}catch(_){}if(!ls.get('buscaminas-ayuda')){ls.set('buscaminas-ayuda','1');openHelp();}}
-  if(/^#dia/.test(location.hash))nuevo(null,fechaAR());
+  if(!CRUCE&&/^#dia/.test(location.hash))nuevo(null,fechaAR());
   if(location.hash){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
   acomodar();requestAnimationFrame(()=>acomodar());
 })();
 // Si de tu cuenta llega una partida más nueva (la venías jugando en otro dispositivo), se sigue ésa.
-window.addEventListener('bloques-sync',e=>{const k=(e.detail&&e.detail.claves)||[];let aj=false;for(const [a] of [...AYUDAS,...CONTROLES])if(k.includes('buscaminas-'+a)){CFG[a]=a==='resaltar'||a==='listos'?ls.get('buscaminas-'+a)==='1':ls.get('buscaminas-'+a)!=='0';aj=true;}if(aj&&P)render();if(!k.includes(SAVE))return;
+window.addEventListener('bloques-sync',e=>{if(P&&P.cruce)return;const k=(e.detail&&e.detail.claves)||[];let aj=false;for(const [a] of [...AYUDAS,...CONTROLES])if(k.includes('buscaminas-'+a)){CFG[a]=a==='resaltar'||a==='listos'?ls.get('buscaminas-'+a)==='1':ls.get('buscaminas-'+a)!=='0';aj=true;}if(aj&&P)render();if(!k.includes(SAVE))return;
   const s=ls.json(SAVE,null);if(!valida(s)||s.hecho||s.id===(P&&P.id)&&s.t<=P.t)return;
   try{$('modal').hidden=true;}catch(_){}retomar(s);
   try{toast('Seguís el buscaminas que venías jugando en tu otro dispositivo.');}catch(_){}});
