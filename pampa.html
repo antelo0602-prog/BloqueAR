@@ -180,6 +180,45 @@ body.con-ley .alert{top:90px}
 
 /* el botón de juegos dice «Juegos» (un amigo no lo reconocía) */
 .games-btn{grid-template-columns:repeat(2,6px)!important;grid-template-rows:6px 6px auto!important;gap:2px!important;min-width:44px;align-content:center}.games-btn i{width:6px!important;height:6px!important}.games-btn b{grid-column:1/-1;font:800 9px/1 system-ui,-apple-system,sans-serif;letter-spacing:.02em;color:#d5e6ea;margin-top:2px;text-align:center;white-space:nowrap}
+/* v74: el sorteo del juego del cruce (tragamonedas de feria: giran tres, tachás uno, se alternan las luces y queda uno) */
+.sorteo{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:radial-gradient(ellipse at 50% 42%,rgba(64,44,20,.82),rgba(10,8,5,.94));animation:so-in .22s ease-out;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+@keyframes so-in{from{opacity:0}to{opacity:1}}
+.so-caja{position:relative;width:min(440px,100%);background:linear-gradient(#3d2d1b,#231910);border:2px solid var(--brass);border-radius:22px;box-shadow:0 0 0 4px #160f08,0 26px 60px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,230,170,.22);padding:30px 14px 14px;text-align:center;color:var(--ink)}
+.so-caja h3{margin:0 0 4px;font:700 23px/1.15 var(--serif);color:var(--gold);letter-spacing:.2px}
+.so-txt{margin:0 0 14px;min-height:2.7em;font-size:15px;line-height:1.35;color:#eadcbe}
+.so-txt b{color:#fff3d6}
+.so-luces{position:absolute;left:18px;right:18px;top:11px;display:flex;justify-content:space-between;pointer-events:none}
+.so-luces i{width:9px;height:9px;border-radius:50%;background:#6b4f26;box-shadow:inset 0 -1px 0 rgba(0,0,0,.35)}
+.so-luces i{animation:so-foco 1.2s steps(1) infinite}.so-luces i:nth-child(even){animation-delay:.6s}
+.so-luces.rapido i{animation-duration:.24s}.so-luces.rapido i:nth-child(even){animation-delay:.12s}
+.so-luces.fiesta i{animation-duration:.5s;background:var(--gold)}
+@keyframes so-foco{0%{background:#ffe7a1;box-shadow:0 0 8px 2px rgba(255,214,110,.85)}50%{background:#6b4f26;box-shadow:none}}
+.so-reels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;--h:128px}
+.so-reel{position:relative;height:calc(var(--h) + 4px);overflow:hidden;border-radius:14px;border:2px solid #7a5d33;background:linear-gradient(#e9dcbf,#fbf5e6 38%,#fbf5e6 62%,#e2d3b1);padding:0;color:var(--brown);font:inherit;cursor:default;transition:transform .15s,box-shadow .2s,opacity .25s;-webkit-tap-highlight-color:transparent}
+.so-reel::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:12px;box-shadow:inset 0 14px 14px -10px rgba(0,0,0,.5),inset 0 -14px 14px -10px rgba(0,0,0,.5)}
+.so-strip{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;will-change:transform}
+.so-card{height:var(--h);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 4px}
+.so-e{font-size:42px;line-height:1.05}
+.so-card b{font:700 15.5px/1.1 var(--serif)}.so-card small{font-size:11.5px;color:var(--soft);line-height:1.15}
+.so-gira .so-strip{filter:blur(1.3px)}
+.so-x{position:absolute;inset:8px;display:none;pointer-events:none;z-index:2}.so-x svg{width:100%;height:100%;overflow:visible}
+.so-x path{stroke:#c0392b;stroke-width:10;stroke-linecap:round;fill:none;stroke-dasharray:92;stroke-dashoffset:92;filter:drop-shadow(0 2px 0 rgba(80,10,0,.35))}
+.so-reel.tachado .so-x{display:block}.so-reel.tachado .so-x path{animation:so-raya .2s ease-out forwards}.so-reel.tachado .so-x path:nth-child(2){animation-delay:.15s}
+.so-reel.tachado .so-strip{opacity:.45;filter:grayscale(.85)}.so-reel.tachado{transform:rotate(-2deg) scale(.96)}
+@keyframes so-raya{to{stroke-dashoffset:0}}
+.so-elige .so-reel:not(.tachado){cursor:pointer;animation:so-late 1.1s ease-in-out infinite}
+.so-elige .so-reel:not(.tachado):active{transform:scale(.96)}
+@keyframes so-late{50%{box-shadow:0 0 0 3px rgba(246,196,83,.75),0 0 16px rgba(246,196,83,.45)}}
+.so-reel.luz{box-shadow:0 0 0 3px var(--gold),0 0 24px rgba(246,196,83,.85);transform:translateY(-3px)}
+.so-reel.gana{box-shadow:0 0 0 4px var(--gold),0 0 34px rgba(246,196,83,.95);animation:so-gana .7s ease-out;z-index:1}
+.so-reel.pierde{opacity:.5}
+@keyframes so-gana{0%{transform:scale(1)}35%{transform:scale(1.12) rotate(1.5deg)}70%{transform:scale(1.04)}100%{transform:scale(1.06)}}
+.so-pie{display:flex;flex-direction:column;gap:8px;margin-top:14px}.so-pie .btn{width:100%}.so-pie .note{color:#cdbb98;font-size:13px;margin:0}
+.so-chispa{position:absolute;left:50%;top:55%;width:8px;height:12px;border-radius:2px;pointer-events:none;z-index:3;animation:so-chispa 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes so-chispa{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--r));opacity:0}}
+@media (max-width:360px){.so-reels{--h:116px;gap:7px}.so-e{font-size:36px}.so-card b{font-size:14px}}
+@media (orientation:landscape) and (max-height:500px){.so-caja{padding-top:24px}.so-reels{--h:104px}.so-txt{min-height:0;margin-bottom:10px}.so-pie{flex-direction:row}.so-e{font-size:34px}}
+@media (prefers-reduced-motion:reduce){.so-luces i,.so-elige .so-reel,.so-reel.gana{animation:none}.so-chispa{display:none}}
 </style>
 <script>
 /* ───────── SYNCRO: tu progreso en todos los dispositivos (v63) ─────────
@@ -1593,7 +1632,9 @@ invasores:{n:'InvasorAR',e:'👾',   // v73
     {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
     {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
     {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
-    {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a combo ×4 (40 bajas seguidas).',k:'max_combo',m:4,marca:true},
+    {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a ×4 en la cadena (18 bajas seguidas sin dejarla caer).',k:'max_combo',m:4,marca:true},
+    {id:'racha8',e:'💥',n:'Cadena ×8',d:'Llegá a ×8 en la cadena (42 bajas seguidas).',k:'max_combo',m:8,marca:true},
+    {id:'perfecto',e:'⭐',n:'Bonus perfecto',d:'Bajá a todos los dorados de una oleada bonus.',k:'perfectos'},
     {id:'duelo',e:'⚔️',n:'Duelo ganado',d:'Ganale un duelo a alguien de verdad.',k:'ganadas_online'},
     {id:'expedicion',e:'♾️',n:'Expedición larga',d:'Llegá a 15 oleadas limpias en Resistencia.',k:'olas_res',m:15,marca:true},
     {id:'contrabando',e:'📦',n:'Contrabandista',d:'Bajá 10 naves de suministros.',k:'suministros',m:10},
@@ -1831,7 +1872,7 @@ function finEventos(j,d){const E=[],win=!!d.gano,compu=d.modo==='compu',dif=d.di
   if(j==='buscaminas'&&win){E.push(['gan_'+dif,1]);if(dif!=='principiante')E.push(['gan_ie',1]);if(d.diario)E.push(['dias',1]);if(d.sinBand)E.push(['sin_band',1]);
     if(d.limpio){E.push(['sin_pistas',1]);if(dif!=='principiante')E.push(['limpios_ie',1]);}
     if(dif==='principiante'&&d.ms<20000)E.push(['rapido_p',1]);if(dif==='intermedio'&&d.ms<120000)E.push(['rapido_i',1]);}
-  if(j==='invasores'){if(d.olas)E.push(['oleadas',d.olas]);if(d.bajas)E.push(['bajas',d.bajas]);if(d.sum)E.push(['suministros',d.sum]);if(d.cen)E.push(['centinela',d.cen]);if(d.nod)E.push(['nodriza',d.nod]);
+  if(j==='invasores'){if(d.olas)E.push(['oleadas',d.olas]);if(d.bajas)E.push(['bajas',d.bajas]);if(d.sum)E.push(['suministros',d.sum]);if(d.cen)E.push(['centinela',d.cen]);if(d.nod)E.push(['nodriza',d.nod]);if(d.perf)E.push(['perfectos',d.perf]);
     if(d.escudos)E.push(['escudos',d.escudos]);if(d.diario)E.push(['dias',1]);if(win&&d.limpio)E.push(['limpio',1]);if(win&&dif==='experta'&&d.modo==='solo')E.push(['gan_experta',1]);}
   if(j==='laberinto'){if(d.limpios)E.push(['limpios',d.limpios]);if(d.sinMorir)E.push(['sin_morir',d.sinMorir]);if(d.combo4)E.push(['combo4',1]);if(d.capturas)E.push(['capturas',d.capturas]);
     if(d.bonus)E.push(['bonus',d.bonus]);if(d.vuelta)E.push(['vuelta',1]);if(d.diario)E.push(['dias',1]);if(d.limDif)E.push(['lim_dif',d.limDif]);}
@@ -3054,6 +3095,11 @@ window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.
        <header>: con umbral (un toque sigue siendo un toque), se pega al borde izquierdo o derecho, nunca queda fuera de la
        pantalla y se recuerda por juego y por orientación (localStorage «mesa-chat-pos:<juego>:v|h»). Agrega «⟲» para
        volver a su lugar. Los globitos de mensajes nuevos salen del lado donde lo dejaste.
+   · (v74) El panel queda chico (alto fijo, scroll adentro), tiene ▁ para minimizarlo a una barrita arrastrable y se mueve
+     libre por toda la pantalla. movible(el, juego, {abrir, cerrar, btn, visible, ancla}) — abrir: cómo reabrirlo desde
+     la barrita (si no, se muestra el mismo panel); btn: el botón del chat del juego (la barrita se ve mientras él se vea).
+   · nuevo(juego, de, txt)  (v74) los chats propios (UnoAR, LudAR, InvasorAR) avisan cada mensaje que llega: si está
+     minimizado, suma en la barrita y sale un globito arriba de ella (tocarlo abre el chat). Devuelve true si lo mostró.
    El mensaje en la red: {t:'mchat', de, txt, eq}. eq=1: sólo para el equipo del que lo manda. */
 (function(){
 'use strict';
@@ -3083,13 +3129,16 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-m .mc-eq{font-size:11px;color:#7ce9e5;border:1px solid #7ce9e555;border-radius:6px;padding:0 4px;margin-right:4px}
 .mc-vacio{color:#8f9ba3;font-size:13px}
 .mc-rap{display:flex;gap:6px;padding:6px 10px 0;overflow-x:auto;scrollbar-width:none}.mc-rap::-webkit-scrollbar{display:none}
-.mc-rap button{flex:none;height:34px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font-size:13px;white-space:nowrap}
-.mc-rap button.e{font-size:18px;padding:0 8px}
+.mc-rap button{flex:none;height:34px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font-size:13px;white-space:nowrap;cursor:pointer}
+.mc-rap button.e{font-size:18px;padding:0;width:36px}
 .mc-a{display:flex;gap:6px;padding:8px 10px 0}.mc-a button{flex:1;height:32px;border-radius:9px;border:1px solid #3a4654;background:#141b22;color:#b6c2cc;font-size:12.5px;font-weight:700}
 .mc-a button.on{background:#25344a;color:#fff;border-color:#7ce9e588}
-.mc-panel form{display:flex;gap:6px;padding:8px 10px 10px}
-.mc-panel input{flex:1;min-width:0;height:40px;border-radius:10px;border:1px solid #3a4654;background:#0f1419;color:#e6ece6;padding:0 10px;font-size:16px;-webkit-user-select:text;user-select:text}
-.mc-panel form button{height:40px;border-radius:10px;border:0;background:#e0a93b;color:#2a1f12;font-weight:800;padding:0 12px}
+.mc-f{display:flex;gap:6px;padding:8px 10px 10px;margin:0}
+.mc-f input{flex:1;min-width:0;height:40px;box-sizing:border-box;margin:0;border-radius:10px;border:1px solid #3a4654;background:#0f1419;color:#e6ece6;padding:0 10px;font:16px system-ui,-apple-system,"Segoe UI",sans-serif;outline:none;-webkit-appearance:none;appearance:none;-webkit-user-select:text;user-select:text}.mc-f input:focus{border-color:#e0a93b;box-shadow:0 0 0 2px #e0a93b44}.mc-f input::placeholder{color:#7d8b98}
+.mc-f button[type=submit]{flex:none;height:40px;margin:0;border-radius:10px;border:0;background:#e0a93b;color:#2a1f12;font:800 14px system-ui,-apple-system,"Segoe UI",sans-serif;padding:0 14px;cursor:pointer;-webkit-appearance:none;appearance:none}.mc-f button[type=submit]:active{filter:brightness(.92)}
+.mc-f .mc-eb{height:40px;margin:0;color:inherit;cursor:pointer}
+.mc-fr{display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px 0}.mc-fr[hidden]{display:none}.mc-fr button{height:32px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font:13px system-ui,sans-serif;cursor:pointer}
+.mc-rap .mc-frb{font-size:13px;font-weight:700;color:#f3dc9a;padding:0 10px}.mc-rap .mc-frb.on{background:#25344a;border-color:#7ce9e588}
 .mc-burb{position:fixed;right:max(10px,env(safe-area-inset-right));top:calc(70px + env(safe-area-inset-top));z-index:55;max-width:min(270px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;background:#141b22ee;color:#e6ece6;border:1px solid #33404d;font:13.5px/1.3 system-ui,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.4);pointer-events:none;opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s}
 .mc-burb.on{opacity:1;transform:none}
 .mc-pick{position:fixed;inset:0;z-index:90;background:#05080dcc;display:grid;place-items:end center;padding:0 0 env(safe-area-inset-bottom)}
@@ -3105,7 +3154,24 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-mov>header .mc-rst{width:36px;height:36px;border-radius:10px;border:0;background:#222b33;color:#e6ece6;font-size:16px}.mc-mov>header .mc-rst[hidden]{display:none}
 .mc-flot.mc-arr{opacity:.85}
 .mc-pchat{width:100%;min-height:46px;border-radius:12px;border:0;background:#e0a93b;color:#2a1f12;font-weight:800}.mc-burb b{color:#f3dc9a;margin-right:4px}
-@media (prefers-reduced-motion:reduce){.mc-burb{transition:none}}`;document.head.appendChild(s);}
+.mc-comp{height:clamp(196px,36vh,280px)!important;max-height:calc(100% - 16px)!important;overflow:hidden}
+.mc-comp:has(.mc-a){height:clamp(236px,42vh,320px)!important}
+.mc-comp>header{padding:6px 8px!important;gap:6px!important}.mc-comp>header b{font-size:14px!important}
+.mc-comp>header button{width:34px!important;height:34px!important;flex:none}
+.mc-comp .mc-msgs,.mc-comp .msgs{flex:1 1 auto!important;min-height:0!important;overflow-y:auto;overscroll-behavior:contain;padding:6px 10px!important}
+.mc-comp>*:not(.mc-msgs):not(.msgs):not(.mc-nuevos){flex:none}.mc-comp .mc-emo{max-height:92px}
+.mc-comp .mc-rap{padding-top:4px}.mc-comp .mc-rap button{height:30px}
+.mc-comp form{padding:6px 8px 8px!important}.mc-comp form input,.mc-comp form button{height:38px!important}
+@media (max-height:460px){.mc-comp,.mc-comp:has(.mc-a){height:min(206px,calc(100vh - 16px))!important}.mc-comp .mc-rap,.mc-comp .quick{display:none!important}}
+.mc-minb{position:relative;width:34px;height:34px;border-radius:10px;border:0;background:#222b33;color:#e6ece6}.mc-minb i{position:absolute;left:10px;right:10px;bottom:11px;height:3px;border-radius:2px;background:currentColor}
+.mc-nuevos{position:absolute;left:50%;transform:translateX(-50%);z-index:2;height:28px;padding:0 12px;border-radius:14px;border:1px solid #7ce9e588;background:#25344a;color:#fff;font:700 12.5px system-ui,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.mc-mini{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;display:flex;align-items:center;gap:6px;height:42px;padding:0 14px 0 8px;border-radius:21px;border:1px solid #3a4654;background:#18212bf2;color:#fff;font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.4);touch-action:none;-webkit-user-select:none;user-select:none}
+.mc-mini[hidden]{display:none!important}.mc-mini b{font-weight:700}.mc-mini.mc-arr{opacity:.85}
+.mc-mini-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e5484d;color:#fff;font:800 11px/18px system-ui,sans-serif;text-align:center}.mc-mini-n:empty{display:none}
+.mc-mburb{position:fixed;z-index:59;max-width:min(260px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;border:1px solid #33404d;background:#141b22f2;color:#e6ece6;font:13.5px/1.3 system-ui,sans-serif;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.4);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
+.mc-mburb.izq{border-radius:14px 14px 14px 4px}.mc-mburb.abajo{border-radius:4px 14px 14px 14px;transform:translateY(-6px)}.mc-mburb.abajo.izq{border-radius:14px 4px 14px 14px}
+.mc-mburb.on{opacity:1;transform:none;pointer-events:auto}.mc-mburb b{color:#f3dc9a;margin-right:4px}
+@media (prefers-reduced-motion:reduce){.mc-burb,.mc-mburb{transition:none}}`;document.head.appendChild(s);}
 function boton(){
   if(S.btn&&S.btn.isConnected)return S.btn;
   const b=document.createElement('button');b.type='button';b.className='icon-btn mc-btn';b.id='mc-btn';b.hidden=true;
@@ -3130,14 +3196,19 @@ function dibujar(){
 }
 const enEspera=()=>!!(S.inl&&S.inl.isConnected);
 // El formulario (rápidos + emojis + texto) es el mismo en el panel y en la espera.
-function formHtml(ph){return `<div class="mc-rap">${RAPIDOS.map(r=>`<button type="button" class="${r.length<=2?'e':''}" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+// v74: arriba, los emojis rápidos y «Frases ▾» (las frases se abren en un menú que se acomoda en varias filas: antes la
+// fila se cortaba a la derecha en la PC).
+function formHtml(ph){const E5=RAPIDOS.filter(r=>r.length<=2).slice(0,5),FR=RAPIDOS.filter(r=>r.length>2);
+  return `<div class="mc-rap">${E5.map(r=>`<button type="button" class="e" data-r="${esc(r)}">${esc(r)}</button>`).join('')}<button type="button" class="mc-frb" aria-expanded="false">Frases ▾</button></div>
+    <div class="mc-fr" hidden>${FR.map(r=>`<button type="button" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
     <div class="mc-emo" hidden>${EMOS.map(e=>`<button type="button" data-e="${e}">${e}</button>`).join('')}</div>
     <form class="mc-f"><button type="button" class="mc-eb" aria-label="Emojis" title="Emojis">😊</button><input class="mc-t" maxlength="120" placeholder="${esc(ph)}" autocomplete="off" enterkeyhint="send" aria-label="Mensaje"><button type="submit">Mandar</button></form>`;}
 function cablearForm(root,alCerrar){
-  root.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>mandar(b.dataset.r));
-  const f=root.querySelector('.mc-f'),t=root.querySelector('.mc-t'),em=root.querySelector('.mc-emo');
+  const f=root.querySelector('.mc-f'),t=root.querySelector('.mc-t'),em=root.querySelector('.mc-emo'),fr=root.querySelector('.mc-fr'),frb=root.querySelector('.mc-frb');
+  root.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(mandar(b.dataset.r)&&fr&&!fr.hidden){fr.hidden=true;if(frb){frb.classList.remove('on');frb.setAttribute('aria-expanded','false');}}});
+  if(frb)frb.onclick=()=>{fr.hidden=!fr.hidden;frb.classList.toggle('on',!fr.hidden);frb.setAttribute('aria-expanded',String(!fr.hidden));if(!fr.hidden)em.hidden=true;};
   f.onsubmit=e=>{e.preventDefault();if(mandar(t.value))t.value='';};
-  root.querySelector('.mc-eb').onclick=()=>{em.hidden=!em.hidden;};
+  root.querySelector('.mc-eb').onclick=()=>{em.hidden=!em.hidden;if(!em.hidden&&fr){fr.hidden=true;if(frb)frb.classList.remove('on');}};
   em.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const a=t.selectionStart??t.value.length;t.value=(t.value.slice(0,a)+b.dataset.e+t.value.slice(a)).slice(0,120);try{t.setSelectionRange(a+b.dataset.e.length,a+b.dataset.e.length);}catch(_){}t.focus();});
   t.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&alCerrar){e.preventDefault();alCerrar();}});
 }
@@ -3148,58 +3219,164 @@ function espera(el,op){
   ['pointerdown','touchstart','keydown','keyup','wheel'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:ev!=='keydown'}));
   cablearForm(el.querySelector('.mc-inl'),null);dibujar();ocultarBurb();
 }
-/* ── (v72) Mover el chat: arrastrando la barra de arriba ──
-   La posición se guarda como {l: lado 'l'|'r', y: alto relativo (0–1) del borde de arriba} por juego y orientación. */
+/* ── (v72→v74) Mover, achicar y minimizar el chat ──
+   v74 (pedido del 25/10: «que se mantenga chiquito, con scroll; un botón para minimizarlo; moverlo por toda la pantalla
+   y que al abrirlo en cualquier lugar no se rompa ni quede afuera»):
+   · El panel tiene alto fijo chico (clase mc-comp) y los mensajes se leen con scroll adentro. Si estás leyendo arriba,
+     no te lo baja: aparece «↓ nuevos».
+   · ▁ lo minimiza a una barrita que se puede llevar a cualquier lado; tocándola vuelve a abrirse ahí mismo. Con el chat
+     minimizado, cada mensaje nuevo sale como globito arriba (o abajo, si no hay lugar) de la barrita.
+   · Se arrastra libre por toda la pantalla. Se guarda el centro como fracción de la pantalla {cx, cy}, por juego y
+     orientación; al poner el panel siempre se lo encierra en lo visible (también con el teclado del celular abierto:
+     visualViewport). Las posiciones viejas {l, y} (v72) se siguen leyendo. */
 const POSK=(j,q)=>'mesa-chat-'+(q||'pos')+':'+(j||'x')+':'+(innerWidth>innerHeight?'h':'v');
-function posLeer(j,q){try{const o=JSON.parse(localStorage.getItem(POSK(j,q))||'null');return o&&(o.l==='l'||o.l==='r')&&isFinite(o.y)?o:null;}catch(_){return null;}}
-function posGuardar(j,q,o){try{if(o)localStorage.setItem(POSK(j,q),JSON.stringify(o));else localStorage.removeItem(POSK(j,q));}catch(_){}}
-const MARG=10;
+function posLeer(j,q){try{const o=JSON.parse(localStorage.getItem(POSK(j,q))||'null');if(!o)return null;
+  if(isFinite(o.cx)&&isFinite(o.cy))return {cx:Math.max(0,Math.min(1,o.cx)),cy:Math.max(0,Math.min(1,o.cy))};
+  if((o.l==='l'||o.l==='r')&&isFinite(o.y))return {cx:o.l==='l'?0:1,cy:o.y,viejo:1};return null;}catch(_){return null;}}
+function posGuardar(j,q,o){try{if(o)localStorage.setItem(POSK(j,q),JSON.stringify({cx:+o.cx.toFixed(4),cy:+o.cy.toFixed(4)}));else localStorage.removeItem(POSK(j,q));}catch(_){}}
+const MARG=8;
 function topSeguro(){const t=document.querySelector('.topbar,header.top,.top,#topbar,.hdr');let y=MARG;try{const r=t&&t.getBoundingClientRect();if(r&&r.bottom>0&&r.bottom<innerHeight*.3)y=Math.max(y,Math.round(r.bottom)+4);}catch(_){}return y;}
+// Lo que se ve de verdad (con el teclado del celular abierto, visualViewport es más chico que la ventana).
+function vista(){const v=window.visualViewport;if(v&&v.height>0&&v.height<innerHeight-40)return {x:v.offsetLeft,y:v.offsetTop,w:v.width,h:v.height,tec:true};return {x:0,y:0,w:innerWidth,h:innerHeight,tec:false};}
+// Encierra el elemento en lo visible (left/top en px).
+function encerrar(el,left,top){const V=vista(),w=el.offsetWidth||300,h=el.offsetHeight||200;
+  const minY=V.tec?V.y+MARG:Math.min(topSeguro(),Math.max(MARG,V.h-h-MARG)),maxY=Math.max(minY,V.y+V.h-h-MARG);
+  const minX=V.x+MARG,maxX=Math.max(minX,V.x+V.w-w-MARG);
+  el.style.left=Math.round(Math.max(minX,Math.min(maxX,left)))+'px';el.style.top=Math.round(Math.max(minY,Math.min(maxY,top)))+'px';
+  el.style.right=el.style.bottom='auto';}
 function ponerEn(el,o){
-  if(!o){el.style.left=el.style.right=el.style.top=el.style.bottom='';return;}
-  const h=el.offsetHeight||200,w=el.offsetWidth||300,minY=Math.min(topSeguro(),Math.max(MARG,innerHeight-h-MARG)),maxY=Math.max(minY,innerHeight-h-MARG);
-  const y=Math.round(Math.max(minY,Math.min(maxY,o.y*innerHeight)));
-  el.style.top=y+'px';el.style.bottom='auto';
-  if(o.l==='l'){el.style.left=`max(${MARG}px, env(safe-area-inset-left))`;el.style.right='auto';}else{el.style.right=`max(${MARG}px, env(safe-area-inset-right))`;el.style.left='auto';}
-  if(w>innerWidth-2*MARG)el.style.left=MARG+'px';
+  // con el teclado abierto y poco lugar (celular acostado), el panel se achica a lo que se ve
+  if(el.classList.contains('mc-comp')){const V=vista();el.style.removeProperty('height');if(V.tec&&el.offsetHeight>V.h-2*MARG)el.style.setProperty('height',Math.max(120,V.h-2*MARG)+'px','important');}
+  if(!o){el.style.left=el.style.right=el.style.top=el.style.bottom='';
+    // sin posición guardada: donde dice el CSS de cada juego, pero igual adentro de lo visible (teclado abierto)
+    const V=vista();if(V.tec){const r=el.getBoundingClientRect();if(r.bottom>V.y+V.h-MARG||r.top<V.y)encerrar(el,r.left,r.top);}return;}
+  const w=el.offsetWidth||300,h=el.offsetHeight||200;
+  if(o.viejo){encerrar(el,o.cx<.5?MARG:innerWidth-w-MARG,o.cy*innerHeight);return;}
+  encerrar(el,o.cx*innerWidth-w/2,o.cy*innerHeight-h/2);
 }
-function movible(el,juego,op={}){
-  if(!el)return;css();const j=juego||(S.op&&S.op.juego)||'x',q=op.q||'pos';el.classList.add('mc-mov');
-  const hd=el.querySelector(':scope>header');
-  if(hd&&!hd.querySelector('.mc-grip')){const g=document.createElement('span');g.className='mc-grip';g.textContent='⠿';g.setAttribute('aria-hidden','true');hd.insertBefore(g,hd.firstChild);
-    hd.title='Arrastrá esta barra para mover el chat';
-    const r=document.createElement('button');r.type='button';r.className='mc-rst';r.setAttribute('aria-label','Volver el chat a su lugar');r.title='Volver a su lugar';r.textContent='⟲';
-    const x=hd.querySelector('button:last-of-type');hd.insertBefore(r,x||null);
-    r.onclick=e=>{e.preventDefault();e.stopPropagation();posGuardar(j,q,null);ponerEn(el,null);r.hidden=true;};}
-  const rst=hd&&hd.querySelector('.mc-rst');
-  const aplicarPos=()=>{const o=posLeer(j,q);ponerEn(el,o);if(rst)rst.hidden=!o;};
-  aplicarPos();requestAnimationFrame(aplicarPos);
-  if(el._mcMov)return;el._mcMov=1;
-  // El panel se vuelve a dibujar (innerHTML) cada vez que se abre: se escucha en el panel y se mira si tocaste su barra.
-  const handle=el;let D=null;
-  handle.addEventListener('pointerdown',e=>{
+const centro=el=>{const r=el.getBoundingClientRect();return {cx:(r.left+r.width/2)/innerWidth,cy:(r.top+r.height/2)/innerHeight};};
+// Registro de paneles de chat (el de acá y los propios de UnoAR, LudAR e InvasorAR), por juego.
+const REG={};
+const MINK=j=>'mesa-chat-min:'+(j||'x');
+function minLeer(j){try{return localStorage.getItem(MINK(j))==='1';}catch(_){return false;}}
+function minGuardar(j,v){try{if(v)localStorage.setItem(MINK(j),'1');else localStorage.removeItem(MINK(j));}catch(_){}}
+// Arrastrar con umbral: un toque sigue siendo un toque. op.handle: se agarra de cualquier lado (botón o barrita).
+function arrastrable(el,j,q,handleAll,alSoltar){
+  if(el._mcArr)return;el._mcArr=1;let D=null;
+  el.addEventListener('pointerdown',e=>{
     if(e.button>0)return;
-    if(!op.handle){const h=e.target.closest('header');if(!h||h.parentElement!==el||e.target.closest('button,input,a,select,textarea'))return;}
+    if(!handleAll){const h=e.target.closest('header');if(!h||h.parentElement!==el||e.target.closest('button,input,a,select,textarea'))return;}
     const r=el.getBoundingClientRect();D={id:e.pointerId,x0:e.clientX,y0:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,mov:false};
   });
   addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;
-    if(!D.mov){if(Math.hypot(e.clientX-D.x0,e.clientY-D.y0)<8)return;D.mov=true;el.classList.add('mc-arr');try{handle.setPointerCapture(e.pointerId);}catch(_){}}
-    e.preventDefault();e.stopPropagation();const w=el.offsetWidth,h=el.offsetHeight;
-    const x=Math.max(0,Math.min(innerWidth-w,e.clientX-D.ox)),y=Math.max(0,Math.min(innerHeight-h,e.clientY-D.oy));
+    if(!D.mov){if(Math.hypot(e.clientX-D.x0,e.clientY-D.y0)<8)return;D.mov=true;el.classList.add('mc-arr');try{el.setPointerCapture(e.pointerId);}catch(_){}}
+    e.preventDefault();e.stopPropagation();
+    const w=el.offsetWidth,h=el.offsetHeight,x=Math.max(0,Math.min(innerWidth-w,e.clientX-D.ox)),y=Math.max(0,Math.min(innerHeight-h,e.clientY-D.oy));
     el.style.left=x+'px';el.style.top=y+'px';el.style.right=el.style.bottom='auto';},{passive:false,capture:true});
   const fin=e=>{if(!D||(e&&e.pointerId!==D.id))return;const d=D;D=null;if(!d.mov)return;el.classList.remove('mc-arr');if(e)e.stopPropagation();
-    const r=el.getBoundingClientRect(),o={l:r.left+r.width/2<innerWidth/2?'l':'r',y:Math.max(0,r.top)/innerHeight};
-    posGuardar(j,q,o);ponerEn(el,o);{const r2=el.querySelector(':scope>header .mc-rst');if(r2)r2.hidden=false;}
+    const o=centro(el);posGuardar(j,q,o);ponerEn(el,o);try{alSoltar&&alSoltar(o);}catch(_){}
     // el clic que viene después de soltar no es un toque
-    if(op.handle){const no=ev=>{ev.stopPropagation();ev.preventDefault();};el.addEventListener('click',no,{capture:true,once:true});setTimeout(()=>el.removeEventListener('click',no,{capture:true}),400);}};
+    const no=ev=>{ev.stopPropagation();ev.preventDefault();};el.addEventListener('click',no,{capture:true,once:true});setTimeout(()=>el.removeEventListener('click',no,{capture:true}),400);};
   addEventListener('pointerup',fin,true);addEventListener('pointercancel',fin,true);
-  addEventListener('resize',()=>{if(el.isConnected&&!el.hidden&&posLeer(j,q))aplicarPos();});
 }
-// Dónde sale el globito: del lado (y a la altura) donde dejaste el chat; si no lo moviste, arriba a la derecha como siempre.
+// «↓ nuevos»: si estás leyendo arriba, el juego no te baja la lista (sirve también para los chats propios, que la
+// redibujan entera: se mira con un MutationObserver y se devuelve el scroll a donde estabas).
+function seguirScroll(el){
+  const box=el.querySelector('.mc-msgs,.msgs');if(!box||box._mcSc)return;box._mcSc={abajo:true,top:0};
+  const st=box._mcSc,pill=()=>{let p=el.querySelector('.mc-nuevos');if(!p){p=document.createElement('button');p.type='button';p.className='mc-nuevos';p.textContent='↓ nuevos';
+      p.onclick=e=>{e.stopPropagation();st.abajo=true;box.scrollTop=box.scrollHeight;p.remove();};
+      box.parentNode.insertBefore(p,box.nextSibling);}p.style.top=Math.max(0,box.offsetTop+box.clientHeight-36)+'px';return p;};
+  box.addEventListener('scroll',()=>{if(box._mcIgn)return;st.abajo=box.scrollTop+box.clientHeight>=box.scrollHeight-24;st.top=box.scrollTop;if(st.abajo){const p=el.querySelector('.mc-nuevos');if(p)p.remove();}},{passive:true});
+  new MutationObserver(()=>{box._mcIgn=1;if(st.abajo)box.scrollTop=box.scrollHeight;else{box.scrollTop=st.top;pill();}requestAnimationFrame(()=>{box._mcIgn=0;});}).observe(box,{childList:true,subtree:true,characterData:true});
+}
+function movible(el,juego,op={}){
+  if(!el)return;css();const j=juego||(S.op&&S.op.juego)||'x',q=op.q||'pos';el.classList.add('mc-mov');
+  if(q==='btn'){arrastrable(el,j,q,true);ponerEn(el,posLeer(j,q));requestAnimationFrame(()=>ponerEn(el,posLeer(j,q)));
+    if(!el._mcRz){el._mcRz=1;addEventListener('resize',()=>{if(el.isConnected&&posLeer(j,q))ponerEn(el,posLeer(j,q));});}return;}
+  // un panel de chat
+  el.classList.add('mc-comp');
+  const R=REG[j]||(REG[j]={j,no:0,min:false});R.el=el;R.op=Object.assign(R.op||{},op);
+  const hd=el.querySelector(':scope>header');
+  if(hd&&!hd.querySelector('.mc-grip')){const g=document.createElement('span');g.className='mc-grip';g.textContent='⠿';g.setAttribute('aria-hidden','true');hd.insertBefore(g,hd.firstChild);
+    hd.title='Arrastrá esta barra para mover el chat';
+    const x=hd.querySelector('button:last-of-type');
+    const r=document.createElement('button');r.type='button';r.className='mc-rst';r.setAttribute('aria-label','Volver el chat a su lugar');r.title='Volver a su lugar';r.textContent='⟲';
+    hd.insertBefore(r,x||null);
+    r.onclick=e=>{e.preventDefault();e.stopPropagation();posGuardar(j,q,null);ponerEn(el,null);r.hidden=true;};
+    const m=document.createElement('button');m.type='button';m.className='mc-minb';m.setAttribute('aria-label','Minimizar el chat');m.title='Minimizar';m.innerHTML='<i></i>';
+    hd.insertBefore(m,x||null);
+    m.onclick=e=>{e.preventDefault();e.stopPropagation();minimizar(j);};
+    // ✕ cierra del todo (sin barrita)
+    if(x&&!x._mcX){x._mcX=1;x.addEventListener('click',()=>{R.min=false;minGuardar(j,false);miniOcultar(j);},true);}}
+  const rst=hd&&hd.querySelector('.mc-rst');
+  // se abrió (desde el botón del juego o desde la barrita): ya no está minimizado
+  if(!el.hidden&&R.min){R.min=false;minGuardar(j,false);}
+  miniOcultar(j);R.no=0;
+  const aplicarPos=()=>{let o=posLeer(j,q);if(R.desde){o=R.desde;}ponerEn(el,o);if(rst)rst.hidden=!posLeer(j,q);};
+  aplicarPos();requestAnimationFrame(()=>{aplicarPos();R.desde=null;});
+  seguirScroll(el);
+  arrastrable(el,j,q,false,()=>{if(rst)rst.hidden=false;});
+  if(!el._mcRz){el._mcRz=1;
+    const re=()=>{if(el.isConnected&&!el.hidden)ponerEn(el,posLeer(j,q));};addEventListener('resize',re);
+    if(window.visualViewport){visualViewport.addEventListener('resize',re);visualViewport.addEventListener('scroll',re);}
+    // al escribir, que el campo quede a la vista con el teclado abierto
+    el.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))setTimeout(re,350);});}
+}
+/* ── La barrita del chat minimizado ── */
+function miniEl(j){const R=REG[j];if(!R)return null;
+  // si el juego tiene su botón flotante del chat (el de acá, sin lugar en la barra de arriba), ése hace de barrita
+  if(R.op&&R.op.ancla){const a=R.op.ancla();if(a&&a.isConnected&&!a.hidden)return a;}
+  if(R.mini&&R.mini.isConnected)return R.mini;
+  css();const b=document.createElement('button');b.type='button';b.className='mc-mini';b.setAttribute('aria-label','Abrir el chat de la mesa');
+  b.innerHTML='<span class="mc-grip" aria-hidden="true">⠿</span>💭 <b>Chat</b><span class="mc-mini-n"></span>';
+  ['pointerdown','touchstart'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();restaurar(j);});
+  document.body.appendChild(b);arrastrable(b,j,'mini',true,()=>miniBurbLugar(j));R.mini=b;return b;}
+function miniPoner(j){const R=REG[j],b=R&&R.mini;if(!b||!b.isConnected)return;const o=posLeer(j,'mini');if(o)ponerEn(b,o);}
+function miniOcultar(j){const R=REG[j];if(!R)return;if(R.mini)R.mini.hidden=true;if(R.mb)R.mb.classList.remove('on');}
+function miniBadge(j){const R=REG[j];if(!R)return;if(R.mini){const n=R.mini.querySelector('.mc-mini-n');if(n)n.textContent=R.no?String(Math.min(R.no,99)):'';}}
+function miniVisible(j){const R=REG[j];if(!R||!R.min)return false;let v=true;try{if(R.op.visible)v=!!R.op.visible();else if(R.op.btn){const b=typeof R.op.btn==='function'?R.op.btn():R.op.btn;v=!!(b&&!b.hidden);}}catch(_){}return v;}
+function minimizar(j){const R=REG[j];if(!R||!R.el)return;
+  const p=R.el,r=p.getBoundingClientRect(),abajo=r.top+r.height/2>innerHeight/2,izq=r.left+r.width/2<innerWidth/2;
+  try{R.op.cerrar?R.op.cerrar():(p.hidden=true);}catch(_){p.hidden=true;}
+  p.hidden=true;R.min=true;R.no=0;minGuardar(j,true);
+  const b=miniEl(j);if(!b)return;
+  if(b===R.mini){b.hidden=false;miniBadge(j);
+    // la barrita queda donde estaba el panel: en su esquina de abajo (o de arriba) del lado donde estaba
+    const w=b.offsetWidth||110,h=b.offsetHeight||40;encerrar(b,izq?r.left:r.right-w,abajo?r.bottom-h:r.top);posGuardar(j,'mini',centro(b));}
+}
+function restaurar(j){const R=REG[j];if(!R)return;const b=R.mini&&!R.mini.hidden?R.mini:null;
+  // el panel se abre «hacia donde hay lugar», pegado a la barrita
+  if(b){const r=b.getBoundingClientRect(),p=R.el,w=(p&&p.offsetWidth)||Math.min(340,innerWidth-20),h=(p&&p.offsetHeight)||260;
+    const abajo=r.top+r.height/2>innerHeight/2,izq=r.left+r.width/2<innerWidth/2;
+    const left=izq?r.left:r.right-w,top=abajo?r.bottom-h:r.top;
+    R.desde={cx:Math.max(0,Math.min(1,(left+w/2)/innerWidth)),cy:Math.max(0,Math.min(1,(top+h/2)/innerHeight))};posGuardar(j,'pos',R.desde);}
+  R.min=false;minGuardar(j,false);miniOcultar(j);R.no=0;
+  try{if(R.op.abrir)R.op.abrir();else if(R.el){R.el.hidden=false;movible(R.el,j,R.op);}}catch(_){}
+}
+// Globito arriba de la barrita (o abajo si está pegada arriba); tocarlo abre el chat.
+function miniBurb(j,de,txt){const R=REG[j];if(!R)return;css();
+  if(!R.mb||!R.mb.isConnected){R.mb=document.createElement('button');R.mb.type='button';R.mb.className='mc-mburb';document.body.appendChild(R.mb);
+    ['pointerdown','touchstart'].forEach(ev=>R.mb.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+    R.mb.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();restaurar(j);});}
+  R.mb.innerHTML=`<b>${esc(de)}:</b>${esc(txt)}`;miniBurbLugar(j);
+  requestAnimationFrame(()=>R.mb&&R.mb.classList.add('on'));clearTimeout(R.mbT);R.mbT=setTimeout(()=>{if(R.mb)R.mb.classList.remove('on');},4500);}
+function miniBurbLugar(j){const R=REG[j];if(!R||!R.mb)return;const a=miniEl(j);if(!a)return;const r=a.getBoundingClientRect(),m=R.mb,w=m.offsetWidth||220,h=m.offsetHeight||44;
+  const arriba=r.top-h-8>topSeguro();const izq=r.left+r.width/2<innerWidth/2;
+  m.classList.toggle('abajo',!arriba);m.classList.toggle('izq',izq);
+  encerrar(m,izq?r.left:r.right-w,arriba?r.top-h-8:r.bottom+8);}
+// Un mensaje nuevo que llegó con el chat minimizado (los chats propios lo avisan con MESA_CHAT.nuevo).
+function nuevo(j,de,txt){const R=REG[j];if(!R||!R.min||!miniVisible(j))return false;txt=limpiar(txt);if(!txt)return false;
+  R.no++;const b=miniEl(j);if(b===R.mini){b.hidden=false;miniBadge(j);}miniBurb(j,String(de||'').slice(0,30),txt);return true;}
+// Cada segundo: la barrita se ve sólo mientras el juego tenga mesa en línea.
+setInterval(()=>{for(const j in REG){const R=REG[j];if(!R.min){if(R.mini&&!R.mini.hidden)miniOcultar(j);continue;}
+  const v=miniVisible(j),b=miniEl(j);if(!b||b!==R.mini)continue;if(v&&b.hidden){b.hidden=false;miniPoner(j);miniBadge(j);}else if(!v&&!b.hidden)miniOcultar(j);}},1000);
+addEventListener('resize',()=>{for(const j in REG){miniPoner(j);if(REG[j].mb&&REG[j].mb.classList.contains('on'))miniBurbLugar(j);}});
+// Dónde sale el globito con el chat cerrado (no minimizado): del lado y a la altura donde dejaste el chat.
 function burbLugar(){if(!S.burb)return;const o=posLeer(S.op&&S.op.juego,'pos');const b=S.burb.style;
-  if(!o){b.left=b.right=b.top=b.bottom='';return;}
-  const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.y*innerHeight));b.top=y+'px';b.bottom='auto';
-  if(o.l==='l'){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
+  if(!o){b.left=b.right=b.top=b.bottom='';S.burb.style.borderRadius='';return;}
+  const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.cy*innerHeight-60));b.top=y+'px';b.bottom='auto';
+  if(o.cx<.5){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
 function nota(){const n=S.op&&S.op.nota;try{return (typeof n==='function'?n():n)||'Sólo lo ve la gente de esta mesa y se borra al terminar.';}catch(_){return '';}}
 function abrir(){
   if(!S.op)return;css();
@@ -3210,7 +3387,7 @@ function abrir(){
     ${eqs?`<div class="mc-a"><button type="button" data-a="0" class="${S.eq?'':'on'}">A todos</button><button type="button" data-a="1" class="${S.eq?'on':''}">A mi equipo</button></div>`:''}
     ${formHtml(eqs&&S.eq?'Escribile a tu equipo':'Escribile a la mesa')}`;
   S.panel.hidden=false;S.abierto=true;S.no=0;dibujar();ocultarBurb();
-  movible(S.panel,S.op.juego);
+  movible(S.panel,S.op.juego,{abrir,cerrar,ancla:()=>S.btn&&S.btn.classList.contains('mc-flot')?S.btn:null,visible:()=>!!(S.btn&&!S.btn.hidden)});
   S.panel.querySelector('.mc-x').onclick=cerrar;
   S.panel.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{S.eq=b.dataset.a==='1';abrir();});
   cablearForm(S.panel,cerrar);
@@ -3236,6 +3413,7 @@ function recibir(m){
   const x={de,txt,eq:m.eq?1:0};agregar(x);
   try{S.op&&S.op.sonido&&S.op.sonido();}catch(_){}
   let chip=false;try{if(S.op&&S.op.chip){chip=S.op.chip(de,txt)!==false;}}catch(_){}
+  if(!S.abierto&&!enEspera()&&S.op&&nuevo(S.op.juego,de,txt))return;   // v74: minimizado → globito arriba de la barrita
   if((!chip||!S.abierto)&&!enEspera())burbuja(x);
 }
 function sistema(txt){txt=limpiar(txt);if(txt)agregar({txt,sis:true});}
@@ -3300,7 +3478,7 @@ function escuchar(op){
 }
 // (v67) Aunque el juego no monte el chat de la mesa (UnoAR tiene el suyo), igual se mira si hay que avisar al grupo.
 S.ivg=setInterval(()=>{if(!S.op)try{grupoJuegoAuto();}catch(_){}},1000);
-window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar};
+window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar,nuevo,minimizar,restaurar,minimizado:j=>!!(REG[j]&&REG[j].min)};
 })();
 
 </script>
@@ -3314,6 +3492,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:74,grande:true,titulo:'Novedades',items:[
+    ['🐤','LaberintAR rehecho: estilo maquinita, mucho más rápido y ágil, doblás al toque en las esquinas y 5 laberintos nuevos llenos de escapes.'],
+    ['👾','InvasorAR rehecho: nave ágil, disparo seco, explosiones, rachas ×8, enemigos y poderes nuevos y oleadas cortas. ¡Otra!'],
+    ['💬','El chat de la mesa ahora es chiquito, se minimiza a una barrita con los mensajes arriba y lo movés por toda la pantalla.'],
+    ['🗺️','La Gran Pampa: el juego del cruce se sortea — salen 3, tachás uno y la suerte elige — y la Guardia también se sortea.'],
+    ['🏡','EstanciAR: las luces iluminan de noche, mucha más ropa y caras para tu personaje, la ropa de las mascotas nueva y un botón para entrar a la casa. Y de vez en cuando, de noche, anda el Pomberito…'],
+    ['🐎','EstanciAR: arreglamos la casa y la mascota que no se sincronizaban, y las cosas que dejaban de verse.'],
+    ['🧩','Buscaminas Experto entra en el celular, PoblAR muestra la meta real y cuántas piezas te quedan, y en el pool la bola que define ya no tiene ayuda de más.']]},
   {v:73,grande:true,titulo:'Novedades',items:[
     ['🐤','LaberintAR en Arcade: juntá las semillas, escapale al zorro, la lechuza, el tero y el peludo, y con un mate dales vuelta la persecución. 15 mapas, campaña con estrellas y el laberinto del día.'],
     ['👾','InvasorAR en Arcade: frená las oleadas y los jefes, rompé y cuidá tus refugios, y desafiá a un amigo a un duelo en línea con las mismas oleadas. Y el desafío del día.'],
@@ -3913,7 +4099,7 @@ function renderAlert(){
   if(def){const J=JG(def.j),espera=turnoDef(def)>ahoraS();el.className='alert hot';
     el.innerHTML=`<span class="tx">⚔️ <b>${esc(def.de)}</b>${def.al?` (con el refuerzo de <b>${esc(def.al)}</b>)`:''} te desafió por un paraje de ${esc(TIPOTXT(def.hex))}${V.v69?`: defendelo con <b>${J.e} ${esc(J.n)}</b>`:''}. ${espera?`Podés defender en ${quedan(turnoDef(def)-ahoraS())} (o cuando juegue el refuerzo).`:`Te quedan ${quedan(turnoDef(def)+V.reglas.espera-ahoraS())}.`}</span>${espera?'':'<button class="go" id="al-go">Defender</button>'}`;el.hidden=false;if($('al-go'))$('al-go').onclick=()=>playDuel(def);return;}
   if(help){const J=JG(help.j);el.className='alert hot';el.innerHTML=`<span class="tx">🤝 <b>${esc(help.de)}</b> te pidió refuerzo contra <b>${esc(help.a)}</b>: jugá <b>${J.e} ${esc(J.n)}</b> (hizo ${fmt(help.sd)}; cuenta el mejor de los dos). Te quedan ${quedan(help.alHasta-ahoraS())}.</span><button class="go" id="al-go">Jugar</button>`;el.hidden=false;$('al-go').onclick=()=>playDuel(help);return;}
-  if(play){el.className='alert';el.innerHTML=`<span class="tx">${play.doma?'🐎 Te falta <b>domar la tropilla</b>.':`${JG(play.j).e} Te falta jugar tu cruce contra <b>${esc(play.a)}</b>${V.v69&&play.j!=='malon'?` (${esc(JG(play.j).n)})`:''}.`}</span><button class="go" id="al-go">Jugar</button>`;el.hidden=false;$('al-go').onclick=()=>playDuel(play);return;}
+  if(play){el.className='alert';el.innerHTML=`<span class="tx">${play.doma?'🐎 Te falta <b>domar la tropilla</b>.':!play.j?`🎰 Te falta el <b>sorteo</b> de tu cruce contra <b>${esc(play.a)}</b>.`:`${JG(play.j).e} Te falta jugar tu cruce contra <b>${esc(play.a)}</b>${V.v69&&play.j!=='malon'?` (${esc(JG(play.j).n)})`:''}.`}</span><button class="go" id="al-go">${!play.j?'Sortear':'Jugar'}</button>`;el.hidden=false;$('al-go').onclick=()=>playDuel(play);return;}
   const cg=(V.contras||[])[0];
   if(!cg&&V.v69){const e=evActivos().sort((a,b)=>b.d-a.d)[0];if(e&&!ls.get('pampa-ev-visto:'+V.semana+':'+e.id)){el.className='alert';
       el.innerHTML=`<span class="tx">${e.e} <b>${esc(e.n)}</b>: ${esc(evCorto(e))} Quedan ${quedan((e.tf||e.h)-ahoraS())}.</span><button class="go" id="al-go">${e.hex!=null?'Ver':'Listo'}</button>`;el.hidden=false;
@@ -3950,9 +4136,9 @@ function renderPanel(){
         if(inDisp)h+='<p class="note">Está en disputa: hay un cruce abierto por este paraje.</p>';
         else if(cg)h+=`<p><b>Te lo sacó con un malón:</b> recuperalo con un relámpago.</p><div class="row"><button class="btn gold col" id="pn-cg"${V.yo.leg<cg.costo?' disabled':''}>🔁 Recuperar con un relámpago<small>BloqueAR · ${cg.gratis?'gratis (1 por semana)':cg.costo+' leguas'}</small></button></div><p class="note">Jugás primero y ${esc(P?P.n:'tu vecino')} tiene 24 h para superarte. Te quedan ${quedan(cg.hasta-ahoraS())} para pedirlo.</p>`;
         else if(!ok)h+='<p class="note">Para desafiarlo tiene que estar pegado a tu tierra.</p>';
-        else if(V.v69){const df=P&&P.def&&P.def!=='azar'?JG(P.def):null,abiertos=openDuels().filter(d=>d.yoDe&&!d.contra&&!d.doma).length,lleno=abiertos>=(V.reglas.abiertos||2);
-          h+=`<p><b>Desafialo por este paraje:</b></p><div class="row"><button class="btn gold col" id="pn-rel"${V.yo.leg<c||lleno?' disabled':''}>⚔️ Cruce${df?` · ${df.e}`:''}<small>${df?esc(df.n):'juego al azar'} · ${c} leguas</small></button><button class="btn red col" id="pn-mal"${V.yo.leg<c||lleno?' disabled':''}>🐎 Malón<small>EstanciAR · ${c} leguas</small></button></div>
-            <p class="note">${df?`${esc(P.n)} se defiende con <b>${df.e} ${esc(df.n)}</b>`:`${esc(P?P.n:'Tu vecino')} no eligió juego: sale uno al azar`}${P&&P.gu?` y <b>tiene la guardia puesta</b> 🛡️ (si no viene a defender, tenés que superarla)`:''}. Jugás primero, contra la compu, y después tiene 24 h para superarte${V.jugadores.length>2&&V.reglas.v72?'; podés pedir refuerzo a otro de la liga':''}. Malón: atacás su estancia y con 2 ⭐ es tuyo.${k===puntero()?' <b>Va primero:</b> desafiarlo cuesta menos.':''}${lleno?` Ya tenés ${abiertos} cruces abiertos.`:V.yo.leg<c?` Te faltan ${c-V.yo.leg} leguas.`:''}</p>`;}
+        else if(V.v69){const gq=P&&P.gu?JG(P.gu):null,abiertos=openDuels().filter(d=>d.yoDe&&!d.contra&&!d.doma).length,lleno=abiertos>=(V.reglas.abiertos||2);
+          h+=`<p><b>Desafialo por este paraje:</b></p><div class="row"><button class="btn gold col" id="pn-rel"${V.yo.leg<c||lleno?' disabled':''}>⚔️ Cruce${gq?` · ${gq.e}`:''}<small>${gq?'su guardia':'🎰 juego sorteado'} · ${c} leguas</small></button><button class="btn red col" id="pn-mal"${V.yo.leg<c||lleno?' disabled':''}>🐎 Malón<small>EstanciAR · ${c} leguas</small></button></div>
+            <p class="note">${gq?`${esc(P.n)} <b>tiene la guardia puesta</b> 🛡️: el cruce se juega con <b>${gq.e} ${esc(gq.n)}</b> y, si no viene a defender, tenés que superarla`:`<b>El juego se sortea:</b> salen tres, vos tachás uno y la suerte elige entre los otros dos`}. Jugás primero, contra la compu, y después tiene 24 h para superarte${V.jugadores.length>2&&V.reglas.v72?'; podés pedir refuerzo a otro de la liga':''}. Malón: atacás su estancia y con 2 ⭐ es tuyo.${k===puntero()?' <b>Va primero:</b> desafiarlo cuesta menos.':''}${lleno?` Ya tenés ${abiertos} cruces abiertos.`:V.yo.leg<c?` Te faltan ${c-V.yo.leg} leguas.`:''}</p>`;}
         else h+=`<p><b>Desafialo por este paraje:</b></p><div class="row"><button class="btn gold col" id="pn-rel"${V.yo.leg<c?' disabled':''}>🧱 Relámpago<small>BloqueAR · ${c} leguas</small></button><button class="btn red col" id="pn-mal"${V.yo.leg<c?' disabled':''}>🐎 Malón<small>EstanciAR · ${c} leguas</small></button></div><p class="note">Relámpago: jugás primero y ${esc(P?P.n:'tu vecino')} tiene 24 h para superarte. Malón: atacás su estancia y con 2 ⭐ es tuyo.${V.yo.leg<c?` Te faltan ${c-V.yo.leg} leguas.`:''}</p>`;}}}
   el.innerHTML=h;el.hidden=false;document.querySelectorAll('.toast').forEach(placeToast);
   if($('pn-x'))$('pn-x').onclick=()=>{SEL=-1;renderPanel();redraw();};
@@ -4039,7 +4225,7 @@ function openPos(tab='pos'){
       const act=!d.fin&&((d.yoDe&&d.sd==null)||(!d.yoDe&&d.j!=='malon'&&!d.doma&&d.sd!=null&&d.sa==null&&turnoDef(d)<=ahoraS()))?`<button class="btn gold" data-play="${d.id}">${d.yoDe?'Jugar':'Defender'}</button>`:'';
       if(d.doma)return `<div class="item"><span class="tx"><b>🐎 Doma de la tropilla</b><small>Paraje de ${esc(tipo)} · ${res||'Te falta jugar'} · ${hace(d.t)}</small></span>${act}</div>`;
       const alT=d.al?` · 🤝 ${d.yoDe?'tu refuerzo: ':'con '}${esc(d.al)}${d.sal!=null?' ('+fmt(d.sal)+')':''}`:'',guT=d.gu!=null&&d.fin?' · 🛡️ guardia '+fmt(d.gu):'';
-      return `<div class="item"><span class="tx"><b>${JG(d.j).e} ${d.yoDe?'Vos contra':'Te desafió'} ${esc(vs)}</b><small>Paraje de ${esc(tipo)} · ${res||(d.yoDe?(d.sd==null?'Te falta jugar':d.al&&d.sal==null&&ahoraS()<d.alHasta?'Esperando a tu refuerzo':'Esperando a '+esc(vs)):(d.sd==null?'Todavía no jugó':turnoDef(d)>ahoraS()?'Juega el refuerzo':'Te toca'))}${alT}${guT} · ${hace(d.t)}</small></span>${act}</div>`;}).join(''):'<p>Todavía no hubo cruces. Cuando tu tierra toque la de un vecino, podés desafiarlo por un paraje.</p>';}
+      return `<div class="item"><span class="tx"><b>${d.j?JG(d.j).e:'🎰'} ${d.yoDe?'Vos contra':'Te desafió'} ${esc(vs)}</b><small>Paraje de ${esc(tipo)} · ${res||(d.yoDe?(d.sd==null?(d.j?'Te falta jugar':'Te falta el sorteo'):d.al&&d.sal==null&&ahoraS()<d.alHasta?'Esperando a tu refuerzo':'Esperando a '+esc(vs)):(d.sd==null?'Todavía no jugó':turnoDef(d)>ahoraS()?'Juega el refuerzo':'Te toca'))}${alT}${guT} · ${hace(d.t)}</small></span>${act}</div>`;}).join(''):'<p>Todavía no hubo cruces. Cuando tu tierra toque la de un vecino, podés desafiarlo por un paraje.</p>';}
   else body=V.log.length?`<ul class="news">${V.log.slice().reverse().map(x=>`<li>${esc(x.txt)} <small>· ${hace(x.t)}</small></li>`).join('')}</ul>`:'<p>Todavía no pasó nada esta semana.</p>';
   sheet(V.ligas>1?`La semana · Liga ${V.liga}`:'La semana',body,tabs);
   document.querySelectorAll('#sheet [data-tab]').forEach(b=>b.onclick=()=>openPos(b.dataset.tab));
@@ -4104,17 +4290,17 @@ function openHelp69(){
       <div><span class="ic">🚩</span><span><b>1 · Sumate</b><p>Lunes o martes <b>hasta las 12 del mediodía</b>. Plantás tu casco y arrancás con ${ini} leguas.</p></span></div>
       <div><span class="ic">🎮</span><span><b>2 · Ganá leguas jugando</b><p>Entrando cada día y con partidas ranked de los otros juegos. <a href="#" id="h-leg2">¿Cuántas da cada uno?</a></p></span></div>
       <div><span class="ic">⭐</span><span><b>3 · Parajes de 1 a 5 estrellas</b><p>Cada paraje da por día sus ⭐. El centro vale más; el borde, menos. Reclamar cuesta <b>2 + ⭐</b> (y 1 más cada ${R.admin||5} parajes que ya tenés: crecer sale caro).</p></span></div>
-      <div><span class="ic">⚔️</span><span><b>4 · Cruces</b><p>Desafiá a un vecino por un paraje pegado. <b>El que defiende elige el juego.</b> Los dos juegan lo mismo contra la compu y gana el que hace más (si empatan, defiende el dueño).</p></span></div>
+      <div><span class="ic">⚔️</span><span><b>4 · Cruces</b><p>Desafiá a un vecino por un paraje pegado. <b>El juego se sortea:</b> salen tres, el que desafía tacha uno y la suerte elige entre los otros dos. Los dos juegan lo mismo contra la compu y gana el que hace más (si empatan, defiende el dueño).</p></span></div>
       <div><span class="ic">🏰</span><span><b>5 · Fortines</b><p>Los parajes de ${R.fuerte}⭐ o más se ganan con <b>dos cruces seguidos</b>: el primero deja una marca 🏴 por 24 h y el segundo cuesta la mitad.</p></span></div>
       <div><span class="ic">🏆</span><span><b>6 · Premios</b><p><b>Oro</b> (1.º 300, 2.º 200, 3.º 120 y 40 por terminar la semana jugando), pesos, copa y <b>medallas para tu perfil</b> que se ven en todos los juegos (🥇🥈🥉, 🤠 Gran Estanciero, 🐎 Domador), y cosas para tu estancia: molino dorado, bandera de campeón, estatua de caballo. El que gana es el <b>🏆 Caudillo de la semana</b> siguiente: lo ven todos y su estandarte flamea en el medio del mapa. Cada 4 semanas cierra una <b>temporada</b>: los tres que más sumaron se llevan su copa.</p></span></div>
     </div>
     <h4>Los juegos de los cruces</h4>
     <table class="tjg"><tr><td>🧱 BloqueAR</td><td>relámpago de 45 s, las mismas piezas</td></tr><tr><td>🃏 TrucAR</td><td>a 15 contra la compu, las mismas cartas</td></tr><tr><td>🎴 UnoAR</td><td>una mano contra una compu, el mismo mazo</td></tr><tr><td>♟️ AjedrezAR</td><td>blitz 3+2 contra la compu (ganar rápido suma más)</td></tr>
-      <tr><td>🎱 PoolAR</td><td>Bola 8 contra la compu (ganar con menos tiros suma más)</td></tr><tr><td>🎲 LudAR</td><td>mano a mano contra la compu, los mismos dados</td></tr><tr><td>🏘️ PoblAR</td><td>a 8 puntos contra la compu, el mismo tablero (sólo si lo elegís: es más largo)</td></tr>
+      <tr><td>🎱 PoolAR</td><td>Bola 8 contra la compu (ganar con menos tiros suma más)</td></tr><tr><td>🎲 LudAR</td><td>mano a mano contra la compu, los mismos dados</td></tr><tr><td>🏘️ PoblAR</td><td>a 8 puntos contra la compu, el mismo tablero (no entra en el sorteo: es más largo)</td></tr>
       <tr><td>🧩 SudokAR</td><td>contra reloj, el mismo sudoku: cada error o pista resta</td></tr><tr><td>💣 BuscaminAR</td><td>contra reloj, el mismo potrero (Intermedio)</td></tr><tr><td>♠️ SolitARio</td><td>contra reloj, el mismo reparto (con solución)</td></tr></table>
-    <p class="note">Elegí con cuál te defendés desde el menú (🛡️ Mi juego para defender). El desafiado tiene 24 horas; si no viene, el que desafió gana sólo si le ganó a la compu, terminó el solitario (o hizo ${Math.round((R.ausente.relampago||3000)/1000)} líneas en el relámpago) y superó la guardia, si había. Desafiar al que va primero cuesta ${R.puntero||3} leguas menos. El malón en EstanciAR sigue siendo otra forma de desafiar.</p>
+    <p class="note">La guardia se pone desde el menú (🛡️ Defensa y guardia). El desafiado tiene 24 horas; si no viene, el que desafió gana sólo si le ganó a la compu, terminó el solitario (o hizo ${Math.round((R.ausente.relampago||3000)/1000)} líneas en el relámpago) y superó la guardia, si había. Desafiar al que va primero cuesta ${R.puntero||3} leguas menos. El malón en EstanciAR sigue siendo otra forma de desafiar.</p>
     <div class="como dos">
-      <div><span class="ic">🛡️</span><span><b>Guardia</b><p>Jugá tu defensa antes, cuando te quede cómodo (una por día). Dura 48 horas: si te desafían y no llegás, hay que superarla. Si venís, cuenta lo que hagas.</p></span></div>
+      <div><span class="ic">🛡️</span><span><b>Guardia</b><p>Jugá tu defensa antes, cuando te quede cómodo (una por día); el juego se sortea en el momento. Dura 48 horas: si te desafían y no llegás, hay que superarla. Si venís, cuenta lo que hagas.</p></span></div>
       <div><span class="ic">🤝</span><span><b>Refuerzo</b><p>Al desafiar, pedile ayuda a otro de la liga (1 legua más). Juega lo mismo hasta 6 horas después y cuenta el mejor de los dos. Si ganan, +2 leguas para él; si el que defiende aguanta a los dos, +2 para el que defiende.</p></span></div>
     </div>
     <h4>Eventos de 24 horas</h4>
@@ -4135,19 +4321,17 @@ function openEventos(){if(!V)return;const A=(V.ev||[]).slice().sort((a,b)=>b.d-a
   sheet('Eventos',`${A.length?A.map(e=>`<div class="item"><span class="tx"><b>${e.e} ${esc(e.n)}${e.hex!=null?` · ${esc(TIPOTXT(e.hex))}`:''}</b><small>${e.activo?`${esc(evCorto(e))} Quedan ${quedan((e.tf||e.h)-ahoraS())}.`:e.quien?`La domó ${esc(e.quien)}.`:'Terminó.'}</small></span>${e.activo&&e.hex!=null?`<button class="btn gold" data-evh="${e.hex}">Ver</button>`:''}</div>`).join(''):'<p>Todavía no hubo eventos esta semana.</p>'}
     ${V.proxEv?`<p class="note">El próximo sale en ${quedan(V.proxEv-ahoraS())}. Salen 1 o 2 por día desde el martes a las 12.</p>`:''}`);
   document.querySelectorAll('#sheet [data-evh]').forEach(b=>b.onclick=()=>{closeSheet();SEL=+b.dataset.evh;verHex(SEL);renderPanel();redraw();});}
-// v69: con qué juego te defendés.
-function openDefensa(){if(!V)return;const cur=V.pref||'azar',L=JUEGOS_CRUCE.filter(j=>!V.juegos||V.juegos[j]),G=V.guardia,R=R72();
-  const guH=!G?'':`<h4>🛡️ Guardia</h4><p class="note">Jugá tu defensa ahora, cuando te quede cómodo: si te desafían y no llegás a defender, el que desafió tiene que superar tu guardia. Dura ${Math.round(R.guardia/3600e3)} horas; una por día. Si venís a defender, cuenta lo que hagas.</p>
+// v74: defensa y guardia. Ya no se elige el juego para defender: se sortea (salen tres y el que desafía tacha uno).
+function openDefensa(){if(!V)return;const G=V.guardia,R=R72(),L=((V.reglas&&V.reglas.v74&&V.reglas.v74.sorteo)||JUEGOS_CRUCE.filter(j=>j!=='poblar')).filter(j=>!V.juegos||V.juegos[j]);
+  const guH=!G?'':`<h4>🛡️ Guardia</h4><p class="note">Jugá tu defensa antes, cuando te quede cómodo. El juego <b>se sortea en el momento</b> (salen tres y tachás uno). Dura ${Math.round(R.guardia/3600e3)} horas; una por día. Mientras dura, si te desafían el cruce se juega con ese juego y, si no llegás a defender, el que desafió tiene que superar tu guardia. Si venís, cuenta lo que hagas.</p>
     ${G.j?`<p>Tu guardia: <b>${JG(G.j).e} ${fmt(G.sd)} puntos</b> con ${esc(JG(G.j).n)} · vence en ${quedan(G.hasta-ahoraS())}.</p>`:'<p>No tenés guardia puesta.</p>'}
-    ${G.pend?`<button class="btn gold" id="gu-pend">${JG(G.pend.j).e} Jugar la guardia</button>`:G.hoy?'<p class="note">Hoy ya la pusiste: mañana podés renovarla.</p>':cur==='azar'?'<p class="note">Para ponerla, elegí primero con qué te defendés.</p>':`<button class="btn gold" id="gu-go">${JG(cur).e} Poner la guardia con ${esc(JG(cur).n)}</button>`}`;
-  sheet('🛡️ Mi juego para defender',`<p>Cuando un vecino te desafía, el cruce se juega con el juego que elijas acá. Los dos juegan lo mismo y gana el que hace más.</p>${guH}<h4>Con qué te defendés</h4><div class="jg-list">
-    ${L.map(j=>{const J=JG(j);return `<button class="jg${cur===j?' on':''}" data-def="${j}"><span class="ic">${J.e}</span><span class="tx"><b>${esc(J.n)}</b><small>${esc(J.d||'')}</small></span>${cur===j?'✓':''}</button>`;}).join('')}
-    <button class="jg${cur==='azar'?' on':''}" data-def="azar"><span class="ic">🎲</span><span class="tx"><b>Al azar</b><small>Sale uno distinto en cada cruce (PoblAR no, es más largo)</small></span>${cur==='azar'?'✓':''}</button></div>`);
-  if($('gu-go'))$('gu-go').onclick=()=>ponerGuardia(cur);if($('gu-pend'))$('gu-pend').onclick=()=>{closeSheet();playDuel({...G.pend,guardia:1,yoDe:true});};
-  document.querySelectorAll('#sheet [data-def]').forEach(b=>b.onclick=async()=>{try{const r=await api({accion:'pampaPref',def:b.dataset.def});V.pref=r.pref;sfx('claim');toast(r.pref==='azar'?'Te defendés con un juego al azar':'Te defendés con '+JG(r.pref).n);openDefensa();load(false);}catch(e){toast(e.message);}});}
-// v72: poner la guardia (se juega ahora y queda 48 horas)
-async function ponerGuardia(j){const r=await act({accion:'pampaGuardia',j},'tambores');if(!r)return;const ev=(r.eventos||[])[0];closeSheet();
-  if(ev&&ev.duelo){const g=r.guardia&&r.guardia.pend;setTimeout(()=>playDuel({id:ev.duelo,j:ev.j,seed:g?g.seed:0,guardia:1,yoDe:true}),RM?300:700);}}
+    ${G.pend?`<button class="btn gold" id="gu-pend">${G.pend.j?JG(G.pend.j).e+' Jugar la guardia':'🎰 Seguir con el sorteo de tu guardia'}</button>`:G.hoy?'<p class="note">Hoy ya la pusiste: mañana podés renovarla.</p>':`<button class="btn gold" id="gu-go">🎰 Poner la guardia · se sortea el juego</button>`}`;
+  sheet('🛡️ Defensa y guardia',`<p><b>El juego de cada cruce se sortea.</b> Cuando un vecino te desafía salen tres juegos al azar, él tacha uno y la suerte elige entre los otros dos: nadie juega siempre su mejor juego.</p>${guH}<h4>Los juegos del sorteo</h4><div class="jg-list">
+    ${L.map(j=>{const J=JG(j);return `<div class="jg"><span class="ic">${J.e}</span><span class="tx"><b>${esc(J.n)}</b><small>${esc(J.d||'')}</small></span></div>`;}).join('')}</div><p class="note">PoblAR no entra en el sorteo: es más largo.</p>`);
+  if($('gu-go'))$('gu-go').onclick=()=>ponerGuardia();if($('gu-pend'))$('gu-pend').onclick=()=>{closeSheet();playDuel({...G.pend,guardia:1,yoDe:true});};}
+// v74: poner la guardia: se sortea el juego (salen tres, tachás uno) y se juega ahora; queda 48 horas.
+async function ponerGuardia(){const r=await act({accion:'pampaGuardia',sorteo:1},'tambores');if(!r)return;closeSheet();quitarToasts();
+  const g=r.guardia&&r.guardia.pend;if(g)setTimeout(()=>playDuel({...g,guardia:1,yoDe:true}),RM?150:350);}
 // v69: modo pacífico (sin malones ni La Gran Pampa) o campo abierto.
 async function openModo(){
   let m=V&&V.modo;try{const r=await api({accion:'modoPacifico'});m=r.modo;if(V)V.modo=m;}catch(e){if(!m){toast(e.message);return;}}
@@ -4250,17 +4434,18 @@ function ofrecerSumarse(){
 async function unirse(){const j=await act({accion:'pampaUnirse'});if(j&&j.yo){hideCenter();SEL=-1;USERCAM=false;fitCam(true);renderAll();}}
 async function reclamar(i){const j=await act({accion:'pampaReclamar',hex:i},'bandera');if(j){SEL=-1;renderPanel();lgEv('parajes',1);if(V.own[i]===ME)anim('bandera',i,{col:PCOL(ME)});}}
 // v72: antes del cruce, ¿solo o con refuerzo? El refuerzo juega lo mismo (6 h) y cuenta el mejor de los dos.
-function elegirRefuerzo(i){const P=Pof(V.own[i]);if(!P)return;const c=cruceDe(i),R=R72(),df=P.def&&P.def!=='azar'?JG(P.def):null,
+function elegirRefuerzo(i){const P=Pof(V.own[i]);if(!P)return;const c=cruceDe(i),R=R72(),df=P.gu?JG(P.gu):null,
   L=V.jugadores.filter(x=>x.k!==ME&&x.k!==P.k);
-  sheet('⚔️ Desafiar a '+P.n,`<p>Por su paraje de <b>${esc(TIPOTXT(i))}</b>, con ${df?`<b>${df.e} ${esc(df.n)}</b>`:'un juego al azar'}.</p>
+  sheet('⚔️ Desafiar a '+P.n,`<p>Por su paraje de <b>${esc(TIPOTXT(i))}</b>, con ${df?`<b>${df.e} ${esc(df.n)}</b> (su guardia)`:'un juego sorteado: salen tres y tachás uno'}.</p>
     <button class="jg" data-al=""><span class="ic">⚔️</span><span class="tx"><b>Ir solo</b><small>${c} leguas · jugás vos y después ${esc(P.n)} tiene 24 h</small></span></button>
     <h4>🤝 Con refuerzo · ${c+R.aliadoCosto} leguas</h4><p class="note">Tu refuerzo juega lo mismo hasta 6 horas después de vos y cuenta el mejor de los dos. Si ganan, se lleva +${R.aliadoPremio} leguas; si ${esc(P.n)} aguanta a los dos, +${R.aliadoDef} para él.</p>
     <div class="jg-list">${L.map(x=>`<button class="jg" data-al="${esc(x.n)}"${V.yo.leg<c+R.aliadoCosto?' disabled':''}><span class="ic" style="color:${PCOL(x.k)}">${esc(x.av||'🙂')}</span><span class="tx"><b>${esc(x.n)}</b><small>${x.tierras} ${x.tierras===1?'paraje':'parajes'} · ${fpts(x.pts)} pts</small></span></button>`).join('')}</div>`);
   document.querySelectorAll('#sheet [data-al]').forEach(b=>b.onclick=()=>{closeSheet();desafiar(i,'relampago',b.dataset.al||'');});}
 async function desafiar(i,j,aliado=''){
   const P=Pof(V.own[i]);if(!P)return;
-  const r=await act({accion:'pampaDesafiar',hex:i,j,...(aliado?{aliado}:{})},'tambores');if(!r)return;
+  const r=await act({accion:'pampaDesafiar',hex:i,j,sorteo:1,...(aliado?{aliado}:{})},'tambores');if(!r)return;   // v74: sorteo
   const ev=(r.eventos||[])[0],d=ev&&ev.duelo?r.duelos.find(x=>x.id===ev.duelo):null;SEL=-1;renderPanel();anim('espadas',i);
+  if(d&&!d.j&&d.sorteo){quitarToasts();setTimeout(()=>sorteoAnim(d),RM?200:650);return;}
   if(d)setTimeout(()=>playDuel(d),RM?500:1100);
 }
 // Contragolpe: recuperar con un relámpago un paraje que te sacaron con un malón (el primero de la semana, gratis).
@@ -4269,9 +4454,83 @@ async function contragolpe(c){
   const ev=(r.eventos||[])[0],d=ev&&ev.duelo?r.duelos.find(x=>x.id===ev.duelo):null;SEL=-1;renderAll();anim('espadas',c.hex);
   if(d)setTimeout(()=>playDuel(d),RM?500:1100);
 }
+/* ───────── v74: el sorteo del juego del cruce ─────────
+   Pedido del 25/10: «sortear tres opciones y tachar una; agregar una animación piola y atractiva para ver el sorteo».
+   La planilla manda los 3 juegos (d.sorteo.op); el que desafía (o el que pone la guardia) toca uno para tacharlo y la
+   planilla elige entre los otros dos (pampaSorteo). Esto sólo lo anima: tragamonedas de feria que giran y frenan, la cruz,
+   luces que se alternan cada vez más lento y el festejo. Tocar la pantalla mientras gira o mientras se alternan lo adelanta. */
+let SORTEO=null;
+const sorteoNom=j=>(JG(j).n||'').split(' ')[0],sorteoSub=j=>(JG(j).n||'').split(' ').slice(1).join(' ');
+const sorteoCard=j=>`<span class="so-card"><span class="so-e">${JG(j).e}</span><b>${esc(sorteoNom(j))}</b><small>${esc(sorteoSub(j))}</small></span>`;
+function matraca(dur){if(!SND)return;try{let t=0,dt=.04;while(t<dur){tone(1500+Math.random()*700,1200,.016,.028,t,'square');dt*=1.05;t+=dt;}}catch(_){}}
+function quitarToasts(){document.querySelectorAll('.toast').forEach(t=>t.remove());}
+function sorteoAnim(d){
+  const S=d&&d.sorteo;if(SORTEO||!S||!S.op||S.op.length<3)return;
+  const gu=!!d.guardia,ov=document.createElement('div');ov.className='sorteo';
+  ov.innerHTML=`<div class="so-caja" role="dialog" aria-modal="true" aria-label="Sorteo del juego"><div class="so-luces" aria-hidden="true">${'<i></i>'.repeat(13)}</div>
+    <h3>${gu?'🛡️ El juego de tu guardia':'🎰 ¿Con qué se juega?'}</h3><p class="so-txt" aria-live="polite">${gu?'Salen tres juegos para tu guardia…':'Salen tres juegos al azar…'}</p>
+    <div class="so-reels">${S.op.map((j,i)=>`<button type="button" class="so-reel" data-i="${i}" data-j="${j}" aria-label="${esc(JG(j).n)}"><span class="so-strip">${sorteoCard(j)}</span><span class="so-x" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M14 14 L86 86"/><path d="M86 14 L14 86"/></svg></span></button>`).join('')}</div>
+    <div class="so-pie"></div></div>`;
+  document.body.appendChild(ov);quitarToasts();ov.dataset.t0=performance.now()|0;   // tiempos para las pruebas
+  const reels=[...ov.querySelectorAll('.so-reel')],txt=ov.querySelector('.so-txt'),pie=ov.querySelector('.so-pie'),luces=ov.querySelector('.so-luces'),caja=ov.querySelector('.so-caja');
+  const tms=[],T=(f,ms)=>{const id=setTimeout(f,ms);tms.push(id);return id;};
+  const st={fase:'gira',cur:0,alt:null,res:null,jf:S.j||null,tachado:null};SORTEO=st;
+  const cerrar=()=>{tms.forEach(clearTimeout);clearTimeout(st.alt);ov.remove();SORTEO=null;};st.cerrar=cerrar;
+  const pool=((V.reglas&&V.reglas.v74&&V.reglas.v74.sorteo)||JUEGOS_CRUCE).filter(j=>!V.juegos||V.juegos[j]);
+  const H=()=>{const c=reels[0].querySelector('.so-card');return c&&c.offsetHeight||128;};
+  // las tiras: muchas tarjetas al azar y al final la que salió
+  reels.forEach((r,i)=>{const n=RM?0:9+i*4,L=[];for(let k=0;k<n;k++)L.push(pool[(Math.random()*pool.length)|0]);L.push(S.op[i]);r.querySelector('.so-strip').innerHTML=L.map(sorteoCard).join('');r._n=n;});
+  const frenar=(r,inst)=>{const s=r.querySelector('.so-strip');if(inst)s.style.transition='none';s.style.transform=`translateY(${-r._n*H()}px)`;r.classList.remove('so-gira');};
+  const listo=()=>{if(st.fase!=='gira')return;tms.forEach(clearTimeout);reels.forEach(r=>frenar(r,true));luces.classList.remove('rapido');
+    if(S.tacha&&S.j){const r=reels.find(x=>x.dataset.j===S.tacha);if(r)r.classList.add('tachado');st.tachado=r;st.jf=S.j;st.fase='espera';final(true);return;}
+    st.fase='elige';ov.dataset.te=performance.now()|0;caja.classList.add('so-elige');reels.forEach(r=>r.disabled=false);
+    txt.innerHTML=`Tocá el que <b>no</b> querés jugar: lo tachás y la suerte elige entre los otros dos.`;sfx('tap');
+    pie.innerHTML='<button class="btn" id="so-luego0">Tachar después</button>';ov.querySelector('#so-luego0').onclick=()=>{cerrar();renderAll();};};
+  // girar
+  if(RM){T(listo,250);}
+  else{luces.classList.add('rapido');reels.forEach(r=>{r.disabled=true;r.classList.add('so-gira');});void ov.offsetHeight;
+    requestAnimationFrame(()=>{reels.forEach((r,i)=>{const s=r.querySelector('.so-strip'),dur=.95+i*.42;s.style.transition=`transform ${dur}s cubic-bezier(.15,.62,.2,1)`;s.style.transform=`translateY(${-r._n*H()}px)`;
+        T(()=>{r.classList.remove('so-gira');if(SND)golpe(140+i*35,0,.09);},dur*1000);});
+      matraca(1.9);T(listo,(0.95+2*.42)*1000+180);});}
+  // tachar
+  reels.forEach(r=>r.addEventListener('click',async e=>{e.stopPropagation();if(st.fase!=='elige')return;st.fase='espera';st.tachado=r;ov.dataset.tt=performance.now()|0;
+    caja.classList.remove('so-elige');pie.innerHTML='';reels.forEach(x=>x.disabled=true);r.classList.add('tachado');if(SND)tone(320,110,.2,.06,0,'sawtooth');
+    txt.innerHTML=`Tachaste <b>${esc(JG(r.dataset.j).n)}</b>. La suerte elige entre los otros dos…`;
+    const otros=reels.filter(x=>x!==r);st.cur=0;luces.classList.add('rapido');
+    const paso=()=>{otros.forEach((x,k)=>x.classList.toggle('luz',k===st.cur));if(SND)tone(980,980,.035,.025);st.cur=1-st.cur;st.alt=setTimeout(paso,RM?60:105);};if(!RM)paso();
+    try{const res=await api({accion:'pampaSorteo',duelo:d.id,tacha:r.dataset.j});st.res=res;const ev=(res.eventos||[])[0]||{};
+      st.jf=ev.j||(gu?res.guardia&&res.guardia.pend&&res.guardia.pend.j:(res.duelos||[]).find(x=>x.id===d.id)?.j);
+      clearTimeout(st.alt);if(RM||st.saltar)final();else frenarLuces(otros);}
+    catch(err){clearTimeout(st.alt);otros.forEach(x=>x.classList.remove('luz'));r.classList.remove('tachado');luces.classList.remove('rapido');sfx('nope');
+      st.fase='elige';caja.classList.add('so-elige');reels.forEach(x=>x.disabled=false);txt.innerHTML=esc(err.message)+'<br>Probá de nuevo.';
+      pie.innerHTML='<button class="btn" id="so-luego0">Tachar después</button>';ov.querySelector('#so-luego0').onclick=()=>{cerrar();renderAll();};if(err.sesion){cerrar();showError(err);}}}));
+  // las luces se alternan cada vez más lento hasta quedar en el que eligió la planilla
+  function frenarLuces(otros){const meta=otros.findIndex(x=>x.dataset.j===st.jf),P=[110,140,180,230,290,370,460];let k=P.length;
+    // después de k pasos queda prendido «cur»: que sea la meta
+    let c=st.cur;if(((c+k-1)%2)!==meta)k--;let i=0;
+    const paso=()=>{otros.forEach((x,q)=>x.classList.toggle('luz',q===c));if(SND)tone(980,980,.035,.025);i++;if(i>=k){st.alt=null;T(final,230);return;}c=1-c;st.alt=setTimeout(paso,P[i]);};
+    if(meta<0){final();return;}paso();}
+  function final(viejo){if(st.fase==='final')return;st.fase='final';ov.dataset.tg=performance.now()|0;clearTimeout(st.alt);tms.forEach(clearTimeout);
+    const j=st.jf,J=JG(j);reels.forEach(x=>{x.classList.remove('luz');if(x.dataset.j===j)x.classList.add('gana');else if(x!==st.tachado)x.classList.add('pierde');});
+    luces.classList.remove('rapido');luces.classList.add('fiesta');if(!viejo)sfx('win');
+    if(!RM&&!viejo){const g=reels.find(x=>x.dataset.j===j),b=g.getBoundingClientRect(),cb=caja.getBoundingClientRect();
+      for(let n=0;n<26;n++){const c=document.createElement('i');c.className='so-chispa';const a=Math.random()*Math.PI*2,v=70+Math.random()*120;
+        c.style.left=(b.left-cb.left+b.width/2)+'px';c.style.top=(b.top-cb.top+b.height/2)+'px';c.style.background=['#f6c453','#7ce9e5','#c0392b','#5f7a3a','#fbf7ee'][n%5];
+        c.style.setProperty('--dx',Math.cos(a)*v+'px');c.style.setProperty('--dy',(Math.sin(a)*v-40)+'px');c.style.setProperty('--r',(Math.random()*720-360)+'deg');caja.appendChild(c);T(()=>c.remove(),1200);}}
+    txt.innerHTML=gu?`Tu guardia se juega con <b>${J.e} ${esc(J.n)}</b>.`:`Se juega con <b>${J.e} ${esc(J.n)}</b>.`;
+    const dd=gu?(st.res&&st.res.guardia&&st.res.guardia.pend?{...st.res.guardia.pend,guardia:1,yoDe:true}:{...d,j,guardia:1,yoDe:true}):((st.res&&(st.res.duelos||[]).find(x=>x.id===d.id))||{...d,j});
+    pie.innerHTML=`<button class="btn go" id="so-go">${J.e} ${gu?'Jugar la guardia':'Jugar ahora'}</button><button class="btn" id="so-luego">Después</button>${gu?'':`<p class="note">Jugás primero, contra la compu. Si no jugás en 2 horas, el cruce se cancela y te devuelven las leguas.</p>`}`;
+    if(st.res)try{apply(st.res);}catch(_){}
+    ov.querySelector('#so-go').onclick=()=>{cerrar();playDuel(dd);};ov.querySelector('#so-luego').onclick=()=>{cerrar();renderAll();};
+    try{ov.querySelector('#so-go').focus({preventScroll:true});}catch(_){}}
+  // tocar la pantalla adelanta (mientras gira o mientras se alternan las luces)
+  ov.addEventListener('pointerdown',e=>{if(st.fase==='gira'){e.preventDefault();listo();}
+    else if(st.fase==='espera'&&st.res&&st.alt){clearTimeout(st.alt);st.alt=null;final();}else if(st.fase==='espera')st.saltar=true;});
+}
 // Ir a jugar un cruce: el relámpago en BloqueAR y el malón en EstanciAR; al terminar se vuelve al mapa.
 // v69: TrucAR, UnoAR y AjedrezAR se abren con «#pampa-cruce=SEMILLA&duelo=ID» y dejan el resultado en «pampa-resultado».
 function playDuel(d){
+  if(!d.j&&d.sorteo){sorteoAnim(d);return;}   // v74: primero el sorteo
   if(d.j==='malon'){location.href=`estancia.html#pampa-malon=${encodeURIComponent(d.a)}&duelo=${d.id}`;return;}
   ls.set('pampa-cruce',JSON.stringify({id:d.id,j:d.j,t:Date.now(),rival:d.guardia?'':d.yoDe?d.a:d.de,sd:d.yoDe||d.guardia?null:d.sd,guardia:!!d.guardia}));
   // v72: también PoolAR, LudAR, PoblAR y los solitarios (con el mismo «#pampa-cruce=SEMILLA&duelo=ID»)
@@ -4315,13 +4574,13 @@ $('side').addEventListener('click',e=>{if(e.target.id==='side')closeSide();});
 function openMenu(){
   openSide(`<div class="side-head"><h2>Menú</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div><div class="menu-list">
     <button id="m-pos">🏁 Posiciones</button><button id="m-cru">⚔️ Cruces</button><button id="m-log">📰 Novedades</button><button id="m-leg">🚩 ¿Cómo gano leguas?</button>
-    ${V&&V.v69?'<button id="m-ev">🎪 Eventos</button>':''}${V&&V.v69&&V.yo?`<button id="m-def">🛡️ Mi juego para defender <small>${esc(V.pref&&V.pref!=='azar'?JG(V.pref).e+' '+JG(V.pref).n:'🎲 al azar')}${V.guardia&&V.guardia.j?' · guardia puesta':''}</small></button>`:''}
+    ${V&&V.v69?'<button id="m-ev">🎪 Eventos</button>':''}${V&&V.v69&&V.yo?`<button id="m-def">🛡️ Defensa y guardia <small>🎰 el juego se sortea${V.guardia&&V.guardia.j?' · guardia puesta':''}</small></button>`:''}
     <button id="m-modo">${V&&V.modo&&V.modo.modo==='pacifico'?'🕊️ Modo pacífico: prendido':'⚔️ Campo abierto'}</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-share">📲 Pasar el juego</button>
     <button id="m-snd">${SND?'🔊 Sonidos: prendidos':'🔇 Sonidos: apagados'}</button>
     <label class="amb">🌾 Ambiente de campo<input type="range" id="m-amb" min="0" max="100" step="5" value="${Math.round(AMBV*100)}" aria-label="Volumen del ambiente"><small>${AMBV>0?Math.round(AMBV*100)+' %':'apagado'}</small></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros</button>':''}
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 73</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 74</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-pos').onclick=go(()=>openPos('pos'));$('m-cru').onclick=go(()=>openPos('cruces'));$('m-log').onclick=go(()=>openPos('log'));
   $('m-leg').onclick=go(openLeguas);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);

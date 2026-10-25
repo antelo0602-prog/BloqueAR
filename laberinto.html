@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d1310">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -85,53 +85,56 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes cae{to{transform:translateY(105vh) rotate(540deg);opacity:.7}}
 @media (prefers-reduced-motion:reduce){.sheet,.side-panel,.toast,.ccard{animation:none}.confeti{display:none}}
 
-/* LaberintAR: noche de campo. El tablero manda: paredes de guarda, semillas doradas, mates. Los controles nunca lo tapan. */
-:root{--acc:#e8c45a;--bg:#0d1310}
-.top{background:var(--bg)}
-.hud{display:flex;align-items:center;gap:10px;padding:6px 12px;font-size:13px;color:var(--dim);flex:none;font-variant-numeric:tabular-nums;min-height:38px}
-.hud b{color:var(--ink);font-size:16px;font-weight:800}
-.hud .pts{display:flex;flex-direction:column;line-height:1.05;min-width:74px}
-.hud .pts small{font-size:10.5px;letter-spacing:.04em;color:#8fa093}
-.hud .niv{display:flex;flex-direction:column;line-height:1.05}
-.hud .niv small{font-size:10.5px;color:#8fa093}
-.hud .vidas{display:flex;gap:3px;align-items:center;margin-left:auto}
-.hud .vidas i{width:14px;height:14px;border-radius:50%;background:var(--acc);box-shadow:inset -2px -2px 0 #b48a2a;display:block}
-.hud .vidas em{font-style:normal;font-weight:800;color:var(--ink);margin-left:2px}
-.hud .mate{width:64px;height:8px;border-radius:4px;background:#1f2a22;overflow:hidden;position:relative}
-.hud .mate i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#6fbf73,#b8e07a);border-radius:4px}
-.hud .mate.aviso i{animation:latido .5s ease-in-out infinite alternate}
-@keyframes latido{to{opacity:.45}}
-.hud .tag{font:800 10.5px/1 system-ui;color:#1d2a12;background:var(--acc);border-radius:6px;padding:4px 6px 3px;white-space:nowrap}
-.hud .tag.libre{background:#7ea9c9;color:#0d1a26}
-.hud .pausa{width:44px;height:40px;border-radius:12px;border:1px solid var(--line);background:#18202a;font-size:16px;display:grid;place-items:center;padding:0;flex:none}
+/* LaberintAR (v74): maquinita de los 80. Fondo negro, neón, letras de píxeles. El tablero manda; los controles nunca lo tapan. */
+:root{--acc:#ffe23f;--bg:#000;--neon:#2f6bff}
+body{background:#000}
+.top{background:#000;border-bottom-color:#0d1430}
+.brand span{color:#ffe23f}
 .zona{flex:1;min-height:0;display:flex;flex-direction:column}
-.vp{flex:1;min-height:0;position:relative;overflow:hidden;touch-action:none;background:radial-gradient(120% 90% at 50% 0%,#14211a,#0b100d 70%)}
-#cv{position:absolute;left:0;top:0;display:block;image-rendering:auto}
-.ctrl{flex:none;display:flex;align-items:center;justify-content:center;gap:16px;padding:6px 12px max(10px,env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid #1c261f;position:relative;touch-action:none}
-.pad{position:relative;width:min(186px,46vw,24vh);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#18221c 0 26%,#141c17 27% 100%);border:1px solid #2b3a30;box-shadow:inset 0 2px 10px #0008;touch-action:none;flex:none}
-.pad b{position:absolute;width:34%;height:34%;display:grid;place-items:center;border-radius:14px;background:#202c24;border:1px solid #33463a;color:#cfe0c8;font-size:20px;transition:background .06s}
+.vp{flex:1;min-height:0;position:relative;overflow:hidden;touch-action:none;background:#000}
+#cv{position:absolute;left:0;top:0;display:block}
+.hudx{position:absolute;pointer-events:none;height:var(--hud-h,24px);display:flex;justify-content:flex-end;align-items:center}
+.hudx .pausa{pointer-events:auto;height:calc(var(--hud-h,24px) - 2px);min-height:28px;width:clamp(34px,9vw,46px);margin-right:2px;border-radius:9px;border:1px solid #2a3a7a;background:#060a1e;color:#cfe0ff;font-size:13px;display:grid;place-items:center;padding:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ctrl{flex:none;display:flex;align-items:center;justify-content:center;gap:16px;padding:4px 12px max(8px,env(safe-area-inset-bottom));background:#000;border-top:1px solid #0d1430;position:relative;touch-action:none;user-select:none;-webkit-user-select:none}
+.pad{position:relative;width:min(160px,42vw,22vh);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#070b1c 0 26%,#04060f 27% 100%);border:1px solid #1d2a66;box-shadow:0 0 18px #2f6bff22,inset 0 2px 10px #000;touch-action:none;flex:none}
+.pad b{position:absolute;width:34%;height:34%;display:grid;place-items:center;border-radius:12px;background:#0a1030;border:1px solid #23347a;color:#9fbaff;font-size:18px;transition:background .05s}
 .pad b.u{left:33%;top:3%}.pad b.d{left:33%;bottom:3%}.pad b.l{left:3%;top:33%}.pad b.r{right:3%;top:33%}
-.pad b.on{background:#3d5a3f;border-color:#8fcf7a;color:#fff}
-.ctrl .info{font-size:12.5px;color:#8fa093;max-width:150px;line-height:1.35}
+.pad b.on{background:#ffe23f;border-color:#fff3a0;color:#000;box-shadow:0 0 14px #ffe23f88}
+.ctrl .info{font-size:12px;color:#6c7bb0;max-width:140px;line-height:1.35}
 .ctrl.swipe .pad{display:none}
-.ctrl.swipe{min-height:56px}
-.ctrl .ayuda-pc{display:none;font-size:12.5px;color:#8fa093}
+.ctrl.swipe{min-height:52px}
+.ctrl .ayuda-pc{display:none;font:700 12px/1.3 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;color:#6c7bb0;text-transform:uppercase}
 body.pc .ctrl .pad{display:none}
 body.pc .ctrl .ayuda-pc{display:block}
 body.pc .ctrl .info{display:none}
 body.zurdo .ctrl{flex-direction:row-reverse}
-.cuenta{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:900 46px/1 var(--serif);color:#fff6d6;text-shadow:0 3px 0 #000a,0 0 20px #e8c45a88;pointer-events:none}
-.banda{position:absolute;left:0;right:0;top:8px;text-align:center;pointer-events:none}
-.banda span{display:inline-block;background:rgba(10,16,12,.82);border:1px solid #33463a;border-radius:10px;padding:5px 10px;font-weight:700;font-size:13px}
-/* Inicio y hojas */
-.ini{gap:12px}
-.ini .logo{font:900 30px/1 var(--serif);letter-spacing:.02em;color:var(--brown)}
-.ini .logo span{color:#b8862a}
-.ini .bajada{font-size:13.5px;color:#5c4d39;margin-top:-4px}
+/* Carteles con pinta de maquinita */
+.over{background:rgba(0,0,0,.55)}
+.over .ccard{background:#03050f;color:#e8ecff;border:2px solid var(--neon);box-shadow:0 0 0 4px #000,0 0 30px #2f6bff66,inset 0 0 24px #2f6bff22;border-radius:14px}
+.over .ccard h3{font:900 21px/1.15 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:#ffe23f;text-shadow:0 0 12px #ffe23f66}
+.over .ccard p{color:#cdd5f5}.over .ccard .cap{color:#7f8bbd}
+.over .btn{background:#070b20;border:1px solid #2a3a8a;color:#e8ecff}
+.over .btn.on{border-color:#ffe23f;color:#ffe23f;box-shadow:inset 0 0 0 1px #ffe23f}
+.over .btn.go{background:#ffe23f;border-color:#fff3a0;color:#000;font-weight:900;letter-spacing:.04em}
+.over .btn small{color:inherit;opacity:.75}
+.over .lv-mine{background:#070b20;border-color:#1d2a66;color:#e8ecff}.over .lv-mine small{color:#8a96c8}.over .lv-mine .bar{background:#141d48}
+.res-pts{font:900 44px/1 ui-monospace,Menlo,Consolas,monospace;color:#fff;text-shadow:0 0 16px #2f6bff}
+.over .rec{font:900 16px/1 ui-monospace,Menlo,Consolas,monospace;color:#ff8be8;letter-spacing:.08em;animation:latido .5s steps(2) infinite}
+.over .estr{font-size:28px;letter-spacing:6px;color:#ffe23f}
+.over .stats b{color:#fff}.over .stats small{color:#7f8bbd}
+@keyframes latido{50%{opacity:.35}}
+.ini{display:flex;flex-direction:column;gap:9px;align-items:stretch}
+.ini .logo{align-self:center;max-width:100%}
+.ini .elenco{align-self:center;max-width:100%}
+.ini .bajada{font-size:13px;color:#9aa6d6;margin-top:-2px}
+.btn.tall{min-height:56px;flex-direction:column;gap:0;line-height:1.15;font-size:18px}
+.btn.tall small{font-size:12px;font-weight:700}
 .difs{display:flex;gap:6px}.difs .btn{flex:1;min-height:40px;font-size:13.5px}
 .modos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.modos .btn{min-height:58px;flex-direction:column;gap:0;line-height:1.2;font-size:14px}
+.modos .btn{min-height:56px;flex-direction:column;gap:0;line-height:1.2;font-size:14px}
 .modos .btn small{font-weight:600}
+/* Hojas (campaña, práctica, reglas): lo de siempre */
 .etapas{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .etapas button{min-height:58px;border-radius:10px;border:1px solid #c9b48a;background:#fbf7ee;color:var(--brown);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:800;font-size:15px;padding:2px}
 .etapas button small{font-size:10.5px;letter-spacing:.06em;color:#b8862a}
@@ -142,29 +145,26 @@ body.zurdo .ctrl{flex-direction:row-reverse}
 .regla .st{display:flex;align-items:center;gap:6px}.regla .st button{width:40px;height:40px;border-radius:10px;border:1px solid #b9a27a;background:#fbf7ee;font-weight:800;font-size:18px;color:var(--brown)}
 .regla .st b{min-width:42px;text-align:center;font:700 17px/1 var(--serif)}
 .aviso-libre{background:#e3eef6;border:1px solid #9fbfd6;color:#1d3a52;border-radius:10px;padding:8px 10px;font-size:13px}
-.ccard .lv-mine{background:#fbf7ee;border-color:#e1d3b6;color:var(--brown);text-align:left}.ccard .lv-mine small{color:var(--soft)}.ccard .lv-mine .bar{background:#e6dcc6}
-.res-pts{font:900 40px/1 var(--serif);color:#2d5c43}
+.ccard .lv-mine{text-align:left}
 .ajustes{display:flex;flex-direction:column;gap:8px}
 .aj{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--rule);background:transparent;color:inherit;font:inherit;min-height:56px}
 .aj span{flex:1;display:flex;flex-direction:column;gap:2px}.aj small{opacity:.75;font-size:12.5px;line-height:1.3}
 .aj i{flex:none;width:42px;height:24px;border-radius:12px;background:#c9bfae;position:relative;transition:background .2s}
 .aj i::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
 .aj.on i{background:#3e8a5a}.aj.on i::after{transform:translateX(18px)}
-.mapas{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.mapas button{min-height:44px;border-radius:10px;border:1px solid #c9b48a;background:#fbf7ee;color:var(--brown);font-weight:700;font-size:12.5px;padding:4px}
+.mapas{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.mapas button{min-height:48px;border-radius:10px;border:1px solid #c9b48a;background:#fbf7ee;color:var(--brown);font-weight:800;font-size:13px;padding:5px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2}
+.mapas button small{font-weight:600;font-size:11px;opacity:.75}
 .mapas button.on{box-shadow:inset 0 0 0 2px #3f7a5a;background:#e8efe2}
-@media (max-height:720px) and (orientation:portrait){.ctrl{padding-top:4px;padding-bottom:max(6px,env(safe-area-inset-bottom))}.hud{min-height:34px;padding:3px 12px}}
+@media (max-height:720px) and (orientation:portrait){.ctrl{padding-top:3px;padding-bottom:max(5px,env(safe-area-inset-bottom))}}
 @media (orientation:landscape) and (max-height:560px){
   .zona{flex-direction:row}
-  .ctrl{flex-direction:column;justify-content:center;border-top:0;border-left:1px solid #1c261f;padding:6px max(10px,env(safe-area-inset-right)) 6px 10px;width:min(210px,32vw)}
-  body.zurdo .zona{flex-direction:row-reverse}body.zurdo .ctrl{border-left:0;border-right:1px solid #1c261f;flex-direction:column}
-  .pad{width:min(170px,28vw)}
-  .ctrl .info{max-width:none;text-align:center}
-  .ctrl .hud{flex-wrap:wrap;justify-content:center;padding:4px 0;gap:8px;width:100%}
-  .ctrl .hud .vidas{margin-left:0}
+  .ctrl{flex-direction:column;justify-content:center;border-top:0;border-left:1px solid #0d1430;padding:6px max(10px,env(safe-area-inset-right)) 6px 10px;width:min(200px,30vw)}
+  body.zurdo .zona{flex-direction:row-reverse}body.zurdo .ctrl{border-left:0;border-right:1px solid #0d1430;flex-direction:column}
+  .pad{width:min(165px,27vw,70vh)}
   .ctrl .info{display:none}
 }
-@media (prefers-reduced-motion:reduce){.hud .mate.aviso i{animation:none}.aj i,.aj i::after{transition:none}}
+@media (prefers-reduced-motion:reduce){.over .rec{animation:none}.aj i,.aj i::after{transition:none}}
 </style>
 <script>
 /* ───────── SYNCRO: tu progreso en todos los dispositivos (v63) ─────────
@@ -1578,7 +1578,9 @@ invasores:{n:'InvasorAR',e:'👾',   // v73
     {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
     {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
     {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
-    {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a combo ×4 (40 bajas seguidas).',k:'max_combo',m:4,marca:true},
+    {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a ×4 en la cadena (18 bajas seguidas sin dejarla caer).',k:'max_combo',m:4,marca:true},
+    {id:'racha8',e:'💥',n:'Cadena ×8',d:'Llegá a ×8 en la cadena (42 bajas seguidas).',k:'max_combo',m:8,marca:true},
+    {id:'perfecto',e:'⭐',n:'Bonus perfecto',d:'Bajá a todos los dorados de una oleada bonus.',k:'perfectos'},
     {id:'duelo',e:'⚔️',n:'Duelo ganado',d:'Ganale un duelo a alguien de verdad.',k:'ganadas_online'},
     {id:'expedicion',e:'♾️',n:'Expedición larga',d:'Llegá a 15 oleadas limpias en Resistencia.',k:'olas_res',m:15,marca:true},
     {id:'contrabando',e:'📦',n:'Contrabandista',d:'Bajá 10 naves de suministros.',k:'suministros',m:10},
@@ -1816,7 +1818,7 @@ function finEventos(j,d){const E=[],win=!!d.gano,compu=d.modo==='compu',dif=d.di
   if(j==='buscaminas'&&win){E.push(['gan_'+dif,1]);if(dif!=='principiante')E.push(['gan_ie',1]);if(d.diario)E.push(['dias',1]);if(d.sinBand)E.push(['sin_band',1]);
     if(d.limpio){E.push(['sin_pistas',1]);if(dif!=='principiante')E.push(['limpios_ie',1]);}
     if(dif==='principiante'&&d.ms<20000)E.push(['rapido_p',1]);if(dif==='intermedio'&&d.ms<120000)E.push(['rapido_i',1]);}
-  if(j==='invasores'){if(d.olas)E.push(['oleadas',d.olas]);if(d.bajas)E.push(['bajas',d.bajas]);if(d.sum)E.push(['suministros',d.sum]);if(d.cen)E.push(['centinela',d.cen]);if(d.nod)E.push(['nodriza',d.nod]);
+  if(j==='invasores'){if(d.olas)E.push(['oleadas',d.olas]);if(d.bajas)E.push(['bajas',d.bajas]);if(d.sum)E.push(['suministros',d.sum]);if(d.cen)E.push(['centinela',d.cen]);if(d.nod)E.push(['nodriza',d.nod]);if(d.perf)E.push(['perfectos',d.perf]);
     if(d.escudos)E.push(['escudos',d.escudos]);if(d.diario)E.push(['dias',1]);if(win&&d.limpio)E.push(['limpio',1]);if(win&&dif==='experta'&&d.modo==='solo')E.push(['gan_experta',1]);}
   if(j==='laberinto'){if(d.limpios)E.push(['limpios',d.limpios]);if(d.sinMorir)E.push(['sin_morir',d.sinMorir]);if(d.combo4)E.push(['combo4',1]);if(d.capturas)E.push(['capturas',d.capturas]);
     if(d.bonus)E.push(['bonus',d.bonus]);if(d.vuelta)E.push(['vuelta',1]);if(d.diario)E.push(['dias',1]);if(d.limDif)E.push(['lim_dif',d.limDif]);}
@@ -3039,6 +3041,11 @@ window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.
        <header>: con umbral (un toque sigue siendo un toque), se pega al borde izquierdo o derecho, nunca queda fuera de la
        pantalla y se recuerda por juego y por orientación (localStorage «mesa-chat-pos:<juego>:v|h»). Agrega «⟲» para
        volver a su lugar. Los globitos de mensajes nuevos salen del lado donde lo dejaste.
+   · (v74) El panel queda chico (alto fijo, scroll adentro), tiene ▁ para minimizarlo a una barrita arrastrable y se mueve
+     libre por toda la pantalla. movible(el, juego, {abrir, cerrar, btn, visible, ancla}) — abrir: cómo reabrirlo desde
+     la barrita (si no, se muestra el mismo panel); btn: el botón del chat del juego (la barrita se ve mientras él se vea).
+   · nuevo(juego, de, txt)  (v74) los chats propios (UnoAR, LudAR, InvasorAR) avisan cada mensaje que llega: si está
+     minimizado, suma en la barrita y sale un globito arriba de ella (tocarlo abre el chat). Devuelve true si lo mostró.
    El mensaje en la red: {t:'mchat', de, txt, eq}. eq=1: sólo para el equipo del que lo manda. */
 (function(){
 'use strict';
@@ -3068,13 +3075,16 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-m .mc-eq{font-size:11px;color:#7ce9e5;border:1px solid #7ce9e555;border-radius:6px;padding:0 4px;margin-right:4px}
 .mc-vacio{color:#8f9ba3;font-size:13px}
 .mc-rap{display:flex;gap:6px;padding:6px 10px 0;overflow-x:auto;scrollbar-width:none}.mc-rap::-webkit-scrollbar{display:none}
-.mc-rap button{flex:none;height:34px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font-size:13px;white-space:nowrap}
-.mc-rap button.e{font-size:18px;padding:0 8px}
+.mc-rap button{flex:none;height:34px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font-size:13px;white-space:nowrap;cursor:pointer}
+.mc-rap button.e{font-size:18px;padding:0;width:36px}
 .mc-a{display:flex;gap:6px;padding:8px 10px 0}.mc-a button{flex:1;height:32px;border-radius:9px;border:1px solid #3a4654;background:#141b22;color:#b6c2cc;font-size:12.5px;font-weight:700}
 .mc-a button.on{background:#25344a;color:#fff;border-color:#7ce9e588}
-.mc-panel form{display:flex;gap:6px;padding:8px 10px 10px}
-.mc-panel input{flex:1;min-width:0;height:40px;border-radius:10px;border:1px solid #3a4654;background:#0f1419;color:#e6ece6;padding:0 10px;font-size:16px;-webkit-user-select:text;user-select:text}
-.mc-panel form button{height:40px;border-radius:10px;border:0;background:#e0a93b;color:#2a1f12;font-weight:800;padding:0 12px}
+.mc-f{display:flex;gap:6px;padding:8px 10px 10px;margin:0}
+.mc-f input{flex:1;min-width:0;height:40px;box-sizing:border-box;margin:0;border-radius:10px;border:1px solid #3a4654;background:#0f1419;color:#e6ece6;padding:0 10px;font:16px system-ui,-apple-system,"Segoe UI",sans-serif;outline:none;-webkit-appearance:none;appearance:none;-webkit-user-select:text;user-select:text}.mc-f input:focus{border-color:#e0a93b;box-shadow:0 0 0 2px #e0a93b44}.mc-f input::placeholder{color:#7d8b98}
+.mc-f button[type=submit]{flex:none;height:40px;margin:0;border-radius:10px;border:0;background:#e0a93b;color:#2a1f12;font:800 14px system-ui,-apple-system,"Segoe UI",sans-serif;padding:0 14px;cursor:pointer;-webkit-appearance:none;appearance:none}.mc-f button[type=submit]:active{filter:brightness(.92)}
+.mc-f .mc-eb{height:40px;margin:0;color:inherit;cursor:pointer}
+.mc-fr{display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px 0}.mc-fr[hidden]{display:none}.mc-fr button{height:32px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font:13px system-ui,sans-serif;cursor:pointer}
+.mc-rap .mc-frb{font-size:13px;font-weight:700;color:#f3dc9a;padding:0 10px}.mc-rap .mc-frb.on{background:#25344a;border-color:#7ce9e588}
 .mc-burb{position:fixed;right:max(10px,env(safe-area-inset-right));top:calc(70px + env(safe-area-inset-top));z-index:55;max-width:min(270px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;background:#141b22ee;color:#e6ece6;border:1px solid #33404d;font:13.5px/1.3 system-ui,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.4);pointer-events:none;opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s}
 .mc-burb.on{opacity:1;transform:none}
 .mc-pick{position:fixed;inset:0;z-index:90;background:#05080dcc;display:grid;place-items:end center;padding:0 0 env(safe-area-inset-bottom)}
@@ -3090,7 +3100,24 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-mov>header .mc-rst{width:36px;height:36px;border-radius:10px;border:0;background:#222b33;color:#e6ece6;font-size:16px}.mc-mov>header .mc-rst[hidden]{display:none}
 .mc-flot.mc-arr{opacity:.85}
 .mc-pchat{width:100%;min-height:46px;border-radius:12px;border:0;background:#e0a93b;color:#2a1f12;font-weight:800}.mc-burb b{color:#f3dc9a;margin-right:4px}
-@media (prefers-reduced-motion:reduce){.mc-burb{transition:none}}`;document.head.appendChild(s);}
+.mc-comp{height:clamp(196px,36vh,280px)!important;max-height:calc(100% - 16px)!important;overflow:hidden}
+.mc-comp:has(.mc-a){height:clamp(236px,42vh,320px)!important}
+.mc-comp>header{padding:6px 8px!important;gap:6px!important}.mc-comp>header b{font-size:14px!important}
+.mc-comp>header button{width:34px!important;height:34px!important;flex:none}
+.mc-comp .mc-msgs,.mc-comp .msgs{flex:1 1 auto!important;min-height:0!important;overflow-y:auto;overscroll-behavior:contain;padding:6px 10px!important}
+.mc-comp>*:not(.mc-msgs):not(.msgs):not(.mc-nuevos){flex:none}.mc-comp .mc-emo{max-height:92px}
+.mc-comp .mc-rap{padding-top:4px}.mc-comp .mc-rap button{height:30px}
+.mc-comp form{padding:6px 8px 8px!important}.mc-comp form input,.mc-comp form button{height:38px!important}
+@media (max-height:460px){.mc-comp,.mc-comp:has(.mc-a){height:min(206px,calc(100vh - 16px))!important}.mc-comp .mc-rap,.mc-comp .quick{display:none!important}}
+.mc-minb{position:relative;width:34px;height:34px;border-radius:10px;border:0;background:#222b33;color:#e6ece6}.mc-minb i{position:absolute;left:10px;right:10px;bottom:11px;height:3px;border-radius:2px;background:currentColor}
+.mc-nuevos{position:absolute;left:50%;transform:translateX(-50%);z-index:2;height:28px;padding:0 12px;border-radius:14px;border:1px solid #7ce9e588;background:#25344a;color:#fff;font:700 12.5px system-ui,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.mc-mini{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;display:flex;align-items:center;gap:6px;height:42px;padding:0 14px 0 8px;border-radius:21px;border:1px solid #3a4654;background:#18212bf2;color:#fff;font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.4);touch-action:none;-webkit-user-select:none;user-select:none}
+.mc-mini[hidden]{display:none!important}.mc-mini b{font-weight:700}.mc-mini.mc-arr{opacity:.85}
+.mc-mini-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e5484d;color:#fff;font:800 11px/18px system-ui,sans-serif;text-align:center}.mc-mini-n:empty{display:none}
+.mc-mburb{position:fixed;z-index:59;max-width:min(260px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;border:1px solid #33404d;background:#141b22f2;color:#e6ece6;font:13.5px/1.3 system-ui,sans-serif;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.4);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
+.mc-mburb.izq{border-radius:14px 14px 14px 4px}.mc-mburb.abajo{border-radius:4px 14px 14px 14px;transform:translateY(-6px)}.mc-mburb.abajo.izq{border-radius:14px 4px 14px 14px}
+.mc-mburb.on{opacity:1;transform:none;pointer-events:auto}.mc-mburb b{color:#f3dc9a;margin-right:4px}
+@media (prefers-reduced-motion:reduce){.mc-burb,.mc-mburb{transition:none}}`;document.head.appendChild(s);}
 function boton(){
   if(S.btn&&S.btn.isConnected)return S.btn;
   const b=document.createElement('button');b.type='button';b.className='icon-btn mc-btn';b.id='mc-btn';b.hidden=true;
@@ -3115,14 +3142,19 @@ function dibujar(){
 }
 const enEspera=()=>!!(S.inl&&S.inl.isConnected);
 // El formulario (rápidos + emojis + texto) es el mismo en el panel y en la espera.
-function formHtml(ph){return `<div class="mc-rap">${RAPIDOS.map(r=>`<button type="button" class="${r.length<=2?'e':''}" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+// v74: arriba, los emojis rápidos y «Frases ▾» (las frases se abren en un menú que se acomoda en varias filas: antes la
+// fila se cortaba a la derecha en la PC).
+function formHtml(ph){const E5=RAPIDOS.filter(r=>r.length<=2).slice(0,5),FR=RAPIDOS.filter(r=>r.length>2);
+  return `<div class="mc-rap">${E5.map(r=>`<button type="button" class="e" data-r="${esc(r)}">${esc(r)}</button>`).join('')}<button type="button" class="mc-frb" aria-expanded="false">Frases ▾</button></div>
+    <div class="mc-fr" hidden>${FR.map(r=>`<button type="button" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
     <div class="mc-emo" hidden>${EMOS.map(e=>`<button type="button" data-e="${e}">${e}</button>`).join('')}</div>
     <form class="mc-f"><button type="button" class="mc-eb" aria-label="Emojis" title="Emojis">😊</button><input class="mc-t" maxlength="120" placeholder="${esc(ph)}" autocomplete="off" enterkeyhint="send" aria-label="Mensaje"><button type="submit">Mandar</button></form>`;}
 function cablearForm(root,alCerrar){
-  root.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>mandar(b.dataset.r));
-  const f=root.querySelector('.mc-f'),t=root.querySelector('.mc-t'),em=root.querySelector('.mc-emo');
+  const f=root.querySelector('.mc-f'),t=root.querySelector('.mc-t'),em=root.querySelector('.mc-emo'),fr=root.querySelector('.mc-fr'),frb=root.querySelector('.mc-frb');
+  root.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(mandar(b.dataset.r)&&fr&&!fr.hidden){fr.hidden=true;if(frb){frb.classList.remove('on');frb.setAttribute('aria-expanded','false');}}});
+  if(frb)frb.onclick=()=>{fr.hidden=!fr.hidden;frb.classList.toggle('on',!fr.hidden);frb.setAttribute('aria-expanded',String(!fr.hidden));if(!fr.hidden)em.hidden=true;};
   f.onsubmit=e=>{e.preventDefault();if(mandar(t.value))t.value='';};
-  root.querySelector('.mc-eb').onclick=()=>{em.hidden=!em.hidden;};
+  root.querySelector('.mc-eb').onclick=()=>{em.hidden=!em.hidden;if(!em.hidden&&fr){fr.hidden=true;if(frb)frb.classList.remove('on');}};
   em.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const a=t.selectionStart??t.value.length;t.value=(t.value.slice(0,a)+b.dataset.e+t.value.slice(a)).slice(0,120);try{t.setSelectionRange(a+b.dataset.e.length,a+b.dataset.e.length);}catch(_){}t.focus();});
   t.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&alCerrar){e.preventDefault();alCerrar();}});
 }
@@ -3133,58 +3165,164 @@ function espera(el,op){
   ['pointerdown','touchstart','keydown','keyup','wheel'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:ev!=='keydown'}));
   cablearForm(el.querySelector('.mc-inl'),null);dibujar();ocultarBurb();
 }
-/* ── (v72) Mover el chat: arrastrando la barra de arriba ──
-   La posición se guarda como {l: lado 'l'|'r', y: alto relativo (0–1) del borde de arriba} por juego y orientación. */
+/* ── (v72→v74) Mover, achicar y minimizar el chat ──
+   v74 (pedido del 25/10: «que se mantenga chiquito, con scroll; un botón para minimizarlo; moverlo por toda la pantalla
+   y que al abrirlo en cualquier lugar no se rompa ni quede afuera»):
+   · El panel tiene alto fijo chico (clase mc-comp) y los mensajes se leen con scroll adentro. Si estás leyendo arriba,
+     no te lo baja: aparece «↓ nuevos».
+   · ▁ lo minimiza a una barrita que se puede llevar a cualquier lado; tocándola vuelve a abrirse ahí mismo. Con el chat
+     minimizado, cada mensaje nuevo sale como globito arriba (o abajo, si no hay lugar) de la barrita.
+   · Se arrastra libre por toda la pantalla. Se guarda el centro como fracción de la pantalla {cx, cy}, por juego y
+     orientación; al poner el panel siempre se lo encierra en lo visible (también con el teclado del celular abierto:
+     visualViewport). Las posiciones viejas {l, y} (v72) se siguen leyendo. */
 const POSK=(j,q)=>'mesa-chat-'+(q||'pos')+':'+(j||'x')+':'+(innerWidth>innerHeight?'h':'v');
-function posLeer(j,q){try{const o=JSON.parse(localStorage.getItem(POSK(j,q))||'null');return o&&(o.l==='l'||o.l==='r')&&isFinite(o.y)?o:null;}catch(_){return null;}}
-function posGuardar(j,q,o){try{if(o)localStorage.setItem(POSK(j,q),JSON.stringify(o));else localStorage.removeItem(POSK(j,q));}catch(_){}}
-const MARG=10;
+function posLeer(j,q){try{const o=JSON.parse(localStorage.getItem(POSK(j,q))||'null');if(!o)return null;
+  if(isFinite(o.cx)&&isFinite(o.cy))return {cx:Math.max(0,Math.min(1,o.cx)),cy:Math.max(0,Math.min(1,o.cy))};
+  if((o.l==='l'||o.l==='r')&&isFinite(o.y))return {cx:o.l==='l'?0:1,cy:o.y,viejo:1};return null;}catch(_){return null;}}
+function posGuardar(j,q,o){try{if(o)localStorage.setItem(POSK(j,q),JSON.stringify({cx:+o.cx.toFixed(4),cy:+o.cy.toFixed(4)}));else localStorage.removeItem(POSK(j,q));}catch(_){}}
+const MARG=8;
 function topSeguro(){const t=document.querySelector('.topbar,header.top,.top,#topbar,.hdr');let y=MARG;try{const r=t&&t.getBoundingClientRect();if(r&&r.bottom>0&&r.bottom<innerHeight*.3)y=Math.max(y,Math.round(r.bottom)+4);}catch(_){}return y;}
+// Lo que se ve de verdad (con el teclado del celular abierto, visualViewport es más chico que la ventana).
+function vista(){const v=window.visualViewport;if(v&&v.height>0&&v.height<innerHeight-40)return {x:v.offsetLeft,y:v.offsetTop,w:v.width,h:v.height,tec:true};return {x:0,y:0,w:innerWidth,h:innerHeight,tec:false};}
+// Encierra el elemento en lo visible (left/top en px).
+function encerrar(el,left,top){const V=vista(),w=el.offsetWidth||300,h=el.offsetHeight||200;
+  const minY=V.tec?V.y+MARG:Math.min(topSeguro(),Math.max(MARG,V.h-h-MARG)),maxY=Math.max(minY,V.y+V.h-h-MARG);
+  const minX=V.x+MARG,maxX=Math.max(minX,V.x+V.w-w-MARG);
+  el.style.left=Math.round(Math.max(minX,Math.min(maxX,left)))+'px';el.style.top=Math.round(Math.max(minY,Math.min(maxY,top)))+'px';
+  el.style.right=el.style.bottom='auto';}
 function ponerEn(el,o){
-  if(!o){el.style.left=el.style.right=el.style.top=el.style.bottom='';return;}
-  const h=el.offsetHeight||200,w=el.offsetWidth||300,minY=Math.min(topSeguro(),Math.max(MARG,innerHeight-h-MARG)),maxY=Math.max(minY,innerHeight-h-MARG);
-  const y=Math.round(Math.max(minY,Math.min(maxY,o.y*innerHeight)));
-  el.style.top=y+'px';el.style.bottom='auto';
-  if(o.l==='l'){el.style.left=`max(${MARG}px, env(safe-area-inset-left))`;el.style.right='auto';}else{el.style.right=`max(${MARG}px, env(safe-area-inset-right))`;el.style.left='auto';}
-  if(w>innerWidth-2*MARG)el.style.left=MARG+'px';
+  // con el teclado abierto y poco lugar (celular acostado), el panel se achica a lo que se ve
+  if(el.classList.contains('mc-comp')){const V=vista();el.style.removeProperty('height');if(V.tec&&el.offsetHeight>V.h-2*MARG)el.style.setProperty('height',Math.max(120,V.h-2*MARG)+'px','important');}
+  if(!o){el.style.left=el.style.right=el.style.top=el.style.bottom='';
+    // sin posición guardada: donde dice el CSS de cada juego, pero igual adentro de lo visible (teclado abierto)
+    const V=vista();if(V.tec){const r=el.getBoundingClientRect();if(r.bottom>V.y+V.h-MARG||r.top<V.y)encerrar(el,r.left,r.top);}return;}
+  const w=el.offsetWidth||300,h=el.offsetHeight||200;
+  if(o.viejo){encerrar(el,o.cx<.5?MARG:innerWidth-w-MARG,o.cy*innerHeight);return;}
+  encerrar(el,o.cx*innerWidth-w/2,o.cy*innerHeight-h/2);
 }
-function movible(el,juego,op={}){
-  if(!el)return;css();const j=juego||(S.op&&S.op.juego)||'x',q=op.q||'pos';el.classList.add('mc-mov');
-  const hd=el.querySelector(':scope>header');
-  if(hd&&!hd.querySelector('.mc-grip')){const g=document.createElement('span');g.className='mc-grip';g.textContent='⠿';g.setAttribute('aria-hidden','true');hd.insertBefore(g,hd.firstChild);
-    hd.title='Arrastrá esta barra para mover el chat';
-    const r=document.createElement('button');r.type='button';r.className='mc-rst';r.setAttribute('aria-label','Volver el chat a su lugar');r.title='Volver a su lugar';r.textContent='⟲';
-    const x=hd.querySelector('button:last-of-type');hd.insertBefore(r,x||null);
-    r.onclick=e=>{e.preventDefault();e.stopPropagation();posGuardar(j,q,null);ponerEn(el,null);r.hidden=true;};}
-  const rst=hd&&hd.querySelector('.mc-rst');
-  const aplicarPos=()=>{const o=posLeer(j,q);ponerEn(el,o);if(rst)rst.hidden=!o;};
-  aplicarPos();requestAnimationFrame(aplicarPos);
-  if(el._mcMov)return;el._mcMov=1;
-  // El panel se vuelve a dibujar (innerHTML) cada vez que se abre: se escucha en el panel y se mira si tocaste su barra.
-  const handle=el;let D=null;
-  handle.addEventListener('pointerdown',e=>{
+const centro=el=>{const r=el.getBoundingClientRect();return {cx:(r.left+r.width/2)/innerWidth,cy:(r.top+r.height/2)/innerHeight};};
+// Registro de paneles de chat (el de acá y los propios de UnoAR, LudAR e InvasorAR), por juego.
+const REG={};
+const MINK=j=>'mesa-chat-min:'+(j||'x');
+function minLeer(j){try{return localStorage.getItem(MINK(j))==='1';}catch(_){return false;}}
+function minGuardar(j,v){try{if(v)localStorage.setItem(MINK(j),'1');else localStorage.removeItem(MINK(j));}catch(_){}}
+// Arrastrar con umbral: un toque sigue siendo un toque. op.handle: se agarra de cualquier lado (botón o barrita).
+function arrastrable(el,j,q,handleAll,alSoltar){
+  if(el._mcArr)return;el._mcArr=1;let D=null;
+  el.addEventListener('pointerdown',e=>{
     if(e.button>0)return;
-    if(!op.handle){const h=e.target.closest('header');if(!h||h.parentElement!==el||e.target.closest('button,input,a,select,textarea'))return;}
+    if(!handleAll){const h=e.target.closest('header');if(!h||h.parentElement!==el||e.target.closest('button,input,a,select,textarea'))return;}
     const r=el.getBoundingClientRect();D={id:e.pointerId,x0:e.clientX,y0:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,mov:false};
   });
   addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;
-    if(!D.mov){if(Math.hypot(e.clientX-D.x0,e.clientY-D.y0)<8)return;D.mov=true;el.classList.add('mc-arr');try{handle.setPointerCapture(e.pointerId);}catch(_){}}
-    e.preventDefault();e.stopPropagation();const w=el.offsetWidth,h=el.offsetHeight;
-    const x=Math.max(0,Math.min(innerWidth-w,e.clientX-D.ox)),y=Math.max(0,Math.min(innerHeight-h,e.clientY-D.oy));
+    if(!D.mov){if(Math.hypot(e.clientX-D.x0,e.clientY-D.y0)<8)return;D.mov=true;el.classList.add('mc-arr');try{el.setPointerCapture(e.pointerId);}catch(_){}}
+    e.preventDefault();e.stopPropagation();
+    const w=el.offsetWidth,h=el.offsetHeight,x=Math.max(0,Math.min(innerWidth-w,e.clientX-D.ox)),y=Math.max(0,Math.min(innerHeight-h,e.clientY-D.oy));
     el.style.left=x+'px';el.style.top=y+'px';el.style.right=el.style.bottom='auto';},{passive:false,capture:true});
   const fin=e=>{if(!D||(e&&e.pointerId!==D.id))return;const d=D;D=null;if(!d.mov)return;el.classList.remove('mc-arr');if(e)e.stopPropagation();
-    const r=el.getBoundingClientRect(),o={l:r.left+r.width/2<innerWidth/2?'l':'r',y:Math.max(0,r.top)/innerHeight};
-    posGuardar(j,q,o);ponerEn(el,o);{const r2=el.querySelector(':scope>header .mc-rst');if(r2)r2.hidden=false;}
+    const o=centro(el);posGuardar(j,q,o);ponerEn(el,o);try{alSoltar&&alSoltar(o);}catch(_){}
     // el clic que viene después de soltar no es un toque
-    if(op.handle){const no=ev=>{ev.stopPropagation();ev.preventDefault();};el.addEventListener('click',no,{capture:true,once:true});setTimeout(()=>el.removeEventListener('click',no,{capture:true}),400);}};
+    const no=ev=>{ev.stopPropagation();ev.preventDefault();};el.addEventListener('click',no,{capture:true,once:true});setTimeout(()=>el.removeEventListener('click',no,{capture:true}),400);};
   addEventListener('pointerup',fin,true);addEventListener('pointercancel',fin,true);
-  addEventListener('resize',()=>{if(el.isConnected&&!el.hidden&&posLeer(j,q))aplicarPos();});
 }
-// Dónde sale el globito: del lado (y a la altura) donde dejaste el chat; si no lo moviste, arriba a la derecha como siempre.
+// «↓ nuevos»: si estás leyendo arriba, el juego no te baja la lista (sirve también para los chats propios, que la
+// redibujan entera: se mira con un MutationObserver y se devuelve el scroll a donde estabas).
+function seguirScroll(el){
+  const box=el.querySelector('.mc-msgs,.msgs');if(!box||box._mcSc)return;box._mcSc={abajo:true,top:0};
+  const st=box._mcSc,pill=()=>{let p=el.querySelector('.mc-nuevos');if(!p){p=document.createElement('button');p.type='button';p.className='mc-nuevos';p.textContent='↓ nuevos';
+      p.onclick=e=>{e.stopPropagation();st.abajo=true;box.scrollTop=box.scrollHeight;p.remove();};
+      box.parentNode.insertBefore(p,box.nextSibling);}p.style.top=Math.max(0,box.offsetTop+box.clientHeight-36)+'px';return p;};
+  box.addEventListener('scroll',()=>{if(box._mcIgn)return;st.abajo=box.scrollTop+box.clientHeight>=box.scrollHeight-24;st.top=box.scrollTop;if(st.abajo){const p=el.querySelector('.mc-nuevos');if(p)p.remove();}},{passive:true});
+  new MutationObserver(()=>{box._mcIgn=1;if(st.abajo)box.scrollTop=box.scrollHeight;else{box.scrollTop=st.top;pill();}requestAnimationFrame(()=>{box._mcIgn=0;});}).observe(box,{childList:true,subtree:true,characterData:true});
+}
+function movible(el,juego,op={}){
+  if(!el)return;css();const j=juego||(S.op&&S.op.juego)||'x',q=op.q||'pos';el.classList.add('mc-mov');
+  if(q==='btn'){arrastrable(el,j,q,true);ponerEn(el,posLeer(j,q));requestAnimationFrame(()=>ponerEn(el,posLeer(j,q)));
+    if(!el._mcRz){el._mcRz=1;addEventListener('resize',()=>{if(el.isConnected&&posLeer(j,q))ponerEn(el,posLeer(j,q));});}return;}
+  // un panel de chat
+  el.classList.add('mc-comp');
+  const R=REG[j]||(REG[j]={j,no:0,min:false});R.el=el;R.op=Object.assign(R.op||{},op);
+  const hd=el.querySelector(':scope>header');
+  if(hd&&!hd.querySelector('.mc-grip')){const g=document.createElement('span');g.className='mc-grip';g.textContent='⠿';g.setAttribute('aria-hidden','true');hd.insertBefore(g,hd.firstChild);
+    hd.title='Arrastrá esta barra para mover el chat';
+    const x=hd.querySelector('button:last-of-type');
+    const r=document.createElement('button');r.type='button';r.className='mc-rst';r.setAttribute('aria-label','Volver el chat a su lugar');r.title='Volver a su lugar';r.textContent='⟲';
+    hd.insertBefore(r,x||null);
+    r.onclick=e=>{e.preventDefault();e.stopPropagation();posGuardar(j,q,null);ponerEn(el,null);r.hidden=true;};
+    const m=document.createElement('button');m.type='button';m.className='mc-minb';m.setAttribute('aria-label','Minimizar el chat');m.title='Minimizar';m.innerHTML='<i></i>';
+    hd.insertBefore(m,x||null);
+    m.onclick=e=>{e.preventDefault();e.stopPropagation();minimizar(j);};
+    // ✕ cierra del todo (sin barrita)
+    if(x&&!x._mcX){x._mcX=1;x.addEventListener('click',()=>{R.min=false;minGuardar(j,false);miniOcultar(j);},true);}}
+  const rst=hd&&hd.querySelector('.mc-rst');
+  // se abrió (desde el botón del juego o desde la barrita): ya no está minimizado
+  if(!el.hidden&&R.min){R.min=false;minGuardar(j,false);}
+  miniOcultar(j);R.no=0;
+  const aplicarPos=()=>{let o=posLeer(j,q);if(R.desde){o=R.desde;}ponerEn(el,o);if(rst)rst.hidden=!posLeer(j,q);};
+  aplicarPos();requestAnimationFrame(()=>{aplicarPos();R.desde=null;});
+  seguirScroll(el);
+  arrastrable(el,j,q,false,()=>{if(rst)rst.hidden=false;});
+  if(!el._mcRz){el._mcRz=1;
+    const re=()=>{if(el.isConnected&&!el.hidden)ponerEn(el,posLeer(j,q));};addEventListener('resize',re);
+    if(window.visualViewport){visualViewport.addEventListener('resize',re);visualViewport.addEventListener('scroll',re);}
+    // al escribir, que el campo quede a la vista con el teclado abierto
+    el.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))setTimeout(re,350);});}
+}
+/* ── La barrita del chat minimizado ── */
+function miniEl(j){const R=REG[j];if(!R)return null;
+  // si el juego tiene su botón flotante del chat (el de acá, sin lugar en la barra de arriba), ése hace de barrita
+  if(R.op&&R.op.ancla){const a=R.op.ancla();if(a&&a.isConnected&&!a.hidden)return a;}
+  if(R.mini&&R.mini.isConnected)return R.mini;
+  css();const b=document.createElement('button');b.type='button';b.className='mc-mini';b.setAttribute('aria-label','Abrir el chat de la mesa');
+  b.innerHTML='<span class="mc-grip" aria-hidden="true">⠿</span>💭 <b>Chat</b><span class="mc-mini-n"></span>';
+  ['pointerdown','touchstart'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();restaurar(j);});
+  document.body.appendChild(b);arrastrable(b,j,'mini',true,()=>miniBurbLugar(j));R.mini=b;return b;}
+function miniPoner(j){const R=REG[j],b=R&&R.mini;if(!b||!b.isConnected)return;const o=posLeer(j,'mini');if(o)ponerEn(b,o);}
+function miniOcultar(j){const R=REG[j];if(!R)return;if(R.mini)R.mini.hidden=true;if(R.mb)R.mb.classList.remove('on');}
+function miniBadge(j){const R=REG[j];if(!R)return;if(R.mini){const n=R.mini.querySelector('.mc-mini-n');if(n)n.textContent=R.no?String(Math.min(R.no,99)):'';}}
+function miniVisible(j){const R=REG[j];if(!R||!R.min)return false;let v=true;try{if(R.op.visible)v=!!R.op.visible();else if(R.op.btn){const b=typeof R.op.btn==='function'?R.op.btn():R.op.btn;v=!!(b&&!b.hidden);}}catch(_){}return v;}
+function minimizar(j){const R=REG[j];if(!R||!R.el)return;
+  const p=R.el,r=p.getBoundingClientRect(),abajo=r.top+r.height/2>innerHeight/2,izq=r.left+r.width/2<innerWidth/2;
+  try{R.op.cerrar?R.op.cerrar():(p.hidden=true);}catch(_){p.hidden=true;}
+  p.hidden=true;R.min=true;R.no=0;minGuardar(j,true);
+  const b=miniEl(j);if(!b)return;
+  if(b===R.mini){b.hidden=false;miniBadge(j);
+    // la barrita queda donde estaba el panel: en su esquina de abajo (o de arriba) del lado donde estaba
+    const w=b.offsetWidth||110,h=b.offsetHeight||40;encerrar(b,izq?r.left:r.right-w,abajo?r.bottom-h:r.top);posGuardar(j,'mini',centro(b));}
+}
+function restaurar(j){const R=REG[j];if(!R)return;const b=R.mini&&!R.mini.hidden?R.mini:null;
+  // el panel se abre «hacia donde hay lugar», pegado a la barrita
+  if(b){const r=b.getBoundingClientRect(),p=R.el,w=(p&&p.offsetWidth)||Math.min(340,innerWidth-20),h=(p&&p.offsetHeight)||260;
+    const abajo=r.top+r.height/2>innerHeight/2,izq=r.left+r.width/2<innerWidth/2;
+    const left=izq?r.left:r.right-w,top=abajo?r.bottom-h:r.top;
+    R.desde={cx:Math.max(0,Math.min(1,(left+w/2)/innerWidth)),cy:Math.max(0,Math.min(1,(top+h/2)/innerHeight))};posGuardar(j,'pos',R.desde);}
+  R.min=false;minGuardar(j,false);miniOcultar(j);R.no=0;
+  try{if(R.op.abrir)R.op.abrir();else if(R.el){R.el.hidden=false;movible(R.el,j,R.op);}}catch(_){}
+}
+// Globito arriba de la barrita (o abajo si está pegada arriba); tocarlo abre el chat.
+function miniBurb(j,de,txt){const R=REG[j];if(!R)return;css();
+  if(!R.mb||!R.mb.isConnected){R.mb=document.createElement('button');R.mb.type='button';R.mb.className='mc-mburb';document.body.appendChild(R.mb);
+    ['pointerdown','touchstart'].forEach(ev=>R.mb.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+    R.mb.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();restaurar(j);});}
+  R.mb.innerHTML=`<b>${esc(de)}:</b>${esc(txt)}`;miniBurbLugar(j);
+  requestAnimationFrame(()=>R.mb&&R.mb.classList.add('on'));clearTimeout(R.mbT);R.mbT=setTimeout(()=>{if(R.mb)R.mb.classList.remove('on');},4500);}
+function miniBurbLugar(j){const R=REG[j];if(!R||!R.mb)return;const a=miniEl(j);if(!a)return;const r=a.getBoundingClientRect(),m=R.mb,w=m.offsetWidth||220,h=m.offsetHeight||44;
+  const arriba=r.top-h-8>topSeguro();const izq=r.left+r.width/2<innerWidth/2;
+  m.classList.toggle('abajo',!arriba);m.classList.toggle('izq',izq);
+  encerrar(m,izq?r.left:r.right-w,arriba?r.top-h-8:r.bottom+8);}
+// Un mensaje nuevo que llegó con el chat minimizado (los chats propios lo avisan con MESA_CHAT.nuevo).
+function nuevo(j,de,txt){const R=REG[j];if(!R||!R.min||!miniVisible(j))return false;txt=limpiar(txt);if(!txt)return false;
+  R.no++;const b=miniEl(j);if(b===R.mini){b.hidden=false;miniBadge(j);}miniBurb(j,String(de||'').slice(0,30),txt);return true;}
+// Cada segundo: la barrita se ve sólo mientras el juego tenga mesa en línea.
+setInterval(()=>{for(const j in REG){const R=REG[j];if(!R.min){if(R.mini&&!R.mini.hidden)miniOcultar(j);continue;}
+  const v=miniVisible(j),b=miniEl(j);if(!b||b!==R.mini)continue;if(v&&b.hidden){b.hidden=false;miniPoner(j);miniBadge(j);}else if(!v&&!b.hidden)miniOcultar(j);}},1000);
+addEventListener('resize',()=>{for(const j in REG){miniPoner(j);if(REG[j].mb&&REG[j].mb.classList.contains('on'))miniBurbLugar(j);}});
+// Dónde sale el globito con el chat cerrado (no minimizado): del lado y a la altura donde dejaste el chat.
 function burbLugar(){if(!S.burb)return;const o=posLeer(S.op&&S.op.juego,'pos');const b=S.burb.style;
-  if(!o){b.left=b.right=b.top=b.bottom='';return;}
-  const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.y*innerHeight));b.top=y+'px';b.bottom='auto';
-  if(o.l==='l'){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
+  if(!o){b.left=b.right=b.top=b.bottom='';S.burb.style.borderRadius='';return;}
+  const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.cy*innerHeight-60));b.top=y+'px';b.bottom='auto';
+  if(o.cx<.5){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
 function nota(){const n=S.op&&S.op.nota;try{return (typeof n==='function'?n():n)||'Sólo lo ve la gente de esta mesa y se borra al terminar.';}catch(_){return '';}}
 function abrir(){
   if(!S.op)return;css();
@@ -3195,7 +3333,7 @@ function abrir(){
     ${eqs?`<div class="mc-a"><button type="button" data-a="0" class="${S.eq?'':'on'}">A todos</button><button type="button" data-a="1" class="${S.eq?'on':''}">A mi equipo</button></div>`:''}
     ${formHtml(eqs&&S.eq?'Escribile a tu equipo':'Escribile a la mesa')}`;
   S.panel.hidden=false;S.abierto=true;S.no=0;dibujar();ocultarBurb();
-  movible(S.panel,S.op.juego);
+  movible(S.panel,S.op.juego,{abrir,cerrar,ancla:()=>S.btn&&S.btn.classList.contains('mc-flot')?S.btn:null,visible:()=>!!(S.btn&&!S.btn.hidden)});
   S.panel.querySelector('.mc-x').onclick=cerrar;
   S.panel.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{S.eq=b.dataset.a==='1';abrir();});
   cablearForm(S.panel,cerrar);
@@ -3221,6 +3359,7 @@ function recibir(m){
   const x={de,txt,eq:m.eq?1:0};agregar(x);
   try{S.op&&S.op.sonido&&S.op.sonido();}catch(_){}
   let chip=false;try{if(S.op&&S.op.chip){chip=S.op.chip(de,txt)!==false;}}catch(_){}
+  if(!S.abierto&&!enEspera()&&S.op&&nuevo(S.op.juego,de,txt))return;   // v74: minimizado → globito arriba de la barrita
   if((!chip||!S.abierto)&&!enEspera())burbuja(x);
 }
 function sistema(txt){txt=limpiar(txt);if(txt)agregar({txt,sis:true});}
@@ -3285,7 +3424,7 @@ function escuchar(op){
 }
 // (v67) Aunque el juego no monte el chat de la mesa (UnoAR tiene el suyo), igual se mira si hay que avisar al grupo.
 S.ivg=setInterval(()=>{if(!S.op)try{grupoJuegoAuto();}catch(_){}},1000);
-window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar};
+window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar,nuevo,minimizar,restaurar,minimizado:j=>!!(REG[j]&&REG[j].min)};
 })();
 
 </script>
@@ -3299,6 +3438,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:74,grande:true,titulo:'Novedades',items:[
+    ['🐤','LaberintAR rehecho: estilo maquinita, mucho más rápido y ágil, doblás al toque en las esquinas y 5 laberintos nuevos llenos de escapes.'],
+    ['👾','InvasorAR rehecho: nave ágil, disparo seco, explosiones, rachas ×8, enemigos y poderes nuevos y oleadas cortas. ¡Otra!'],
+    ['💬','El chat de la mesa ahora es chiquito, se minimiza a una barrita con los mensajes arriba y lo movés por toda la pantalla.'],
+    ['🗺️','La Gran Pampa: el juego del cruce se sortea — salen 3, tachás uno y la suerte elige — y la Guardia también se sortea.'],
+    ['🏡','EstanciAR: las luces iluminan de noche, mucha más ropa y caras para tu personaje, la ropa de las mascotas nueva y un botón para entrar a la casa. Y de vez en cuando, de noche, anda el Pomberito…'],
+    ['🐎','EstanciAR: arreglamos la casa y la mascota que no se sincronizaban, y las cosas que dejaban de verse.'],
+    ['🧩','Buscaminas Experto entra en el celular, PoblAR muestra la meta real y cuántas piezas te quedan, y en el pool la bola que define ya no tiene ayuda de más.']]},
   {v:73,grande:true,titulo:'Novedades',items:[
     ['🐤','LaberintAR en Arcade: juntá las semillas, escapale al zorro, la lechuza, el tero y el peludo, y con un mate dales vuelta la persecución. 15 mapas, campaña con estrellas y el laberinto del día.'],
     ['👾','InvasorAR en Arcade: frená las oleadas y los jefes, rompé y cuidá tus refugios, y desafiá a un amigo a un duelo en línea con las mismas oleadas. Y el desafío del día.'],
@@ -3505,12 +3652,11 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
     <button class="icon-btn" id="btn-chat" aria-label="Chat" title="Chat" data-chat-btn>💬</button>
     <button class="icon-btn" id="btn-menu" aria-label="Menú">☰</button>
   </div>
-  <div class="hud" id="hud"></div>
   <div class="zona">
-    <div class="vp" id="vp"><canvas id="cv" aria-label="Tablero de LaberintAR"></canvas><div class="banda" id="banda"></div><div class="cuenta" id="cuenta" hidden></div></div>
+    <div class="vp" id="vp"><canvas id="cv" aria-label="Tablero de LaberintAR"></canvas><div class="hudx" id="hud"></div></div>
     <div class="ctrl" id="ctrl">
       <div class="pad" id="pad" aria-label="Cruceta"><b class="u" data-d="0">▲</b><b class="l" data-d="1">◀</b><b class="d" data-d="2">▼</b><b class="r" data-d="3">▶</b></div>
-      <div class="info" id="info">Mantené o tocá una dirección: sigue sola hasta la próxima pared.</div>
+      <div class="info" id="info">Tocá o mantené: sigue solo hasta la pared.</div>
       <div class="ayuda-pc">Flechas o WASD para moverte · P o Esc para pausar</div>
     </div>
   </div>
@@ -3519,489 +3665,230 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 <div class="side" id="side" hidden><div class="side-panel" id="side-panel" role="dialog" aria-modal="true" aria-label="Menú"></div></div>
 <script>
-/* LaberintAR · mapas (armados por laberinto/mapas_gen.js y congelados acá; el juego los valida al cargar).
-   # pared · . semilla · o mate (energizante) · espacio pasillo vacío · - puerta del corral · H corral · P salida del
-   jugador · T túnel (en los bordes: sale del otro lado) · B donde aparece el bonus. Son 21×25. */
+/* LaberintAR · mapas (v74: cinco laberintos dibujados a mano, armados por laberinto/mapas_gen.js y congelados acá).
+   # pared · . semilla · o mate · espacio pasillo vacío · - puerta del corral · H corral · P salida del jugador ·
+   T túnel (en los bordes: sale del otro lado) · B bonus. Son 23×27, en espejo. */
 const MAPAS=[
-{"id":"patio",
-"n":"Patio inicial",
-"idea":"Rutas anchas y cruces simples",
-"v":1,"filas":[
-"#####################",
-"#.....#.......#.....#",
-"#.#.#.#.#####.#.#.#.#",
-"#o#.#.....#.....#.#o#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#...#.#.#.#.#.#.#...#",
-"###.#.#.#.#.#.#.#.###",
-"#...#...#.#.#...#...#",
-"#.#.###.#.#.#.###.#.#",
-"#...#           #...#",
-"##### ####-#### #####",
-"T     #HHHHHHH#     T",
-"#.#.# #HHHHHHH# #.#.#",
-"#.... #HHHHHHH# ....#",
-"#.#.# ######### #.#.#",
-"#.#..     B     ..#.#",
-"#.#.#.#.#####.#.#.#.#",
-"#.#...#...P...#...#.#",
-"#.#################.#",
-"#.....#.......#.....#",
-"#####.#.#####.#.#####",
-"#o....#...#...#....o#",
-"#.#####.#.#.#.#####.#",
-"#.......#...#.......#",
-"#####################"]},
-{"id":"molino",
-"n":"Molino",
-"idea":"Anillos alrededor de un centro",
-"v":1,"filas":[
-"#####################",
-"#o........#........o#",
-"#.#.###.#.#.#.###.#.#",
-"#.#.#...#...#...#.#.#",
-"#.#.#.#.#####.#.#.#.#",
-"#...#.#...#...#.#...#",
-"###.#.###.#.###.#.###",
-"#...#.....#.....#...#",
-"#.#################.#",
-"#...#           #...#",
-"###.# ####-#### #.###",
-"#...# #HHHHHHH# #...#",
-"#.### #HHHHHHH# ###.#",
-"T     #HHHHHHH#     T",
-"##### ######### #####",
-"#....     B     ....#",
-"#.###.#.#####.#.###.#",
-"#...#.#...P...#.#...#",
-"###.#.#########.#.###",
-"#...#...........#...#",
-"#.#################.#",
-"#...#...........#...#",
-"#.#.#.#########.#.#.#",
-"#o.................o#",
-"#####################"]},
-{"id":"estacion",
-"n":"Estación",
-"idea":"Corredores largos con retornos",
-"v":1,"filas":[
-"#####################",
-"#...#.....#.....#...#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#.#.#.#...#.#.#.#.#",
-"#.#.#.#.#####.#.#.#.#",
-"#o....#.#...#.#....o#",
-"###.###.#.#.#.###.###",
-"#...#...#.#.#...#...#",
-"#.###.###.#.###.###.#",
-"#...#           #...#",
-"###.# ####-#### #.###",
-"T     #HHHHHHH#     T",
-"##### #HHHHHHH# #####",
-"#.... #HHHHHHH# ....#",
-"#.### ######### ###.#",
-"#...#     B     #...#",
-"#.#.#############.#.#",
-"#.....#...P...#.....#",
-"#####.#.#.#.#.#.#####",
-"#o......#...#......o#",
-"#.#.#############.#.#",
-"#.#.#...........#.#.#",
-"#.#.#.#########.#.#.#",
-"#...................#",
-"#####################"]},
-{"id":"aljibe",
-"n":"Aljibe",
-"idea":"Cuatro cuadrantes conectados",
-"v":1,"filas":[
-"#####################",
-"#.........#.........#",
-"#.#######.#.#######.#",
-"#..o....#.#.#....o..#",
-"#.#####.#.#.#.#####.#",
-"#.#.....#...#.....#.#",
-"#.#.###.#####.###.#.#",
-"#.#...#...#...#...#.#",
-"#.#.#.###.#.###.#.#.#",
-"#.#..           ..#.#",
-"#.### ####-#### ###.#",
-"T     #HHHHHHH#     T",
-"#.### #HHHHHHH# ###.#",
-"#...# #HHHHHHH# #...#",
-"###.# ######### #.###",
-"#...#     B     #...#",
-"#.#################.#",
-"#.........P.........#",
-"#.#####.#.#.#.#####.#",
-"#.....#.#.#.#.#.....#",
-"#####.#.#.#.#.#.#####",
-"#..o..#.#.#.#.#..o..#",
-"#.#####.#.#.#.#####.#",
-"#.......#...#.......#",
-"#####################"]},
-{"id":"malvones",
-"n":"Malvones",
-"idea":"Muchas bifurcaciones cortas",
-"v":1,"filas":[
-"#####################",
-"#...#...........#...#",
-"#.#.#.#.#####.#.#.#.#",
-"#o#.....#...#.....#o#",
-"#.#.#####.#.#####.#.#",
-"#.#.#.....#.....#.#.#",
-"#.#.#.#########.#.#.#",
-"#.#.#...#...#...#.#.#",
-"#.#.###.#.#.#.###.#.#",
-"#...#           #...#",
-"###.# ####-#### #.###",
-"#...# #HHHHHHH# #...#",
-"#.### #HHHHHHH# ###.#",
-"T     #HHHHHHH#     T",
-"#.### ######### ###.#",
-"#...#     B     #...#",
-"###.#.#########.#.###",
-"#...#.#...P...#.#...#",
-"#.###.#.#.#.#.#.###.#",
-"#o....#.#.#.#.#....o#",
-"#.#####.#.#.#.#####.#",
-"#.#...#.#.#.#.#...#.#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#...#...#...#...#...#",
-"#####################"]},
-{"id":"galpon",
-"n":"Galpón",
-"idea":"Dos túneles compensados",
-"v":1,"filas":[
-"#####################",
-"#o.................o#",
-"#.###.#########.###.#",
-"#.....#...#...#.....#",
-"#.#####.#.#.#.#####.#",
-"#.#.......#.......#.#",
-"#.#.#############.#.#",
-"#.....#.......#.....#",
-"###.#.#.#####.#.#.###",
-"#...#           #...#",
-"#.### ####-#### ###.#",
-"T     #HHHHHHH#     T",
-"##### #HHHHHHH# #####",
-"T     #HHHHHHH#     T",
-"##### ######### #####",
-"#....     B     ....#",
-"#.###.#.#####.#.###.#",
-"#.#...#...P...#...#.#",
-"#.#.#####.#.#####.#.#",
-"#...#...#.#.#...#...#",
-"#####.#.#.#.#.#.#####",
-"#o....#...#...#....o#",
-"#.#################.#",
-"#...................#",
-"#####################"]},
-{"id":"jacaranda",
-"n":"Jacarandá",
-"idea":"Anillos exteriores y atajos",
-"v":1,"filas":[
-"#####################",
-"#...#...#...#...#...#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#o#.#.....#.....#.#o#",
-"#.#.###.#####.###.#.#",
-"#.#.....#...#.....#.#",
-"#.#######.#.#######.#",
-"#.....#...#...#.....#",
-"#####.#.#####.#.#####",
-"#....           ....#",
-"#.### ####-#### ###.#",
-"T     #HHHHHHH#     T",
-"#.#.# #HHHHHHH# #.#.#",
-"#.#.. #HHHHHHH# ..#.#",
-"#.### ######### ###.#",
-"#...#     B     #...#",
-"###.#.#########.#.###",
-"#...#.....P.....#...#",
-"#.#.###.#####.###.#.#",
-"#...#.....#.....#...#",
-"#####.###.#.###.#####",
-"#...#...#.#.#...#...#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#..o..#...#...#..o..#",
-"#####################"]},
-{"id":"faroles",
-"n":"Faroles",
-"idea":"Decisiones cerca del corral",
-"v":1,"filas":[
-"#####################",
-"#...................#",
-"#.#.#############.#.#",
-"#...#.....#.....#...#",
-"#.###.###.#.###.###.#",
-"#..o....#.#.#....o..#",
-"#######.#.#.#.#######",
-"#.......#...#.......#",
-"#.#################.#",
-"#....           ....#",
-"#.### ####-#### ###.#",
-"#...# #HHHHHHH# #...#",
-"###.# #HHHHHHH# #.###",
-"T     #HHHHHHH#     T",
-"##### ######### #####",
-"#....     B     ....#",
-"#.###.#########.###.#",
-"#...#.....P.....#...#",
-"#.#.#####.#.#####.#.#",
-"#.#.....#.#.#.....#.#",
-"#.#####.#.#.#.#####.#",
-"#o......#.#.#......o#",
-"#.#######.#.#######.#",
-"#.........#.........#",
-"#####################"]},
-{"id":"vias",
-"n":"Cruce de vías",
-"idea":"Rutas de intercepción",
-"v":1,"filas":[
-"#####################",
-"#o..#.....#.....#..o#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#...#.#.#.#.#...#.#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#...#.#...#...#.#...#",
-"#####.#########.#####",
-"#....           ....#",
-"#.### ####-#### ###.#",
-"T     #HHHHHHH#     T",
-"###.# #HHHHHHH# #.###",
-"#...# #HHHHHHH# #...#",
-"#.### ######### ###.#",
-"#....     B     ....#",
-"#####.#########.#####",
-"#...#.#...P...#.#...#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#o#.#.#.#...#.#.#.#o#",
-"#.#.#.#.#####.#.#.#.#",
-"#.#...#...#...#...#.#",
-"#.#######.#.#######.#",
-"#.........#.........#",
-"#####################"]},
-{"id":"cielo",
-"n":"Cielo abierto",
-"idea":"Todo lo aprendido junto",
-"v":1,"filas":[
-"#####################",
-"#...#...........#...#",
-"#.#.#.#########.#.#.#",
-"#o#...#...#...#...#o#",
-"#.###.#.#.#.#.#.###.#",
-"#.#...#...#...#...#.#",
-"#.#.#####.#.#####.#.#",
-"#...#.....#.....#...#",
-"#.###.#########.###.#",
-"#.#..           ..#.#",
-"#.#.# ####-#### #.#.#",
-"T     #HHHHHHH#     T",
-"##### #HHHHHHH# #####",
-"T     #HHHHHHH#     T",
-"#.### ######### ###.#",
-"#...#     B     #...#",
-"###.#############.###",
-"#...#.....P.....#...#",
-"#.###.#########.###.#",
-"#...#.....#.....#...#",
-"###.#####.#.#####.###",
-"#...#.....#.....#...#",
-"#.###.#.#####.#.###.#",
-"#o....#.......#....o#",
-"#####################"]},
-{"id":"tranquera",
-"n":"Tranquera",
-"idea":"Para la campaña",
-"v":1,"filas":[
-"#####################",
-"#.........#.........#",
-"#.#######.#.#######.#",
-"#.........#.........#",
-"#####.#########.#####",
-"#o..#...#...#...#..o#",
-"#.#.###.#.#.#.###.#.#",
-"#.#...#.#.#.#.#...#.#",
-"#.###.#.#.#.#.#.###.#",
-"#....           ....#",
-"##### ####-#### #####",
-"T     #HHHHHHH#     T",
-"#.### #HHHHHHH# ###.#",
-"#.#.. #HHHHHHH# ..#.#",
-"#.#.# ######### #.#.#",
-"#.#..     B     ..#.#",
-"#.###.#########.###.#",
-"#...#.#...P...#.#...#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#...#...#.#.#...#...#",
-"###.#.###.#.###.#.###",
-"#o..#.#...#...#.#..o#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#...#...#...#...#...#",
-"#####################"]},
 {"id":"pulperia",
 "n":"Pulpería",
-"idea":"Para la campaña",
-"v":1,"filas":[
-"#####################",
-"#..o#...#...#...#o..#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#.....#.#.#.....#.#",
-"#.#######.#.#######.#",
-"#.#.......#.......#.#",
-"#.#.#############.#.#",
-"#.#.#.....#.....#.#.#",
-"#.#.#.###.#.###.#.#.#",
-"#...#           #...#",
-"###.# ####-#### #.###",
-"#...# #HHHHHHH# #...#",
-"#.### #HHHHHHH# ###.#",
-"T     #HHHHHHH#     T",
-"#.### ######### ###.#",
-"#....     B     ....#",
-"#########.#.#########",
-"#.....#...P...#.....#",
-"#.###.#.#####.#.###.#",
-"#.....#...#...#.....#",
-"###.#####.#.#####.###",
-"#.........#.........#",
-"#.#######.#.#######.#",
-"#o........#........o#",
-"#####################"]},
-{"id":"monte",
-"n":"Monte",
-"idea":"Para la campaña",
-"v":1,"filas":[
-"#####################",
-"#...#...#...#...#...#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#o#.....#.#.#.....#o#",
-"#.#######.#.#######.#",
-"#.........#.........#",
-"#########.#.#########",
-"#...#.....#.....#...#",
-"#.#.#.#########.#.#.#",
-"#.#.#           #.#.#",
-"#.#.# ####-#### #.#.#",
-"T     #HHHHHHH#     T",
-"###.# #HHHHHHH# #.###",
-"#...# #HHHHHHH# #...#",
-"#.### ######### ###.#",
-"#...#     B     #...#",
-"#.#.#####.#.#####.#.#",
-"#...#.....P.....#...#",
-"#####.#########.#####",
-"#...#.....#.....#...#",
-"#.#.#####.#.#####.#.#",
-"#.#o#.....#.....#o#.#",
-"#.#.#.###.#.###.#.#.#",
-"#.........#.........#",
-"#####################"]},
-{"id":"laguna",
-"n":"Laguna",
-"idea":"Para la campaña",
-"v":1,"filas":[
-"#####################",
-"#o........#........o#",
-"#.#.#####.#.#####.#.#",
-"#.#.....#...#.....#.#",
-"#.#####.#####.#####.#",
-"#...#.....#.....#...#",
-"#.#.#.###.#.###.#.#.#",
-"#.#.#...#...#...#.#.#",
-"#.#.###.#####.###.#.#",
-"#...#           #...#",
-"##### ####-#### #####",
-"T     #HHHHHHH#     T",
-"##### #HHHHHHH# #####",
-"T     #HHHHHHH#     T",
-"#.### ######### ###.#",
-"#...#     B     #...#",
-"###.#.###.#.###.#.###",
-"#.....#...P...#.....#",
-"#.#.###.#####.###.#.#",
-"#.#.#.....#.....#.#.#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#o..#...#...#...#..o#",
-"#####################"]},
-{"id":"nocturna",
-"n":"Pampa nocturna",
-"idea":"Para la campaña",
-"v":1,"filas":[
-"#####################",
-"#.........#.........#",
-"#.#######.#.#######.#",
-"#o......#.#.#......o#",
-"#####.#.#.#.#.#.#####",
-"#...#.#.#.#.#.#.#...#",
-"#.#.#.#.#.#.#.#.#.#.#",
-"#.#...#.#.#.#.#...#.#",
-"#.#####.#.#.#.#####.#",
-"#....           ....#",
-"#.### ####-#### ###.#",
-"#.#.. #HHHHHHH# ..#.#",
-"#.#.# #HHHHHHH# #.#.#",
-"T     #HHHHHHH#     T",
-"#.### ######### ###.#",
-"#...#     B     #...#",
-"#.#.#############.#.#",
-"#.#.......P.......#.#",
-"#.#.#####.#.#####.#.#",
-"#.#.#...#...#...#.#.#",
-"#.#.#.#.#####.#.#.#.#",
-"#o..#.#...#...#.#..o#",
-"#.###.#.#.#.#.#.###.#",
-"#.....#...#...#.....#",
-"#####################"]}];
+"idea":"Dos pisos de calles y el túnel por el medio",
+"v":2,"filas":[
+"#######################",
+"#.....#.........#.....#",
+"#o###.#.###.###.#.###o#",
+"#.###.#.###.###.#.###.#",
+"#.....................#",
+"#.###.#.#######.#.###.#",
+"#.....#....#....#.....#",
+"#####.####.#.####.#####",
+"#####.####.#.####.#####",
+"#####.#         #.#####",
+"#####.# ###-### #.#####",
+"#####.# #HHHHH# #.#####",
+"T    .  #HHHHH#  .    T",
+"#####.# #HHHHH# #.#####",
+"#####.# ####### #.#####",
+"#####.#    B    #.#####",
+"#####.#.#######.#.#####",
+"#.....................#",
+"#.###.###.###.###.###.#",
+"#o..#......P......#..o#",
+"###.#.#.###.###.#.#.###",
+"#.....#.........#.....#",
+"#.###.#.###.###.#.###.#",
+"#...#...#.....#...#...#",
+"#.#.#####.#.#.#####.#.#",
+"#.....................#",
+"#######################"]},
+{"id":"estacion",
+"n":"Estación",
+"idea":"Andenes largos y dos túneles, arriba y abajo",
+"v":2,"filas":[
+"#######################",
+"#..........#..........#",
+"#.###.##.#.#.#.##.###.#",
+"#o###.##.#.#.#.##.###o#",
+"#.....##...#...##.....#",
+"###.#.##.#.#.#.##.#.###",
+"T  ......#...#......  T",
+"###.##.#.#.#.#.#.##.###",
+"#...##.#.#.#.#.#.##...#",
+"#.#.##.         .##.#.#",
+"#.#...# ###-### #...#.#",
+"#.###.# #HHHHH# #.###.#",
+"#...#.# #HHHHH# #.#...#",
+"###.#.# #HHHHH# #.#.###",
+"#...#.# ####### #.#...#",
+"#.###.#    B    #.###.#",
+"#.....#.#######.#.....#",
+"#.###...#.....#...###.#",
+"#...#.#.#.#.#.#.#.#...#",
+"###.#.#...#P#...#.#.###",
+"T  ...###.#.#.###...  T",
+"###.#.....#.#.....#.###",
+"#o..#.###.#.#.###.#..o#",
+"#.###.#...#.#...#.###.#",
+"#.###.#.###.###.#.###.#",
+"#.....#.........#.....#",
+"#######################"]},
+{"id":"molino",
+"n":"Molino",
+"idea":"Escaleras y vueltas cortas alrededor del corral",
+"v":2,"filas":[
+"#######################",
+"#...#.............#...#",
+"#.#.#.#####.#####.#.#.#",
+"#o#...#...#.#...#...#o#",
+"#.###.#.#.#.#.#.#.###.#",
+"#.....#.#.....#.#.....#",
+"###.###.###.###.###.###",
+"#...#...#.....#...#...#",
+"#.#.#.#.#.###.#.#.#.#.#",
+"#.#...#         #...#.#",
+"#.###.# ###-### #.###.#",
+"#.#...# #HHHHH# #...#.#",
+"T  .#.  #HHHHH#  .#.  T",
+"###.#.# #HHHHH# #.#.###",
+"#...#.# ####### #.#...#",
+"#.###.#    B    #.###.#",
+"#...#.#.#######.#.#...#",
+"###.#.#.........#.#.###",
+"#...#.#.#.#.#.#.#.#...#",
+"#.###...#.#P#.#...###.#",
+"#...#.###.#.#.###.#...#",
+"###.#.....#.#.....#.###",
+"#o..#.###.#.#.###.#..o#",
+"#.#.#...#.....#...#.#.#",
+"#.#.###.#.#.#.#.###.#.#",
+"#.......#.....#.......#",
+"#######################"]},
+{"id":"pajonal",
+"n":"Pajonal",
+"idea":"Muchos cruces chicos para escabullirse",
+"v":2,"filas":[
+"#######################",
+"#.....#.........#.....#",
+"#.#.#.#.#.#.#.#.#.#.#.#",
+"#o#...#.#.....#.#...#o#",
+"#.#.#...#.###.#...#.#.#",
+"#...#.#.........#.#...#",
+"#.###.#.#.###.#.#.###.#",
+"#.....#.#.....#.#.....#",
+"###.#.#.#.#.#.#.#.#.###",
+"#...#.#         #.#...#",
+"#.#.#.# ###-### #.#.#.#",
+"#.#...# #HHHHH# #...#.#",
+"T  .#.  #HHHHH#  .#.  T",
+"###...# #HHHHH# #...###",
+"#...#.# ####### #.#...#",
+"#.#.#.#    B    #.#.#.#",
+"#.#...#.#######.#...#.#",
+"#...#.#.........#.#...#",
+"#.#.#.#.#.#.#.#.#.#.#.#",
+"#.#...#.#.#P#.#.#...#.#",
+"#.###.#...#.#...#.###.#",
+"#...#.###.#.#.###.#...#",
+"#o#.#.....#.#.....#.#o#",
+"#.#.#.#.#.#.#.#.#.#.#.#",
+"#.#...#.#.#.#.#.#...#.#",
+"#...#...#.....#...#...#",
+"#######################"]},
+{"id":"galpon",
+"n":"Galpón",
+"idea":"Galpones grandes, pasillos largos y dos túneles",
+"v":2,"filas":[
+"#######################",
+"#.........###.........#",
+"#.##.####.###.####.##.#",
+"#o##.####.....####.##o#",
+"#.##.####.#.#.####.##.#",
+"#.........#.#.........#",
+"#.##.#.##.#.#.##.#.##.#",
+"T ##.#.##.....##.#.## T",
+"#.##.#.##.###.##.#.##.#",
+"#....#.         .#....#",
+"####.## ###-### ##.####",
+"#....## #HHHHH# ##....#",
+"#.##..  #HHHHH#  ..##.#",
+"#.##.## #HHHHH# ##.##.#",
+"#....## ####### ##....#",
+"####.#.    B    .#.####",
+"#....#.#########.#....#",
+"#.##.#.....#.....#.##.#",
+"#.##.#.###.#.###.#.##.#",
+"T ##.#.###.P.###.#.## T",
+"#.##.#.....#.....#.##.#",
+"#o...####.###.####...o#",
+"#.##.####.###.####.##.#",
+"#.##...............##.#",
+"#.##.####.#.#.####.##.#",
+"#.....................#",
+"#######################"]}];
 /* ───────── LaberintAR · motor (sin pantalla) ─────────
    Un laberinto de campo: recogés todas las semillas y esquivás a cuatro perseguidores; los mates te dan unos segundos
    para correrlos a ellos. El motor no dibuja, no suena ni paga: recibe la configuración y una dirección por paso, y
    devuelve el estado y los eventos. Es determinista: paso fijo de 1/60 s, posiciones en enteros (1000 unidades por
    casilla) y un generador al azar con semilla guardado en el estado. Con las mismas entradas, el mismo resultado,
    a 30, 60 o 120 cuadros por segundo (la pantalla llama a paso() las veces que haga falta).
-   Reglas: ver claude/laberintar.md (adaptadas del diseño «LaberintAR Diseño completo»). */
+   v74 (pedido del 25/10: «parece que flota y se toma su tiempo; no siento peligro… ligero, veloz y reactivo»):
+   · Velocidades de maquinita: 7,6 casillas/s el jugador en Normal (antes 4,5) y 7,0 los perseguidores (antes 4,0).
+   · Doblar en la esquina: la orden se toma hasta 0,45 casilla antes o después del centro del cruce y el corredor «corta»
+     la esquina en diagonal (el desvío se corrige sin gastar avance): doblar bien te hace más rápido que ellos.
+   · Comerse a uno congela todo 0,4 s (para ver los puntos); en el túnel ellos van a la mitad; el Colorado se apura
+     cuando quedan pocas semillas; vida extra a los 10.000; bonus distinto en cada nivel.
+   Reglas: ver claude/laberintar.md. */
 'use strict';
 const LAB=(()=>{
 const U=1000,FPS=60;
 const DIRS=[[0,-1],[-1,0],[0,1],[1,0]];          // 0 arriba · 1 izquierda · 2 abajo · 3 derecha (orden de desempate)
 const REV=d=>(d+2)&3;
 const seg=s=>Math.round(s*FPS);
+const ESQUINA=450;                                 // tolerancia para doblar antes/después del centro (en unidades)
 
-/* ── Dificultades (velocidades en casillas por segundo) ── */
+/* ── Dificultades (velocidades en casillas por segundo; tiempos en segundos) ── */
 const PRESETS={
-  facil:  {n:'Fácil',  jug:4.2,enem:3.4,asus:2.4,mate:8,sale:[0,8,16,24],modos:[9,16,9,16,7]},
-  normal: {n:'Normal', jug:4.5,enem:4.0,asus:2.8,mate:6,sale:[0,5,12,20],modos:[7,20,7,20,5]},
-  dificil:{n:'Difícil',jug:4.8,enem:4.6,asus:3.2,mate:4,sale:[0,3,7,12], modos:[4,26,4,26,3]}
+  facil:  {n:'Fácil',  jug:7.2,enem:6.0,asus:3.6,mate:7,  sale:[0,5,10,15],modos:[9,16,9,16,7]},
+  normal: {n:'Normal', jug:7.6,enem:6.8,asus:4.2,mate:5,  sale:[0,3,7,11],modos:[7,20,7,20,5]},
+  dificil:{n:'Difícil',jug:8.0,enem:7.6,asus:4.8,mate:3.5,sale:[0,1,3,5], modos:[4,24,4,24,2]}
 };
-const MATE_MIN={facil:3,normal:2.5,dificil:2};
-const VUELVE=7,TUNEL=.8,CASA_V=2.2;
-const PUNTOS={semilla:10,mate:50,captura:[200,400,800,1600],bonus:300,bonusMax:1500};
-const NOMBRES=[{id:'colorado',n:'Colorado',c:'#d9483b',bicho:'zorro'},{id:'violeta',n:'Violeta',c:'#9a6ad9',bicho:'lechuza'},
-  {id:'turquesa',n:'Turquesa',c:'#2fb7b0',bicho:'tero'},{id:'ocre',n:'Ocre',c:'#d9962f',bicho:'peludo'}];
+const MATE_MIN={facil:2,normal:1.5,dificil:1};
+const TOPE_JUG=8.6,TOPE_ENEM=8.2;
+const VUELVE=15,TUNEL=.5,CASA_V=4;
+const PUNTOS={semilla:10,mate:50,captura:[200,400,800,1600]};
+// El bonus cambia con el nivel (lo que vale y cómo se ve): k es el dibujo
+const FRUTAS=[{k:'torta',n:'Torta frita',p:100},{k:'empanada',n:'Empanada',p:300},{k:'alfajor',n:'Alfajor',p:500},{k:'choclo',n:'Choclo',p:700},
+  {k:'sandia',n:'Sandía',p:1000},{k:'pastelito',n:'Pastelito',p:2000},{k:'mate',n:'Mate dorado',p:3000},{k:'estrella',n:'Estrella',p:5000}];
+const frutaDe=n=>FRUTAS[Math.min(FRUTAS.length-1,Math.max(0,n-1))];
+const NOMBRES=[{id:'colorado',n:'Colorado',c:'#ff3b3b',bicho:'zorro'},{id:'violeta',n:'Violeta',c:'#ff8be8',bicho:'lechuza'},
+  {id:'turquesa',n:'Turquesa',c:'#2ef0ea',bicho:'tero'},{id:'ocre',n:'Ocre',c:'#ffab3d',bicho:'peludo'}];
 
 function rngSig(a){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return [a,((t^(t>>>14))>>>0)/4294967296];}
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 
 /* ── Mapas ── */
+const pasaC=c=>c!=='#'&&c!=='H'&&c!=='-'&&c!==undefined;
 function leer(m){
   const H=m.filas.length,W=m.filas[0].length,t=[];let ini=null,bonus=null,puerta=null;const casa=[],tuneles=[];
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=m.filas[y][x];t.push(c);
     if(c==='P')ini=[x,y];if(c==='B')bonus=[x,y];if(c==='-')puerta=[x,y];if(c==='H')casa.push([x,y]);if(c==='T'&&x===0)tuneles.push(y);}
-  return {id:m.id,n:m.n,idea:m.idea||'',v:m.v||1,W,H,t,ini,bonus,puerta,casa,tuneles};
+  // largo de cada túnel (desde el borde hasta el primer cruce): ahí los perseguidores van más lento
+  const tl={};for(const y of tuneles){let x=0;while(x<W/2&&pasaC(t[y*W+x])&&!pasaC(t[(y-1)*W+x])&&!pasaC(t[(y+1)*W+x]))x++;tl[y]=Math.max(1,x);}
+  return {id:m.id,n:m.n,idea:m.idea||'',v:m.v||1,W,H,t,ini,bonus,puerta,casa,tuneles,tl};
 }
-const pasaC=c=>c!=='#'&&c!=='H'&&c!=='-'&&c!==undefined;
 function celda(M,x,y){if(y<0||y>=M.H)return '#';if(x<0||x>=M.W){if(M.t[y*M.W]==='T'){x=(x+M.W)%M.W;}else return '#';}return M.t[y*M.W+x];}
 function vecino(M,x,y,d){let nx=x+DIRS[d][0],ny=y+DIRS[d][1];if(nx<0||nx>=M.W){if(celda(M,0,y)==='T')nx=(nx+M.W)%M.W;else return null;}if(ny<0||ny>=M.H)return null;return pasaC(M.t[ny*M.W+nx])?[nx,ny]:null;}
-// Validador: lo que tiene que cumplir un mapa para jugarse (cap. 06 del diseño)
+// Medidas de un mapa (para el validador y las pruebas): cruces, vueltas posibles (ciclos), pasillo más largo sin cruce
+function metricas(M){let V=0,E=0,cruces=0,deg=0,cuad=0;const nb=(x,y)=>{let n=0;for(let d=0;d<4;d++)if(vecino(M,x,y,d))n++;return n;};
+  for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++){if(!pasaC(M.t[y*M.W+x]))continue;V++;const n=nb(x,y);E+=n;deg+=n;if(n>=3)cruces++;
+    if(x<M.W-1&&y<M.H-1&&pasaC(M.t[y*M.W+x+1])&&pasaC(M.t[(y+1)*M.W+x])&&pasaC(M.t[(y+1)*M.W+x+1]))cuad++;}
+  let largo=0;for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++){if(!pasaC(M.t[y*M.W+x])||nb(x,y)===2)continue;
+    for(let d=0;d<4;d++){let v=vecino(M,x,y,d);if(!v)continue;let px=x,py=y,l=1;while(v&&nb(v[0],v[1])===2&&l<200){let sig=null;for(let k=0;k<4;k++){const w=vecino(M,v[0],v[1],k);if(w&&(w[0]!==px||w[1]!==py)){sig=w;break;}}px=v[0];py=v[1];v=sig;l++;}largo=Math.max(largo,l);}}
+  return {casillas:V,cruces,gradoMedio:+(deg/V).toFixed(2),vueltas:E/2-V+1,pasilloMasLargo:largo,cuadrados:cuad};}
+// Validador: lo que tiene que cumplir un mapa para jugarse
 function validar(m){
   const E=[];let M;try{M=leer(m);}catch(e){return ['no se pudo leer'];}
   if(!m.id)E.push('sin id');
-  if(M.W!==21||M.H!==25)E.push('no es de 21×25');
+  if(M.W<19||M.W>29||M.W%2===0||M.H<21||M.H>33)E.push('tamaño raro: '+M.W+'×'+M.H);
   if(!m.filas.every(f=>f.length===M.W))E.push('filas de distinto largo');
   if(m.filas.join('').split('P').length!==2)E.push('tiene que haber exactamente una salida del jugador');
   if(!M.puerta)E.push('sin puerta del corral');
@@ -4009,40 +3896,45 @@ function validar(m){
   if(!M.bonus)E.push('sin lugar para el bonus');
   for(let y=0;y<M.H;y++){const a=celda(M,0,y)==='T',b=M.t[y*M.W+M.W-1]==='T';if(a!==b)E.push('túnel sin pareja en la fila '+y);}
   for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++){const c=M.t[y*M.W+x];if((x===0||y===0||x===M.W-1||y===M.H-1)&&c!=='#'&&c!=='T')E.push('borde abierto en '+x+','+y);}
+  for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++)if(pasaC(M.t[y*M.W+x])!==pasaC(M.t[y*M.W+M.W-1-x]))E.push('no es simétrico en '+x+','+y);
   const mates=m.filas.join('').split('o').length-1;if(mates!==4)E.push('tiene que tener 4 mates');
   if(M.ini){
     const vis=new Set([M.ini[1]*M.W+M.ini[0]]),q=[M.ini];
     while(q.length){const [x,y]=q.pop();for(let d=0;d<4;d++){const v=vecino(M,x,y,d);if(!v)continue;const k=v[1]*M.W+v[0];if(!vis.has(k)){vis.add(k);q.push(v);}}}
     for(let i=0;i<M.t.length;i++)if(pasaC(M.t[i])&&!vis.has(i))E.push('casilla suelta en '+(i%M.W)+','+Math.floor(i/M.W));
-    // sin callejones sin salida (el diseño tolera hasta 4; acá no hay ninguno)
     for(let i=0;i<M.t.length;i++)if(pasaC(M.t[i])){const x=i%M.W,y=Math.floor(i/M.W);let n=0;for(let d=0;d<4;d++)if(vecino(M,x,y,d))n++;if(n<2)E.push('callejón sin salida en '+x+','+y);}
     if(M.puerta&&!vecino(M,M.puerta[0],M.puerta[1],0))E.push('la puerta no da a un pasillo');
+    const me=metricas(M);
+    if(me.cuadrados)E.push('pasillo de dos de ancho ('+me.cuadrados+')');
+    if(me.vueltas<20)E.push('pocas vueltas para escaparse ('+me.vueltas+')');
+    if(me.cruces<40)E.push('pocos cruces ('+me.cruces+')');
   }
   return E;
 }
 
 /* ── Configuración de una partida ──
-   op = {modo:'rapida'|'dia'|'practica'|'libre'|'campana', dif, mapas:[índices], semilla, vidas, enemigos, vJug, vEnem,
-         mate (segundos), niveles, limite (segundos activos), invulnerable, objetivos (ver a dónde va cada uno)} */
+   op = {modo:'rapida'|'dia'|'practica'|'libre'|'campana'|'demo', dif, mapas:[índices], semilla, vidas, enemigos, vJug,
+         vEnem, mate (segundos), niveles, limite (segundos activos), invulnerable, acel (multiplica las velocidades),
+         extra (puntos para la vida extra; 0 = sin vida extra)} */
 function config(op){
-  const P=PRESETS[op.dif]||PRESETS.normal;
+  const P=PRESETS[op.dif]||PRESETS.normal,ac=op.acel||1;
   return {modo:op.modo||'rapida',dif:PRESETS[op.dif]?op.dif:'normal',mapas:(op.mapas&&op.mapas.length?op.mapas:[0]).slice(),semilla:(op.semilla>>>0)||1,
     vidas:Math.max(1,Math.min(9,op.vidas||3)),enemigos:Math.max(1,Math.min(4,op.enemigos||4)),
-    vJug:op.vJug||P.jug,vEnem:op.vEnem||P.enem,vAsus:P.asus,mate:op.mate!=null?Math.max(0,Math.min(12,op.mate)):P.mate,
+    vJug:(op.vJug||P.jug)*ac,vEnem:(op.vEnem||P.enem)*ac,vAsus:P.asus*ac,mate:op.mate!=null?Math.max(0,Math.min(12,op.mate)):P.mate,
     sale:P.sale.slice(),modos:P.modos.slice(),niveles:Math.max(1,Math.min(10,op.niveles||op.mapas&&op.mapas.length||1)),
-    limite:op.limite||0,invulnerable:!!op.invulnerable,libre:!!op.libre};
+    limite:op.limite||0,invulnerable:!!op.invulnerable,libre:!!op.libre,extra:op.extra!=null?op.extra:10000};
 }
 function velocidades(S){const C=S.cfg,n=S.nivel-1;
-  // cada nivel: +0,10 al jugador y +0,12 a los perseguidores (hasta 5,5 y 5,3); el mate dura 0,3 s menos (con un mínimo)
-  const vj=Math.min(C.vJug+.10*n,Math.max(C.vJug,5.5)),ve=Math.min(C.vEnem+.12*n,Math.max(C.vEnem,5.3));
-  const mate=C.mate<=0?0:Math.max(Math.min(C.mate,MATE_MIN[C.dif]),C.mate-.3*n);
+  // cada nivel: +0,08 al jugador y +0,12 a los perseguidores (con tope); el mate dura 0,4 s menos (con un mínimo)
+  const vj=Math.min(C.vJug+.08*n,Math.max(C.vJug,TOPE_JUG)),ve=Math.min(C.vEnem+.12*n,Math.max(C.vEnem,TOPE_ENEM));
+  const mate=C.mate<=0?0:Math.max(Math.min(C.mate,MATE_MIN[C.dif]),C.mate-.4*n);
   return {jug:Math.round(vj*U/FPS),enem:Math.round(ve*U/FPS),asus:Math.round(C.vAsus*U/FPS),
     vuelve:Math.round(VUELVE*U/FPS),casa:Math.round(CASA_V*U/FPS),mate:seg(mate)};}
 
 /* ── Partida ── */
 function crear(op,mapas){
   const cfg=config(op);
-  const S={cfg,mapasDef:mapas,nivel:1,vidas:cfg.vidas,puntos:0,paso:0,activo:0,estado:'cuenta',t:seg(3),fin:null,
+  const S={cfg,mapasDef:mapas,nivel:1,vidas:cfg.vidas,puntos:0,paso:0,activo:0,estado:'cuenta',t:seg(2),fin:null,congela:0,extraDada:false,
     a:cfg.semilla>>>0,ev:[],capturas:0,vidasPerdidas:0,mapasLimpios:0,recogidos:0,maxCombo:0,bonusComidos:0,mates:0,limpioSinMorir:0,muerteNivel:false};
   cargarNivel(S);return S;
 }
@@ -4053,38 +3945,58 @@ function cargarNivel(S){
   // Mate en 0 segundos: sus casillas son semillas comunes (y no se puede correr a nadie)
   if(S.cfg.mate<=0)for(let i=0;i<S.obj.length;i++)if(S.obj[i]===2)S.obj[i]=1;
   S.total=tot;S.quedan=tot;S.umbrales=[Math.ceil(tot*.35),Math.ceil(tot*.75)];S.umbralHecho=[false,false];S.recNivel=0;S.tNivel=0;S.muerteNivel=false;
+  // rincones de patrulla: afuera del mapa, en cada esquina (se llevan a la casilla más cercana)
+  S.esq=[[M.W-2,-3],[1,-3],[M.W-1,M.H+2],[0,M.H+2]];
   S.v=velocidades(S);reposicionar(S);
 }
 function reposicionar(S){
   const M=S.M,[px,py]=M.ini;
   S.jug={px:px*U,py:py*U,dir:1,want:-1,mov:true,boca:0};
-  const xs=M.casa.map(c=>c[0]),ys=M.casa.map(c=>c[1]),cx=M.puerta[0],cy=Math.round((Math.min(...ys)+Math.max(...ys))/2);
-  const slots=[[cx,cy],[cx-2,cy],[cx+2,cy],[cx,cy-1]];
+  const ys=M.casa.map(c=>c[1]),cx=M.puerta[0],cy=Math.round((Math.min(...ys)+Math.max(...ys))/2);
+  const slots=[[cx,M.puerta[1]-1],[cx-2,cy],[cx,cy],[cx+2,cy]];
   S.casaCentro=[cx,cy];S.salida=[M.puerta[0],M.puerta[1]-1];
-  S.enem=NOMBRES.slice(0,S.cfg.enemigos).map((N,i)=>({i,id:N.id,px:slots[i][0]*U,py:slots[i][1]*U,dir:i%2?3:1,st:'casa',sale:seg(S.cfg.sale[i]),rev:false,ya:false}));
-  S.modoIdx=0;S.modoT=seg(S.cfg.modos[0]);S.modo='patrulla';S.mateT=0;S.combo=0;S.bonus=null;S.prot=0;S.reloj=0;
+  // el Colorado arranca afuera, arriba del corral (como en las maquinitas); los otros adentro
+  S.enem=NOMBRES.slice(0,S.cfg.enemigos).map((N,i)=>({i,id:N.id,px:slots[i][0]*U,py:slots[i][1]*U,dir:1,st:i===0?'patrulla':'casa',sale:seg(S.cfg.sale[i]),rev:false,ya:false}));
+  S.modoIdx=0;S.modoT=seg(S.cfg.modos[0]);S.modo='patrulla';S.mateT=0;S.combo=0;S.bonus=null;S.prot=0;S.reloj=0;S.congela=0;
 }
 const tile=v=>Math.round(v/U);
 function enCentro(e){return e.px%U===0&&e.py%U===0;}
 function emit(S,tipo,o){S.ev.push({tipo,paso:S.paso,...(o||{})});}
 function azar(S){const [a,r]=rngSig(S.a);S.a=a;return r;}
+const tx=(M,px)=>((Math.round(px/U)%M.W)+M.W)%M.W;
 
-// Mueve una entidad «sp» unidades; en cada centro de casilla pregunta a «decide» hacia dónde seguir (null = se queda)
-function mover(S,e,sp,decide){
+// Mueve un perseguidor «sp» unidades; en cada centro de casilla pregunta a «decide» hacia dónde seguir (null = se queda)
+function mover(S,e,sp,decide,para){
   const M=S.M,WU=M.W*U;let rem=sp,guarda=0;
   while(rem>0&&guarda++<8){
-    if(enCentro(e)){const nd=decide(e,e.px/U,e.py/U);if(nd==null){e.mov=false;return;}e.dir=nd;e.mov=true;}
+    if(enCentro(e)){if(para&&e.px===para[0]*U&&e.py===para[1]*U)return true;   // llegó a donde iba (los ojos a la puerta)
+      const nd=decide(e,e.px/U,e.py/U);if(nd==null){e.mov=false;return;}e.dir=nd;e.mov=true;}
     const [dx,dy]=DIRS[e.dir],r=dx?((e.px%U)+U)%U:((e.py%U)+U)%U;
     const d=dx?(dx>0?U-r:(r||U)):(dy>0?U-r:(r||U));
     const s=Math.min(rem,d);e.px+=dx*s;e.py+=dy*s;rem-=s;
     if(e.px<0)e.px+=WU;if(e.px>=WU)e.px-=WU;
   }
 }
-// Jugador: gira en el primer centro donde se puede; la reversa es inmediata; contra una pared se queda en el centro
-function decideJug(S){return (e,x,y)=>{const M=S.M;
-  if(e.want>=0&&vecino(M,x,y,e.want)){const d=e.want;e.want=-1;return d;}
-  if(vecino(M,x,y,e.dir))return e.dir;
-  return null;};}
+// El jugador: dobla hasta ESQUINA unidades antes o después del centro del cruce y corta en diagonal; la reversa es
+// inmediata; contra una pared se queda en el centro con la orden guardada. Nunca atraviesa una pared ni una esquina.
+function moverJug(S,j,sp){
+  const M=S.M,WU=M.W*U;
+  if(j.want>=0&&j.want!==j.dir){
+    if(j.want===REV(j.dir)){j.dir=j.want;j.want=-1;}
+    else{const cx=Math.round(j.px/U),cy=Math.round(j.py/U),along=DIRS[j.dir][0]?j.px-cx*U:j.py-cy*U;
+      if(Math.abs(along)<=ESQUINA&&vecino(M,((cx%M.W)+M.W)%M.W,cy,j.want)){j.dir=j.want;j.want=-1;}}
+  }else if(j.want===j.dir)j.want=-1;
+  const [dx,dy]=DIRS[j.dir];
+  // lo que quedó del otro eje después de doblar se corrige sin gastar avance (por eso doblar bien es más rápido)
+  if(dx){const off=j.py-Math.round(j.py/U)*U;if(off)j.py-=Math.sign(off)*Math.min(sp,Math.abs(off));}
+  else{const off=j.px-Math.round(j.px/U)*U;if(off)j.px-=Math.sign(off)*Math.min(sp,Math.abs(off));}
+  const cx=Math.round(j.px/U),cy=Math.round(j.py/U),a=dx?(j.px-cx*U)*dx:(j.py-cy*U)*dy;
+  const libre=vecino(M,((cx%M.W)+M.W)%M.W,cy,j.dir);
+  const mov=libre?sp:Math.max(0,Math.min(sp,-a));
+  j.px+=dx*mov;j.py+=dy*mov;j.mov=mov>0;
+  if(j.px<0)j.px+=WU;if(j.px>=WU)j.px-=WU;
+  return mov;
+}
 // Distancias por caminos desde una casilla (para la IA). Se guardan por paso.
 function distDesde(S,x,y){const k=x+','+y;S._dc=S._dc&&S._dc.p===S.paso?S._dc:{p:S.paso};if(S._dc[k])return S._dc[k];
   const M=S.M,D=new Int16Array(M.W*M.H).fill(-1),q=[[x,y]];D[y*M.W+x]=0;
@@ -4095,15 +4007,16 @@ function proyectar(S,x,y){const M=S.M;x=Math.max(0,Math.min(M.W-1,x));y=Math.max
   if(pasaC(M.t[y*M.W+x]))return [x,y];
   for(let r=1;r<M.W+M.H;r++){let best=null;for(let dy=-r;dy<=r;dy++){const yy=y+dy;if(yy<0||yy>=M.H)continue;const rx=r-Math.abs(dy);for(const xx of rx?[x-rx,x+rx]:[x]){if(xx<0||xx>=M.W)continue;if(pasaC(M.t[yy*M.W+xx])&&(!best||yy<best[1]||(yy===best[1]&&xx<best[0])))best=[xx,yy];}}if(best)return best;}
   return [x,y];}
-const ESQ=[[19,1],[1,1],[19,23],[1,23]];
+// El Colorado se apura cuando quedan pocas semillas (y ya no se va a su rincón)
+const apuro=S=>S.quedan<=Math.max(8,Math.round(S.total*.05))?2:S.quedan<=Math.max(16,Math.round(S.total*.1))?1:0;
 function objetivo(S,e){
-  const j=S.jug,jx=tile(j.px),jy=tile(j.py),[dx,dy]=DIRS[j.dir];
-  if(S.modo==='patrulla')return proyectar(S,...ESQ[e.i]);
+  const j=S.jug,jx=tx(S.M,j.px),jy=tile(j.py),[dx,dy]=DIRS[j.dir];
+  if(S.modo==='patrulla'&&!(e.i===0&&apuro(S)))return proyectar(S,...S.esq[e.i]);
   if(e.i===0)return [jx,jy];
   if(e.i===1)return proyectar(S,jx+4*dx,jy+4*dy);
-  if(e.i===2){const c=S.enem[0]||e,cx=tile(c.px),cy=tile(c.py),p2x=jx+2*dx,p2y=jy+2*dy;return proyectar(S,2*p2x-cx,2*p2y-cy);}
-  const D=distDesde(S,jx,jy),dd=D[tile(e.py)*S.M.W+tile(e.px)];
-  return dd>6||dd<0?[jx,jy]:proyectar(S,...ESQ[3]);
+  if(e.i===2){const c=S.enem[0]||e,cx=tx(S.M,c.px),cy=tile(c.py),p2x=jx+2*dx,p2y=jy+2*dy;return proyectar(S,2*p2x-cx,2*p2y-cy);}
+  const D=distDesde(S,jx,jy),dd=D[tile(e.py)*S.M.W+tx(S.M,e.px)];
+  return dd>7||dd<0?[jx,jy]:proyectar(S,...S.esq[3]);
 }
 function decideEnem(S){return (e,x,y)=>{
   const M=S.M,legal=[];for(let d=0;d<4;d++)if(vecino(M,x,y,d))legal.push(d);
@@ -4111,15 +4024,19 @@ function decideEnem(S){return (e,x,y)=>{
   if(e.rev){e.rev=false;const r=REV(e.dir);if(legal.includes(r))return r;}
   let ops=legal.filter(d=>d!==REV(e.dir));if(!ops.length)ops=legal;
   if(e.st==='asusta'){return ops[Math.floor(azar(S)*ops.length)];}
-  const [tx,ty]=e.st==='vuelve'?S.salida:objetivo(S,e),D=distDesde(S,tx,ty);
-  let best=ops[0],bd=1e9;for(const d of ops){const v=vecino(M,x,y,d),dd=D[v[1]*M.W+v[0]];const k=dd<0?9999:dd;if(k<bd){bd=k;best=d;}}
+  // Los ojos vuelven por el camino más corto. Los demás eligen en cada cruce la salida que los deja más cerca (en línea
+  // recta) de su objetivo, sin mirar más allá: así presionan y cortan caminos, pero se los puede engañar dando la vuelta
+  // a una manzana (si fueran perfectos, no habría escape).
+  if(e.st==='vuelve'){const D=distDesde(S,S.salida[0],S.salida[1]);let best=ops[0],bd=1e9;for(const d of ops){const v=vecino(M,x,y,d),dd=D[v[1]*M.W+v[0]];const k=dd<0?9999:dd;if(k<bd){bd=k;best=d;}}return best;}
+  const [tx2,ty2]=objetivo(S,e);
+  let best=ops[0],bd=1e18;for(const d of ops){const nx=x+DIRS[d][0],ny=y+DIRS[d][1],k=(nx-tx2)*(nx-tx2)+(ny-ty2)*(ny-ty2);if(k<bd){bd=k;best=d;}}
   return best;};}
 // Movimiento guionado dentro del corral (entrar y salir por la puerta): primero en x, después en y
-function irA(e,tx,ty,sp){let rem=sp;tx*=U;ty*=U;
-  while(rem>0){if(e.px!==tx){const s=Math.min(rem,Math.abs(tx-e.px));e.px+=Math.sign(tx-e.px)*s;e.dir=tx>e.px?3:1;rem-=s;}
-    else if(e.py!==ty){const s=Math.min(rem,Math.abs(ty-e.py));e.py+=Math.sign(ty-e.py)*s;e.dir=ty>e.py?2:0;rem-=s;}else return true;}
-  return e.px===tx&&e.py===ty;}
-function enTunel(S,e){const y=tile(e.py),x=tile(e.px);return S.M.tuneles.includes(y)&&(x<=5||x>=S.M.W-6)&&e.py%U===0;}
+function irA(e,tx2,ty2,sp){let rem=sp;tx2*=U;ty2*=U;
+  while(rem>0){if(e.px!==tx2){const s=Math.min(rem,Math.abs(tx2-e.px));e.px+=Math.sign(tx2-e.px)*s;e.dir=tx2>e.px?3:1;rem-=s;}
+    else if(e.py!==ty2){const s=Math.min(rem,Math.abs(ty2-e.py));e.py+=Math.sign(ty2-e.py)*s;e.dir=ty2>e.py?2:0;rem-=s;}else return true;}
+  return e.px===tx2&&e.py===ty2;}
+function enTunel(S,e){const y=tile(e.py);if(!(y in S.M.tl)||e.py%U!==0)return false;const x=tx(S.M,e.px),l=S.M.tl[y];return x<l||x>=S.M.W-l;}
 
 // Distancia mínima entre dos movimientos rectos en un paso (para que un cruce de frente no pase de largo)
 function contacto(a0,a1,b0,b1,WU){
@@ -4134,51 +4051,55 @@ function contacto(a0,a1,b0,b1,WU){
 function paso(S,dir){
   S.ev.length=0;S.paso++;
   if(S.estado==='fin')return S;
-  if(dir>=0&&dir<4){const j=S.jug;if(!enCentro(j)&&dir===REV(j.dir)&&j.mov){j.dir=dir;j.want=-1;}else j.want=dir;}
-  if(S.estado==='cuenta'){if(--S.t<=0){S.estado='juega';S.prot=seg(1);emit(S,'arranca');if(S.pendLimpio){S.pendLimpio=false;nivelLimpio(S);}}return S;}
-  if(S.estado==='muerte'){if(--S.t<=0){if(S.vidas<=0){terminar(S,'perdio');return S;}reposicionar(S);S.estado='cuenta';S.t=seg(3);if(S.quedan===0)S.pendLimpio=true;}return S;}
-  if(S.estado==='nivel'){if(--S.t<=0){if(S.nivel>=S.cfg.niveles){terminar(S,'gano');return S;}S.nivel++;cargarNivel(S);S.estado='cuenta';S.t=seg(2);emit(S,'nivel_nuevo',{nivel:S.nivel});}return S;}
+  if(dir>=0&&dir<4)S.jug.want=dir;
+  if(S.estado==='cuenta'){if(--S.t<=0){S.estado='juega';S.prot=seg(.6);emit(S,'arranca');if(S.pendLimpio){S.pendLimpio=false;nivelLimpio(S);}}return S;}
+  if(S.estado==='muerte'){if(--S.t<=0){if(S.vidas<=0){terminar(S,'perdio');return S;}reposicionar(S);S.estado='cuenta';S.t=seg(1.6);if(S.quedan===0)S.pendLimpio=true;}return S;}
+  if(S.estado==='nivel'){if(--S.t<=0){if(S.nivel>=S.cfg.niveles){terminar(S,'gano');return S;}S.nivel++;cargarNivel(S);S.estado='cuenta';S.t=seg(1.6);emit(S,'nivel_nuevo',{nivel:S.nivel});}return S;}
   // jugando
   S.activo++;S.tNivel++;
+  if(S.congela>0){S.congela--;return S;}             // después de comerse a uno: todo quieto un ratito
   const M=S.M,W=M.W,j=S.jug,j0=[j.px,j.py];
-  mover(S,j,S.v.jug,decideJug(S));
-  if(j.mov)j.boca=(j.boca+1)%24;
+  if(moverJug(S,j,S.v.jug))j.boca++;
   // recoger
-  const tx=tile(j.px)%W,ty=tile(j.py),i=ty*W+tx;
+  const cx=tx(M,j.px),cy=tile(j.py),i=cy*W+cx;
   if(S.obj[i]){const o=S.obj[i];S.obj[i]=0;S.quedan--;S.recogidos++;S.recNivel++;
-    if(o===1){S.puntos+=PUNTOS.semilla;emit(S,'semilla',{x:tx,y:ty});}
-    else{S.puntos+=PUNTOS.mate;S.mates++;emit(S,'mate',{x:tx,y:ty});activarMate(S);}
+    if(o===1){S.puntos+=PUNTOS.semilla;emit(S,'semilla',{x:cx,y:cy});}
+    else{S.puntos+=PUNTOS.mate;S.mates++;emit(S,'mate',{x:cx,y:cy});activarMate(S);}
     const col=S.total-S.quedan;
-    for(let u=0;u<2;u++)if(!S.umbralHecho[u]&&col>=S.umbrales[u]){S.umbralHecho[u]=true;S.bonus={x:M.bonus[0],y:M.bonus[1],t:seg(9),v:Math.min(PUNTOS.bonusMax,PUNTOS.bonus*S.nivel)};emit(S,'bonus_aparece');}}
-  if(S.bonus){if(tx===S.bonus.x&&ty===S.bonus.y){S.puntos+=S.bonus.v;S.bonusComidos++;emit(S,'bonus',{x:tx,y:ty,pts:S.bonus.v});S.bonus=null;}else if(--S.bonus.t<=0){S.bonus=null;emit(S,'bonus_se_va');}}
+    for(let u=0;u<2;u++)if(!S.umbralHecho[u]&&col>=S.umbrales[u]){S.umbralHecho[u]=true;const F=frutaDe(S.nivel);S.bonus={x:M.bonus[0],y:M.bonus[1],t:seg(9),v:F.p,k:F.k,n:F.n};emit(S,'bonus_aparece',{k:F.k});}}
+  if(S.bonus){if(cx===S.bonus.x&&cy===S.bonus.y){S.puntos+=S.bonus.v;S.bonusComidos++;emit(S,'bonus',{x:cx,y:cy,pts:S.bonus.v,k:S.bonus.k});S.bonus=null;}else if(--S.bonus.t<=0){S.bonus=null;emit(S,'bonus_se_va');}}
   // mate y reloj de patrulla/persecución
-  if(S.mateT>0){if(--S.mateT<=0){for(const e of S.enem)if(e.st==='asusta')e.st=S.modo;emit(S,'mate_fin');}else if(S.mateT===seg(2))emit(S,'mate_aviso');}
+  if(S.mateT>0){if(--S.mateT<=0){for(const e of S.enem)if(e.st==='asusta')e.st=S.modo;S.combo=0;emit(S,'mate_fin');}else if(S.mateT===seg(1.5))emit(S,'mate_aviso');}
   else if(S.modoT>0&&--S.modoT<=0){S.modoIdx++;S.modo=S.modoIdx%2?'persigue':'patrulla';S.modoT=S.modoIdx<S.cfg.modos.length?seg(S.cfg.modos[S.modoIdx]):0;
     for(const e of S.enem)if(e.st==='patrulla'||e.st==='persigue'){e.st=S.modo;e.rev=true;}}
   if(S.prot>0)S.prot--;
   // perseguidores
-  S.reloj++;const dec=decideEnem(S),pos0=[];
+  S.reloj++;const dec=decideEnem(S),pos0=[],ap=apuro(S);
   for(const e of S.enem){pos0.push([e.px,e.py]);
     if(e.st==='casa'){if(S.reloj>=e.sale&&!S.enem.some(o=>o.st==='sale')){e.st='sale';}else continue;}
     if(e.st==='sale'){if(irA(e,S.salida[0],S.salida[1],S.v.casa)){e.st=S.mateT>0&&e.ya?'asusta':S.modo;e.dir=1;emit(S,'sale',{i:e.i});}continue;}
-    if(e.st==='entra'){if(irA(e,S.casaCentro[0],S.casaCentro[1],S.v.casa)){e.st='casa';e.sale=S.reloj+seg(2);e.ya=true;}continue;}
-    if(e.st==='vuelve'){mover(S,e,S.v.vuelve,dec);if(e.px===S.salida[0]*U&&e.py===S.salida[1]*U)e.st='entra';continue;}
-    let sp=e.st==='asusta'?S.v.asus:S.v.enem;if(enTunel(S,e))sp=Math.round(sp*TUNEL);
+    if(e.st==='entra'){if(irA(e,S.casaCentro[0],S.casaCentro[1],S.v.casa)){e.st='casa';e.sale=S.reloj+seg(1);e.ya=true;}continue;}
+    if(e.st==='vuelve'){if(mover(S,e,S.v.vuelve,dec,S.salida)||(e.px===S.salida[0]*U&&e.py===S.salida[1]*U))e.st='entra';continue;}
+    let sp=e.st==='asusta'?S.v.asus:S.v.enem;
+    if(e.i===0&&ap&&e.st!=='asusta')sp=Math.round(sp*(ap===2?1.1:1.05));
+    if(enTunel(S,e))sp=Math.round(sp*TUNEL);
     mover(S,e,sp,dec);}
   // contactos (protección después de morir: ni captura ni daño)
   let muere=false;
   if(S.prot<=0){for(let k=0;k<S.enem.length;k++){const e=S.enem[k];if(e.st!=='patrulla'&&e.st!=='persigue'&&e.st!=='asusta')continue;
-    const d=contacto(j0,[j.px,j.py],pos0[k],[e.px,e.py],W*U);if(d>.55*U)continue;
-    if(e.st==='asusta'){const p=PUNTOS.captura[Math.min(3,S.combo)];S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);S.puntos+=p;S.capturas++;e.st='vuelve';emit(S,'captura',{i:e.i,pts:p,x:tile(e.px),y:tile(e.py),combo:S.combo});}
+    const d=contacto(j0,[j.px,j.py],pos0[k],[e.px,e.py],W*U);if(d>.5*U)continue;
+    if(e.st==='asusta'){const p=PUNTOS.captura[Math.min(3,S.combo)];S.combo++;S.maxCombo=Math.max(S.maxCombo,S.combo);S.puntos+=p;S.capturas++;e.st='vuelve';S.congela=seg(.4);
+      emit(S,'captura',{i:e.i,pts:p,x:e.px/U,y:e.py/U,combo:S.combo});}
     else if(!S.cfg.invulnerable)muere=true;}}
-  if(muere){S.vidas--;S.vidasPerdidas++;S.muerteNivel=true;S.estado='muerte';S.t=seg(1.4);S.bonus=null;S.mateT=0;emit(S,'muere',{vidas:S.vidas});return S;}
+  if(muere){S.vidas--;S.vidasPerdidas++;S.muerteNivel=true;S.estado='muerte';S.t=seg(1.5);S.bonus=null;S.mateT=0;S.congela=0;emit(S,'muere',{vidas:S.vidas});return S;}
+  if(S.cfg.extra&&!S.extraDada&&S.puntos>=S.cfg.extra){S.extraDada=true;if(S.vidas<5){S.vidas++;emit(S,'vida',{vidas:S.vidas});}}
   if(S.quedan===0){nivelLimpio(S);return S;}
   if(S.cfg.limite&&S.activo>=seg(S.cfg.limite))terminar(S,'tiempo');
   return S;
 }
 function activarMate(S){if(S.v.mate<=0)return;S.mateT=S.v.mate;S.combo=0;emit(S,'mate_on');
   for(const e of S.enem)if(e.st==='patrulla'||e.st==='persigue'||e.st==='asusta'){if(e.st!=='asusta')e.rev=true;e.st='asusta';}}
-function nivelLimpio(S){S.mapasLimpios++;if(!S.muerteNivel)S.limpioSinMorir++;S.estado='nivel';S.t=seg(2);S.mateT=0;S.bonus=null;
+function nivelLimpio(S){S.mapasLimpios++;if(!S.muerteNivel)S.limpioSinMorir++;S.estado='nivel';S.t=seg(1.5);S.mateT=0;S.bonus=null;S.congela=0;
   for(const e of S.enem)if(e.st==='asusta')e.st=S.modo;
   emit(S,'limpio',{nivel:S.nivel,seg:Math.round(S.tNivel/FPS),sinMorir:!S.muerteNivel});}
 function terminar(S,como){S.estado='fin';S.fin=como;emit(S,'fin',{como});}
@@ -4186,29 +4107,51 @@ function terminar(S,como){S.estado='fin';S.fin=como;emit(S,'fin',{como});}
 /* ── Resumen de una partida (para premios, tablas y logros) ── */
 function resumen(S){return {modo:S.cfg.modo,dif:S.cfg.dif,fin:S.fin,puntos:S.puntos,nivel:S.nivel,seg:Math.round(S.activo/FPS),recogidos:S.recogidos,
   mapas:S.mapasLimpios,sinMorir:S.limpioSinMorir,capturas:S.capturas,maxCombo:S.maxCombo,vidasPerdidas:S.vidasPerdidas,bonus:S.bonusComidos,mates:S.mates};}
-// ¿Vale para premios? Al menos 60 segundos activos y 30 cosas recogidas, o un mapa limpio (cap. 14 del diseño)
+// ¿Vale para premios? Al menos 60 segundos activos y 30 cosas recogidas, o un mapa limpio
 function valida(r){return (r.seg>=60&&r.recogidos>=30)||r.mapas>=1;}
 
-/* ── Jugador automático (para las pruebas y para la demo del menú): va a la semilla más cercana esquivando ── */
-function auto(S){const j=S.jug,M=S.M,W=M.W;const cen=enCentro(j);
-  // decide para el próximo centro al que llega (la orden queda guardada hasta ahí, como con el dedo)
-  let x=(Math.round(j.px/U))%W,y=Math.round(j.py/U);if(!cen){const [dx,dy]=DIRS[j.dir];x=dx>0?Math.ceil(j.px/U)%W:dx<0?Math.floor(j.px/U):x;y=dy>0?Math.ceil(j.py/U):dy<0?Math.floor(j.py/U):y;if(!pasaC(celda(M,x,y))){x=Math.round(j.px/U)%W;y=Math.round(j.py/U);}}
-  const gh=S.enem.filter(e=>e.st==='patrulla'||e.st==='persigue').map(e=>[tile(e.px)%W,tile(e.py)]);
-  const cerca=(cx,cy)=>gh.reduce((m,[gx,gy])=>Math.min(m,Math.abs(gx-cx)+Math.abs(gy-cy)),99);
-  const prim=new Int8Array(W*M.H).fill(-1),vis=new Uint8Array(W*M.H),q=[[x,y]];vis[y*W+x]=1;let mas=-1;
-  for(let h=0;h<q.length;h++){const [cx,cy]=q[h];const i=cy*W+cx;if(h&&S.obj[i]&&mas<0)mas=i;
-    for(let d=0;d<4;d++){const v=vecino(M,cx,cy,d);if(!v)continue;const k=v[1]*W+v[0];if(vis[k]||cerca(v[0],v[1])<=1)continue;vis[k]=1;prim[k]=h?prim[i]:d;q.push(v);}}
-  if(S._bt==null||!S.obj[S._bt]||!vis[S._bt])S._bt=mas>=0?mas:null;
-  const no=d=>!cen&&d===REV(j.dir)&&cerca(x,y)>2;   // sin peligro, no pega la vuelta en medio del pasillo
-  if(S._bt!=null&&prim[S._bt]>=0&&!no(prim[S._bt]))return prim[S._bt];
-  if(S._bt!=null&&prim[S._bt]>=0)return -1;
-  let best=-1,bd=-1;for(let d=0;d<4;d++){const v=vecino(M,x,y,d);if(!v)continue;const c=cerca(v[0],v[1]);if(c>bd){bd=c;best=d;}}return best;}
+/* ── Jugador automático (pruebas y la demo del inicio) ──
+   Calcula para cada casilla quién llega antes: el corredor o el perseguidor más cercano (por caminos). Va a la semilla
+   más cercana por casillas «seguras» (donde llega antes con margen); si no hay, se escapa hacia donde más ventaja tiene.
+   Con el mate encendido, sale a cazar. Sirve para medir que en los mapas hay escapes. */
+function bfsDesde(M,x,y,D){D.fill(-1);const q=[x,y];D[y*M.W+x]=0;for(let h=0;h<q.length;h+=2){const cx=q[h],cy=q[h+1],b=D[cy*M.W+cx];for(let d=0;d<4;d++){const v=vecino(M,cx,cy,d);if(!v)continue;const i=v[1]*M.W+v[0];if(D[i]<0){D[i]=b+1;q.push(v[0],v[1]);}}}return D;}
+function auto(S){const j=S.jug,M=S.M,W=M.W,N=W*M.H;
+  // la próxima casilla a la que llega (ahí se decide, como con el dedo)
+  let x=tx(M,j.px),y=tile(j.py);
+  if(!enCentro(j)){const [dx,dy]=DIRS[j.dir],ax=dx?(j.px-Math.round(j.px/U)*U)*dx:(j.py-Math.round(j.py/U)*U)*dy;if(ax>0){const v=vecino(M,x,y,j.dir);if(v){x=v[0];y=v[1];}}}
+  const clave=y*W+x+':'+S.estado;if(S._bk===clave&&S._bd!=null&&!S.enem.some(e=>e.st==='asusta'))return S._bd;   // ya decidió para esta casilla
+  S._bk=clave;S._bd=elegir();return S._bd;
+  function elegir(){
+  S._ad=S._ad||{P:new Int16Array(N),G:new Int16Array(N),T:new Int16Array(N)};const A=S._ad;
+  bfsDesde(M,x,y,A.P);A.G.fill(32000);
+  const peligro=S.enem.filter(e=>e.st==='patrulla'||e.st==='persigue');
+  for(const e of peligro){bfsDesde(M,tx(M,e.px),tile(e.py),A.T);for(let i=0;i<N;i++)if(A.T[i]>=0&&A.T[i]<A.G[i])A.G[i]=A.T[i];}
+  const vj=S.v.jug,ve=S.v.enem,seguro=i=>A.P[i]>=0&&(A.P[i]*ve+2*ve<A.G[i]*vj);   // llego antes que todos, con margen
+  // primer paso hacia cada casilla, por casillas seguras
+  const prim=new Int8Array(N).fill(-1),vis=new Uint8Array(N),q=[x,y];vis[y*W+x]=1;let meta=-1,caza=-1;
+  const presa=S.mateT>seg(1)?new Set(S.enem.filter(e=>e.st==='asusta').map(e=>tile(e.py)*W+tx(M,e.px))):null;
+  for(let h=0;h<q.length;h+=2){const cx=q[h],cy=q[h+1],i=cy*W+cx;
+    if(h){if(presa&&caza<0&&presa.has(i))caza=i;if(meta<0&&(S.obj[i]||(S.bonus&&S.bonus.x===cx&&S.bonus.y===cy)))meta=i;}
+    for(let d=0;d<4;d++){const v=vecino(M,cx,cy,d);if(!v)continue;const k=v[1]*W+v[0];if(vis[k]||(!presa&&!seguro(k)))continue;vis[k]=1;prim[k]=h?prim[i]:d;q.push(v[0],v[1]);}}
+  if(caza>=0&&prim[caza]>=0)return prim[caza];
+  if(meta>=0&&prim[meta]>=0){S._sinComer=0;return prim[meta];}
+  // nada seguro a la vista: si hace rato que no come, se arriesga (llegar antes alcanza, sin margen)
+  S._sinComer=(S._sinComer||0)+1;
+  if(S._sinComer>seg(2)){const p2=new Int8Array(N).fill(-1),v2=new Uint8Array(N),q2=[x,y];v2[y*W+x]=1;let m2=-1;
+    for(let h=0;h<q2.length&&m2<0;h+=2){const cx=q2[h],cy=q2[h+1],i=cy*W+cx;if(h&&S.obj[i]){m2=i;break;}
+      for(let d=0;d<4;d++){const v=vecino(M,cx,cy,d);if(!v)continue;const k=v[1]*W+v[0];if(v2[k]||!(A.P[k]*ve<A.G[k]*vj))continue;v2[k]=1;p2[k]=h?p2[i]:d;q2.push(v[0],v[1]);}}
+    if(m2>=0&&p2[m2]>=0)return p2[m2];}
+  // sin camino seguro: hacia el vecino con más ventaja (más lejos de ellos), mirando un poco más allá
+  let best=-1,bv=-1e9;for(let d=0;d<4;d++){const v=vecino(M,x,y,d);if(!v)continue;let val=A.G[v[1]*W+v[0]];
+    bfsDesde(M,v[0],v[1],A.T);let mejor=-1e9;for(let i=0;i<N;i++)if(A.T[i]>=0&&A.T[i]<=8){const m=A.G[i]-A.T[i];if(m>mejor)mejor=m;}val=val*2+mejor;
+    if(val>bv){bv=val;best=d;}}
+  return best;}}
 
 // Mapa del día: el mismo para todos (la fecha argentina elige mapa y semilla)
 function delDia(fecha,n){const h=hash('LAB·'+fecha);return {mapa:h%n,semilla:(h>>>8)||1};}
 
 const objetivoDe=(S,e)=>e.st==='vuelve'?S.salida:objetivo(S,e);
-return {objetivoDe,U,FPS,DIRS,PRESETS,PUNTOS,NOMBRES,leer,validar,config,crear,paso,resumen,valida,auto,delDia,hash,seg,tile,vecino,pasaC,celda,proyectar,contacto,ESQ};
+return {objetivoDe,U,FPS,DIRS,PRESETS,PUNTOS,FRUTAS,frutaDe,NOMBRES,ESQUINA,leer,validar,metricas,config,crear,paso,resumen,valida,auto,delDia,hash,seg,tile,vecino,pasaC,celda,proyectar,contacto};
 })();
 
 </script>
@@ -4317,12 +4260,21 @@ function iniciarComun(busy){
 /* ───────── LaberintAR · pantalla, controles, modos y premios ─────────
    Usa lo común de los solitarios (solos/comun.js: hojas, menú, carteles, XP y premios, del día) y el motor (laberinto/motor.js).
    El tablero es un canvas; el motor avanza a 60 pasos por segundo pase lo que pase con los cuadros (si la pantalla va a
-   30, da dos pasos por cuadro; a 120, uno cada dos), y lo que se ve se interpola entre paso y paso. */
-const M_RAPIDA=[0,1,2,3,4,5,6,7,8,9];
-// Campaña: 15 etapas (los 10 mapas y 5 más), en tres regiones. Estrellas: limpiarlo · sin perder vidas · antes del tiempo.
-const ETAPAS=[0,10,1,11,2, 3,12,4,13,5, 6,14,7,8,9].map((m,i)=>({i,m,obj:i<5?150:i<10?135:120,reg:['Patio','Estación','Pampa nocturna'][Math.floor(i/5)]}));
+   30, da dos pasos por cuadro; a 120, uno cada dos).
+   v74 (pedido del 25/10: «que se parezca más al original de maquinita… frenético y adictivo»): pantalla de maquinita de
+   los 80 — fondo negro, paredes de neón de doble línea, pastillas que brillan, letras de píxeles, el puntaje y el récord
+   arriba del laberinto, las vidas abajo —, sonido chiptune propio (el «waka» al comer, la sirena que sube cuando quedan
+   pocas semillas, la fuga cuando están asustados, los ojos que vuelven), demo en el inicio, temblor y congelado al
+   comerse a uno, animación de muerte corta y laberinto que titila al limpiarlo. Personajes propios: el corredor es un
+   pajarito y los perseguidores son bichos de campo (nada del juego original). */
+const NM=MAPAS.length;
+const M_RAPIDA=Array.from({length:10},(_,i)=>i%NM);
+// Campaña: 15 etapas, los 5 mapas en tres regiones (cada región, un poco más rápida). Estrellas: limpiarla · sin perder
+// vidas · antes del tiempo.
+const REGIONES=['Patio','Estación','Pampa nocturna'];
+const ETAPAS=Array.from({length:15},(_,i)=>({i,m:i%NM,reg:Math.floor(i/5),acel:[1,1.06,1.12][Math.floor(i/5)],obj:[100,95,90][Math.floor(i/5)]}));
 const DIFN={facil:'Fácil',normal:'Normal',dificil:'Difícil'};
-const PREF=Object.assign({ctrl:'pad',zurdo:false,umbral:18,objetivos:false},ls.json('laberinto-pref',{}));
+const PREF=Object.assign({ctrl:'pad',zurdo:false,umbral:14,objetivos:false},ls.json('laberinto-pref',{}));
 const guardaPref=()=>ls.set('laberinto-pref',JSON.stringify(PREF));
 const REC=()=>ls.json('laberinto-records-v1',{});
 const ESTR=()=>ls.json('laberinto-campana-v1',{});
@@ -4330,244 +4282,354 @@ const DIAS=()=>ls.json('laberinto-dias-v1',{});
 const diaAR=(t=Date.now())=>new Date(t-3*3600e3).toISOString().slice(0,10);
 const esPC=matchMedia('(hover:hover) and (pointer:fine)').matches&&!('ontouchstart' in window&&navigator.maxTouchPoints>0);
 if(esPC)document.body.classList.add('pc');
+const HUD_T=1.75,HUD_B=1.0;            // filas (en casillas) del puntaje arriba y de las vidas abajo
+const LADO=6.5;                       // o columnas al costado, si el laberinto queda más grande así
 
-/* ── Sonidos (cortitos, sintetizados) ── */
+/* ── Letras de píxeles (5×7, propias) ── */
+const FONT={A:'01110100011000111111100011000110001',B:'11110100011000111110100011000111110',C:'01110100011000010000100001000101110',D:'11110100011000110001100011000111110',
+  E:'11111100001000011110100001000011111',F:'11111100001000011110100001000010000',G:'01110100011000010111100011000101111',H:'10001100011000111111100011000110001',
+  I:'01110001000010000100001000010001110',J:'00111000100001000010000101001001100',K:'10001100101010011000101001001010001',L:'10000100001000010000100001000011111',
+  M:'10001110111010110101100011000110001',N:'10001110011010110011100011000110001',O:'01110100011000110001100011000101110',P:'11110100011000111110100001000010000',
+  Q:'01110100011000110001101011001001101',R:'11110100011000111110101001001010001',S:'01111100001000001110000010000111110',T:'11111001000010000100001000010000100',
+  U:'10001100011000110001100011000101110',V:'10001100011000110001100010101000100',W:'10001100011000110101101011010101010',X:'10001100010101000100010101000110001',
+  Y:'10001100010101000100001000010000100',Z:'11111000010001000100010001000011111','0':'01110100011001110101110011000101110','1':'00100011000010000100001000010001110',
+  '2':'01110100010000100010001000100011111','3':'11111000100010000010000011000101110','4':'00010001100101010010111110001000010','5':'11111100001111000001000011000101110',
+  '6':'00110010001000011110100011000101110','7':'11111000010001000100010000100001000','8':'01110100011000101110100011000101110','9':'01110100011000101111000010001001100',
+  '!':'00100001000010000100001000000000100','¡':'00100000000010000100001000010000100','-':'00000000000000011111000000000000000','·':'00000000000000000100000000000000000',
+  ':':'00000001000000000000000000010000000','.':'00000000000000000000000000000000100','/':'00001000100001000100010000100010000','×':'00000100010101000100010101000100000',
+  '?':'01110100010000100010001000000000100',"'":'00100001000000000000000000000000000',' ':'00000000000000000000000000000000000'};
+const ACENTO={'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
+function pixAncho(txt,p){return Math.max(0,String(txt).length*6*p-p);}
+// Dibuja texto de píxeles. p = tamaño del píxel; al = 'izq' | 'centro' | 'der'
+function pix(g,txt,x,y,p,col,al){txt=String(txt).toUpperCase();const w=pixAncho(txt,p);if(al==='centro')x-=w/2;else if(al==='der')x-=w;
+  g.fillStyle=col;x=Math.round(x);y=Math.round(y);
+  for(let k=0;k<txt.length;k++){let ch=txt[k];const ac=ACENTO[ch];if(ac)ch=ac;const f=FONT[ch]||FONT['?'],ox=x+k*6*p;
+    for(let r=0;r<7;r++)for(let c=0;c<5;c++)if(f[r*5+c]==='1')g.fillRect(ox+c*p,y+r*p,p,p);
+    if(ac){if(txt[k]==='Ñ'){g.fillRect(ox+p,y-2*p,p,p);g.fillRect(ox+2*p,y-3*p,p,p);g.fillRect(ox+3*p,y-2*p,p,p);}else{g.fillRect(ox+2*p,y-2*p,p,p);g.fillRect(ox+3*p,y-3*p,p,p);}}}}
+
+/* ── Sonido: chiptune propio, todo sintetizado ── */
+const AUD={k:null,n:null,alt:false,tSem:0};
+function tono(f1,f2,d,v,tipo='square',t0=0){const a=actx();if(!a||!SND)return;const t=a.currentTime+t0,o=a.createOscillator(),g=a.createGain();o.type=tipo;
+  o.frequency.setValueAtTime(f1,t);if(f2!==f1)o.frequency.exponentialRampToValueAtTime(Math.max(30,f2),t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.setValueAtTime(v,t+d*.75);g.gain.linearRampToValueAtTime(0,t+d);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02);o.onended=()=>{try{o.disconnect();g.disconnect();}catch(_){}};}
 Object.assign(SX,{
-  semilla(){nota(LAB_S.alt?740:660,0,.05,.018,'square');LAB_S.alt=!LAB_S.alt;},
-  mate(){[392,523,659].forEach((f,i)=>nota(f,i*.06,.16,.04));},
-  captura(){nota(880,0,.08,.05);nota(1320,.07,.14,.05);},
-  muere(){[520,440,370,300,240].forEach((f,i)=>nota(f,i*.09,.14,.045,'sawtooth'));},
-  nivel(){[523,659,784,1046].forEach((f,i)=>nota(f,i*.09,.2,.045));},
-  bonus(){nota(988,0,.1,.05);nota(1318,.08,.18,.05);},
-  aviso(){nota(330,0,.12,.03);nota(330,.25,.12,.03);},
-  arranca(){nota(523,0,.1,.035);nota(784,.12,.18,.04);},
-  record(){[659,784,988,1318].forEach((f,i)=>nota(f,i*.08,.22,.045));}
+  waka(){AUD.alt=!AUD.alt;AUD.alt?tono(560,240,.075,.035):tono(240,560,.075,.035);},
+  mate(){tono(220,880,.22,.04,'square');tono(330,1320,.22,.02,'triangle',.02);},
+  captura(){[0,1,2,3].forEach(i=>tono(300+i*220,520+i*260,.06,.04,'sawtooth',i*.05));tono(1600,700,.12,.03,'square',.2);},
+  muere(){tono(900,120,1.1,.045,'sawtooth');[0,1,2,3,4,5].forEach(i=>tono(700-i*90,640-i*90,.07,.025,'square',i*.15));},
+  limpio(){[523,659,784,1046,784,1046].forEach((f,i)=>tono(f,f,.11,.04,'square',i*.1));},
+  bonus(){tono(880,1760,.08,.04);tono(1320,1980,.14,.035,'square',.08);},
+  vida(){[784,988,1175,1568,1175,1568].forEach((f,i)=>tono(f,f,.09,.035,'square',i*.08));},
+  // la musiquita del comienzo: propia, de 1,6 s
+  arranque(){const N=[523,659,784,659,880,784,659,523,587,698,880,1046];N.forEach((f,i)=>{tono(f,f,.11,.035,'square',i*.13);tono(f/2,f/2,.11,.025,'triangle',i*.13);});},
+  record(){[659,784,988,1318].forEach((f,i)=>tono(f,f,.18,.04,'square',i*.1));}
 });
-const LAB_S={alt:false,tSem:0};
+// Los sonidos que siguen sonando: sirena (más aguda cuanto menos semillas quedan), fuga (asustados) y ojos que vuelven
+function bucleSonido(k,prog){const a=AC;
+  if(!SND||!a||a.state!=='running'||document.hidden)k=null;
+  if(AUD.k===k){if(k==='sirena'&&AUD.n){const f=320+260*prog,r=1.5+1.8*prog;AUD.n.o.frequency.setTargetAtTime(f,a.currentTime,.3);AUD.n.l.frequency.setTargetAtTime(r,a.currentTime,.3);}return;}
+  if(AUD.n){const n=AUD.n;try{n.g.gain.setTargetAtTime(0,a.currentTime,.03);setTimeout(()=>{try{n.o.stop();n.l.stop();n.o.disconnect();n.l.disconnect();n.g.disconnect();}catch(_){}},150);}catch(_){}AUD.n=null;}
+  AUD.k=k;if(!k)return;
+  try{const o=a.createOscillator(),l=a.createOscillator(),lg=a.createGain(),f=a.createBiquadFilter(),g=a.createGain();
+    const P={sirena:['triangle',320+260*prog,'triangle',1.5+1.8*prog,90,1800,.05],fuga:['square',170,'square',7.5,60,900,.022],ojos:['sawtooth',1150,'triangle',12,380,2600,.014]}[k];
+    o.type=P[0];o.frequency.value=P[1];l.type=P[2];l.frequency.value=P[3];lg.gain.value=P[4];f.type='lowpass';f.frequency.value=P[5];
+    l.connect(lg).connect(o.frequency);o.connect(f).connect(g).connect(a.destination);g.gain.value=0;g.gain.setTargetAtTime(P[6],a.currentTime,.04);
+    o.start();l.start();AUD.n={o,l,g};}catch(_){AUD.n=null;}}
 
-/* ── Apariencia (temas del tablero y corredores; sólo se ven distintos) ── */
+/* ── Apariencia (paredes de neón y corredores; sólo se ven distintos) ── */
 const TEMAS={
-  campo:{fondo:'#0f1813',pared:'#1d3a28',borde:'#79c97b',borde2:'#2f5a3a',sem:'#e8c45a',puerta:'#e2a65a'},
-  galpon:{fondo:'#16120f',pared:'#4a2a1e',borde:'#d98a52',borde2:'#6e3b26',sem:'#f1d38a',puerta:'#c9c2b0'},
-  malvones:{fondo:'#141017',pared:'#3d1f34',borde:'#e07aa8',borde2:'#5e2c4d',sem:'#f7e2a0',puerta:'#9fd68a'},
-  faroles:{fondo:'#0b0f1a',pared:'#1b2442',borde:'#f2c14e',borde2:'#33406b',sem:'#ffe6a6',puerta:'#f2c14e'},
-  jacaranda:{fondo:'#120f1a',pared:'#2e2350',borde:'#a98be8',borde2:'#4a3a7a',sem:'#f4e6b0',puerta:'#c7b2ff'},
-  cielo:{fondo:'#0b1420',pared:'#173252',borde:'#8fd0ff',borde2:'#28507a',sem:'#ffe9a8',puerta:'#bfe4ff'}
+  campo:{pared:[47,107,255],brillo:[170,195,255],relleno:[3,6,26]},
+  galpon:{pared:[255,122,47],brillo:[255,214,176],relleno:[20,7,0]},
+  malvones:{pared:[255,63,164],brillo:[255,196,228],relleno:[20,1,10]},
+  faroles:{pared:[255,204,51],brillo:[255,242,190],relleno:[18,16,0]},
+  jacaranda:{pared:[164,107,255],brillo:[226,206,255],relleno:[11,4,24]},
+  cielo:{pared:[38,214,255],brillo:[200,246,255],relleno:[1,18,24]}
 };
 const PJS={
-  semillero:{c:'#e8c45a',c2:'#b4892a'},panuelo:{c:'#e8c45a',c2:'#b4892a',acc:'panuelo'},boina:{c:'#e8c45a',c2:'#b4892a',acc:'boina'},
-  matero:{c:'#d9b562',c2:'#a07c2a',acc:'mate'},jacaranda:{c:'#b99be8',c2:'#7d5fb8'},fileteado:{c:'#f2c14e',c2:'#2a6b3a',acc:'filete'},
-  noche:{c:'#3d4f7a',c2:'#20294a',acc:'estrellas'},poncho:{c:'#e8c45a',c2:'#b4892a',acc:'poncho'},luciernaga:{c:'#d6f27a',c2:'#8ab63a',acc:'luz'}
+  semillero:{c:'#ffd23f',c2:'#e39a14'},panuelo:{c:'#ffd23f',c2:'#e39a14',acc:'panuelo'},boina:{c:'#ffd23f',c2:'#e39a14',acc:'boina'},
+  matero:{c:'#f2c25a',c2:'#b8862a',acc:'mate'},jacaranda:{c:'#c9a6ff',c2:'#8a62d9'},fileteado:{c:'#ffd23f',c2:'#2a8a4a',acc:'filete'},
+  noche:{c:'#5a74c9',c2:'#2c3a7a',acc:'estrellas'},poncho:{c:'#ffd23f',c2:'#e39a14',acc:'poncho'},luciernaga:{c:'#d8ff6a',c2:'#8ac23a',acc:'luz'}
 };
 const apar=t=>{try{return window.LOGROS?LOGROS.apariencia('laberinto',t):'';}catch(_){return '';}};
 
 /* ── Estado de la pantalla ── */
-const G={S:null,op:null,run:'',pausa:true,acc:0,last:0,held:-1,once:-1,prev:null,cell:16,ox:0,oy:0,dpr:1,muros:null,murosK:'',flot:[],fin:false,raf:0,guardT:0,mateMax:1,objMostrar:false,recIni:0};
+const G={S:null,D:null,op:null,run:'',pausa:true,acc:0,last:0,held:-1,once:-1,prev:null,cell:16,dpr:1,muros:null,murosK:'',flot:[],fin:false,raf:0,guardT:0,mateMax:1,
+  objMostrar:false,recIni:0,shake:0,plumas:null,vidaT:0,hudK:'',hudC:null};
 const cv=$('cv'),cx=cv.getContext('2d');
+const juegoActivo=()=>G.S&&!G.fin;
 
-// Acostado y bajo: el HUD va a la columna de los controles, así el tablero usa todo el alto
-const ACOST=matchMedia('(orientation:landscape) and (max-height:560px)');
-function ubicarHud(){const h=$('hud'),c=$('ctrl');if(ACOST.matches){if(h.parentNode!==c)c.insertBefore(h,c.firstChild);}else if(h.parentNode===c){$('app').insertBefore(h,$('app').children[1]);}}
 function acomodar(){
-  ubicarHud();const vp=$('vp');if(!vp)return;const w=vp.clientWidth,h=vp.clientHeight;if(!w||!h)return;
-  const S=G.S,W=S?S.M.W:21,H=S?S.M.H:25;
-  G.cell=Math.max(8,Math.floor(Math.min((w-8)/W,(h-8)/H)));G.dpr=Math.min(3,window.devicePixelRatio||1);
-  const bw=G.cell*W,bh=G.cell*H;G.ox=Math.floor((w-bw)/2);G.oy=Math.floor((h-bh)/2);
-  cv.style.left=G.ox+'px';cv.style.top=G.oy+'px';cv.style.width=bw+'px';cv.style.height=bh+'px';
-  cv.width=Math.round(bw*G.dpr);cv.height=Math.round(bh*G.dpr);G.murosK='';dibujar(1);
+  const vp=$('vp');if(!vp)return;const w=vp.clientWidth,h=vp.clientHeight;if(!w||!h)return;
+  const S=G.S||G.D,W=S?S.M.W:23,H=S?S.M.H:27;
+  // Dos formas: el puntaje arriba y las vidas abajo (parado), o todo en una columna al costado (acostado, compu): la que
+  // deja el laberinto más grande
+  const cA=Math.floor(Math.min((w-4)/W,(h-4)/(H+HUD_T+HUD_B))),cB=Math.floor(Math.min((w-4)/(W+LADO),(h-4)/H));
+  G.lado=cB>cA;G.cell=Math.max(8,G.lado?cB:cA);G.dpr=Math.min(3,window.devicePixelRatio||1);
+  G.mx=G.lado?LADO:0;G.my=G.lado?0:HUD_T;
+  const bw=Math.round(G.cell*(G.lado?W+LADO:W)),bh=Math.round(G.cell*(G.lado?H:H+HUD_T+HUD_B));
+  cv.style.left=Math.floor((w-bw)/2)+'px';cv.style.top=Math.floor((h-bh)/2)+'px';cv.style.width=bw+'px';cv.style.height=bh+'px';
+  cv.width=Math.round(bw*G.dpr);cv.height=Math.round(bh*G.dpr);G.murosK='';G.hudK='';
+  // el botón de pausa: afuera del tablero si sobra lugar al costado (compu, acostado); si no, arriba a la derecha
+  const hb=$('hud'),afuera=!G.lado&&(w-bw)/2>=54;G.pausaAfuera=afuera;
+  if(hb){hb.style.left=Math.floor((w-bw)/2)+'px';hb.style.width=(G.lado?Math.round(G.cell*(LADO-.3)):bw+(afuera?52:0))+'px';hb.style.top=Math.floor((h-bh)/2)+'px';hb.style.setProperty('--hud-h',Math.max(30,Math.round(G.cell*HUD_T))+'px');}
+  dibujar(1);
 }
-// Las paredes se dibujan una vez por mapa/tema/tamaño: relleno + borde doble del lado del pasillo (como una guarda)
-function muros(){
-  const S=G.S,M=S.M,tema=TEMAS[apar('tema')]||TEMAS.campo,k=S.mapaIdx+'|'+apar('tema')+'|'+G.cell+'|'+G.dpr;
-  if(G.murosK===k&&G.muros)return G.muros;
-  const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;const g=c.getContext('2d'),s=G.cell*G.dpr;
-  g.fillStyle=tema.fondo;g.fillRect(0,0,c.width,c.height);
-  const pared=(x,y)=>{const ch=LAB.celda(M,x,y);return ch==='#'||ch==='H'&&false;};
-  const esP=(x,y)=>{if(x<0||x>=M.W||y<0||y>=M.H)return true;return M.t[y*M.W+x]==='#';};
-  g.fillStyle=tema.pared;
-  for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++)if(esP(x,y)){g.fillRect(x*s,y*s,s+.5,s+.5);}
-  // bordes del lado del pasillo
-  const lw=Math.max(1.2,s*.09),ins=s*.22;g.lineCap='round';
-  const linea=(col,w,off)=>{g.strokeStyle=col;g.lineWidth=w;g.beginPath();
-    for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++){if(!esP(x,y))continue;const X=x*s,Y=y*s,o=ins+off;
-      if(!esP(x,y-1)){g.moveTo(X+(esP(x-1,y)?0:o),Y+o);g.lineTo(X+s-(esP(x+1,y)?0:o),Y+o);}
-      if(!esP(x,y+1)){g.moveTo(X+(esP(x-1,y)?0:o),Y+s-o);g.lineTo(X+s-(esP(x+1,y)?0:o),Y+s-o);}
-      if(!esP(x-1,y)){g.moveTo(X+o,Y+(esP(x,y-1)?0:o));g.lineTo(X+o,Y+s-(esP(x,y+1)?0:o));}
-      if(!esP(x+1,y)){g.moveTo(X+s-o,Y+(esP(x,y-1)?0:o));g.lineTo(X+s-o,Y+s-(esP(x,y+1)?0:o));}}
-    g.stroke();};
-  linea(tema.borde2,lw*2.4,0);linea(tema.borde,lw,0);
-  // corral y puerta
-  for(const [x,y] of M.casa){g.fillStyle='rgba(255,255,255,.035)';g.fillRect(x*s,y*s,s,s);}
-  const [px,py]=M.puerta;g.fillStyle=tema.puerta;g.fillRect(px*s+s*.1,py*s+s*.42,s*.8,s*.16);
-  G.muros=c;G.murosK=k;return c;
+
+/* ── Paredes de neón: se calculan una vez por mapa/tema/tamaño ──
+   Máscara de paredes → desenfoque (tres pasadas de caja) → dos líneas a distinta profundidad (la de afuera en todas las
+   paredes, la de adentro sólo en las gruesas y en el borde: por eso el borde queda con doble línea, como las maquinitas)
+   → un brillo alrededor. Las esquinas salen redondeadas solas. */
+function cajaBlur(src,w,h,r,out,tmp){const d=2*r+1;
+  for(let y=0;y<h;y++){const o=y*w;let acc=0;for(let k=-r;k<=r;k++)acc+=src[o+(k<0?0:k>=w?w-1:k)];
+    for(let x=0;x<w;x++){tmp[o+x]=acc/d;const a=x+r+1,b=x-r;acc+=src[o+(a>=w?w-1:a)]-src[o+(b<0?0:b)];}}
+  for(let x=0;x<w;x++){let acc=0;for(let k=-r;k<=r;k++)acc+=tmp[(k<0?0:k>=h?h-1:k)*w+x];
+    for(let y=0;y<h;y++){out[y*w+x]=acc/d;const a=y+r+1,b=y-r;acc+=tmp[(a>=h?h-1:a)*w+x]-tmp[(b<0?0:b)*w+x];}}}
+function blur3(a,w,h,r){const t=new Float32Array(w*h),b=new Float32Array(w*h);cajaBlur(a,w,h,r,b,t);cajaBlur(b,w,h,r,a,t);cajaBlur(a,w,h,r,b,t);return b;}
+function construirMuros(M,cell,dprMax,tema){
+  const q=Math.min(dprMax,2),s=cell*q,w=Math.round(M.W*s),h=Math.round(M.H*s);
+  const m=new Float32Array(w*h);
+  for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++)if(M.t[y*M.W+x]==='#'){const x0=Math.round(x*s),x1=Math.round((x+1)*s),y0=Math.round(y*s),y1=Math.round((y+1)*s);
+    for(let yy=y0;yy<y1;yy++)m.fill(1,yy*w+x0,yy*w+x1);}
+  const r=Math.max(1,Math.round(s*.17));const v=blur3(m,w,h,r);
+  const L=new Float32Array(w*h);
+  const band=(x,c,ww)=>{const d=Math.abs(x-c)/ww;return d>=1?0:1-d*d;};
+  for(let i=0;i<w*h;i++){const a=v[i];L[i]=Math.max(band(a,.69,.075),band(a,.972,.012));}
+  const gl=blur3(Float32Array.from(L),w,h,Math.max(1,Math.round(s*.09)));
+  const mk=(col,core,fill)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),id=g.createImageData(w,h),d=id.data;
+    for(let i=0;i<w*h;i++){const a=v[i],l=L[i],gg=Math.min(1,gl[i]*1.6),o=i*4;let R=0,Gc=0,B=0,A=0;
+      if(a>.69){R=fill[0];Gc=fill[1];B=fill[2];A=255;}
+      if(gg>0){const al=gg*.55;R=R*(1-al)+col[0]*al;Gc=Gc*(1-al)+col[1]*al;B=B*(1-al)+col[2]*al;A=Math.max(A,al*255);}
+      if(l>0){const k=l>.7?(l-.7)/.3*.6:0,cr=col[0]+(core[0]-col[0])*k,cg=col[1]+(core[1]-col[1])*k,cb=col[2]+(core[2]-col[2])*k;R=R*(1-l)+cr*l;Gc=Gc*(1-l)+cg*l;B=B*(1-l)+cb*l;A=Math.max(A,l*255);}
+      d[o]=R;d[o+1]=Gc;d[o+2]=B;d[o+3]=A;}
+    g.putImageData(id,0,0);
+    // puerta del corral
+    if(M.puerta){const [px,py]=M.puerta;g.fillStyle='#ffb8de';g.fillRect(px*s-s*.1,py*s+s*.38,s*1.2,s*.22);}
+    return c;};
+  return {s,q,n:mk(tema.pared,tema.brillo,tema.relleno),f:mk([255,255,255],[255,255,255],tema.relleno)};
 }
+function muros(S){const M=S.M,tm=apar('tema'),tema=TEMAS[tm]||TEMAS.campo,k=S.mapaIdx+'|'+tm+'|'+G.cell+'|'+G.dpr;
+  if(G.murosK===k&&G.muros)return G.muros;const m=construirMuros(M,G.cell,G.dpr,tema);
+  // se arma a 2× como mucho (es caro), pero se escala una sola vez al tamaño real de la pantalla: así cada cuadro copia
+  // la imagen tal cual en vez de reescalarla (en un iPhone de 3× eso era lo más pesado del dibujo)
+  const ancho=Math.round(M.W*G.cell*G.dpr),alto=Math.round(M.H*G.cell*G.dpr);
+  if(m.n.width!==ancho)for(const q of ['n','f']){const c=document.createElement('canvas');c.width=ancho;c.height=alto;const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(m[q],0,0,ancho,alto);m[q]=c;}
+  G.muros=m;G.murosK=k;return m;}
 
 /* ── Dibujo ── */
-function lerpPos(a,b,t,WU){let dx=b[0]-a[0];if(Math.abs(dx)>2*LAB.U)return b;return [a[0]+dx*t,a[1]+(b[1]-a[1])*t];}
+function lerpPos(a,b,t){let dx=b[0]-a[0];if(Math.abs(dx)>2*LAB.U)return b;return [a[0]+dx*t,a[1]+(b[1]-a[1])*t];}
 function dibujar(alpha){
-  const S=G.S;if(!S){cx.fillStyle='#0f1813';cx.fillRect(0,0,cv.width,cv.height);return;}
-  const M=S.M,s=G.cell*G.dpr,U=LAB.U,tema=TEMAS[apar('tema')]||TEMAS.campo,t=performance.now();
-  cx.setTransform(1,0,0,1,0,0);cx.drawImage(muros(),0,0);
+  const S=G.S||G.D,g=cx;g.setTransform(1,0,0,1,0,0);g.fillStyle='#000';g.fillRect(0,0,cv.width,cv.height);if(!S)return;
+  const M=S.M,s=G.cell*G.dpr,U=LAB.U,t=performance.now(),demo=!G.S;
+  // temblor (al tomar un mate)
+  let ox=0,oy=0;if(G.shake&&!RM){const k=1-(t-G.shake)/240;if(k>0){ox=(Math.random()*2-1)*s*.14*k;oy=(Math.random()*2-1)*s*.14*k;}else G.shake=0;}
+  g.setTransform(1,0,0,1,ox,oy);
+  hudArriba(S,s,demo);hudAbajo(S,s,demo);
+  g.translate(Math.round(G.mx*s),Math.round(G.my*s));
+  // paredes (titilan al limpiar el laberinto)
+  const MU=muros(S),flash=S.estado==='nivel'&&Math.floor((LAB.seg(1.5)-S.t)/11)%2===1;
+  g.drawImage(flash?MU.f:MU.n,0,0);
   // semillas y mates
-  const pocas=S.quedan<10;
-  for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++){const o=S.obj[y*M.W+x];if(!o)continue;const X=(x+.5)*s,Y=(y+.5)*s;
-    if(o===1){cx.fillStyle=tema.sem;cx.beginPath();cx.ellipse(X,Y,s*.09,s*.13,.5,0,7);cx.fill();if(pocas){cx.strokeStyle='rgba(255,236,170,.55)';cx.lineWidth=s*.05;cx.beginPath();cx.arc(X,Y,s*.26+Math.sin(t/300)*s*.03,0,7);cx.stroke();}}
-    else mate(cx,X,Y,s*.36,t);}
-  if(S.bonus){const X=(S.bonus.x+.5)*s,Y=(S.bonus.y+.5)*s;torta(cx,X,Y,s*.4,S.bonus.t<120&&Math.floor(t/150)%2);}
-  // objetivos (sólo en práctica)
+  const parp=S.estado!=='juega'||Math.floor(t/170)%2===0;
+  g.fillStyle='#ffc8a8';const d=Math.max(2,Math.round(s*.2));
+  for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++){const o=S.obj[y*M.W+x];if(o===1)g.fillRect(Math.round((x+.5)*s-d/2),Math.round((y+.5)*s-d/2),d,d);}
+  for(let y=0;y<M.H;y++)for(let x=0;x<M.W;x++)if(S.obj[y*M.W+x]===2&&parp)mate(g,(x+.5)*s,(y+.5)*s,s*.42);
+  if(S.bonus){const tb=S.bonus.t;if(!(tb<120&&Math.floor(t/120)%2))fruta(g,S.bonus.k,(S.bonus.x+.5)*s,(S.bonus.y+.5)*s,s*.48);}
+  // a dónde va cada uno (sólo en práctica)
   if(G.objMostrar&&S.estado==='juega')for(const e of S.enem){if(e.st==='casa'||e.st==='sale'||e.st==='entra'||e.st==='asusta')continue;const [tx,ty]=LAB.objetivoDe(S,e),col=LAB.NOMBRES[e.i].c;
-    cx.strokeStyle=col;cx.lineWidth=s*.08;cx.beginPath();cx.moveTo((tx+.2)*s,(ty+.2)*s);cx.lineTo((tx+.8)*s,(ty+.8)*s);cx.moveTo((tx+.8)*s,(ty+.2)*s);cx.lineTo((tx+.2)*s,(ty+.8)*s);cx.stroke();}
-  // perseguidores
-  const P=G.prev;
-  S.enem.forEach((e,k)=>{let [x,y]=P&&P.e[k]?lerpPos(P.e[k],[e.px,e.py],alpha,M.W*U):[e.px,e.py];
-    if(e.st==='casa')y+=Math.sin(t/220+k)*U*.08;
-    const fin=S.mateT>0&&S.mateT<120;bicho(cx,(x/U+.5)*s,(y/U+.5)*s,s*.46,e,fin&&Math.floor(t/220)%2,t);});
-  // jugador
-  const j=S.jug;let [jx,jy]=P?lerpPos(P.j,[j.px,j.py],alpha,M.W*U):[j.px,j.py];
-  const muriendo=S.estado==='muerte'?1-S.t/LAB.seg(1.4):0;
-  if(!(S.prot>0&&Math.floor(t/90)%2&&S.estado==='juega'))corredor(cx,(jx/U+.5)*s,(jy/U+.5)*s,s*.47,j,muriendo,t);
-  // puntos flotantes
-  G.flot=G.flot.filter(f=>t-f.t<900);for(const f of G.flot){const a=1-(t-f.t)/900;cx.globalAlpha=a;cx.fillStyle='#fff6d6';cx.font=`800 ${Math.round(s*.55)}px system-ui`;cx.textAlign='center';cx.fillText(f.txt,(f.x+.5)*s,(f.y+.5)*s-(1-a)*s*.8);cx.globalAlpha=1;}
+    g.strokeStyle=col;g.lineWidth=s*.1;g.beginPath();g.moveTo((tx+.2)*s,(ty+.2)*s);g.lineTo((tx+.8)*s,(ty+.8)*s);g.moveTo((tx+.8)*s,(ty+.2)*s);g.lineTo((tx+.2)*s,(ty+.8)*s);g.stroke();}
+  const P=G.prev&&!demo?G.prev:null;
+  // muerte: un instante quietos y después sólo el pajarito, que se deshace en plumas
+  const pm=S.estado==='muerte'?1-S.t/LAB.seg(1.5):0;
+  const sinBichos=(S.estado==='muerte'&&pm>.2)||(S.estado==='nivel'&&S.t<LAB.seg(1.2))||S.estado==='fin';
+  if(!sinBichos)S.enem.forEach((e,k)=>{let [x,y]=P&&P.e[k]?lerpPos(P.e[k],[e.px,e.py],alpha):[e.px,e.py];
+    const fin=S.mateT>0&&S.mateT<LAB.seg(1.5);bicho(g,Math.round((x/U+.5)*s),Math.round((y/U+.5)*s),s*.56,e,fin&&Math.floor(t/200)%2,t,S);});
+  const j=S.jug;let [jx,jy]=P?lerpPos(P.j,[j.px,j.py],alpha):[j.px,j.py];
+  const X=Math.round((jx/U+.5)*s),Y=Math.round((jy/U+.5)*s);
+  if(S.estado==='muerte'&&pm>.2)muerte(g,X,Y,s*.55,(pm-.2)/.8,j);
+  else if(S.estado!=='fin'||S.fin!=='perdio'){if(!(S.prot>0&&Math.floor(t/80)%2&&S.estado==='juega'))corredor(g,X,Y,s*.55,j,t,S);}
+  // puntos que saltan
+  G.flot=G.flot.filter(f=>t-f.t<f.dur);for(const f of G.flot){const k=(t-f.t)/f.dur;pix(g,f.txt,(f.x+.5)*s,(f.y+.5)*s-s*.4-k*s*.3,Math.max(1,Math.round(s/9)),f.col,'centro');}
+  // carteles del laberinto
+  const p=Math.max(1,Math.round(s/7)),by=(M.bonus?M.bonus[1]:M.H/2)*s+(s-7*p)/2;
+  if(S.estado==='cuenta'&&!demo)pix(g,'¡LISTO!',M.W*s/2,by,p,'#ffe23f','centro');
+  if(S.estado==='fin'&&!demo)pix(g,S.fin==='gano'?'¡VUELTA COMPLETA!':S.fin==='tiempo'?'SE TERMINÓ':'FIN DEL JUEGO',M.W*s/2,by,p,S.fin==='gano'?'#7dff7d':'#ff3b3b','centro');
+  if(demo&&Math.floor(t/600)%2)pix(g,'DEMO',M.W*s/2,by,p,'#ffe23f','centro');
 }
-function mate(g,X,Y,r,t){g.save();g.translate(X,Y);const p=1+Math.sin(t/240)*.06;g.scale(p,p);
-  g.fillStyle='#8a5a2b';g.beginPath();g.ellipse(0,r*.18,r*.62,r*.7,0,0,7);g.fill();
-  g.fillStyle='#5c3a1a';g.beginPath();g.ellipse(0,-r*.32,r*.5,r*.16,0,0,7);g.fill();
-  g.fillStyle='#7fbf4f';g.beginPath();g.ellipse(0,-r*.34,r*.38,r*.1,0,0,7);g.fill();
-  g.strokeStyle='#d8d8d8';g.lineWidth=r*.14;g.lineCap='round';g.beginPath();g.moveTo(r*.1,-r*.3);g.lineTo(r*.5,-r*.9);g.stroke();
-  g.fillStyle='#e8c45a';g.fillRect(-r*.6,r*.0,r*1.2,r*.12);g.restore();}
-function torta(g,X,Y,r,parp){if(parp)return;g.save();g.translate(X,Y);g.fillStyle='#c9803a';g.beginPath();g.arc(0,0,r*.8,0,7);g.fill();
-  g.fillStyle='#f3d38a';g.beginPath();g.arc(0,-r*.05,r*.62,0,7);g.fill();g.fillStyle='#8a4a1a';for(let i=0;i<5;i++){const a=i*1.25;g.beginPath();g.arc(Math.cos(a)*r*.35,Math.sin(a)*r*.35-r*.05,r*.09,0,7);g.fill();}g.restore();}
-// El corredor: un pajarito redondo (no una pizza): pico que se abre al comer, mirando hacia donde va
-function corredor(g,X,Y,r,j,muere,t){const sk=PJS[apar('pj')]||PJS.semillero,a=[-Math.PI/2,Math.PI,Math.PI/2,0][j.dir];
-  g.save();g.translate(X,Y);if(muere){g.rotate(muere*Math.PI*2.5);g.scale(1-muere*.7,1-muere*.7);g.globalAlpha=1-muere*.6;}
-  if(sk.acc==='luz'){g.fillStyle='rgba(214,242,122,.22)';g.beginPath();g.arc(0,0,r*1.5,0,7);g.fill();}
+// Puntaje y récord arriba (como en las maquinitas)
+function hudArriba(S,s,demo){const g=cx,p=Math.max(1,Math.round(s/9.5)),q=Math.max(1,Math.round(s/13));
+  const rec=demo?(REC().normal||0):recordDe(S);
+  const der=demo?'':S.cfg.modo==='rapida'?'NIVEL '+S.nivel:S.cfg.modo==='dia'?'DEL DÍA':S.cfg.modo==='campana'?'ETAPA '+(G.op.etapa+1):S.cfg.modo==='practica'?'PRÁCTICA':'LIBRE';
+  if(G.lado){const x=s*.4;let y=Math.max(Math.round(s*2.2),Math.round(52*G.dpr));
+    pix(g,'PUNTOS',x,y,q,'#ff5a5a','izq');pix(g,demo?'0':String(S.puntos),x,y+9*q,p,'#ffffff','izq');y+=Math.round(s*2.4);
+    pix(g,'RÉCORD',x,y,q,'#ff5a5a','izq');pix(g,rec!=null?String(Math.max(rec,demo?0:S.puntos)):'---',x,y+9*q,p,'#ffffff','izq');y+=Math.round(s*2.4);
+    if(der)pix(g,der,x,y,q,'#2ef0ea','izq');if(!demo&&S.cfg.modo==='rapida')pix(g,DIFN[S.cfg.dif],x,y+9*q,p,'#ffb8de','izq');return;}
+  const y1=Math.round(s*.06)+3*q,y2=y1+9*q,W=S.M.W*s;
+  pix(g,'PUNTOS',s*.5,y1,q,'#ff5a5a','izq');pix(g,demo?'0':String(S.puntos),s*.5,y2,p,'#ffffff','izq');
+  pix(g,'RÉCORD',W/2,y1,q,'#ff5a5a','centro');pix(g,rec!=null?String(Math.max(rec,demo?0:S.puntos)):'---',W/2,y2,p,'#ffffff','centro');
+  const xd=G.pausaAfuera?W-s*.5:W-s*2.7;if(der)pix(g,der,xd,y1,q,'#2ef0ea','der');
+  if(!demo&&S.cfg.modo==='rapida')pix(g,DIFN[S.cfg.dif],xd,y2,p,'#ffb8de','der');}
+function recordDe(S){const m=S.cfg.modo;if(m==='rapida')return REC()[S.cfg.dif]||0;if(m==='campana'){const o=ESTR();return o['e'+G.op.etapa+'b']||0;}if(m==='dia'){const D=DIAS();const f=G.op&&G.op.fecha;return f&&D[f]!=null?D[f]:null;}return null;}
+// Vidas y bonus abajo
+function hudAbajo(S,s,demo){const g=cx,M=S.M,r=s*.4;if(demo)return;
+  const vid=Math.max(0,S.vidas-(S.estado==='cuenta'||S.estado==='juega'?1:0));const fl=G.vidaT&&performance.now()-G.vidaT<1200&&Math.floor(performance.now()/120)%2;
+  const n=Math.min(G.lado?4:7,S.cfg.modo==='rapida'?S.nivel:1),pq=Math.max(1,Math.round(s/11));
+  if(G.lado){const y=Math.round((M.H-1.3)*s);for(let i=0;i<Math.min(4,vid);i++)if(!(fl&&i===vid-1))corredor(g,Math.round(s*(1+i*1.25)),y-Math.round(s*1.4),r,{dir:3,boca:6,mov:true},0,S,true);
+    for(let i=0;i<n;i++){const F=LAB.frutaDe(S.nivel-i);fruta(g,F.k,Math.round(s*(1+i*1.25)),y,s*.42);}pix(g,S.M.n,s*.4,Math.round((M.H-5)*s),pq,'#5a6a9a','izq');return;}
+  const y=Math.round((HUD_T+M.H+.5)*s);
+  for(let i=0;i<Math.min(5,vid);i++)if(!(fl&&i===vid-1))corredor(g,Math.round(s*(1+i*1.25)),y,r,{dir:3,boca:6,mov:true},0,S,true);
+  for(let i=0;i<n;i++){const F=LAB.frutaDe(S.nivel-i);fruta(g,F.k,M.W*s-s*(1+i*1.2),y,s*.42);}
+  pix(g,S.M.n,M.W*s/2,y-Math.round(3.5*pq),pq,'#5a6a9a','centro');}
+function mate(g,X,Y,r){g.save();g.translate(X,Y);g.shadowColor='#ffd27a';g.shadowBlur=r*1.2;g.fillStyle='#ffc8a8';g.beginPath();g.arc(0,0,r*.78,0,7);g.fill();g.shadowBlur=0;
+  g.fillStyle='#6fbf4a';g.beginPath();g.ellipse(0,-r*.28,r*.46,r*.16,0,0,7);g.fill();g.strokeStyle='#e8e8e8';g.lineWidth=Math.max(1,r*.14);g.lineCap='round';g.beginPath();g.moveTo(r*.1,-r*.3);g.lineTo(r*.48,-r*.95);g.stroke();g.restore();}
+// Los bonus de cada nivel (dibujos chiquitos, de colores fuertes)
+function fruta(g,k,X,Y,r){g.save();g.translate(Math.round(X),Math.round(Y));
+  if(k==='torta'){g.fillStyle='#d9862e';g.beginPath();g.arc(0,0,r*.8,0,7);g.fill();g.fillStyle='#ffcf6a';g.beginPath();g.arc(0,-r*.06,r*.58,0,7);g.fill();g.fillStyle='#fff6';for(const [a,b] of [[-.25,-.2],[.2,.1],[0,.3]]){g.fillRect(a*r,b*r,r*.14,r*.14);}}
+  else if(k==='empanada'){g.fillStyle='#e8a54a';g.beginPath();g.moveTo(-r*.9,r*.3);g.quadraticCurveTo(0,-r*1.1,r*.9,r*.3);g.closePath();g.fill();g.strokeStyle='#a8641e';g.lineWidth=r*.12;g.beginPath();for(let i=0;i<6;i++){const a=Math.PI*(1+i/5);g.moveTo(Math.cos(a)*r*.62,Math.sin(a)*r*.5+r*.22);g.lineTo(Math.cos(a)*r*.82,Math.sin(a)*r*.66+r*.22);}g.stroke();}
+  else if(k==='alfajor'){g.fillStyle='#5a3216';g.fillRect(-r*.8,-r*.45,r*1.6,r*.9);g.fillStyle='#fff3e0';g.fillRect(-r*.8,-r*.08,r*1.6,r*.16);g.fillStyle='#7a4a26';g.fillRect(-r*.8,-r*.45,r*1.6,r*.14);}
+  else if(k==='choclo'){g.fillStyle='#5fbf3a';g.beginPath();g.ellipse(-r*.3,r*.1,r*.3,r*.8,-.4,0,7);g.fill();g.fillStyle='#ffd23f';g.beginPath();g.ellipse(r*.1,-r*.05,r*.36,r*.82,.3,0,7);g.fill();g.fillStyle='#e0a414';for(let i=-2;i<=2;i++)g.fillRect(r*.02+i*r*.04,-r*.6+Math.abs(i)*r*.1+r*.0,r*.08,r*1.1);}
+  else if(k==='sandia'){g.fillStyle='#2f8f3a';g.beginPath();g.arc(0,-r*.1,r*.9,0,Math.PI);g.fill();g.fillStyle='#ff4a5a';g.beginPath();g.arc(0,-r*.1,r*.72,0,Math.PI);g.fill();g.fillStyle='#1a1a1a';for(const a of [-.4,0,.4])g.fillRect(a*r,r*.15,r*.1,r*.14);}
+  else if(k==='pastelito'){g.fillStyle='#ff9a3c';g.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,rr=i%2?r*.45:r*.9;g[i?'lineTo':'moveTo'](Math.cos(a)*rr,Math.sin(a)*rr);}g.closePath();g.fill();g.fillStyle='#ffd27a';g.beginPath();g.arc(0,0,r*.3,0,7);g.fill();}
+  else if(k==='mate'){g.fillStyle='#ffcc33';g.beginPath();g.ellipse(0,r*.15,r*.62,r*.7,0,0,7);g.fill();g.fillStyle='#b8862a';g.beginPath();g.ellipse(0,-r*.4,r*.44,r*.14,0,0,7);g.fill();g.strokeStyle='#eee';g.lineWidth=r*.14;g.beginPath();g.moveTo(r*.1,-r*.4);g.lineTo(r*.5,-r*1);g.stroke();}
+  else{g.fillStyle='#fff36a';g.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.4:r*.95;g[i?'lineTo':'moveTo'](Math.cos(a)*rr,Math.sin(a)*rr);}g.closePath();g.fill();}
+  g.restore();}
+// El corredor: un pajarito redondo que «come» con el pico (2–3 cuadros), mirando hacia donde va
+function corredor(g,X,Y,r,j,t,S,mini){const sk=PJS[apar('pj')]||PJS.semillero;g.save();g.translate(X,Y);
+  if(j.dir===1)g.scale(-1,1);else if(j.dir===0)g.rotate(-Math.PI/2);else if(j.dir===2)g.rotate(Math.PI/2);
+  const fr=[0,.55,1,.55][((j.boca||0)>>2)&3]*(j.mov?1:.3),ab=fr*.62;   // abertura del pico
+  if(sk.acc==='luz'){g.fillStyle='rgba(216,255,106,.25)';g.beginPath();g.arc(0,0,r*1.45,0,7);g.fill();}
+  // cuerpo con el pico como un bocado (la boca es parte del pico, no de la cabeza)
   g.fillStyle=sk.c;g.beginPath();g.arc(0,0,r*.86,0,7);g.fill();
-  g.fillStyle=sk.c2;g.beginPath();g.arc(0,0,r*.86,Math.PI*.15,Math.PI*.85);g.fill();   // panza/sombra
-  if(sk.acc==='filete'){g.strokeStyle='#d94a3a';g.lineWidth=r*.1;g.beginPath();g.arc(0,0,r*.62,Math.PI*1.1,Math.PI*1.9);g.stroke();}
-  if(sk.acc==='estrellas'){g.fillStyle='#fff6d6';for(const [sx,sy] of [[-.4,-.3],[.3,.35],[-.1,.5]]){g.beginPath();g.arc(sx*r,sy*r,r*.07,0,7);g.fill();}}
-  if(sk.acc==='poncho'){g.fillStyle='#b8402e';g.beginPath();g.moveTo(-r*.86,r*.1);g.lineTo(r*.86,r*.1);g.lineTo(0,r*.86);g.fill();g.fillStyle='#f2e6c8';g.fillRect(-r*.7,r*.22,r*1.4,r*.08);}
-  // pico hacia donde va
-  const ab=(Math.sin((j.boca||0)/24*Math.PI*2)+1)/2*(muere?0:1);g.rotate(a);
-  g.fillStyle='#f29a3a';g.beginPath();g.moveTo(r*.72,-r*.16-ab*r*.14);g.lineTo(r*1.18,-ab*r*.08);g.lineTo(r*.72,-r*.02);g.fill();
-  g.beginPath();g.moveTo(r*.72,r*.02);g.lineTo(r*1.12,ab*r*.1+r*.02);g.lineTo(r*.72,r*.16+ab*r*.14);g.fill();
-  // ojo (siempre arriba del pico)
-  g.fillStyle='#fff';g.beginPath();g.arc(r*.3,-r*.34,r*.2,0,7);g.fill();g.fillStyle='#1a1a1a';g.beginPath();g.arc(r*.37,-r*.34,r*.1,0,7);g.fill();
-  g.rotate(-a);
-  if(sk.acc==='panuelo'){g.fillStyle='#d9483b';g.beginPath();g.moveTo(-r*.55,r*.55);g.lineTo(r*.55,r*.55);g.lineTo(0,r*.98);g.fill();}
-  if(sk.acc==='boina'){g.fillStyle='#22324a';g.beginPath();g.ellipse(0,-r*.8,r*.66,r*.22,0,0,7);g.fill();g.fillRect(-r*.04,-r*1.1,r*.08,r*.16);}
-  if(sk.acc==='mate'){g.fillStyle='#8a5a2b';g.beginPath();g.arc(-r*.78,r*.4,r*.22,0,7);g.fill();g.strokeStyle='#ddd';g.lineWidth=r*.06;g.beginPath();g.moveTo(-r*.72,r*.26);g.lineTo(-r*.6,r*.02);g.stroke();}
+  g.fillStyle=sk.c2;g.beginPath();g.ellipse(-r*.18,r*.3,r*.46,r*.3,-.4,0,7);g.fill();   // ala
+  if(sk.acc==='filete'){g.strokeStyle='#ff4a3a';g.lineWidth=r*.12;g.beginPath();g.arc(0,0,r*.62,Math.PI*1.1,Math.PI*1.9);g.stroke();}
+  if(sk.acc==='estrellas'){g.fillStyle='#fff6d6';for(const [sx,sy] of [[-.4,-.3],[.0,.45],[-.55,.15]])g.fillRect(sx*r,sy*r,r*.12,r*.12);}
+  if(sk.acc==='poncho'){g.fillStyle='#d9402e';g.beginPath();g.moveTo(-r*.8,r*.15);g.lineTo(r*.4,r*.15);g.lineTo(-r*.2,r*.85);g.fill();}
+  // pico (arriba y abajo se abren)
+  g.fillStyle='#ff7a1a';
+  g.beginPath();g.moveTo(r*.55,-r*.2);g.lineTo(r*1.22,-r*.04-ab*r*.55);g.lineTo(r*.6,r*.02);g.closePath();g.fill();
+  g.beginPath();g.moveTo(r*.6,r*.04);g.lineTo(r*1.12,r*.1+ab*r*.55);g.lineTo(r*.5,r*.26);g.closePath();g.fill();
+  if(ab>.2){g.fillStyle='#8a1a1a';g.beginPath();g.moveTo(r*.62,-r*.02);g.lineTo(r*1.05,-ab*r*.4);g.lineTo(r*1.0,r*.08+ab*r*.4);g.closePath();g.fill();}
+  // ojo
+  g.fillStyle='#fff';g.beginPath();g.arc(r*.28,-r*.36,r*.22,0,7);g.fill();g.fillStyle='#10131f';g.beginPath();g.arc(r*.36,-r*.36,r*.11,0,7);g.fill();
+  if(sk.acc==='panuelo'){g.fillStyle='#ff3b3b';g.beginPath();g.moveTo(-r*.3,r*.6);g.lineTo(r*.45,r*.55);g.lineTo(r*.05,r*.98);g.fill();}
+  if(sk.acc==='boina'){g.fillStyle='#22324a';g.beginPath();g.ellipse(-r*.05,-r*.78,r*.62,r*.22,0,0,7);g.fill();}
+  if(sk.acc==='mate'){g.fillStyle='#8a5a2b';g.beginPath();g.arc(-r*.72,r*.44,r*.22,0,7);g.fill();}
   g.restore();}
-// Los perseguidores: cuatro bichos de campo con siluetas distintas (se distinguen aun sin color)
-function bicho(g,X,Y,r,e,parpadeo,t){const N=LAB.NOMBRES[e.i],[dx,dy]=LAB.DIRS[e.dir];
-  g.save();g.translate(X,Y);
-  const ojos=(col)=>{for(const sx of [-1,1]){g.fillStyle='#fff';g.beginPath();g.ellipse(sx*r*.3,-r*.12,r*.2,r*.24,0,0,7);g.fill();g.fillStyle=col||'#16233a';g.beginPath();g.arc(sx*r*.3+dx*r*.09,-r*.12+dy*r*.1,r*.1,0,7);g.fill();}};
-  if(e.st==='vuelve'||e.st==='entra'){ojos();g.restore();return;}
-  const asus=e.st==='asusta',col=asus?(parpadeo?'#e9eef6':'#6f8fc9'):N.c,osc=asus?'#4a6aa0':shade(N.c,-.28);
-  const wob=Math.sin(t/120+e.i)*r*.04;
-  if(N.bicho==='zorro'){g.fillStyle=col;g.beginPath();g.moveTo(-r*.85,-r*.15);g.lineTo(-r*.6,-r*.95);g.lineTo(-r*.25,-r*.5);g.lineTo(r*.25,-r*.5);g.lineTo(r*.6,-r*.95);g.lineTo(r*.85,-r*.15);g.quadraticCurveTo(r*.8,r*.75,0,r*.9+wob);g.quadraticCurveTo(-r*.8,r*.75,-r*.85,-r*.15);g.fill();
-    g.fillStyle=asus?'#dfe7f3':'#f6efe2';g.beginPath();g.moveTo(-r*.4,r*.2);g.quadraticCurveTo(0,r*.95,r*.4,r*.2);g.quadraticCurveTo(0,r*.45,-r*.4,r*.2);g.fill();g.fillStyle='#1a1a1a';g.beginPath();g.arc(0,r*.62,r*.09,0,7);g.fill();}
-  else if(N.bicho==='lechuza'){g.fillStyle=col;g.beginPath();g.moveTo(-r*.8,-r*.4);g.lineTo(-r*.65,-r*.95);g.lineTo(-r*.3,-r*.62);g.lineTo(r*.3,-r*.62);g.lineTo(r*.65,-r*.95);g.lineTo(r*.8,-r*.4);g.quadraticCurveTo(r*.95,r*.9+wob,0,r*.92);g.quadraticCurveTo(-r*.95,r*.9-wob,-r*.8,-r*.4);g.fill();
-    g.fillStyle=osc;g.beginPath();g.ellipse(0,r*.48,r*.42,r*.3,0,0,7);g.fill();g.fillStyle='#e8a33a';g.beginPath();g.moveTo(-r*.08,r*.06);g.lineTo(r*.08,r*.06);g.lineTo(0,r*.24);g.fill();}
-  else if(N.bicho==='tero'){g.strokeStyle=osc;g.lineWidth=r*.12;g.lineCap='round';g.beginPath();g.moveTo(0,-r*.6);g.quadraticCurveTo(-r*.3,-r*1.1,-r*.75,-r*1.0);g.stroke();
-    g.fillStyle=col;g.beginPath();g.ellipse(0,r*.08+wob*.5,r*.8,r*.82,0,0,7);g.fill();g.fillStyle=asus?'#dfe7f3':'#f2f2ee';g.beginPath();g.ellipse(0,r*.5,r*.48,r*.34,0,0,7);g.fill();
-    g.fillStyle='#d9483b';g.beginPath();g.moveTo(-r*.1,r*.04);g.lineTo(r*.1,r*.04);g.lineTo(0,r*.3);g.fill();}
-  else{g.fillStyle=col;g.beginPath();g.moveTo(-r*.9,r*.7);g.quadraticCurveTo(-r*.95,-r*.85,0,-r*.88);g.quadraticCurveTo(r*.95,-r*.85,r*.9,r*.7);g.closePath();g.fill();
-    g.strokeStyle=osc;g.lineWidth=r*.1;for(const k of [-.45,0,.45]){g.beginPath();g.moveTo(k*r*1.6,-r*.75);g.quadraticCurveTo(k*r*1.75,0,k*r*1.6,r*.68);g.stroke();}
-    g.fillStyle=osc;g.fillRect(-r*.9,r*.62+wob*.5,r*1.8,r*.18);}
-  if(asus){g.strokeStyle='#fff';g.lineWidth=r*.08;g.beginPath();for(let k=0;k<5;k++){const x=-r*.4+k*r*.2;g[k?'lineTo':'moveTo'](x,r*.38+(k%2?-1:1)*r*.06);}g.stroke();
-    for(const sx of [-1,1]){g.fillStyle='#fff';g.beginPath();g.arc(sx*r*.28,-r*.12,r*.12,0,7);g.fill();}}
-  else ojos();
+function muerte(g,X,Y,r,k,j){g.save();g.translate(X,Y);const sk=PJS[apar('pj')]||PJS.semillero;
+  if(k<.55){const kk=k/.55;g.rotate(kk*Math.PI*3);g.scale(1-kk*.85,1-kk*.85);corredor(g,0,0,r,{dir:3,boca:8,mov:true},0,null);}
+  if(k>.12){const kk=(k-.12)/.88;g.globalAlpha=Math.max(0,1-kk);for(let i=0;i<10;i++){const a=i/10*Math.PI*2+.3,d=r*(.3+kk*1.6);
+    g.fillStyle=i%2?sk.c:sk.c2;g.save();g.translate(Math.cos(a)*d,Math.sin(a)*d+kk*kk*r*.8);g.rotate(a+kk*4);g.beginPath();g.ellipse(0,0,r*.24,r*.09,0,0,7);g.fill();g.restore();}}
   g.restore();}
-function shade(hex,f){const n=parseInt(hex.slice(1),16),r=n>>16,g2=n>>8&255,b=n&255,m=v=>Math.max(0,Math.min(255,Math.round(v+(f<0?v*f:(255-v)*f))));return '#'+[m(r),m(g2),m(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+// Los perseguidores: cuatro bichos de campo con siluetas distintas, ojos que miran hacia donde van y patitas que se mueven.
+// Asustados: azules (titilan en blanco cuando se les pasa); comidos: sólo los ojos, volviendo al corral.
+function bicho(g,X,Y,r,e,parpadeo,t,S){const N=LAB.NOMBRES[e.i],[dx,dy]=LAB.DIRS[e.dir];g.save();g.translate(X,Y);
+  const ojos=(sep,y0,rx,ry)=>{for(const sx of [-1,1]){g.fillStyle='#fff';g.beginPath();g.ellipse(sx*sep,y0,rx,ry,0,0,7);g.fill();g.fillStyle='#1d3cff';g.beginPath();g.arc(sx*sep+dx*rx*.45,y0+dy*ry*.45,rx*.55,0,7);g.fill();}};
+  if(e.st==='vuelve'||e.st==='entra'){ojos(r*.3,-r*.1,r*.22,r*.27);g.restore();return;}
+  const asus=e.st==='asusta',col=asus?(parpadeo?'#f2f2ff':'#2b2bff'):N.c,osc=asus?(parpadeo?'#ff5ac8':'#1414a8'):sombra(N.c,-.32);
+  const pata=Math.floor(t/110+e.i)%2;
+  // patitas
+  g.fillStyle=osc;for(const sx of [-1,1]){const up=(sx>0)===!!pata?r*.08:0;g.fillRect(sx*r*.42-r*.12,r*.7-up,r*.24,r*.26);}
+  if(N.bicho==='zorro'){g.fillStyle=col;g.beginPath();g.moveTo(-r*.9,-r*.1);g.lineTo(-r*.7,-r*1.0);g.lineTo(-r*.28,-r*.6);g.lineTo(r*.28,-r*.6);g.lineTo(r*.7,-r*1.0);g.lineTo(r*.9,-r*.1);g.quadraticCurveTo(r*.9,r*.82,0,r*.82);g.quadraticCurveTo(-r*.9,r*.82,-r*.9,-r*.1);g.fill();
+    if(!asus){g.fillStyle='#fff3e6';g.beginPath();g.moveTo(-r*.45,r*.18);g.quadraticCurveTo(0,r*.95,r*.45,r*.18);g.quadraticCurveTo(0,r*.42,-r*.45,r*.18);g.fill();g.fillStyle='#111';g.beginPath();g.arc(0,r*.5,r*.1,0,7);g.fill();}}
+  else if(N.bicho==='lechuza'){g.fillStyle=col;g.beginPath();g.moveTo(-r*.82,-r*.35);g.lineTo(-r*.68,-r*1.0);g.lineTo(-r*.3,-r*.66);g.lineTo(r*.3,-r*.66);g.lineTo(r*.68,-r*1.0);g.lineTo(r*.82,-r*.35);g.quadraticCurveTo(r*.95,r*.82,0,r*.84);g.quadraticCurveTo(-r*.95,r*.82,-r*.82,-r*.35);g.fill();
+    if(!asus){g.fillStyle=osc;g.beginPath();g.ellipse(0,r*.48,r*.4,r*.24,0,0,7);g.fill();g.fillStyle='#ffb02e';g.beginPath();g.moveTo(-r*.09,r*.12);g.lineTo(r*.09,r*.12);g.lineTo(0,r*.3);g.fill();}}
+  else if(N.bicho==='tero'){g.strokeStyle=osc;g.lineWidth=r*.14;g.lineCap='round';g.beginPath();g.moveTo(r*.05,-r*.62);g.quadraticCurveTo(-r*.25,-r*1.15,-r*.75,-r*1.02);g.stroke();
+    g.fillStyle=col;g.beginPath();g.ellipse(0,r*.06,r*.84,r*.82,0,0,7);g.fill();if(!asus){g.fillStyle='#fff';g.beginPath();g.ellipse(0,r*.5,r*.48,r*.28,0,0,7);g.fill();g.fillStyle='#ff3b3b';g.beginPath();g.moveTo(-r*.1,r*.08);g.lineTo(r*.1,r*.08);g.lineTo(0,r*.34);g.fill();}}
+  else{g.fillStyle=col;g.beginPath();g.moveTo(-r*.92,r*.66);g.quadraticCurveTo(-r*.98,-r*.9,0,-r*.92);g.quadraticCurveTo(r*.98,-r*.9,r*.92,r*.66);g.closePath();g.fill();
+    g.strokeStyle=osc;g.lineWidth=r*.11;for(const k of [-.45,0,.45]){g.beginPath();g.moveTo(k*r*1.6,-r*.78);g.quadraticCurveTo(k*r*1.75,0,k*r*1.6,r*.6);g.stroke();}}
+  if(asus){g.strokeStyle=parpadeo?'#ff2a2a':'#ffc8a8';g.lineWidth=r*.1;g.beginPath();for(let k=0;k<6;k++){const x=-r*.45+k*r*.18;g[k?'lineTo':'moveTo'](x,r*.36+(k%2?-1:1)*r*.08);}g.stroke();
+    g.fillStyle=parpadeo?'#ff2a2a':'#ffc8a8';for(const sx of [-1,1])g.fillRect(sx*r*.3-r*.08,-r*.2,r*.16,r*.16);}
+  else ojos(r*.3,-r*.12,r*.22,r*.27);
+  g.restore();}
+function sombra(hex,f){const n=parseInt(hex.slice(1),16),r=n>>16,g2=n>>8&255,b=n&255,m=v=>Math.max(0,Math.min(255,Math.round(v+(f<0?v*f:(255-v)*f))));return '#'+[m(r),m(g2),m(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
 
-/* ── HUD ── */
-function hud(){const S=G.S;if(!S){$('hud').innerHTML='';return;}
-  const libre=S.cfg.libre||S.cfg.modo==='practica';
-  const tag=S.cfg.modo==='dia'?'<span class="tag">Del día</span>':S.cfg.modo==='campana'?`<span class="tag">Etapa ${G.op.etapa+1}</span>`:libre?`<span class="tag libre">${S.cfg.modo==='practica'?'Práctica':'Reglas libres'} · sin premios</span>`:`<span class="tag">${DIFN[S.cfg.dif]}</span>`;
-  const mt=S.mateT>0?Math.max(0,S.mateT/G.mateMax):0;
-  $('hud').innerHTML=`<div class="pts"><small>PUNTOS</small><b id="h-pts">${fmt(S.puntos)}</b></div><div class="niv"><small>NIVEL</small><b>${S.cfg.modo==='rapida'?S.nivel+'/'+S.cfg.niveles:S.nivel}</b></div>${tag}
-    <div class="mate${S.mateT>0&&S.mateT<120?' aviso':''}" title="Mate" ${S.mateT>0?'':'hidden'}><i style="width:${(mt*100).toFixed(0)}%"></i></div>
-    <div class="vidas" aria-label="${S.vidas} vidas">${S.vidas<=5?'<i></i>'.repeat(Math.max(0,S.vidas)):'<i></i><em>×'+S.vidas+'</em>'}</div>
-    <button class="pausa" id="b-pausa" aria-label="Pausa">❚❚</button>`;
-  $('b-pausa').onclick=()=>pausar(true);}
-let HUDK='';function hudSiCambia(){const S=G.S;if(!S)return;const k=[S.puntos,S.nivel,S.vidas,S.mateT>0?Math.ceil(S.mateT/6):0,S.estado].join('|');if(k!==HUDK){HUDK=k;hud();}}
+/* ── El pausador y lo que lee un lector de pantalla ── */
+function hud(){const S=G.S;const el=$('hud');if(!el)return;
+  const libre=S&&(S.cfg.libre||S.cfg.modo==='practica');
+  const txt=!S?'':`${S.cfg.modo==='dia'?'Del día':S.cfg.modo==='campana'?'Etapa '+(G.op.etapa+1):libre?(S.cfg.modo==='practica'?'Práctica':'Reglas libres')+' · sin premios':DIFN[S.cfg.dif]} · ${fmt(S.puntos)} puntos · ${S.vidas} ${S.vidas===1?'vida':'vidas'} · nivel ${S.nivel}`;
+  el.innerHTML=`<span class="sr" aria-live="polite">${esc(txt)}</span>${S&&!G.fin?'<button class="pausa" id="b-pausa" aria-label="Pausa">❚❚</button>':''}`;
+  if($('b-pausa'))$('b-pausa').onclick=()=>pausar(true);}
+let HUDK='';function hudSiCambia(){const S=G.S;const k=S?[S.puntos,S.nivel,S.vidas,S.estado,G.fin].join('|'):'-';if(k!==HUDK){HUDK=k;hud();}}
 
 /* ── Bucle ── */
 function bucle(ts){G.raf=requestAnimationFrame(bucle);
-  if(!G.S){return;}
   if(!G.last)G.last=ts;let dt=Math.min(250,ts-G.last);G.last=ts;
   const PASO=1000/LAB.FPS;
-  if(!G.pausa&&!G.fin){G.acc+=dt;let n=0;
-    while(G.acc>=PASO&&n<8){G.acc-=PASO;n++;pasoUno();if(G.fin||G.pausa)break;}
-    if(G.acc>PASO*8)G.acc=0;}
-  dibujar(G.pausa||G.fin?1:Math.min(1,G.acc/PASO));hudSiCambia();cuenta();
+  if(G.S){
+    if(!G.pausa&&!G.fin){G.acc+=dt;let n=0;
+      while(G.acc>=PASO&&n<8){G.acc-=PASO;n++;pasoUno();if(G.fin||G.pausa)break;}
+      if(G.acc>PASO*8)G.acc=0;}
+    const S=G.S;let k=null;if(!G.pausa&&!G.fin&&S.estado==='juega'){k=S.enem.some(e=>e.st==='vuelve'||e.st==='entra')?'ojos':S.mateT>0?'fuga':'sirena';}
+    bucleSonido(k,S?1-S.quedan/Math.max(1,S.total):0);
+    dibujar(G.pausa||G.fin?1:Math.min(1,G.acc/PASO));hudSiCambia();
+  }else{
+    bucleSonido(null);
+    if(G.D){G.acc+=dt;let n=0;while(G.acc>=PASO&&n<4){G.acc-=PASO;n++;const D=G.D;LAB.paso(D,LAB.auto(D));if(D.estado==='fin'){nuevaDemo();break;}}if(G.acc>PASO*4)G.acc=0;}
+    dibujar(1);
+  }
 }
+function nuevaDemo(){G.D=LAB.crear({modo:'demo',dif:'normal',mapas:[Math.floor(Math.random()*NM)],niveles:1,vidas:1,semilla:(Math.random()*1e9)>>>0,extra:0},MAPAS);G.D.estado='juega';G.D.t=0;acomodar();}
 function pasoUno(){const S=G.S;G.prev={j:[S.jug.px,S.jug.py],e:S.enem.map(e=>[e.px,e.py])};
   const d=G.once>=0?G.once:G.held;G.once=-1;LAB.paso(S,d);
   for(const e of S.ev)evento(e);
   if((G.guardT=(G.guardT||0)+1)%120===0)guardar();
 }
 function evento(e){const S=G.S,ahora=performance.now();
-  if(e.tipo==='semilla'){if(ahora-LAB_S.tSem>110){LAB_S.tSem=ahora;sfx('semilla');}}
-  else if(e.tipo==='mate'){sfx('mate');G.mateMax=S.mateT||1;vibrar(15);}
-  else if(e.tipo==='mate_aviso')sfx('aviso');
-  else if(e.tipo==='captura'){sfx('captura');G.flot.push({x:e.x,y:e.y,txt:String(e.pts),t:ahora});vibrar(20);}
-  else if(e.tipo==='bonus'){sfx('bonus');G.flot.push({x:e.x,y:e.y,txt:String(e.pts),t:ahora});}
-  else if(e.tipo==='muere'){sfx('muere');vibrar(60);}
-  else if(e.tipo==='limpio'){sfx('nivel');}
-  else if(e.tipo==='arranca')sfx('arranca');
-  else if(e.tipo==='fin'){G.fin=true;setTimeout(terminar,450);}}
+  if(e.tipo==='semilla'){if(ahora-AUD.tSem>55){AUD.tSem=ahora;sfx('waka');}}
+  else if(e.tipo==='mate'){sfx('mate');G.mateMax=S.mateT||1;G.shake=ahora;vibrar(18);}
+  else if(e.tipo==='captura'){sfx('captura');G.flot.push({x:e.x,y:e.y,txt:String(e.pts),t:ahora,dur:700,col:'#2ef0ea'});vibrar(25);}
+  else if(e.tipo==='bonus'){sfx('bonus');G.flot.push({x:e.x,y:e.y,txt:String(e.pts),t:ahora,dur:1100,col:'#ffb8de'});}
+  else if(e.tipo==='muere'){bucleSonido(null);sfx('muere');vibrar(70);}
+  else if(e.tipo==='limpio'){bucleSonido(null);sfx('limpio');}
+  else if(e.tipo==='vida'){sfx('vida');G.vidaT=ahora;}
+  else if(e.tipo==='nivel_nuevo'){G.murosK='';}
+  else if(e.tipo==='fin'){G.fin=true;bucleSonido(null);setTimeout(terminar,e.como==='gano'?900:1300);}}
 function vibrar(ms){if(PREF.vibrar===false)return;try{navigator.vibrate&&navigator.vibrate(ms);}catch(_){}}
-function cuenta(){const S=G.S,el=$('cuenta'),b=$('banda');if(!S)return;
-  let txt='';if(S.estado==='cuenta')txt=S.t>LAB.seg(1)?String(Math.ceil((S.t-LAB.seg(1))/LAB.FPS)||''):'¡Ya!';
-  else if(S.estado==='nivel')txt='¡Limpio!';
-  el.hidden=!txt;if(txt&&el.textContent!==txt)el.textContent=txt;
-  const bt=S.estado==='cuenta'&&S.nivel>=1?`${S.M.n}${S.cfg.modo==='rapida'?' · nivel '+S.nivel:''}`:'';
-  if(b.dataset.t!==bt){b.dataset.t=bt;b.innerHTML=bt?`<span>${esc(bt)}</span>`:'';}}
 
 /* ── Controles ── */
 const TECLAS={ArrowUp:0,KeyW:0,ArrowLeft:1,KeyA:1,ArrowDown:2,KeyS:2,ArrowRight:3,KeyD:3};
 const PULS=[];
 addEventListener('keydown',e=>{if($('modal').hidden===false||!$('side').hidden)return;
-  if(e.code==='Escape'||e.code==='KeyP'){if(G.S&&!G.fin){e.preventDefault();pausar(!G.pausa);}return;}
-  if(e.code==='Enter'&&G.pausa&&G.S&&!G.fin&&!$('over').hidden&&$('p-seguir')){e.preventDefault();$('p-seguir').click();return;}
+  if(e.code==='Escape'||e.code==='KeyP'){if(juegoActivo()){e.preventDefault();pausar(!G.pausa);}return;}
+  if(e.code==='Enter'&&G.pausa&&juegoActivo()&&!$('over').hidden&&$('p-seguir')){e.preventDefault();$('p-seguir').click();return;}
   const d=TECLAS[e.code];if(d==null||!G.S)return;e.preventDefault();
   if(!PULS.includes(d))PULS.push(d);G.held=d;G.once=d;});
 addEventListener('keyup',e=>{const d=TECLAS[e.code];if(d==null)return;const i=PULS.indexOf(d);if(i>=0)PULS.splice(i,1);G.held=PULS.length?PULS[PULS.length-1]:-1;});
-addEventListener('blur',()=>{PULS.length=0;G.held=-1;if(G.S&&!G.fin&&!G.pausa)pausar(true);});
-// Cruceta: cuatro zonas grandes alrededor de un centro neutro; mantener o tocar una vez da la misma orden
-(function(){const pad=$('pad');let id=null;
+addEventListener('blur',()=>{PULS.length=0;G.held=-1;if(juegoActivo()&&!G.pausa)pausar(true);});
+// Cruceta: toda la zona de abajo responde (no hace falta acertarle al botón): la dirección sale del ángulo respecto del
+// centro de la cruceta, con un centro neutro chico. Mantener o tocar una vez dan la misma orden.
+(function(){const pad=$('pad'),zona=$('ctrl');let id=null;
   const dirDe=(ev)=>{const r=pad.getBoundingClientRect(),x=ev.clientX-(r.left+r.width/2),y=ev.clientY-(r.top+r.height/2),R=r.width/2;
-    if(Math.hypot(x,y)<R*.16)return -1;return Math.abs(x)>Math.abs(y)?(x<0?1:3):(y<0?0:2);};
+    if(Math.hypot(x,y)<R*.15)return -1;return Math.abs(x)>Math.abs(y)?(x<0?1:3):(y<0?0:2);};
   const marca=d=>{pad.querySelectorAll('b').forEach(b=>b.classList.toggle('on',Number(b.dataset.d)===d));};
-  pad.addEventListener('pointerdown',ev=>{ev.preventDefault();if(id!==null)return;id=ev.pointerId;try{pad.setPointerCapture(id);}catch(_){}const d=dirDe(ev);G.held=d;if(d>=0)G.once=d;marca(d);actx();});
-  pad.addEventListener('pointermove',ev=>{if(ev.pointerId!==id)return;const d=dirDe(ev);if(d!==G.held){G.held=d;if(d>=0)G.once=d;marca(d);}});
+  zona.addEventListener('pointerdown',ev=>{if(PREF.ctrl==='swipe'||ev.target.closest('button,a'))return;ev.preventDefault();if(id!==null)return;id=ev.pointerId;try{zona.setPointerCapture(id);}catch(_){}
+    const d=dirDe(ev);G.held=d;if(d>=0)G.once=d;marca(d);actx();});
+  zona.addEventListener('pointermove',ev=>{if(ev.pointerId!==id)return;const d=dirDe(ev);if(d!==G.held){G.held=d;if(d>=0)G.once=d;marca(d);}});
   const suelta=ev=>{if(ev.pointerId!==id)return;id=null;G.held=-1;marca(-1);};
-  pad.addEventListener('pointerup',suelta);pad.addEventListener('pointercancel',suelta);pad.addEventListener('lostpointercapture',suelta);})();
-// Deslizar (opcional): sobre el tablero o la zona de abajo; un dedo manda, el segundo no cambia nada
+  zona.addEventListener('pointerup',suelta);zona.addEventListener('pointercancel',suelta);zona.addEventListener('lostpointercapture',suelta);})();
+// Deslizar (opcional): sobre el tablero o la zona de abajo; la orden sale apenas el dedo se mueve un poco (y se puede
+// seguir deslizando sin levantarlo); un segundo dedo no cambia nada
 (function(){let id=null,x0=0,y0=0;
-  const zonas=[$('vp'),$('ctrl')];
-  for(const z of zonas){
-    z.addEventListener('pointerdown',ev=>{if(PREF.ctrl!=='swipe'||ev.target.closest('button,.pad'))return;if(id!==null)return;id=ev.pointerId;x0=ev.clientX;y0=ev.clientY;actx();});
-    z.addEventListener('pointermove',ev=>{if(ev.pointerId!==id)return;const dx=ev.clientX-x0,dy=ev.clientY-y0,ax=Math.abs(dx),ay=Math.abs(dy),u=PREF.umbral||18;
+  for(const z of [$('vp'),$('ctrl')]){
+    z.addEventListener('pointerdown',ev=>{if(PREF.ctrl!=='swipe'||ev.target.closest('button,a'))return;if(id!==null)return;id=ev.pointerId;x0=ev.clientX;y0=ev.clientY;actx();});
+    z.addEventListener('pointermove',ev=>{if(ev.pointerId!==id)return;const dx=ev.clientX-x0,dy=ev.clientY-y0,ax=Math.abs(dx),ay=Math.abs(dy),u=PREF.umbral||14;
       if(Math.max(ax,ay)<u)return;const r=Math.max(ax,ay)/Math.max(1,Math.min(ax,ay));if(r<1.25&&Math.max(ax,ay)<u*1.8)return;
       const d=ax>ay?(dx<0?1:3):(dy<0?0:2);G.once=d;x0=ev.clientX;y0=ev.clientY;});
     const fin=ev=>{if(ev.pointerId===id)id=null;};z.addEventListener('pointerup',fin);z.addEventListener('pointercancel',fin);}
 })();
 function aplicarCtrl(){$('ctrl').classList.toggle('swipe',PREF.ctrl==='swipe');document.body.classList.toggle('zurdo',!!PREF.zurdo);
-  $('info').textContent=PREF.ctrl==='swipe'?'Deslizá el dedo hacia donde querés ir: sigue solo hasta la próxima pared.':'Mantené o tocá una dirección: sigue sola hasta la próxima pared.';
+  $('info').textContent=PREF.ctrl==='swipe'?'Deslizá el dedo hacia donde querés ir.':'Tocá o mantené: sigue solo hasta la pared. Doblá antes de la esquina.';
   if(PREF.ctrl==='swipe'&&esPC)document.body.classList.remove('pc');else if(esPC)document.body.classList.add('pc');
   requestAnimationFrame(acomodar);}
 
 /* ── Pausa, continuidad ── */
 function pausar(si){const S=G.S;if(!S||G.fin)return;G.pausa=si;G.held=-1;PULS.length=0;
-  if(si){guardar();const libre=S.cfg.libre||S.cfg.modo==='practica';
+  if(si){bucleSonido(null);guardar();const libre=S.cfg.libre||S.cfg.modo==='practica';
     over(`<div class="ic">⏸️</div><h3>En pausa</h3><p>${esc(S.M.n)} · ${S.cfg.modo==='rapida'?'nivel '+S.nivel+' · ':''}${fmt(S.puntos)} puntos</p>
       <button class="btn go" id="p-seguir">Continuar</button>
       <div class="row"><button class="btn" id="p-ctrl">Controles</button><button class="btn" id="p-son">${SND?'🔊 Sonido':'🔇 Sin sonido'}</button></div>
       <div class="row"><button class="btn" id="p-reini">Reiniciar</button><button class="btn" id="p-salir">Salir</button></div>
       <p class="cap">${libre?'Esta partida no da premios.':'Reiniciar o salir termina este intento (lo que ya jugaste no se pierde: cuenta para el récord si vale).'}</p>`);
-    $('p-seguir').onclick=()=>{hideOver();G.pausa=false;G.last=0;};
+    $('p-seguir').onclick=()=>{hideOver();G.pausa=false;G.last=0;actx();};
     $('p-ctrl').onclick=()=>ajustes(true);
     $('p-son').onclick=()=>{SND=!SND;ls.set(JUEGO.id+'-sonido',SND?'1':'0');$('p-son').textContent=SND?'🔊 Sonido':'🔇 Sin sonido';};
     $('p-reini').onclick=()=>{cerrarIntento(true);iniciar(G.op);};
@@ -4577,27 +4639,28 @@ function pausar(si){const S=G.S;if(!S||G.fin)return;G.pausa=si;G.held=-1;PULS.le
 function cerrarIntento(){const S=G.S;if(!S||G.fin)return;if(!['practica'].includes(S.cfg.modo)&&!S.cfg.libre){S.estado='fin';S.fin='salio';premiar(true);}
   ls.set('laberinto-partida-v1',null);G.S=null;G.fin=true;}
 function guardar(){const S=G.S;if(!S||G.fin||S.estado==='fin')return;
-  try{const o={op:G.op,run:G.run,S:{...S,M:undefined,mapasDef:undefined,obj:Array.from(S.obj),ev:[],_dc:undefined},t:Date.now()};ls.set('laberinto-partida-v1',JSON.stringify(o));}catch(_){}}
+  try{const o={v:2,op:G.op,run:G.run,S:{...S,M:undefined,mapasDef:undefined,obj:Array.from(S.obj),ev:[],_dc:undefined,_ad:undefined},t:Date.now()};ls.set('laberinto-partida-v1',JSON.stringify(o));}catch(_){}}
 function recuperar(){const o=ls.json('laberinto-partida-v1',null);if(!o||!o.S||!o.op)return false;
-  if(Date.now()-o.t>2*3600e3){ls.set('laberinto-partida-v1',null);return false;}   // más de dos horas: ya no se recupera
+  // más de dos horas, o una partida de los mapas viejos (antes de la v74): ya no se recupera
+  if(Date.now()-o.t>2*3600e3||o.v!==2||!MAPAS[o.S.mapaIdx]){ls.set('laberinto-partida-v1',null);return false;}
   const S=o.S;S.mapasDef=MAPAS;S.M=LAB.leer(MAPAS[S.mapaIdx]);S.obj=Uint8Array.from(S.obj);S.ev=[];
-  G.S=S;G.op=o.op;G.run=o.run;G.fin=false;G.prev=null;G.objMostrar=!!o.op.objetivos;G.mateMax=S.v.mate||1;acomodar();HUDK='';hud();pausar(true);return true;}
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(G.S&&!G.fin&&!G.pausa)pausar(true);else guardar();}});
+  G.S=S;G.D=null;G.op=o.op;G.run=o.run;G.fin=false;G.prev=null;G.objMostrar=!!o.op.objetivos;G.mateMax=S.v.mate||1;acomodar();HUDK='';hud();pausar(true);return true;}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){bucleSonido(null);if(juegoActivo()&&!G.pausa)pausar(true);else guardar();}});
 addEventListener('pagehide',guardar);
-addEventListener('orientationchange',()=>{if(G.S&&!G.fin&&!G.pausa)pausar(true);setTimeout(acomodar,300);});
+addEventListener('orientationchange',()=>{if(juegoActivo()&&!G.pausa)pausar(true);setTimeout(acomodar,300);});
 
 /* ── Empezar ── */
 function iniciar(op){
   G.op=op;G.run=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   const base={modo:op.modo,dif:op.dif||'normal'};
   if(op.modo==='rapida')Object.assign(base,{mapas:M_RAPIDA,niveles:10,semilla:LAB.hash(G.run),limite:20*60});
-  else if(op.modo==='dia'){const D=LAB.delDia(diaAR(),10);Object.assign(base,{dif:'normal',mapas:[D.mapa],niveles:1,vidas:1,semilla:D.semilla,limite:5*60});op.fecha=diaAR();}
-  else if(op.modo==='campana'){const E=ETAPAS[op.etapa];Object.assign(base,{dif:'normal',mapas:[E.m],niveles:1,vidas:3,semilla:LAB.hash('etapa'+op.etapa)});}
-  else if(op.modo==='practica')Object.assign(base,{mapas:[op.mapa||0],niveles:1,semilla:LAB.hash(G.run),invulnerable:!!op.invulnerable,vJug:op.lenta?3.4:0,vEnem:op.lenta?2.6:0});
-  else if(op.modo==='libre')Object.assign(base,{mapas:op.secuencia?M_RAPIDA:[op.mapa||0],niveles:op.niveles||1,semilla:LAB.hash(G.run),vidas:op.vidas,enemigos:op.enemigos,vJug:op.vJug,vEnem:op.vEnem,mate:op.mate,libre:true});
-  G.S=LAB.crear(base,MAPAS);G.fin=false;G.pausa=false;G.prev=null;G.acc=0;G.last=0;G.flot=[];G.objMostrar=op.modo==='practica'&&!!op.objetivos;G.mateMax=G.S.v.mate||1;
+  else if(op.modo==='dia'){const D=LAB.delDia(diaAR(),NM);Object.assign(base,{dif:'normal',mapas:[D.mapa],niveles:1,vidas:1,semilla:D.semilla,limite:5*60});op.fecha=diaAR();}
+  else if(op.modo==='campana'){const E=ETAPAS[op.etapa];Object.assign(base,{dif:'normal',mapas:[E.m],niveles:1,vidas:3,semilla:LAB.hash('etapa'+op.etapa),acel:E.acel});}
+  else if(op.modo==='practica')Object.assign(base,{mapas:[op.mapa||0],niveles:1,semilla:LAB.hash(G.run),invulnerable:!!op.invulnerable,vJug:op.lenta?5.2:0,vEnem:op.lenta?4.2:0});
+  else if(op.modo==='libre')Object.assign(base,{mapas:op.secuencia?M_RAPIDA.slice(0,NM):[op.mapa||0],niveles:op.niveles||1,semilla:LAB.hash(G.run),vidas:op.vidas,enemigos:op.enemigos,vJug:op.vJug,vEnem:op.vEnem,mate:op.mate,libre:true});
+  G.S=LAB.crear(base,MAPAS);G.D=null;G.fin=false;G.pausa=false;G.prev=null;G.acc=0;G.last=0;G.flot=[];G.objMostrar=op.modo==='practica'&&!!op.objetivos;G.mateMax=G.S.v.mate||1;
   G.recIni=(REC()[base.dif]||0);
-  ls.set('laberinto-partida-v1',null);hideOver();closeSheet&&($('modal').hidden=true);HUDK='';acomodar();hud();actx();
+  ls.set('laberinto-partida-v1',null);hideOver();closeSheet&&($('modal').hidden=true);HUDK='';acomodar();hud();actx();sfx('arranque');
 }
 
 /* ── Fin y premios ── */
@@ -4634,32 +4697,41 @@ function premiar(silencioso){const S=G.S,r=LAB.resumen(S),modo=S.cfg.modo,out={r
   return out;
 }
 function mostrarFin(o){const S=G.S,r=o.r,modo=S.cfg.modo;
-  const tit=r.fin==='gano'?'¡Vuelta completa!':r.fin==='tiempo'?'Se terminó el tiempo':modo==='campana'&&r.mapas?'¡Etapa limpia!':modo==='dia'&&r.mapas?'¡Limpiaste el del día!':'Se terminó';
-  const est=o.estrellas?`<p style="font-size:26px;letter-spacing:4px">${o.estrellas.map(x=>x?'★':'☆').join('')}</p><p class="cap">Limpiarlo · sin perder vidas · en menos de ${ETAPAS[G.op.etapa].obj} s</p>`:'';
+  const tit=r.fin==='gano'?'¡Vuelta completa!':r.fin==='tiempo'?'Se terminó el tiempo':modo==='campana'&&r.mapas?'¡Etapa limpia!':modo==='dia'&&r.mapas?'¡Limpiaste el del día!':'Fin del juego';
+  const est=o.estrellas?`<p class="estr">${o.estrellas.map(x=>x?'★':'☆').join('')}</p><p class="cap">Limpiarla · sin perder vidas · en menos de ${ETAPAS[G.op.etapa].obj} s</p>`:'';
   const porque=!o.homolog?'<p class="cap">Práctica y reglas libres: no dan premios ni leguas, y no cuentan para las tablas.</p>':!o.vale?'<p class="cap">Para premios, la partida tiene que durar un minuto con 30 cosas recogidas, o limpiar un mapa.</p>':'';
   const prem=o.premio?premiosHtml(o.premio):'';
   const leg=o.leguas?'<p class="cap">🚩 +1 legua en La Gran Pampa</p>':'';
   const sig=modo==='campana'&&r.mapas&&G.op.etapa<14?`<button class="btn go" id="f-sig">Siguiente etapa</button>`:'';
-  const el=over(`<div class="ic">${r.mapas?'🧉':'🌾'}</div><h3>${tit}</h3><div class="res-pts">${fmt(r.puntos)}</div>${o.record?'<p><b>¡Récord en '+DIFN[r.dif]+'!</b></p>':modo==='rapida'&&o.homolog?`<p class="cap">Tu récord en ${DIFN[r.dif]}: ${fmt(Math.max(G.recIni,r.puntos))}</p>`:''}
-    ${est}<div class="stats"><div><b>${r.mapas}</b><small>mapas limpios</small></div><div><b>${fmt(r.recogidos)}</b><small>recogidas</small></div><div><b>${r.capturas}</b><small>corridos</small></div></div>
+  const recTxt=o.record?'<p class="rec">¡RÉCORD EN '+DIFN[r.dif].toUpperCase()+'!</p>':modo==='rapida'&&o.homolog?`<p class="cap">Tu récord en ${DIFN[r.dif]}: ${fmt(Math.max(G.recIni,r.puntos))}${r.puntos<G.recIni?' · te faltaron '+fmt(G.recIni-r.puntos):''}</p>`:'';
+  over(`<h3>${tit}</h3><div class="res-pts">${fmt(r.puntos)}</div>${recTxt}
+    ${est}<div class="stats"><div><b>${r.mapas}</b><small>mapas limpios</small></div><div><b>${fmt(r.recogidos)}</b><small>semillas</small></div><div><b>${r.capturas}</b><small>corridos</small></div></div>
     <p class="cap">${modo==='rapida'?'Nivel '+r.nivel+' · ':''}${reloj(r.seg*1000)} jugados${r.vidasPerdidas?' · '+r.vidasPerdidas+(r.vidasPerdidas===1?' vida perdida':' vidas perdidas'):''}</p>
+    <button class="btn go tall" id="f-otra">▶ Otra</button>${sig}
     ${prem}${leg}${modo==='dia'?'<p class="cap" id="f-dia"></p>':''}${porque}${o.lg||''}
-    ${sig}<div class="row"><button class="btn go" id="f-otra">Volver a jugar</button><button class="btn" id="f-ini">Cambiar</button></div><a class="btn" href="./#juegos">Volver a BloqueAR</a>`);
+    <div class="row"><button class="btn" id="f-ini">Cambiar</button><a class="btn" href="./#juegos">Volver a BloqueAR</a></div>`);
   if(modo==='dia'&&o.homolog){if(o.diaPrimera&&o.vale)delDiaEnviar(G.op.fecha,r.puntos,{lim:r.mapas?1:0,rec:r.recogidos});else{const e=$('f-dia');if(e)e.innerHTML=o.diaPrimera?'Para la tabla del día tiene que valer (un minuto y 30 recogidas, o limpiarlo).':'Para la tabla cuenta el primer intento del día. Podés seguir jugándolo igual.';}}
   if(r.mapas)confeti();
   $('f-otra').onclick=()=>iniciar(G.op);$('f-ini').onclick=inicio;
   if($('f-sig'))$('f-sig').onclick=()=>iniciar({modo:'campana',etapa:G.op.etapa+1});
 }
 
-/* ── Inicio ── */
-function inicio(){G.S=null;G.fin=true;dibujar(1);hud();
-  const R=REC(),o=ESTR(),hoy=diaAR(),D=DIAS(),dd=LAB.delDia(hoy,10);let et=0,st=0;for(const E of ETAPAS){if(o['e'+E.i+'c'])et++;st+=(o['e'+E.i+'c']?1:0)+(o['e'+E.i+'n']?1:0)+(o['e'+E.i+'t']?1:0);}
+/* ── Inicio (con la demo corriendo atrás, como las maquinitas) ── */
+function logo(c,txt,p,col){const w=pixAncho(txt,p)+p*4,h=p*11;c.width=w*2;c.height=h*2;c.style.width=w+'px';c.style.height=h+'px';const g=c.getContext('2d');g.scale(2,2);
+  g.shadowColor=col;g.shadowBlur=p*2;pix(g,txt,p*2,p*3,p,col,'izq');}
+function elenco(c){const W=300,H=58;c.width=W*2;c.height=H*2;c.style.width=W+'px';c.style.height=H+'px';const g=c.getContext('2d');g.scale(2,2);const t=performance.now();
+  const nombres=['ZORRO','LECHUZA','TERO','PELUDO'];
+  LAB.NOMBRES.forEach((N,i)=>{const x=38+i*75;bicho(g,x,20,13,{i,dir:2,st:'persigue'},false,t,null);pix(g,nombres[i],x,42,1.6,N.c,'centro');});}
+function inicio(){G.S=null;G.fin=true;if(!G.D)nuevaDemo();hud();
+  const R=REC(),o=ESTR(),hoy=diaAR(),D=DIAS(),dd=LAB.delDia(hoy,NM);let et=0,st=0;for(const E of ETAPAS){if(o['e'+E.i+'c'])et++;st+=(o['e'+E.i+'c']?1:0)+(o['e'+E.i+'n']?1:0)+(o['e'+E.i+'t']?1:0);}
   const dif=ls.get('laberinto-dif')||'normal',hay=ls.json('laberinto-partida-v1',null);
-  over(`<div class="ini" style="display:flex;flex-direction:column;gap:10px">
-    <div class="logo">Laberint<span>AR</span></div><div class="bajada">Juntá todas las semillas y que no te agarren. Con un mate, los corrés vos.</div>
-    ${hay?'<button class="btn go" id="i-volver">↩️ Volver a tu partida</button>':''}
+  over(`<div class="ini">
+    <canvas class="logo" id="i-logo" aria-label="LaberintAR"></canvas>
+    <canvas class="elenco" id="i-elenco" aria-hidden="true"></canvas>
+    <div class="bajada">Comé todas las semillas y que no te agarren. Con un mate, los corrés vos.</div>
+    ${hay&&hay.v===2?'<button class="btn go" id="i-volver">↩️ Volver a tu partida</button>':''}
     <div class="difs">${Object.entries(DIFN).map(([k,n])=>`<button class="btn${k===dif?' on':''}" data-dif="${k}">${n}</button>`).join('')}</div>
-    <button class="btn go tall" id="i-jugar">▶ Jugar<small>10 mapas · 3 vidas · récord ${fmt(R[dif]||0)}</small></button>
+    <button class="btn go tall" id="i-jugar">▶ Jugar<small>10 niveles · 3 vidas · récord ${fmt(R[dif]||0)}</small></button>
     <div class="modos">
       <button class="btn" id="i-dia">🗓️ Del día<small>${esc(MAPAS[dd.mapa].n)} · 1 vida${hoy in D?' · hecho':''}</small></button>
       <button class="btn" id="i-camp">🏆 Campaña<small>${et}/15 etapas · ★ ${st}/45</small></button>
@@ -4669,6 +4741,7 @@ function inicio(){G.S=null;G.fin=true;dibujar(1);hud();
     ${nivelHtml()}
     <div class="row"><button class="btn" id="i-como">Cómo se juega</button><button class="btn" id="i-ctrl">Controles</button></div>
   </div>`);
+  logo($('i-logo'),'LABERINTAR',4,'#ffe23f');elenco($('i-elenco'));
   document.querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{ls.set('laberinto-dif',b.dataset.dif);inicio();});
   $('i-jugar').onclick=()=>iniciar({modo:'rapida',dif});
   $('i-dia').onclick=()=>iniciar({modo:'dia'});
@@ -4677,62 +4750,64 @@ function inicio(){G.S=null;G.fin=true;dibujar(1);hud();
   if(!ls.get('laberinto-ayuda')){ls.set('laberinto-ayuda','1');setTimeout(comoSeJuega,250);}
 }
 function campana(){const o=ESTR();let html='';
-  for(let r=0;r<3;r++){html+=`<h4>${['Patio','Estación','Pampa nocturna'][r]}</h4><div class="etapas">`;
+  for(let r=0;r<3;r++){html+=`<h4>${REGIONES[r]}${r?` · ${r===1?'un poco':'bastante'} más rápido`:''}</h4><div class="etapas">`;
     for(const E of ETAPAS.slice(r*5,r*5+5)){const ab=E.i===0||!!o['e'+(E.i-1)+'c'],n=(o['e'+E.i+'c']?1:0)+(o['e'+E.i+'n']?1:0)+(o['e'+E.i+'t']?1:0);
       html+=`<button data-et="${E.i}" ${ab?'':'disabled'} class="${ab&&!o['e'+E.i+'c']?'hoy':''}" title="${esc(MAPAS[E.m].n)}">${E.i+1}<small>${'★'.repeat(n)}${'☆'.repeat(3-n)}</small></button>`;}
     html+='</div>';}
-  sheet('Campaña',`<p>Quince etapas en tres regiones. Cada una se juega en Normal con 3 vidas. Estrellas: limpiarla · sin perder ninguna vida · antes del tiempo (150 s en el Patio, 135 en la Estación, 120 en la Pampa nocturna). La primera vez que limpiás cada etapa da premio.</p>${html}`);
+  sheet('Campaña',`<p>Quince etapas en tres regiones: los cinco laberintos, cada vez más rápido. Cada una se juega con 3 vidas. Estrellas: limpiarla · sin perder ninguna vida · antes del tiempo (100 s en el Patio, 95 en la Estación, 90 en la Pampa nocturna). La primera vez que limpiás cada etapa da premio.</p>${html}`);
   document.querySelectorAll('[data-et]').forEach(b=>b.onclick=()=>{closeSheet();iniciar({modo:'campana',etapa:Number(b.dataset.et)});});}
 function practica(){const P={mapa:0,objetivos:true,invulnerable:false,lenta:false};
-  const pintar=()=>{sheet('Práctica',`<p>Para probar mapas y rutas. No da premios ni cuenta para las tablas.</p><h4>Mapa</h4><div class="mapas">${MAPAS.slice(0,10).map((m,i)=>`<button data-m="${i}" class="${i===P.mapa?'on':''}">${esc(m.n)}</button>`).join('')}</div>
+  const pintar=()=>{sheet('Práctica',`<p>Para probar los laberintos y tus rutas de escape. No da premios ni cuenta para las tablas.</p><h4>Laberinto</h4><div class="mapas">${MAPAS.map((m,i)=>`<button data-m="${i}" class="${i===P.mapa?'on':''}">${esc(m.n)}<small>${esc(m.idea)}</small></button>`).join('')}</div>
     <div class="ajustes">${[['objetivos','Ver a dónde va cada uno','Una cruz del color de cada perseguidor'],['invulnerable','No me agarran','Para practicar tranquilo'],['lenta','Más despacio','Todos van más lento']].map(([k,t,s])=>`<button class="aj${P[k]?' on':''}" data-k="${k}"><span><b>${t}</b><small>${s}</small></span><i></i></button>`).join('')}</div>
     <button class="btn go" id="pr-go">Empezar</button>`);
     document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{P.mapa=Number(b.dataset.m);pintar();});
     document.querySelectorAll('.aj[data-k]').forEach(b=>b.onclick=()=>{P[b.dataset.k]=!P[b.dataset.k];pintar();});
     $('pr-go').onclick=()=>{closeSheet();iniciar({modo:'practica',...P});};};pintar();}
-function libres(){const P=Object.assign({vidas:3,enemigos:4,vJug:4.5,vEnem:4,mate:6,mapa:0,secuencia:false,niveles:1},ls.json('laberinto-libre',{}));
-  const fila=(k,t,s,min,max,paso,fmtv)=>`<div class="regla"><span><b>${t}</b><small>${s}</small></span><div class="st"><button data-k="${k}" data-d="-1" aria-label="menos">−</button><b>${fmtv?fmtv(P[k]):P[k]}</b><button data-k="${k}" data-d="1" aria-label="más">+</button></div></div>`;
-  const LIM={vidas:[1,9,1],enemigos:[1,4,1],vJug:[2.5,6,.5],vEnem:[2,6,.5],mate:[0,12,1]};
+function libres(){const DEF={vidas:3,enemigos:4,vJug:7.6,vEnem:6.8,mate:5};const P=Object.assign({...DEF,mapa:0,secuencia:false,niveles:1},ls.json('laberinto-libre',{}));
+  if(P.vJug<5)Object.assign(P,{vJug:DEF.vJug,vEnem:DEF.vEnem});   // lo guardado con las velocidades viejas (antes de la v74)
+  const fila=(k,t,s,fmtv)=>`<div class="regla"><span><b>${t}</b><small>${s}</small></span><div class="st"><button data-k="${k}" data-d="-1" aria-label="menos">−</button><b>${fmtv?fmtv(P[k]):P[k]}</b><button data-k="${k}" data-d="1" aria-label="más">+</button></div></div>`;
+  const LIM={vidas:[1,9,1],enemigos:[1,4,1],vJug:[4,10,.2],vEnem:[3,10,.2],mate:[0,12,1]};
   const pintar=()=>{sheet('Reglas libres',`<div class="aviso-libre">Reglas libres · sin premios: se juega igual, pero no da oro, XP, leguas ni récords.</div>
-    ${fila('vidas','Vidas','De 1 a 9',1,9,1)}${fila('enemigos','Perseguidores','Primero sale el Colorado, después Violeta, Turquesa y Ocre')}
-    ${fila('vJug','Tu velocidad','Casillas por segundo',0,0,0,v=>v.toFixed(1))}${fila('vEnem','Velocidad de ellos','Casillas por segundo',0,0,0,v=>v.toFixed(1))}
-    ${fila('mate','Mate','Segundos para correrlos (0: no se puede)',0,0,0,v=>v+' s')}
-    <h4>Mapa</h4><div class="mapas"><button data-sec="1" class="${P.secuencia?'on':''}">Los 10 seguidos</button>${MAPAS.slice(0,10).map((m,i)=>`<button data-m="${i}" class="${!P.secuencia&&i===P.mapa?'on':''}">${esc(m.n)}</button>`).join('')}</div>
+    ${fila('vidas','Vidas','De 1 a 9')}${fila('enemigos','Perseguidores','Primero sale el Colorado, después Violeta, Turquesa y Ocre')}
+    ${fila('vJug','Tu velocidad','Casillas por segundo',v=>v.toFixed(1))}${fila('vEnem','Velocidad de ellos','Casillas por segundo',v=>v.toFixed(1))}
+    ${fila('mate','Mate','Segundos para correrlos (0: no se puede)',v=>v+' s')}
+    <h4>Laberinto</h4><div class="mapas"><button data-sec="1" class="${P.secuencia?'on':''}">Los ${NM} seguidos</button>${MAPAS.map((m,i)=>`<button data-m="${i}" class="${!P.secuencia&&i===P.mapa?'on':''}">${esc(m.n)}</button>`).join('')}</div>
     <div class="row"><button class="btn" id="lb-def">Volver a Normal</button><button class="btn go" id="lb-go">Empezar</button></div>`);
     document.querySelectorAll('.st button').forEach(b=>b.onclick=()=>{const k=b.dataset.k,[mn,mx,ps]=LIM[k];P[k]=Math.round(Math.max(mn,Math.min(mx,P[k]+Number(b.dataset.d)*ps))*10)/10;pintar();});
     document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{P.mapa=Number(b.dataset.m);P.secuencia=false;pintar();});
     $('sheet').querySelector('[data-sec]').onclick=()=>{P.secuencia=true;pintar();};
-    $('lb-def').onclick=()=>{Object.assign(P,{vidas:3,enemigos:4,vJug:4.5,vEnem:4,mate:6});pintar();};
-    $('lb-go').onclick=()=>{ls.set('laberinto-libre',JSON.stringify(P));closeSheet();iniciar({modo:'libre',...P,niveles:P.secuencia?10:1});};};pintar();}
-function comoSeJuega(){sheet('Cómo se juega',`<p>Recorré el laberinto y juntá <b>todas las semillas</b> 🌾 y los <b>mates</b> 🧉. Cuando no queda nada, pasás al mapa siguiente.</p>
-  <p>Te persiguen cuatro: <b style="color:#b8402e">el Colorado</b> (zorro) va derecho a vos; <b style="color:#7a4ab8">la Violeta</b> (lechuza) apunta adelante tuyo; <b style="color:#1f8a84">el Turquesa</b> (tero) te corta el paso según dónde esté el Colorado; <b style="color:#a86a10">el Ocre</b> (peludo) te sigue de lejos y de cerca se va a su rincón. A ratos se van a su rincón y después vuelven a buscarte.</p>
-  <p>Un <b>mate</b> los asusta unos segundos: se ponen celestes y los podés correr (200, 400, 800 y 1600 puntos seguidos). Cuando titilan, se les pasa.</p>
-  <p>Cuando llevás juntado un tercio y tres cuartos aparece una <b>torta frita</b> abajo del corral: vale más en cada nivel.</p>
-  <h4>Controles</h4><ul><li><b>Celular:</b> la cruceta (mantener o tocar: sigue sola hasta la próxima pared). Podés pedir el giro antes de llegar a la esquina. En Controles podés cambiar a deslizar el dedo y ponerla del otro lado.</li><li><b>Compu:</b> flechas o WASD; P o Esc para pausar.</li></ul>
-  <h4>Premios</h4><p>Partida rápida, Del día y Campaña dan oro, XP y una legua por día para La Gran Pampa si la partida vale (un minuto con 30 recogidas, o un mapa limpio). El del día da otra legua y va a la tabla del día. Práctica y reglas libres no dan premios.</p>`);}
+    $('lb-def').onclick=()=>{Object.assign(P,DEF);pintar();};
+    $('lb-go').onclick=()=>{ls.set('laberinto-libre',JSON.stringify(P));closeSheet();iniciar({modo:'libre',...P,niveles:P.secuencia?NM:1});};};pintar();}
+function comoSeJuega(){sheet('Cómo se juega',`<p>Recorré el laberinto y comé <b>todas las semillas</b> y los <b>mates</b> 🧉. Cuando no queda nada, pasás al siguiente.</p>
+  <p>Te persiguen cuatro: <b style="color:#d63030">el Colorado</b> (zorro) va derecho a vos y se apura cuando quedan pocas semillas; <b style="color:#c040a8">la Violeta</b> (lechuza) apunta adelante tuyo; <b style="color:#1f9a96">el Turquesa</b> (tero) te corta el paso según dónde esté el Colorado; <b style="color:#b8741a">el Ocre</b> (peludo) te sigue de lejos y de cerca se va a su rincón. A ratos se van a sus rincones y después vuelven a buscarte.</p>
+  <p>Un <b>mate</b> los asusta unos segundos: se ponen azules y los podés correr (200, 400, 800 y 1600 puntos seguidos). Cuando titilan, se les pasa. En los <b>túneles</b> de los costados ellos van más lento: usalos para escaparte.</p>
+  <p><b>Doblá antes de llegar a la esquina:</b> la orden queda guardada y el pajarito corta la curva; doblar bien te hace más rápido que ellos.</p>
+  <p>Dos veces por laberinto aparece un <b>bonus</b> abajo del corral (torta frita, empanada, alfajor…): vale más en cada nivel. A los 10.000 puntos, una vida más.</p>
+  <h4>Controles</h4><ul><li><b>Celular:</b> la cruceta (toda la zona de abajo responde; mantener o tocar: sigue solo hasta la próxima pared). En Controles podés cambiar a deslizar el dedo y ponerla del otro lado.</li><li><b>Compu:</b> flechas o WASD; P o Esc para pausar.</li></ul>
+  <h4>Premios</h4><p>Partida rápida, Del día y Campaña dan oro, XP y una legua por día para La Gran Pampa si la partida vale (un minuto con 30 recogidas, o un laberinto limpio). El del día da otra legua y va a la tabla del día. Práctica y reglas libres no dan premios.</p>`);}
 function ajustes(enPausa){const pintar=()=>{sheet('Controles',`<div class="ajustes">
     <button class="aj${PREF.ctrl==='swipe'?' on':''}" data-k="swipe"><span><b>Deslizar el dedo</b><small>En vez de la cruceta: deslizá sobre el tablero o abajo</small></span><i></i></button>
     <button class="aj${PREF.zurdo?' on':''}" data-k="zurdo"><span><b>Zurdo</b><small>Los controles del otro lado</small></span><i></i></button>
     <button class="aj${PREF.vibrar!==false?' on':''}" data-k="vibrar"><span><b>Vibrar</b><small>Al comer un mate, correr a uno o perder una vida</small></span><i></i></button>
     <button class="aj${SND?' on':''}" data-k="son"><span><b>Sonido</b></span><i></i></button>
-    ${PREF.ctrl==='swipe'?`<div class="regla"><span><b>Sensibilidad del deslizar</b><small>Cuánto hay que mover el dedo (12 a 36 px)</small></span><div class="st"><button data-u="-3">−</button><b>${PREF.umbral}</b><button data-u="3">+</button></div></div>`:''}
+    ${PREF.ctrl==='swipe'?`<div class="regla"><span><b>Sensibilidad del deslizar</b><small>Cuánto hay que mover el dedo (8 a 36 px)</small></span><div class="st"><button data-u="-2">−</button><b>${PREF.umbral}</b><button data-u="2">+</button></div></div>`:''}
   </div>`);
   document.querySelectorAll('.aj[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(k==='swipe')PREF.ctrl=PREF.ctrl==='swipe'?'pad':'swipe';else if(k==='son'){SND=!SND;ls.set(JUEGO.id+'-sonido',SND?'1':'0');}else if(k==='vibrar')PREF.vibrar=PREF.vibrar===false;else PREF[k]=!PREF[k];guardaPref();aplicarCtrl();pintar();});
-  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{PREF.umbral=Math.max(12,Math.min(36,PREF.umbral+Number(b.dataset.u)));guardaPref();pintar();});};
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{PREF.umbral=Math.max(8,Math.min(36,PREF.umbral+Number(b.dataset.u)));guardaPref();pintar();});};
   pintar();}
 function alCerrarHoja(){}
 
 /* ── Menú ── */
-$('btn-menu').onclick=()=>{if(G.S&&!G.fin&&!G.pausa)pausar(true);
+$('btn-menu').onclick=()=>{if(juegoActivo()&&!G.pausa)pausar(true);
   openSide(`<div class="side-head"><h2>LaberintAR</h2><button class="side-x" id="m-x" aria-label="Cerrar">✕</button></div>${nivelHtml()}
   <div class="menu-list"><button id="m-ini">🏠 Inicio del juego</button><button id="m-como">❓ Cómo se juega</button><button id="m-ctrl">🎮 Controles</button>${menuPie()}</div>`);
-  $('m-x').onclick=closeSide;$('m-ini').onclick=()=>{closeSide();if(G.S&&!G.fin)cerrarIntento(true);inicio();};$('m-como').onclick=()=>{closeSide();comoSeJuega();};$('m-ctrl').onclick=()=>{closeSide();ajustes(false);};
+  $('m-x').onclick=closeSide;$('m-ini').onclick=()=>{closeSide();if(juegoActivo())cerrarIntento(true);inicio();};$('m-como').onclick=()=>{closeSide();comoSeJuega();};$('m-ctrl').onclick=()=>{closeSide();ajustes(false);};
   cablearPie(()=>$('btn-menu').click());};
 
 /* ── Arranque ── */
 (function(){
   const malos=MAPAS.map((m,i)=>[i,LAB.validar(m)]).filter(x=>x[1].length);if(malos.length)console.warn('LaberintAR: mapas con problemas',malos);
-  iniciarComun(()=>G.S&&!G.fin&&!G.pausa);aplicarCtrl();
+  iniciarComun(()=>juegoActivo()&&!G.pausa);aplicarCtrl();
   addEventListener('lg-apariencia',()=>{G.murosK='';});
   new ResizeObserver(()=>acomodar()).observe($('vp'));
   G.raf=requestAnimationFrame(bucle);

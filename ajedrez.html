@@ -185,6 +185,9 @@ button{font:inherit;color:inherit;cursor:pointer}
   .act{font-size:12.5px;padding:0 4px}
 }
 @media (prefers-reduced-motion:reduce){.sheet,.side-panel,.toast,.emo,.pz.capt,.sq.promo-flash::after,.sq.chk.pulse::before{animation:none}.pz.anim{transition:none}.pz.capt{display:none}}
+
+/* v74: la lista de amigos para invitar no se achica dentro de la hoja (se veía una sola fila cortada): se ven 2 o 3 filas enteras y, si hay más, scroll */
+.sheet .ulist,.ulist.chica,.ulist.compacta,.ulist.corta{flex:none}.ulist li{flex:none}.ulist.chica,.ulist.compacta{max-height:max(156px,min(240px,34vh))}
 </style>
 <script>
 /* ───────── SYNCRO: tu progreso en todos los dispositivos (v63) ─────────
@@ -1598,7 +1601,9 @@ invasores:{n:'InvasorAR',e:'👾',   // v73
     {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
     {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
     {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
-    {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a combo ×4 (40 bajas seguidas).',k:'max_combo',m:4,marca:true},
+    {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a ×4 en la cadena (18 bajas seguidas sin dejarla caer).',k:'max_combo',m:4,marca:true},
+    {id:'racha8',e:'💥',n:'Cadena ×8',d:'Llegá a ×8 en la cadena (42 bajas seguidas).',k:'max_combo',m:8,marca:true},
+    {id:'perfecto',e:'⭐',n:'Bonus perfecto',d:'Bajá a todos los dorados de una oleada bonus.',k:'perfectos'},
     {id:'duelo',e:'⚔️',n:'Duelo ganado',d:'Ganale un duelo a alguien de verdad.',k:'ganadas_online'},
     {id:'expedicion',e:'♾️',n:'Expedición larga',d:'Llegá a 15 oleadas limpias en Resistencia.',k:'olas_res',m:15,marca:true},
     {id:'contrabando',e:'📦',n:'Contrabandista',d:'Bajá 10 naves de suministros.',k:'suministros',m:10},
@@ -1836,7 +1841,7 @@ function finEventos(j,d){const E=[],win=!!d.gano,compu=d.modo==='compu',dif=d.di
   if(j==='buscaminas'&&win){E.push(['gan_'+dif,1]);if(dif!=='principiante')E.push(['gan_ie',1]);if(d.diario)E.push(['dias',1]);if(d.sinBand)E.push(['sin_band',1]);
     if(d.limpio){E.push(['sin_pistas',1]);if(dif!=='principiante')E.push(['limpios_ie',1]);}
     if(dif==='principiante'&&d.ms<20000)E.push(['rapido_p',1]);if(dif==='intermedio'&&d.ms<120000)E.push(['rapido_i',1]);}
-  if(j==='invasores'){if(d.olas)E.push(['oleadas',d.olas]);if(d.bajas)E.push(['bajas',d.bajas]);if(d.sum)E.push(['suministros',d.sum]);if(d.cen)E.push(['centinela',d.cen]);if(d.nod)E.push(['nodriza',d.nod]);
+  if(j==='invasores'){if(d.olas)E.push(['oleadas',d.olas]);if(d.bajas)E.push(['bajas',d.bajas]);if(d.sum)E.push(['suministros',d.sum]);if(d.cen)E.push(['centinela',d.cen]);if(d.nod)E.push(['nodriza',d.nod]);if(d.perf)E.push(['perfectos',d.perf]);
     if(d.escudos)E.push(['escudos',d.escudos]);if(d.diario)E.push(['dias',1]);if(win&&d.limpio)E.push(['limpio',1]);if(win&&dif==='experta'&&d.modo==='solo')E.push(['gan_experta',1]);}
   if(j==='laberinto'){if(d.limpios)E.push(['limpios',d.limpios]);if(d.sinMorir)E.push(['sin_morir',d.sinMorir]);if(d.combo4)E.push(['combo4',1]);if(d.capturas)E.push(['capturas',d.capturas]);
     if(d.bonus)E.push(['bonus',d.bonus]);if(d.vuelta)E.push(['vuelta',1]);if(d.diario)E.push(['dias',1]);if(d.limDif)E.push(['lim_dif',d.limDif]);}
@@ -3059,6 +3064,11 @@ window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.
        <header>: con umbral (un toque sigue siendo un toque), se pega al borde izquierdo o derecho, nunca queda fuera de la
        pantalla y se recuerda por juego y por orientación (localStorage «mesa-chat-pos:<juego>:v|h»). Agrega «⟲» para
        volver a su lugar. Los globitos de mensajes nuevos salen del lado donde lo dejaste.
+   · (v74) El panel queda chico (alto fijo, scroll adentro), tiene ▁ para minimizarlo a una barrita arrastrable y se mueve
+     libre por toda la pantalla. movible(el, juego, {abrir, cerrar, btn, visible, ancla}) — abrir: cómo reabrirlo desde
+     la barrita (si no, se muestra el mismo panel); btn: el botón del chat del juego (la barrita se ve mientras él se vea).
+   · nuevo(juego, de, txt)  (v74) los chats propios (UnoAR, LudAR, InvasorAR) avisan cada mensaje que llega: si está
+     minimizado, suma en la barrita y sale un globito arriba de ella (tocarlo abre el chat). Devuelve true si lo mostró.
    El mensaje en la red: {t:'mchat', de, txt, eq}. eq=1: sólo para el equipo del que lo manda. */
 (function(){
 'use strict';
@@ -3088,13 +3098,16 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-m .mc-eq{font-size:11px;color:#7ce9e5;border:1px solid #7ce9e555;border-radius:6px;padding:0 4px;margin-right:4px}
 .mc-vacio{color:#8f9ba3;font-size:13px}
 .mc-rap{display:flex;gap:6px;padding:6px 10px 0;overflow-x:auto;scrollbar-width:none}.mc-rap::-webkit-scrollbar{display:none}
-.mc-rap button{flex:none;height:34px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font-size:13px;white-space:nowrap}
-.mc-rap button.e{font-size:18px;padding:0 8px}
+.mc-rap button{flex:none;height:34px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font-size:13px;white-space:nowrap;cursor:pointer}
+.mc-rap button.e{font-size:18px;padding:0;width:36px}
 .mc-a{display:flex;gap:6px;padding:8px 10px 0}.mc-a button{flex:1;height:32px;border-radius:9px;border:1px solid #3a4654;background:#141b22;color:#b6c2cc;font-size:12.5px;font-weight:700}
 .mc-a button.on{background:#25344a;color:#fff;border-color:#7ce9e588}
-.mc-panel form{display:flex;gap:6px;padding:8px 10px 10px}
-.mc-panel input{flex:1;min-width:0;height:40px;border-radius:10px;border:1px solid #3a4654;background:#0f1419;color:#e6ece6;padding:0 10px;font-size:16px;-webkit-user-select:text;user-select:text}
-.mc-panel form button{height:40px;border-radius:10px;border:0;background:#e0a93b;color:#2a1f12;font-weight:800;padding:0 12px}
+.mc-f{display:flex;gap:6px;padding:8px 10px 10px;margin:0}
+.mc-f input{flex:1;min-width:0;height:40px;box-sizing:border-box;margin:0;border-radius:10px;border:1px solid #3a4654;background:#0f1419;color:#e6ece6;padding:0 10px;font:16px system-ui,-apple-system,"Segoe UI",sans-serif;outline:none;-webkit-appearance:none;appearance:none;-webkit-user-select:text;user-select:text}.mc-f input:focus{border-color:#e0a93b;box-shadow:0 0 0 2px #e0a93b44}.mc-f input::placeholder{color:#7d8b98}
+.mc-f button[type=submit]{flex:none;height:40px;margin:0;border-radius:10px;border:0;background:#e0a93b;color:#2a1f12;font:800 14px system-ui,-apple-system,"Segoe UI",sans-serif;padding:0 14px;cursor:pointer;-webkit-appearance:none;appearance:none}.mc-f button[type=submit]:active{filter:brightness(.92)}
+.mc-f .mc-eb{height:40px;margin:0;color:inherit;cursor:pointer}
+.mc-fr{display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px 0}.mc-fr[hidden]{display:none}.mc-fr button{height:32px;padding:0 10px;border-radius:10px;border:1px solid #3a4654;background:#1b232b;color:#e6ece6;font:13px system-ui,sans-serif;cursor:pointer}
+.mc-rap .mc-frb{font-size:13px;font-weight:700;color:#f3dc9a;padding:0 10px}.mc-rap .mc-frb.on{background:#25344a;border-color:#7ce9e588}
 .mc-burb{position:fixed;right:max(10px,env(safe-area-inset-right));top:calc(70px + env(safe-area-inset-top));z-index:55;max-width:min(270px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;background:#141b22ee;color:#e6ece6;border:1px solid #33404d;font:13.5px/1.3 system-ui,sans-serif;box-shadow:0 8px 22px rgba(0,0,0,.4);pointer-events:none;opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s}
 .mc-burb.on{opacity:1;transform:none}
 .mc-pick{position:fixed;inset:0;z-index:90;background:#05080dcc;display:grid;place-items:end center;padding:0 0 env(safe-area-inset-bottom)}
@@ -3110,7 +3123,24 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-mov>header .mc-rst{width:36px;height:36px;border-radius:10px;border:0;background:#222b33;color:#e6ece6;font-size:16px}.mc-mov>header .mc-rst[hidden]{display:none}
 .mc-flot.mc-arr{opacity:.85}
 .mc-pchat{width:100%;min-height:46px;border-radius:12px;border:0;background:#e0a93b;color:#2a1f12;font-weight:800}.mc-burb b{color:#f3dc9a;margin-right:4px}
-@media (prefers-reduced-motion:reduce){.mc-burb{transition:none}}`;document.head.appendChild(s);}
+.mc-comp{height:clamp(196px,36vh,280px)!important;max-height:calc(100% - 16px)!important;overflow:hidden}
+.mc-comp:has(.mc-a){height:clamp(236px,42vh,320px)!important}
+.mc-comp>header{padding:6px 8px!important;gap:6px!important}.mc-comp>header b{font-size:14px!important}
+.mc-comp>header button{width:34px!important;height:34px!important;flex:none}
+.mc-comp .mc-msgs,.mc-comp .msgs{flex:1 1 auto!important;min-height:0!important;overflow-y:auto;overscroll-behavior:contain;padding:6px 10px!important}
+.mc-comp>*:not(.mc-msgs):not(.msgs):not(.mc-nuevos){flex:none}.mc-comp .mc-emo{max-height:92px}
+.mc-comp .mc-rap{padding-top:4px}.mc-comp .mc-rap button{height:30px}
+.mc-comp form{padding:6px 8px 8px!important}.mc-comp form input,.mc-comp form button{height:38px!important}
+@media (max-height:460px){.mc-comp,.mc-comp:has(.mc-a){height:min(206px,calc(100vh - 16px))!important}.mc-comp .mc-rap,.mc-comp .quick{display:none!important}}
+.mc-minb{position:relative;width:34px;height:34px;border-radius:10px;border:0;background:#222b33;color:#e6ece6}.mc-minb i{position:absolute;left:10px;right:10px;bottom:11px;height:3px;border-radius:2px;background:currentColor}
+.mc-nuevos{position:absolute;left:50%;transform:translateX(-50%);z-index:2;height:28px;padding:0 12px;border-radius:14px;border:1px solid #7ce9e588;background:#25344a;color:#fff;font:700 12.5px system-ui,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.mc-mini{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;display:flex;align-items:center;gap:6px;height:42px;padding:0 14px 0 8px;border-radius:21px;border:1px solid #3a4654;background:#18212bf2;color:#fff;font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.4);touch-action:none;-webkit-user-select:none;user-select:none}
+.mc-mini[hidden]{display:none!important}.mc-mini b{font-weight:700}.mc-mini.mc-arr{opacity:.85}
+.mc-mini-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e5484d;color:#fff;font:800 11px/18px system-ui,sans-serif;text-align:center}.mc-mini-n:empty{display:none}
+.mc-mburb{position:fixed;z-index:59;max-width:min(260px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;border:1px solid #33404d;background:#141b22f2;color:#e6ece6;font:13.5px/1.3 system-ui,sans-serif;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.4);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
+.mc-mburb.izq{border-radius:14px 14px 14px 4px}.mc-mburb.abajo{border-radius:4px 14px 14px 14px;transform:translateY(-6px)}.mc-mburb.abajo.izq{border-radius:14px 4px 14px 14px}
+.mc-mburb.on{opacity:1;transform:none;pointer-events:auto}.mc-mburb b{color:#f3dc9a;margin-right:4px}
+@media (prefers-reduced-motion:reduce){.mc-burb,.mc-mburb{transition:none}}`;document.head.appendChild(s);}
 function boton(){
   if(S.btn&&S.btn.isConnected)return S.btn;
   const b=document.createElement('button');b.type='button';b.className='icon-btn mc-btn';b.id='mc-btn';b.hidden=true;
@@ -3135,14 +3165,19 @@ function dibujar(){
 }
 const enEspera=()=>!!(S.inl&&S.inl.isConnected);
 // El formulario (rápidos + emojis + texto) es el mismo en el panel y en la espera.
-function formHtml(ph){return `<div class="mc-rap">${RAPIDOS.map(r=>`<button type="button" class="${r.length<=2?'e':''}" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+// v74: arriba, los emojis rápidos y «Frases ▾» (las frases se abren en un menú que se acomoda en varias filas: antes la
+// fila se cortaba a la derecha en la PC).
+function formHtml(ph){const E5=RAPIDOS.filter(r=>r.length<=2).slice(0,5),FR=RAPIDOS.filter(r=>r.length>2);
+  return `<div class="mc-rap">${E5.map(r=>`<button type="button" class="e" data-r="${esc(r)}">${esc(r)}</button>`).join('')}<button type="button" class="mc-frb" aria-expanded="false">Frases ▾</button></div>
+    <div class="mc-fr" hidden>${FR.map(r=>`<button type="button" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
     <div class="mc-emo" hidden>${EMOS.map(e=>`<button type="button" data-e="${e}">${e}</button>`).join('')}</div>
     <form class="mc-f"><button type="button" class="mc-eb" aria-label="Emojis" title="Emojis">😊</button><input class="mc-t" maxlength="120" placeholder="${esc(ph)}" autocomplete="off" enterkeyhint="send" aria-label="Mensaje"><button type="submit">Mandar</button></form>`;}
 function cablearForm(root,alCerrar){
-  root.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>mandar(b.dataset.r));
-  const f=root.querySelector('.mc-f'),t=root.querySelector('.mc-t'),em=root.querySelector('.mc-emo');
+  const f=root.querySelector('.mc-f'),t=root.querySelector('.mc-t'),em=root.querySelector('.mc-emo'),fr=root.querySelector('.mc-fr'),frb=root.querySelector('.mc-frb');
+  root.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(mandar(b.dataset.r)&&fr&&!fr.hidden){fr.hidden=true;if(frb){frb.classList.remove('on');frb.setAttribute('aria-expanded','false');}}});
+  if(frb)frb.onclick=()=>{fr.hidden=!fr.hidden;frb.classList.toggle('on',!fr.hidden);frb.setAttribute('aria-expanded',String(!fr.hidden));if(!fr.hidden)em.hidden=true;};
   f.onsubmit=e=>{e.preventDefault();if(mandar(t.value))t.value='';};
-  root.querySelector('.mc-eb').onclick=()=>{em.hidden=!em.hidden;};
+  root.querySelector('.mc-eb').onclick=()=>{em.hidden=!em.hidden;if(!em.hidden&&fr){fr.hidden=true;if(frb)frb.classList.remove('on');}};
   em.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const a=t.selectionStart??t.value.length;t.value=(t.value.slice(0,a)+b.dataset.e+t.value.slice(a)).slice(0,120);try{t.setSelectionRange(a+b.dataset.e.length,a+b.dataset.e.length);}catch(_){}t.focus();});
   t.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&alCerrar){e.preventDefault();alCerrar();}});
 }
@@ -3153,58 +3188,164 @@ function espera(el,op){
   ['pointerdown','touchstart','keydown','keyup','wheel'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:ev!=='keydown'}));
   cablearForm(el.querySelector('.mc-inl'),null);dibujar();ocultarBurb();
 }
-/* ── (v72) Mover el chat: arrastrando la barra de arriba ──
-   La posición se guarda como {l: lado 'l'|'r', y: alto relativo (0–1) del borde de arriba} por juego y orientación. */
+/* ── (v72→v74) Mover, achicar y minimizar el chat ──
+   v74 (pedido del 25/10: «que se mantenga chiquito, con scroll; un botón para minimizarlo; moverlo por toda la pantalla
+   y que al abrirlo en cualquier lugar no se rompa ni quede afuera»):
+   · El panel tiene alto fijo chico (clase mc-comp) y los mensajes se leen con scroll adentro. Si estás leyendo arriba,
+     no te lo baja: aparece «↓ nuevos».
+   · ▁ lo minimiza a una barrita que se puede llevar a cualquier lado; tocándola vuelve a abrirse ahí mismo. Con el chat
+     minimizado, cada mensaje nuevo sale como globito arriba (o abajo, si no hay lugar) de la barrita.
+   · Se arrastra libre por toda la pantalla. Se guarda el centro como fracción de la pantalla {cx, cy}, por juego y
+     orientación; al poner el panel siempre se lo encierra en lo visible (también con el teclado del celular abierto:
+     visualViewport). Las posiciones viejas {l, y} (v72) se siguen leyendo. */
 const POSK=(j,q)=>'mesa-chat-'+(q||'pos')+':'+(j||'x')+':'+(innerWidth>innerHeight?'h':'v');
-function posLeer(j,q){try{const o=JSON.parse(localStorage.getItem(POSK(j,q))||'null');return o&&(o.l==='l'||o.l==='r')&&isFinite(o.y)?o:null;}catch(_){return null;}}
-function posGuardar(j,q,o){try{if(o)localStorage.setItem(POSK(j,q),JSON.stringify(o));else localStorage.removeItem(POSK(j,q));}catch(_){}}
-const MARG=10;
+function posLeer(j,q){try{const o=JSON.parse(localStorage.getItem(POSK(j,q))||'null');if(!o)return null;
+  if(isFinite(o.cx)&&isFinite(o.cy))return {cx:Math.max(0,Math.min(1,o.cx)),cy:Math.max(0,Math.min(1,o.cy))};
+  if((o.l==='l'||o.l==='r')&&isFinite(o.y))return {cx:o.l==='l'?0:1,cy:o.y,viejo:1};return null;}catch(_){return null;}}
+function posGuardar(j,q,o){try{if(o)localStorage.setItem(POSK(j,q),JSON.stringify({cx:+o.cx.toFixed(4),cy:+o.cy.toFixed(4)}));else localStorage.removeItem(POSK(j,q));}catch(_){}}
+const MARG=8;
 function topSeguro(){const t=document.querySelector('.topbar,header.top,.top,#topbar,.hdr');let y=MARG;try{const r=t&&t.getBoundingClientRect();if(r&&r.bottom>0&&r.bottom<innerHeight*.3)y=Math.max(y,Math.round(r.bottom)+4);}catch(_){}return y;}
+// Lo que se ve de verdad (con el teclado del celular abierto, visualViewport es más chico que la ventana).
+function vista(){const v=window.visualViewport;if(v&&v.height>0&&v.height<innerHeight-40)return {x:v.offsetLeft,y:v.offsetTop,w:v.width,h:v.height,tec:true};return {x:0,y:0,w:innerWidth,h:innerHeight,tec:false};}
+// Encierra el elemento en lo visible (left/top en px).
+function encerrar(el,left,top){const V=vista(),w=el.offsetWidth||300,h=el.offsetHeight||200;
+  const minY=V.tec?V.y+MARG:Math.min(topSeguro(),Math.max(MARG,V.h-h-MARG)),maxY=Math.max(minY,V.y+V.h-h-MARG);
+  const minX=V.x+MARG,maxX=Math.max(minX,V.x+V.w-w-MARG);
+  el.style.left=Math.round(Math.max(minX,Math.min(maxX,left)))+'px';el.style.top=Math.round(Math.max(minY,Math.min(maxY,top)))+'px';
+  el.style.right=el.style.bottom='auto';}
 function ponerEn(el,o){
-  if(!o){el.style.left=el.style.right=el.style.top=el.style.bottom='';return;}
-  const h=el.offsetHeight||200,w=el.offsetWidth||300,minY=Math.min(topSeguro(),Math.max(MARG,innerHeight-h-MARG)),maxY=Math.max(minY,innerHeight-h-MARG);
-  const y=Math.round(Math.max(minY,Math.min(maxY,o.y*innerHeight)));
-  el.style.top=y+'px';el.style.bottom='auto';
-  if(o.l==='l'){el.style.left=`max(${MARG}px, env(safe-area-inset-left))`;el.style.right='auto';}else{el.style.right=`max(${MARG}px, env(safe-area-inset-right))`;el.style.left='auto';}
-  if(w>innerWidth-2*MARG)el.style.left=MARG+'px';
+  // con el teclado abierto y poco lugar (celular acostado), el panel se achica a lo que se ve
+  if(el.classList.contains('mc-comp')){const V=vista();el.style.removeProperty('height');if(V.tec&&el.offsetHeight>V.h-2*MARG)el.style.setProperty('height',Math.max(120,V.h-2*MARG)+'px','important');}
+  if(!o){el.style.left=el.style.right=el.style.top=el.style.bottom='';
+    // sin posición guardada: donde dice el CSS de cada juego, pero igual adentro de lo visible (teclado abierto)
+    const V=vista();if(V.tec){const r=el.getBoundingClientRect();if(r.bottom>V.y+V.h-MARG||r.top<V.y)encerrar(el,r.left,r.top);}return;}
+  const w=el.offsetWidth||300,h=el.offsetHeight||200;
+  if(o.viejo){encerrar(el,o.cx<.5?MARG:innerWidth-w-MARG,o.cy*innerHeight);return;}
+  encerrar(el,o.cx*innerWidth-w/2,o.cy*innerHeight-h/2);
 }
-function movible(el,juego,op={}){
-  if(!el)return;css();const j=juego||(S.op&&S.op.juego)||'x',q=op.q||'pos';el.classList.add('mc-mov');
-  const hd=el.querySelector(':scope>header');
-  if(hd&&!hd.querySelector('.mc-grip')){const g=document.createElement('span');g.className='mc-grip';g.textContent='⠿';g.setAttribute('aria-hidden','true');hd.insertBefore(g,hd.firstChild);
-    hd.title='Arrastrá esta barra para mover el chat';
-    const r=document.createElement('button');r.type='button';r.className='mc-rst';r.setAttribute('aria-label','Volver el chat a su lugar');r.title='Volver a su lugar';r.textContent='⟲';
-    const x=hd.querySelector('button:last-of-type');hd.insertBefore(r,x||null);
-    r.onclick=e=>{e.preventDefault();e.stopPropagation();posGuardar(j,q,null);ponerEn(el,null);r.hidden=true;};}
-  const rst=hd&&hd.querySelector('.mc-rst');
-  const aplicarPos=()=>{const o=posLeer(j,q);ponerEn(el,o);if(rst)rst.hidden=!o;};
-  aplicarPos();requestAnimationFrame(aplicarPos);
-  if(el._mcMov)return;el._mcMov=1;
-  // El panel se vuelve a dibujar (innerHTML) cada vez que se abre: se escucha en el panel y se mira si tocaste su barra.
-  const handle=el;let D=null;
-  handle.addEventListener('pointerdown',e=>{
+const centro=el=>{const r=el.getBoundingClientRect();return {cx:(r.left+r.width/2)/innerWidth,cy:(r.top+r.height/2)/innerHeight};};
+// Registro de paneles de chat (el de acá y los propios de UnoAR, LudAR e InvasorAR), por juego.
+const REG={};
+const MINK=j=>'mesa-chat-min:'+(j||'x');
+function minLeer(j){try{return localStorage.getItem(MINK(j))==='1';}catch(_){return false;}}
+function minGuardar(j,v){try{if(v)localStorage.setItem(MINK(j),'1');else localStorage.removeItem(MINK(j));}catch(_){}}
+// Arrastrar con umbral: un toque sigue siendo un toque. op.handle: se agarra de cualquier lado (botón o barrita).
+function arrastrable(el,j,q,handleAll,alSoltar){
+  if(el._mcArr)return;el._mcArr=1;let D=null;
+  el.addEventListener('pointerdown',e=>{
     if(e.button>0)return;
-    if(!op.handle){const h=e.target.closest('header');if(!h||h.parentElement!==el||e.target.closest('button,input,a,select,textarea'))return;}
+    if(!handleAll){const h=e.target.closest('header');if(!h||h.parentElement!==el||e.target.closest('button,input,a,select,textarea'))return;}
     const r=el.getBoundingClientRect();D={id:e.pointerId,x0:e.clientX,y0:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,mov:false};
   });
   addEventListener('pointermove',e=>{if(!D||e.pointerId!==D.id)return;
-    if(!D.mov){if(Math.hypot(e.clientX-D.x0,e.clientY-D.y0)<8)return;D.mov=true;el.classList.add('mc-arr');try{handle.setPointerCapture(e.pointerId);}catch(_){}}
-    e.preventDefault();e.stopPropagation();const w=el.offsetWidth,h=el.offsetHeight;
-    const x=Math.max(0,Math.min(innerWidth-w,e.clientX-D.ox)),y=Math.max(0,Math.min(innerHeight-h,e.clientY-D.oy));
+    if(!D.mov){if(Math.hypot(e.clientX-D.x0,e.clientY-D.y0)<8)return;D.mov=true;el.classList.add('mc-arr');try{el.setPointerCapture(e.pointerId);}catch(_){}}
+    e.preventDefault();e.stopPropagation();
+    const w=el.offsetWidth,h=el.offsetHeight,x=Math.max(0,Math.min(innerWidth-w,e.clientX-D.ox)),y=Math.max(0,Math.min(innerHeight-h,e.clientY-D.oy));
     el.style.left=x+'px';el.style.top=y+'px';el.style.right=el.style.bottom='auto';},{passive:false,capture:true});
   const fin=e=>{if(!D||(e&&e.pointerId!==D.id))return;const d=D;D=null;if(!d.mov)return;el.classList.remove('mc-arr');if(e)e.stopPropagation();
-    const r=el.getBoundingClientRect(),o={l:r.left+r.width/2<innerWidth/2?'l':'r',y:Math.max(0,r.top)/innerHeight};
-    posGuardar(j,q,o);ponerEn(el,o);{const r2=el.querySelector(':scope>header .mc-rst');if(r2)r2.hidden=false;}
+    const o=centro(el);posGuardar(j,q,o);ponerEn(el,o);try{alSoltar&&alSoltar(o);}catch(_){}
     // el clic que viene después de soltar no es un toque
-    if(op.handle){const no=ev=>{ev.stopPropagation();ev.preventDefault();};el.addEventListener('click',no,{capture:true,once:true});setTimeout(()=>el.removeEventListener('click',no,{capture:true}),400);}};
+    const no=ev=>{ev.stopPropagation();ev.preventDefault();};el.addEventListener('click',no,{capture:true,once:true});setTimeout(()=>el.removeEventListener('click',no,{capture:true}),400);};
   addEventListener('pointerup',fin,true);addEventListener('pointercancel',fin,true);
-  addEventListener('resize',()=>{if(el.isConnected&&!el.hidden&&posLeer(j,q))aplicarPos();});
 }
-// Dónde sale el globito: del lado (y a la altura) donde dejaste el chat; si no lo moviste, arriba a la derecha como siempre.
+// «↓ nuevos»: si estás leyendo arriba, el juego no te baja la lista (sirve también para los chats propios, que la
+// redibujan entera: se mira con un MutationObserver y se devuelve el scroll a donde estabas).
+function seguirScroll(el){
+  const box=el.querySelector('.mc-msgs,.msgs');if(!box||box._mcSc)return;box._mcSc={abajo:true,top:0};
+  const st=box._mcSc,pill=()=>{let p=el.querySelector('.mc-nuevos');if(!p){p=document.createElement('button');p.type='button';p.className='mc-nuevos';p.textContent='↓ nuevos';
+      p.onclick=e=>{e.stopPropagation();st.abajo=true;box.scrollTop=box.scrollHeight;p.remove();};
+      box.parentNode.insertBefore(p,box.nextSibling);}p.style.top=Math.max(0,box.offsetTop+box.clientHeight-36)+'px';return p;};
+  box.addEventListener('scroll',()=>{if(box._mcIgn)return;st.abajo=box.scrollTop+box.clientHeight>=box.scrollHeight-24;st.top=box.scrollTop;if(st.abajo){const p=el.querySelector('.mc-nuevos');if(p)p.remove();}},{passive:true});
+  new MutationObserver(()=>{box._mcIgn=1;if(st.abajo)box.scrollTop=box.scrollHeight;else{box.scrollTop=st.top;pill();}requestAnimationFrame(()=>{box._mcIgn=0;});}).observe(box,{childList:true,subtree:true,characterData:true});
+}
+function movible(el,juego,op={}){
+  if(!el)return;css();const j=juego||(S.op&&S.op.juego)||'x',q=op.q||'pos';el.classList.add('mc-mov');
+  if(q==='btn'){arrastrable(el,j,q,true);ponerEn(el,posLeer(j,q));requestAnimationFrame(()=>ponerEn(el,posLeer(j,q)));
+    if(!el._mcRz){el._mcRz=1;addEventListener('resize',()=>{if(el.isConnected&&posLeer(j,q))ponerEn(el,posLeer(j,q));});}return;}
+  // un panel de chat
+  el.classList.add('mc-comp');
+  const R=REG[j]||(REG[j]={j,no:0,min:false});R.el=el;R.op=Object.assign(R.op||{},op);
+  const hd=el.querySelector(':scope>header');
+  if(hd&&!hd.querySelector('.mc-grip')){const g=document.createElement('span');g.className='mc-grip';g.textContent='⠿';g.setAttribute('aria-hidden','true');hd.insertBefore(g,hd.firstChild);
+    hd.title='Arrastrá esta barra para mover el chat';
+    const x=hd.querySelector('button:last-of-type');
+    const r=document.createElement('button');r.type='button';r.className='mc-rst';r.setAttribute('aria-label','Volver el chat a su lugar');r.title='Volver a su lugar';r.textContent='⟲';
+    hd.insertBefore(r,x||null);
+    r.onclick=e=>{e.preventDefault();e.stopPropagation();posGuardar(j,q,null);ponerEn(el,null);r.hidden=true;};
+    const m=document.createElement('button');m.type='button';m.className='mc-minb';m.setAttribute('aria-label','Minimizar el chat');m.title='Minimizar';m.innerHTML='<i></i>';
+    hd.insertBefore(m,x||null);
+    m.onclick=e=>{e.preventDefault();e.stopPropagation();minimizar(j);};
+    // ✕ cierra del todo (sin barrita)
+    if(x&&!x._mcX){x._mcX=1;x.addEventListener('click',()=>{R.min=false;minGuardar(j,false);miniOcultar(j);},true);}}
+  const rst=hd&&hd.querySelector('.mc-rst');
+  // se abrió (desde el botón del juego o desde la barrita): ya no está minimizado
+  if(!el.hidden&&R.min){R.min=false;minGuardar(j,false);}
+  miniOcultar(j);R.no=0;
+  const aplicarPos=()=>{let o=posLeer(j,q);if(R.desde){o=R.desde;}ponerEn(el,o);if(rst)rst.hidden=!posLeer(j,q);};
+  aplicarPos();requestAnimationFrame(()=>{aplicarPos();R.desde=null;});
+  seguirScroll(el);
+  arrastrable(el,j,q,false,()=>{if(rst)rst.hidden=false;});
+  if(!el._mcRz){el._mcRz=1;
+    const re=()=>{if(el.isConnected&&!el.hidden)ponerEn(el,posLeer(j,q));};addEventListener('resize',re);
+    if(window.visualViewport){visualViewport.addEventListener('resize',re);visualViewport.addEventListener('scroll',re);}
+    // al escribir, que el campo quede a la vista con el teclado abierto
+    el.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))setTimeout(re,350);});}
+}
+/* ── La barrita del chat minimizado ── */
+function miniEl(j){const R=REG[j];if(!R)return null;
+  // si el juego tiene su botón flotante del chat (el de acá, sin lugar en la barra de arriba), ése hace de barrita
+  if(R.op&&R.op.ancla){const a=R.op.ancla();if(a&&a.isConnected&&!a.hidden)return a;}
+  if(R.mini&&R.mini.isConnected)return R.mini;
+  css();const b=document.createElement('button');b.type='button';b.className='mc-mini';b.setAttribute('aria-label','Abrir el chat de la mesa');
+  b.innerHTML='<span class="mc-grip" aria-hidden="true">⠿</span>💭 <b>Chat</b><span class="mc-mini-n"></span>';
+  ['pointerdown','touchstart'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();restaurar(j);});
+  document.body.appendChild(b);arrastrable(b,j,'mini',true,()=>miniBurbLugar(j));R.mini=b;return b;}
+function miniPoner(j){const R=REG[j],b=R&&R.mini;if(!b||!b.isConnected)return;const o=posLeer(j,'mini');if(o)ponerEn(b,o);}
+function miniOcultar(j){const R=REG[j];if(!R)return;if(R.mini)R.mini.hidden=true;if(R.mb)R.mb.classList.remove('on');}
+function miniBadge(j){const R=REG[j];if(!R)return;if(R.mini){const n=R.mini.querySelector('.mc-mini-n');if(n)n.textContent=R.no?String(Math.min(R.no,99)):'';}}
+function miniVisible(j){const R=REG[j];if(!R||!R.min)return false;let v=true;try{if(R.op.visible)v=!!R.op.visible();else if(R.op.btn){const b=typeof R.op.btn==='function'?R.op.btn():R.op.btn;v=!!(b&&!b.hidden);}}catch(_){}return v;}
+function minimizar(j){const R=REG[j];if(!R||!R.el)return;
+  const p=R.el,r=p.getBoundingClientRect(),abajo=r.top+r.height/2>innerHeight/2,izq=r.left+r.width/2<innerWidth/2;
+  try{R.op.cerrar?R.op.cerrar():(p.hidden=true);}catch(_){p.hidden=true;}
+  p.hidden=true;R.min=true;R.no=0;minGuardar(j,true);
+  const b=miniEl(j);if(!b)return;
+  if(b===R.mini){b.hidden=false;miniBadge(j);
+    // la barrita queda donde estaba el panel: en su esquina de abajo (o de arriba) del lado donde estaba
+    const w=b.offsetWidth||110,h=b.offsetHeight||40;encerrar(b,izq?r.left:r.right-w,abajo?r.bottom-h:r.top);posGuardar(j,'mini',centro(b));}
+}
+function restaurar(j){const R=REG[j];if(!R)return;const b=R.mini&&!R.mini.hidden?R.mini:null;
+  // el panel se abre «hacia donde hay lugar», pegado a la barrita
+  if(b){const r=b.getBoundingClientRect(),p=R.el,w=(p&&p.offsetWidth)||Math.min(340,innerWidth-20),h=(p&&p.offsetHeight)||260;
+    const abajo=r.top+r.height/2>innerHeight/2,izq=r.left+r.width/2<innerWidth/2;
+    const left=izq?r.left:r.right-w,top=abajo?r.bottom-h:r.top;
+    R.desde={cx:Math.max(0,Math.min(1,(left+w/2)/innerWidth)),cy:Math.max(0,Math.min(1,(top+h/2)/innerHeight))};posGuardar(j,'pos',R.desde);}
+  R.min=false;minGuardar(j,false);miniOcultar(j);R.no=0;
+  try{if(R.op.abrir)R.op.abrir();else if(R.el){R.el.hidden=false;movible(R.el,j,R.op);}}catch(_){}
+}
+// Globito arriba de la barrita (o abajo si está pegada arriba); tocarlo abre el chat.
+function miniBurb(j,de,txt){const R=REG[j];if(!R)return;css();
+  if(!R.mb||!R.mb.isConnected){R.mb=document.createElement('button');R.mb.type='button';R.mb.className='mc-mburb';document.body.appendChild(R.mb);
+    ['pointerdown','touchstart'].forEach(ev=>R.mb.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+    R.mb.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();restaurar(j);});}
+  R.mb.innerHTML=`<b>${esc(de)}:</b>${esc(txt)}`;miniBurbLugar(j);
+  requestAnimationFrame(()=>R.mb&&R.mb.classList.add('on'));clearTimeout(R.mbT);R.mbT=setTimeout(()=>{if(R.mb)R.mb.classList.remove('on');},4500);}
+function miniBurbLugar(j){const R=REG[j];if(!R||!R.mb)return;const a=miniEl(j);if(!a)return;const r=a.getBoundingClientRect(),m=R.mb,w=m.offsetWidth||220,h=m.offsetHeight||44;
+  const arriba=r.top-h-8>topSeguro();const izq=r.left+r.width/2<innerWidth/2;
+  m.classList.toggle('abajo',!arriba);m.classList.toggle('izq',izq);
+  encerrar(m,izq?r.left:r.right-w,arriba?r.top-h-8:r.bottom+8);}
+// Un mensaje nuevo que llegó con el chat minimizado (los chats propios lo avisan con MESA_CHAT.nuevo).
+function nuevo(j,de,txt){const R=REG[j];if(!R||!R.min||!miniVisible(j))return false;txt=limpiar(txt);if(!txt)return false;
+  R.no++;const b=miniEl(j);if(b===R.mini){b.hidden=false;miniBadge(j);}miniBurb(j,String(de||'').slice(0,30),txt);return true;}
+// Cada segundo: la barrita se ve sólo mientras el juego tenga mesa en línea.
+setInterval(()=>{for(const j in REG){const R=REG[j];if(!R.min){if(R.mini&&!R.mini.hidden)miniOcultar(j);continue;}
+  const v=miniVisible(j),b=miniEl(j);if(!b||b!==R.mini)continue;if(v&&b.hidden){b.hidden=false;miniPoner(j);miniBadge(j);}else if(!v&&!b.hidden)miniOcultar(j);}},1000);
+addEventListener('resize',()=>{for(const j in REG){miniPoner(j);if(REG[j].mb&&REG[j].mb.classList.contains('on'))miniBurbLugar(j);}});
+// Dónde sale el globito con el chat cerrado (no minimizado): del lado y a la altura donde dejaste el chat.
 function burbLugar(){if(!S.burb)return;const o=posLeer(S.op&&S.op.juego,'pos');const b=S.burb.style;
-  if(!o){b.left=b.right=b.top=b.bottom='';return;}
-  const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.y*innerHeight));b.top=y+'px';b.bottom='auto';
-  if(o.l==='l'){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
+  if(!o){b.left=b.right=b.top=b.bottom='';S.burb.style.borderRadius='';return;}
+  const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.cy*innerHeight-60));b.top=y+'px';b.bottom='auto';
+  if(o.cx<.5){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
 function nota(){const n=S.op&&S.op.nota;try{return (typeof n==='function'?n():n)||'Sólo lo ve la gente de esta mesa y se borra al terminar.';}catch(_){return '';}}
 function abrir(){
   if(!S.op)return;css();
@@ -3215,7 +3356,7 @@ function abrir(){
     ${eqs?`<div class="mc-a"><button type="button" data-a="0" class="${S.eq?'':'on'}">A todos</button><button type="button" data-a="1" class="${S.eq?'on':''}">A mi equipo</button></div>`:''}
     ${formHtml(eqs&&S.eq?'Escribile a tu equipo':'Escribile a la mesa')}`;
   S.panel.hidden=false;S.abierto=true;S.no=0;dibujar();ocultarBurb();
-  movible(S.panel,S.op.juego);
+  movible(S.panel,S.op.juego,{abrir,cerrar,ancla:()=>S.btn&&S.btn.classList.contains('mc-flot')?S.btn:null,visible:()=>!!(S.btn&&!S.btn.hidden)});
   S.panel.querySelector('.mc-x').onclick=cerrar;
   S.panel.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{S.eq=b.dataset.a==='1';abrir();});
   cablearForm(S.panel,cerrar);
@@ -3241,6 +3382,7 @@ function recibir(m){
   const x={de,txt,eq:m.eq?1:0};agregar(x);
   try{S.op&&S.op.sonido&&S.op.sonido();}catch(_){}
   let chip=false;try{if(S.op&&S.op.chip){chip=S.op.chip(de,txt)!==false;}}catch(_){}
+  if(!S.abierto&&!enEspera()&&S.op&&nuevo(S.op.juego,de,txt))return;   // v74: minimizado → globito arriba de la barrita
   if((!chip||!S.abierto)&&!enEspera())burbuja(x);
 }
 function sistema(txt){txt=limpiar(txt);if(txt)agregar({txt,sis:true});}
@@ -3305,7 +3447,7 @@ function escuchar(op){
 }
 // (v67) Aunque el juego no monte el chat de la mesa (UnoAR tiene el suyo), igual se mira si hay que avisar al grupo.
 S.ivg=setInterval(()=>{if(!S.op)try{grupoJuegoAuto();}catch(_){}},1000);
-window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar};
+window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abrir,cerrar,abierto:()=>S.abierto,limpiar,revisar,mandar,nuevo,minimizar,restaurar,minimizado:j=>!!(REG[j]&&REG[j].min)};
 })();
 
 </script>
@@ -3319,6 +3461,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:74,grande:true,titulo:'Novedades',items:[
+    ['🐤','LaberintAR rehecho: estilo maquinita, mucho más rápido y ágil, doblás al toque en las esquinas y 5 laberintos nuevos llenos de escapes.'],
+    ['👾','InvasorAR rehecho: nave ágil, disparo seco, explosiones, rachas ×8, enemigos y poderes nuevos y oleadas cortas. ¡Otra!'],
+    ['💬','El chat de la mesa ahora es chiquito, se minimiza a una barrita con los mensajes arriba y lo movés por toda la pantalla.'],
+    ['🗺️','La Gran Pampa: el juego del cruce se sortea — salen 3, tachás uno y la suerte elige — y la Guardia también se sortea.'],
+    ['🏡','EstanciAR: las luces iluminan de noche, mucha más ropa y caras para tu personaje, la ropa de las mascotas nueva y un botón para entrar a la casa. Y de vez en cuando, de noche, anda el Pomberito…'],
+    ['🐎','EstanciAR: arreglamos la casa y la mascota que no se sincronizaban, y las cosas que dejaban de verse.'],
+    ['🧩','Buscaminas Experto entra en el celular, PoblAR muestra la meta real y cuántas piezas te quedan, y en el pool la bola que define ya no tiene ayuda de más.']]},
   {v:73,grande:true,titulo:'Novedades',items:[
     ['🐤','LaberintAR en Arcade: juntá las semillas, escapale al zorro, la lechuza, el tero y el peludo, y con un mate dales vuelta la persecución. 15 mapas, campaña con estrellas y el laberinto del día.'],
     ['👾','InvasorAR en Arcade: frená las oleadas y los jefes, rompé y cuidá tus refugios, y desafiá a un amigo a un duelo en línea con las mismas oleadas. Y el desafío del día.'],
@@ -4287,7 +4437,7 @@ function openMenu(){
     ${G&&!G.fin?'<button id="m-salir" class="salir">🚪 Salir de la partida</button>':''}<button id="m-new">♟️ Partida nueva</button><button id="m-lista">📮 Mis partidas${DIST.toca?`<span class="tg">te toca en ${DIST.toca}</span>`:''}</button><button id="m-log">📜 Jugadas</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-flip">⟲ Girar el tablero</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=ajedrez">🏆 Tabla</a>
-    <a href="estancia.html" data-campo>🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">AjedrezAR · versión 73</p>`);
+    <a href="estancia.html" data-campo>🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">AjedrezAR · versión 74</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;if($('m-salir'))$('m-salir').onclick=go(salirPartida);
   $('m-new').onclick=go(()=>openNew());$('m-lista').onclick=go(openPartidas);$('m-log').onclick=go(openLog);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
