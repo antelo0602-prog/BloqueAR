@@ -230,6 +230,9 @@ canvas#map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-
 .hist-m.yo{background:#eaf3e3;border-color:#c9dcb8}.hist-m b{font-size:14px}.hist-m span{font-size:15px;word-break:break-word}.hist-m span.emo{font-size:22px}.hist-m small{color:#8a7a62;font-size:12px}
 .pet-alerta{position:absolute;left:50%;top:62px;transform:translateX(-50%);z-index:6;max-width:calc(100% - 24px);border:1px solid #c9573a;background:#3a1d14ee;color:#ffe4d6;border-radius:999px;padding:8px 14px;font:650 13.5px/1.3 system-ui,sans-serif;box-shadow:0 4px 14px #0006;cursor:pointer;animation:alertaP 2.4s ease-in-out infinite}
 @keyframes alertaP{50%{box-shadow:0 0 0 4px #c9573a44,0 4px 14px #0006}}
+/* v75: a los 6 s la alerta grande se achica a una pastilla al costado (sigue abriendo la ficha); el aviso de arriba no queda fijo */
+.pet-alerta.chico{left:max(10px,env(safe-area-inset-left));transform:none;max-width:52%;padding:5px 10px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:none;opacity:.95}
+.hint.toca{pointer-events:auto;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.pet-alerta{animation:none}}
 .pet-estado{margin:6px 14px 0;font-size:13px;color:#f2e2c6;text-align:center;min-height:18px}.pet-estado .lnk{font-size:13px}
 .amb-vol{display:flex;align-items:center;gap:10px;min-height:50px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#231e17;font-weight:650;font-size:15px}.amb-vol input{flex:1;accent-color:#c4a265}
@@ -285,7 +288,9 @@ const PARTES={
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
     'bloques-favoritos-v1','bloques-orden-v1']   // v67: juegos fijados y orden propio del menú de juegos
 };
-const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1'];
+// v75: también el oro. Antes, el oro que ganabas sin que cambiara otra cosa de «rk» (el cofre al subir de nivel la estancia,
+// la pulpería, una compra con oro) no se marcaba para subir: si cerrabas la app, el otro dispositivo nunca lo veía.
+const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1','bloques-oro-v1'];
 const clavesDe=n=>(PARTES[n]||[]).map(x=>{const [k,r]=Array.isArray(x)?x:[x,'nuevo'];return [k.replace('{me}',me()),r];});
 let MAPA=null,MAPA_U='';
 function parteDe(k){
@@ -1648,8 +1653,8 @@ invasores:{n:'InvasorAR',e:'👾',   // v73
     {id:'gane1',e:'🏆',n:'Defensor de la llanura',d:'Ganá una partida: completá el Arcade o el desafío del día, o ganá un duelo.',k:'ganadas'},
     {id:'centinela',e:'🛸',n:'Abajo el Centinela',d:'Derribá al Centinela.',k:'centinela'},
     {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
-    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
-    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
+    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experto sin perder ninguna vida.',k:'limpio'},
+    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experto.',k:'gan_experta'},
     {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a ×4 en la cadena (18 bajas seguidas sin dejarla caer).',k:'max_combo',m:4,marca:true},
     {id:'racha8',e:'💥',n:'Cadena ×8',d:'Llegá a ×8 en la cadena (42 bajas seguidas).',k:'max_combo',m:8,marca:true},
     {id:'perfecto',e:'⭐',n:'Bonus perfecto',d:'Bajá a todos los dorados de una oleada bonus.',k:'perfectos'},
@@ -3510,6 +3515,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:75,grande:true,titulo:'Novedades',items:[
+    ['🐶','EstanciAR: la mascota ya no se muere por abrir la estancia en un aparato con datos viejos, y si se te murió por ese error, podés revivirla desde su ficha.'],
+    ['💰','El oro ganado en un aparato ahora llega siempre al otro.'],
+    ['🔔','Los avisos se van solos a los pocos segundos o al tocarlos, y ya no se amontonan.'],
+    ['🐤','LaberintAR en el celular se maneja deslizando el dedo en cualquier parte de la pantalla.'],
+    ['👾','InvasorAR sin barra abajo: arrastrá en cualquier parte. Y ahora Fácil, Normal y Experto se notan de verdad, cada una con su récord.']]},
   {v:74,grande:true,titulo:'Novedades',items:[
     ['🐤','LaberintAR rehecho: estilo maquinita, mucho más rápido y ágil, doblás al toque en las esquinas y 5 laberintos nuevos llenos de escapes.'],
     ['👾','InvasorAR rehecho: nave ágil, disparo seco, explosiones, rachas ×8, enemigos y poderes nuevos y oleadas cortas. ¡Otra!'],
@@ -5808,6 +5819,10 @@ function ptrEnd(e,cancel){if(!PTR.has(e.pointerId))return;PTR.delete(e.pointerId
     if(BAT){if(!BAT.over&&performance.now()-g.t0<TAP_MS)deployAt(e.clientX,e.clientY);return;}   // malón: sólo un toque corto pone un gaucho
     tap(e.clientX,e.clientY);}}
 cv.addEventListener('pointerup',e=>ptrEnd(e,false));cv.addEventListener('pointercancel',e=>ptrEnd(e,true));
+// v75: el dedo fantasma más rebelde: si el sistema dice que hay UN solo dedo apoyado pero tenemos dos anotados, el viejo era
+// fantasma → nos quedamos con el último y el gesto vuelve a ser de un dedo (así el toque responde aunque el fantasma sea reciente).
+cv.addEventListener('touchstart',e=>{if(e.touches.length===1&&PTR.size>1){const ult=[...PTR.entries()].sort((a,b)=>(b[1].t||0)-(a[1].t||0))[0];PTR.clear();PTR.set(ult[0],ult[1]);
+  gest={sx:ult[1].x,sy:ult[1].y,cx:cam.x,cy:cam.y,moved:false,drag:null,t0:performance.now()};}},{passive:true});
 cv.addEventListener('lostpointercapture',e=>{if(PTR.has(e.pointerId))ptrEnd(e,true);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)gestReset();});addEventListener('blur',gestReset);addEventListener('pagehide',gestReset);
 // Safari de iPhone: el pellizco sobre los carteles o la barra no agranda toda la página (el del mapa ya lo maneja el juego).
@@ -5858,10 +5873,10 @@ function openPop(it){
   if(SND){if(it.k==='molino')sfx('molino');else if(it.k==='aljibe')sfx('aljibe');else if(it.k==='fuente')sfx('agua');}
   if(it.k==='cuerpo'){const n=it.pet?esc(it.pet.nom):'Tu mascota',co=ECO.entierro(it.pet&&it.pet.s);
     body=`<p>Acá quedó ${n}. No se puede mover ni vender: para despedirla, enterrala.</p><p class="note">La tumba da una plantita al día siguiente y a los dos días un árbol que podés vender por lo mismo que te costó el entierro.</p>`;
-    acts=`<button class="btn go" data-a="enterrar"${E.pesos<co?' disabled':''}>🪦 Enterrar (${fmt(co)}<i class="co"></i>)</button>`;}
+    acts=`${revDe(it)?'<button class="btn" data-a="revivir">😇 Revivir (se murió por un error de sincronización)</button>':''}<button class="btn go" data-a="enterrar"${E.pesos<co?' disabled':''}>🪦 Enterrar (${fmt(co)}<i class="co"></i>)</button>`;}
   else if(it.k==='tumba'){const e=tumbaEtapa(it),n=it.pet?esc(it.pet.nom):'tu mascota';
     body=e===0?`<p>Acá descansa ${n}. En <b data-left="${it.t+24*HOUR}">${dur(it.t+24*HOUR-now)}</b> crece una plantita.</p>`:e===1?`<p>De la tumba de ${n} creció una plantita. En <b data-left="${it.t+48*HOUR}">${dur(it.t+48*HOUR-now)}</b> va a ser un árbol.</p>`:`<p>Donde descansa ${n} creció un árbol. Lo podés vender por ${fmt(it.costo||0)}<i class="co"></i>, lo mismo que costó el entierro.</p>`;
-    acts=e===2?`<button class="btn" data-a="vtumba">Vender (${fmt(it.costo||0)}<i class="co"></i>)</button>`:'';}
+    acts=(revDe(it)?'<button class="btn" data-a="revivir">😇 Revivir (se murió por un error de sincronización)</button>':'')+(e===2?`<button class="btn" data-a="vtumba">Vender (${fmt(it.costo||0)}<i class="co"></i>)</button>`:'');}
   else if(it.k==='parcela'&&it.crop){const S=SEEDS[it.crop.k],f=clamp((now-it.crop.at)/S.time,0,1);
     body=`<p>${S.e} ${S.n}: falta <b data-left="${it.crop.at+S.time}">${dur(it.crop.at+S.time-now)}</b> · da ${S.gain}<i class="co"></i></p><div class="bar"><i data-bar="${it.crop.at}|${S.time}" style="width:${f*100}%"></i></div>`;
     acts=`<button class="btn" data-a="move">↔ Mover</button><button class="btn red" data-a="clear">Arrancar</button>`;}
@@ -5882,6 +5897,7 @@ function openPop(it){
   $('pop').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
     if(a==='x'){SEL=null;closePop();}
     else if(a==='enterrar'){if(enterrar(it)){openPop(it);renderAll();}}
+    else if(a==='revivir'){const f=revDe(it);closePop();if(f)revivir(f);}
     else if(a==='vtumba'){if(tumbaEtapa(it)<2)return;const v=it.costo||0;E.items=E.items.filter(o=>o!==it);E.pesos+=v;WK.blk=null;sfx('collect');toast(`Vendiste el árbol por $${fmt(v)}`);SEL=null;closePop();save();renderAll();}
     else if(a==='move'){SEL=null;closePop();MODE='move';GHOST={...it};renderPlace();}
     else if(a==='sell'){const v=sellValueOf(it);E.items=E.items.filter(o=>o!==it);E.pesos+=v;sfx('collect');toast(`Vendiste ${c.n.toLowerCase()} por $${fmt(v)}`);SEL=null;closePop();save();renderAll();}
@@ -6110,8 +6126,15 @@ function renderTools(){
     else if(E.vis.cur){const V=VISITAS[E.vis.cur.k];h=`${V.e} ${V.n} anda por tu campo: tocalo`;}
     else if(feriaOn()&&!ls.get('estancia-feria-'+dayAR()))h='🎪 ¡Hoy hay feria! Mirá la Tienda: hay cosas que sólo salen el fin de semana';}
   if(BAT)h=BAT.hint||'';
-  if(MODE==='farm'||BAT||VISIT)$('hint').textContent=h;
+  // v75 (25/10: «el aviso de la feria queda arriba permanentemente»): los avisos que no son del tutorial (la feria, una visita)
+  // se van solos a los 6 s o al tocarlos, y mientras está la alerta grande de la mascota no se pisan con ella.
+  let toca=false;if(h&&!BAT&&E.tut>=3){const kk=h+'|'+((E.vis&&E.vis.cur&&(E.vis.cur.t||E.vis.cur.at))||''),now=Date.now();if(HINT.k!==kk){HINT.k=kk;HINT.t0=now;}
+    const pa=$('pet-alerta');if(HINT.off.has(kk)||now-HINT.t0>6000||(pa&&!pa.classList.contains('chico'))){if(now-HINT.t0>6000&&!HINT.off.has(kk)){HINT.off.add(kk);if(/feria/.test(h))ls.set('estancia-feria-'+dayAR(),'1');}h='';}else toca=true;}
+  const hi=$('hint');hi.classList.toggle('toca',toca);
+  if(MODE==='farm'||BAT||VISIT)hi.textContent=h;
 }
+const HINT={k:'',t0:0,off:new Set()};
+$('hint').onclick=()=>{if(!$('hint').classList.contains('toca'))return;HINT.off.add(HINT.k);if(/feria/.test($('hint').textContent))ls.set('estancia-feria-'+dayAR(),'1');$('hint').textContent='';$('hint').classList.remove('toca');};
 function renderAll(){renderHud();renderTools();renderSala();}
 $('harvest-all').onclick=()=>{let n=0;for(const it of readyItems()){n+=it.crop?harvest(it,true):collectProd(it,true);floatAt(it,'+🪙');}if(n){sfx('swish');sfx('coins');toast(`Juntaste $${fmt(n)}`);}save();renderAll();};
 $('t-shop').onclick=()=>{if(feriaOn())ls.set('estancia-feria-'+dayAR(),'1');SHOPQ='';openShop();};
@@ -6541,7 +6564,8 @@ function pescaPaso(M,g,dt,now){const {W,H}=M,t=now/1000,cx=W/2,cy=H*.55;
   for(let i=0;i<Math.min(M.pts,12);i++)emoji(g,'🐟',20+i*22,H-22,18);}
 
 /* ───────── Varios ───────── */
-let toastT=0;function toast(t){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),2600);}
+let toastT=0;function toast(t){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.textContent=t;d.onclick=()=>d.remove();document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),2600);
+  try{const n=$('casa-nuevo');if(n&&!n.hidden){n.hidden=true;ls.set('estancia-casa-v74','1');}}catch(_){}}   // v75: un aviso a la vez: el globito de la casa no queda debajo
 function openHelp(){sheet('Cómo se juega',`
   <p>🪙 <b>Dos monedas.</b> Los <b>pesos</b> (la plata, de color plateado) salen de tu estancia: cosechas, animales, pedidos, la feria. El <b>oro</b> sale de jugar los otros juegos y sirve para lo lindo: adornos únicos, mesas de juego, ropa especial y cosas para tu mascota. Las mejoras grandes (ampliar el campo desde el nivel 5, los niveles 4 y 5 de los animales, las obras grandes) piden las dos. En la Tienda, en la pestaña <b>✨ Oro</b>, está la pulpería: ahí cambiás oro por pesos.</p>
   <p>🌾 <b>Sembrá</b> en las parcelas y volvé cuando esté listo para cosechar. Cada cultivo tarda distinto: el trigo, minutos; el zapallo, horas.</p>
@@ -6573,7 +6597,7 @@ function openMenu(){
     <button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     <label class="amb-vol">🌿 Ambiente <input type="range" id="m-amb" min="0" max="1" step="0.1" value="${AMB.vol}" aria-label="Volumen del ambiente"${SND?'':' disabled'}></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=estancia">🏆 Tabla</a>
-    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 74</p>`);
+    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 75</p>`);
   $('m-x').onclick=closeSide;$('m-help').onclick=()=>{closeSide();openHelp();};$('m-juegos').onclick=()=>{closeSide();openJuegos();};$('m-pj').onclick=()=>{closeSide();openPersonaje();};$('m-ped').onclick=()=>{closeSide();openPedidos();};
   if($('m-pets'))$('m-pets').onclick=()=>{closeSide();openShop('mascotas');};
   $('m-snd').onclick=()=>{SND=!SND;ls.set('estancia-sonido',SND?'1':'0');if(SND)ambStart();openMenu();};
@@ -6584,7 +6608,8 @@ function openMenu(){
 $('btn-menu').onclick=openMenu;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(PETUI){if(!$('pet-sub').hidden)$('pet-sub').hidden=true;else closePet();}else if(!$('side').hidden)closeSide();else if(!$('modal').hidden&&!BAT)closeSheet();else if(MODE==='move'||MODE==='place'){$('pl-no').click();}else if(!$('pop').hidden){SEL=null;closePop();}}});
 window.addEventListener('resize',()=>{fitScreen();resize();});
-document.addEventListener('visibilitychange',()=>{try{if(AC){if(document.hidden)AC.suspend();else if(SND)AC.resume();}}catch(_){}if(document.hidden){if(E){tick();ls.set(KEY,JSON.stringify(E));if(SY.dirty&&!subirAlIrse())sync();}}else if(E&&!BAT){readCopas();tick();if(!acct())takePremios();renderAll();pull();if(SALA.on)salaPollYa();}});
+document.addEventListener('visibilitychange',()=>{try{if(AC){if(document.hidden)AC.suspend();else if(SND)AC.resume();}}catch(_){}if(document.hidden){SYNC.hidT=Date.now();if(E){tick();ls.set(KEY,JSON.stringify(E));if(SY.dirty&&!subirAlIrse())sync();}}else if(E&&!BAT){if(acct()&&Date.now()-(SYNC.hidT||Date.now())>30000)SYNC.petOk=false;   // v75: de vuelta después de un rato: primero lo de la cuenta
+    readCopas();tick();if(!acct())takePremios();renderAll();pull();if(SALA.on)salaPollYa();}});
 window.addEventListener('pagehide',()=>{if(E&&SY.dirty&&!subirAlIrse())sync();});
 
 /* ───────── v61: tu personaje, la mascota, la despensa, los pedidos, el cofre, la feria y las visitas ───────── */
@@ -6926,11 +6951,11 @@ const PET_MAX=3,PET_DECAY={h:6.5,l:4.5,a:5.5,e:5.5};
 const PET_ACC=[{id:'panuelo',n:'Pañuelo',lv:1},{id:'collar',n:'Collar con medalla',lv:2},{id:'mono',n:'Moño',lv:3},{id:'sombrero',n:'Sombrerito',lv:4,pesos:600},{id:'anteojos',n:'Anteojos',lv:6,pesos:1000},{id:'boina',n:'Boinita',lv:8}];
 const petLv=p=>1+Math.floor(Math.sqrt((p.xp||0)/25));
 // Las barras bajan con el tiempo real, de a poco. Nunca se muere: si la descuidás se pone triste.
-function petStats(p,now=Date.now()){let ms=now-(p.t||now);if(p.pens){const a=Math.max(p.t||now,p.pens.d);ms-=Math.max(0,Math.min(now,p.pens.h)-a);}   // en la pensión no se le gasta nada
+function petStats(p,now=ctNow()){let ms=now-(p.t||now);if(p.pens){const a=Math.max(p.t||now,p.pens.d);ms-=Math.max(0,Math.min(now,p.pens.h)-a);}   // en la pensión no se le gasta nada
   const h=Math.max(0,ms)/HOUR,s={...p.st};
   if(p.sleep){s.e=Math.min(100,s.e+18*h);s.h=Math.max(0,s.h-4*h);s.l=Math.max(0,s.l-2*h);s.a=Math.max(0,s.a-2*h);}
   else for(const k in PET_DECAY)s[k]=Math.max(0,s[k]-PET_DECAY[k]*h);return s;}
-function petCommit(p,now=Date.now()){p.st=petStats(p,now);p.t=now;}
+function petCommit(p,now=ctNow()){p.st=petStats(p,now);p.t=now;}
 const petMood=p=>{const s=petStats(p);return (s.h+s.l+s.a+s.e)/4;};
 /* ── v68: cuando la mascota está muy mal ──
    · Está «muy mal» si no come (comida en 0) o si el promedio de las barras baja de 15.
@@ -6943,8 +6968,19 @@ const petAca=p=>!(p.pens&&Date.now()<p.pens.h);
 const petCritSt=s=>s.h<=0||(s.h+s.l+s.a+s.e)/4<PET_CRIT;
 // Desde cuándo está muy mal: se busca hacia atrás desde la última vez que la tocaste (en pasos de 15 minutos).
 function petCritDesde(p,now){const t0=p.t||now;for(let t=t0;t<now;t+=15*MIN)if(petCritSt(petStats(p,t)))return t;return now;}
-function petMuereEn(p,now=Date.now()){if(!p.crit)return null;const a=p.crit+PET_MUERE,b=p.avis?Math.max(a,p.avis+PET_AVISO):p.crit+PET_SOLO;return Math.min(Math.max(a,b),p.crit+PET_SOLO);}
-function petCheck(now=Date.now()){if(!E||VISIT)return false;let ch=false;
+function petMuereEn(p,now=ctNow()){if(!p.crit)return null;const a=p.crit+PET_MUERE,b=p.avis?Math.max(a,p.avis+PET_AVISO):p.crit+PET_SOLO;return Math.min(Math.max(a,b),p.crit+PET_SOLO);}
+/* v75 (25/10: «se murió mi mascota en el celu después de cuidarla en la mac»): el celu abría con lo que tenía guardado de hace
+   horas, la daba por muerta ANTES de traer lo de la cuenta, y esa muerte le ganaba al cuidado de la otra compu. Ahora, con
+   cuenta, la mascota no se enferma ni se muere por el paso del tiempo hasta haber traído lo de la cuenta en esta sesión (y
+   otra vez al volver de un rato en segundo plano). Sin conexión, se espera. La hora es la de la planilla (ctNow). */
+// v75: con lo que tiene esta versión de la mascota (q), ¿podía estar muerta a la hora t? Hace falta estar «muy mal» por lo menos
+// 36 h (PET_MUERE). Sirve para darse cuenta de que una muerte vino de un dispositivo con lo viejo.
+function petPudoMorir(q,t){if(!q||!q.st)return true;const t0=q.t||0;let c=0;
+  if(petCritSt(petStats(q,t0))){if(!(q.crit&&q.crit<=t0))return true;c=q.crit;}   // ya estaba mal y no se sabe desde cuándo: no se puede descartar
+  else for(let x=t0;x<=t-PET_MUERE;x+=15*MIN)if(petCritSt(petStats(q,x))){c=x;break;}
+  return !!c&&t>=c+PET_MUERE;}
+function petListo(){if(!acct())return true;try{return !!(SYNC.petOk||SYNC.legacy);}catch(_){return false;}}
+function petCheck(now=ctNow()){if(!E||VISIT||!petListo())return false;let ch=false;
   for(const p of E.pets.slice()){
     if(p.pens&&now>=p.pens.h){petCommit(p,now);delete p.pens;ch=true;}
     if(!petAca(p)){if(p.crit){p.crit=0;p.avis=0;ch=true;}continue;}
@@ -6960,14 +6996,16 @@ function petAlerta(){let el=$('pet-alerta');const L=E&&!VISIT&&!BAT?E.pets.filte
   try{ls.set('estancia-alerta',L.length?JSON.stringify(L.map(p=>({nom:p.nom,muere:petMuereEn(p)}))):'');}catch(_){}
   if(!L.length){if(el)el.remove();return;}
   if(!el){el=document.createElement('button');el.id='pet-alerta';el.className='pet-alerta';el.type='button';$('stage').appendChild(el);el.onclick=()=>{const p=E.pets.find(x=>x.crit&&petAca(x));if(p)openPet(p.id);};}
-  const p=L[0],m=petMuereEn(p),txt=`😢 ${esc(p.nom)} está muy mal${m?` · ${dur(Math.max(0,m-Date.now()))} para salvarla`:''} · tocá acá`;if(el.dataset.t!==txt){el.dataset.t=txt;el.innerHTML=txt;}}
-function petMorir(p,now=Date.now()){
+  const p=L[0],m=petMuereEn(p),k=L.map(x=>x.id).join(',');if(el.dataset.k!==k){el.dataset.k=k;el.dataset.t0=String(Date.now());}
+  const chico=Date.now()-(+el.dataset.t0||0)>6000;el.classList.toggle('chico',chico);   // v75: no queda un cartel grande fijo
+  const txt=chico?`😢 ${esc(p.nom)}${m?` · ${dur(Math.max(0,m-ctNow()))}`:''}`:`😢 ${esc(p.nom)} está muy mal${m?` · ${dur(Math.max(0,m-ctNow()))} para salvarla`:''} · tocá acá`;if(el.dataset.t!==txt){el.dataset.t=txt;el.innerHTML=txt;}}
+function petMorir(p,now=ctNow()){
   if(PETUI&&PETUI.p===p){PETUI=null;const u=$('petui');if(u)u.hidden=true;}
   const w=WK.pets[p.id],own=land(),near=w?{x:Math.floor(w.x),y:Math.floor(w.y)}:(()=>{const c=E.items.find(i=>i.k==='casco')||{x:CEN,y:CEN};return {x:c.x+1,y:c.y+4};})();
   const sp=(fits('cuerpo',near.x,near.y)?near:null)||freeNear(own,E.items,near)||near;
-  E.items.push({id:E.nextId++,k:'cuerpo',x:sp.x,y:sp.y,pet:{s:p.s,c:p.c,nom:p.nom,id:p.id},t:now,tm:now});
+  E.items.push({id:E.nextId++,k:'cuerpo',x:sp.x,y:sp.y,pet:{s:p.s,c:p.c,nom:p.nom,id:p.id,copia:JSON.parse(JSON.stringify(p))},t:now,tm:now});   // v75: la copia, por si hay que revivirla
   E.pets=E.pets.filter(x=>x!==p);delete WK.pets[p.id];if(E.petSel===p.id)E.petSel=E.pets[0]?E.pets[0].id:0;
-  E.petFin=[{id:p.id,s:p.s,n0:p.n0||0,t:now},...(E.petFin||[])].slice(0,20);   // v72: para que el otro dispositivo no la reviva
+  E.petFin=[{id:p.id,s:p.s,n0:p.n0||0,t:now,sinc:1},...(E.petFin||[])].slice(0,20);   // v72: para que el otro dispositivo no la reviva · v75 sinc: se murió con la cuenta al día
   WK.blk=null;save('suave');
   if(!document.hidden)sheet('😢 Se murió '+esc(p.nom),`<p>${esc(p.nom)} estuvo muy mal mucho tiempo y se murió. Quedó en tu estancia: tocala para enterrarla (${fmt(ECO.entierro(p.s))}<i class="co"></i>).</p><p class="note">Mientras no la entierres no se puede mover. La tumba, al día siguiente, da una plantita; a los dos días, un árbol que podés vender por lo mismo que te costó el entierro.</p><div class="row"><button class="btn go" id="pm-ok">Entendido</button></div>`);
   const b=$('pm-ok');if(b)b.onclick=closeSheet;}
@@ -7231,19 +7269,58 @@ function juntarE(L,R,base,Bs){base=base===undefined?(typeof SY!=='undefined'?SY.
    · Las que se murieron en cualquiera de los dos lados quedan en petFin (id, especie, cuándo nació y cuándo murió): no
      vuelven aunque el otro lado todavía la tenga viva. El cuerpo (o la tumba) se trae si no está.
    · La ropa comprada (accOwn) se suma de los dos lados. */
+// v75: los cuerpos de una mascota que se revivió no vuelven a aparecer desde el otro lado (petRev = «id:hora» de las muertes anuladas).
+function fueRevivida(B,it){const r=[...(B.petRev||[])];return !!(it&&it.pet&&r.some(x=>{const [id,t]=String(x).split(':');return +id===it.pet.id&&Math.abs((it.tm||it.t||0)-(+t))<120000;}));}
+/* v75 · Al traer la estancia de la cuenta (sin nada propio que juntar), si en la cuenta figura muerta una mascota que acá está
+   viva y que, con lo que tiene acá, no podía estar muerta a esa hora, esa muerte fue un error (otro dispositivo con lo viejo): vuelve. */
+function rescatarPets(R,L){if(!R||!L||!Array.isArray(L.pets))return false;let ch=false;R.pets=R.pets||[];
+  for(const f of (R.petFin||[]).slice()){const q=L.pets.find(p=>p&&p.id===f.id&&p.s===f.s&&(p.n0||0)===(f.n0||0));
+    if(!q||petPudoMorir(q,f.t)||R.pets.length>=PET_MAX||R.pets.some(p=>p.id===q.id&&p.s===q.s&&(p.n0||0)===(q.n0||0)))continue;
+    const v=JSON.parse(JSON.stringify(q));delete v.crit;delete v.avis;while(R.pets.some(p=>p.id===v.id))v.id++;
+    R.pets.push(v);R.petFin=R.petFin.filter(x=>x!==f);R.petRev=[...(R.petRev||[]),f.id+':'+f.t].slice(-20);
+    R.items=(R.items||[]).filter(i=>!((i.k==='cuerpo'||i.k==='tumba')&&i.pet&&i.pet.id===f.id&&i.pet.s===f.s&&Math.abs((i.tm||i.t||0)-f.t)<120000));ch=true;}
+  return ch;}
+/* v75 · Muertes de antes de la v75 (sin la marca sinc: pudo ser un dispositivo con lo viejo) de las últimas 72 h: se ofrece,
+   una sola vez, revivirla. Vuelve con lo que tenía (si el cuerpo guardó la copia) o con su especie, nombre y color. */
+const REV_MS=72*HOUR;
+function muertesDudosas(){if(!E||VISIT||BAT)return [];const now=ctNow(),of=E.revOfre||{};
+  return (E.petFin||[]).filter(f=>f&&!f.sinc&&now-f.t<REV_MS&&!of[f.id+':'+f.t]&&E.items.some(i=>(i.k==='cuerpo'||i.k==='tumba')&&i.pet&&i.pet.id===f.id&&i.pet.s===f.s&&Math.abs((i.tm||i.t||0)-f.t)<120000));}
+function revivir(f){const it=E.items.find(i=>(i.k==='cuerpo'||i.k==='tumba')&&i.pet&&i.pet.id===f.id&&i.pet.s===f.s&&Math.abs((i.tm||i.t||0)-f.t)<120000);if(!it)return false;
+  if(E.pets.length>=PET_MAX){toast(`Podés tener hasta ${PET_MAX} mascotas: hacé lugar y volvé a intentar desde el cuerpo.`);return false;}
+  const c=it.pet.copia&&typeof it.pet.copia==='object'?JSON.parse(JSON.stringify(it.pet.copia)):{},now=ctNow();
+  const p={xp:0,acc:'',sleep:false,...c,id:f.id,s:f.s,nom:it.pet.nom||c.nom||PETS[f.s].n,c:it.pet.c??c.c??0,n0:f.n0||c.n0||0,st:{h:70,l:70,a:75,e:80},t:now,ct:now};delete p.crit;delete p.avis;delete p.pens;
+  while(E.pets.some(x=>x.id===p.id))p.id++;
+  E.pets.push(p);if(!E.petSel)E.petSel=p.id;E.items=E.items.filter(i=>i!==it);E.petFin=(E.petFin||[]).filter(x=>x!==f);
+  E.petRev=[...(E.petRev||[]),f.id+':'+f.t].slice(-20);E.revOfre={...(E.revOfre||{}),[f.id+':'+f.t]:'si'};
+  if(WK.pj)WK.pets[p.id]={x:WK.pj.x+.6,y:WK.pj.y+.4,path:[],idle:0,face:1,walk:false,sp:1.5};WK.blk=null;
+  sfx('level');save();renderAll();toast(`😇 ${p.nom} volvió. Dale de comer y mimala.`);return true;}
+// La muerte dudosa (de antes de la v75, últimas 72 h) que corresponde a este cuerpo o tumba, si todavía se puede revivir.
+function revDe(it){if(!it||!it.pet)return null;const now=ctNow(),of=E.revOfre||{};return (E.petFin||[]).find(f=>f&&!f.sinc&&now-f.t<REV_MS&&of[f.id+':'+f.t]!=='no'&&of[f.id+':'+f.t]!=='si'&&f.id===it.pet.id&&f.s===it.pet.s&&Math.abs((it.tm||it.t||0)-f.t)<120000)||null;}
+function ofrecerRevivir(){const L=muertesDudosas();if(!L.length||!$('modal').hidden||PETUI)return;const f=L[0];
+  const it=E.items.find(i=>(i.k==='cuerpo'||i.k==='tumba')&&i.pet&&i.pet.id===f.id&&i.pet.s===f.s&&Math.abs((i.tm||i.t||0)-f.t)<120000),nom=esc((it&&it.pet.nom)||'tu mascota');
+  E.revOfre={...(E.revOfre||{}),[f.id+':'+f.t]:'visto'};save('suave');
+  sheet('😇 ¿Revivir a '+nom+'?',`<p>${nom} figura muerta desde hace ${dur(Math.max(0,ctNow()-f.t))}. Pudo ser un error de sincronización: se murió en un dispositivo que todavía no había traído tu estancia de la cuenta (por ejemplo, si la habías cuidado en otro).</p><p class="note">Esto se ofrece una sola vez. También podés hacerlo desde el cuerpo mientras esté en tu campo.</p><div class="row"><button class="btn" id="rev-no">Dejala descansar</button><button class="btn go" id="rev-si">😇 Revivir</button></div>`);
+  $('rev-si').onclick=()=>{closeSheet();revivir(f);};$('rev-no').onclick=()=>{E.revOfre={...(E.revOfre||{}),[f.id+':'+f.t]:'no'};save('suave');closeSheet();};}
 function juntarPets(B,O){
-  const fin=[...(B.petFin||[]),...(O.petFin||[])].filter((x,i,a)=>x&&a.findIndex(y=>y&&y.id===x.id&&y.s===x.s&&y.t===x.t)===i).sort((a,b)=>b.t-a.t).slice(0,20);
-  const muerta=p=>fin.some(f=>f.id===p.id&&f.s===p.s&&(f.n0||0)===(p.n0||0)&&f.t>=(p.n0||0));
+  let fin=[...(B.petFin||[]),...(O.petFin||[])].filter((x,i,a)=>x&&a.findIndex(y=>y&&y.id===x.id&&y.s===x.s&&y.t===x.t)===i).sort((a,b)=>b.t-a.t).slice(0,20);
   const key=p=>p.id+':'+p.s+':'+(p.n0||0),M=new Map(),own={};
+  // v75: una muerte no vale si con la versión más cuidada de la mascota no podía estar muerta a esa hora (hacen falta 36 h
+  // «muy mal»): se murió en un dispositivo que tenía lo viejo. Gana el cuidado: vuelve viva y se va el cuerpo.
+  const mejor=new Map();for(const p of [...(B.pets||[]),...(O.pets||[])])if(p&&typeof p==='object'){const q=mejor.get(key(p));if(!q||(p.ct||0)>(q.ct||0))mejor.set(key(p),p);}
+  const anulada=f=>{const q=mejor.get(f.id+':'+f.s+':'+(f.n0||0));return !!(q&&!petPudoMorir(q,f.t));};
+  const anuladas=fin.filter(anulada);fin=fin.filter(f=>!anulada(f));
+  const muerta=p=>fin.some(f=>f.id===p.id&&f.s===p.s&&(f.n0||0)===(p.n0||0)&&f.t>=(p.n0||0));
   for(const p of [...(B.pets||[]),...(O.pets||[])]){if(!p||typeof p!=='object')continue;own[key(p)]=[...new Set([...(own[key(p)]||[]),...(p.accOwn||[])])];if(muerta(p))continue;
     const q=M.get(key(p));if(!q||(p.ct||0)>(q.ct||0)||((p.ct||0)===(q.ct||0)&&(p.t||0)>(q.t||0)))M.set(key(p),p);}
   const ids=new Set();B.pets=[...M.values()].map(p=>{p=JSON.parse(JSON.stringify(p));if(own[key(p)].length)p.accOwn=own[key(p)];
     while(ids.has(p.id))p.id++;ids.add(p.id);return p;}).slice(0,typeof PET_MAX==='number'?PET_MAX:3);
-  if(fin.length)B.petFin=fin;
+  B.petFin=fin;
   if(!B.pets.some(p=>p.id===B.petSel))B.petSel=B.pets[0]?B.pets[0].id:0;
+  const delAnulada=i=>i&&(i.k==='cuerpo'||i.k==='tumba')&&i.pet&&anuladas.some(f=>f.id===i.pet.id&&f.s===i.pet.s&&Math.abs((i.tm||i.t||0)-f.t)<120000);
+  if(anuladas.length){B.items=(B.items||[]).filter(i=>!delAnulada(i));B.petRev=[...(B.petRev||[]),...anuladas.map(f=>f.id+':'+f.t)].slice(-20);}
   // el cuerpo o la tumba de una que se murió del otro lado
   B.items=B.items||[];const marca=i=>(i.pet&&i.pet.nom)+'|'+(i.tm||i.t);
-  for(const it of (O.items||[]))if(it&&(it.k==='cuerpo'||it.k==='tumba')&&it.pet){const m=marca(it),ya=B.items.find(i=>(i.k==='cuerpo'||i.k==='tumba')&&i.pet&&marca(i)===m);
+  for(const it of (O.items||[]))if(it&&(it.k==='cuerpo'||it.k==='tumba')&&it.pet&&!delAnulada(it)&&!fueRevivida(B,it)){const m=marca(it),ya=B.items.find(i=>(i.k==='cuerpo'||i.k==='tumba')&&i.pet&&marca(i)===m);
     if(ya){if(ya.k==='cuerpo'&&it.k==='tumba')Object.assign(ya,{k:'tumba',t:it.t,costo:it.costo,tm:it.tm});continue;}
     const ocupa=(x,y)=>B.items.some(i=>CAT[i.k]&&!CAT[i.k].flat&&x<i.x+CAT[i.k].w&&x+1>i.x&&y<i.y+CAT[i.k].h&&y+1>i.y);let sp=null;
     for(let r=0;r<6&&!sp;r++)for(let dy=-r;dy<=r&&!sp;dy++)for(let dx=-r;dx<=r&&!sp;dx++)if(!ocupa(it.x+dx,it.y+dy))sp={x:it.x+dx,y:it.y+dy};
@@ -7257,11 +7334,12 @@ function elegirEstancia(R,gen){SYNC.eligiendo=true;
     <button class="item" id="el-cta"><span class="ic">☁️</span><span class="tx"><b>La de tu cuenta</b><small>${resumenE(R)}</small></span></button>
     <button class="item" id="el-aca"><span class="ic">📱</span><span class="tx"><b>La de este dispositivo</b><small>${resumenE(E)}</small></span></button>
     <p class="note">La otra no se borra: queda guardada en este dispositivo por las dudas.</p>`);
-  $('el-cta').onclick=()=>{SYNC.eligiendo=false;ls.set(KEY+'-respaldo',JSON.stringify(E));aplicarE(R,true);SY.gen=gen;syMeta();closeSheet();setSy('ok');toast('☁️ Listo: seguís con la estancia de tu cuenta.');};
-  $('el-aca').onclick=()=>{SYNC.eligiendo=false;ls.set(KEY+'-respaldo',JSON.stringify(R));SY.gen=gen;SY.dirty=true;SY.base=baseDe(E);syMeta();closeSheet();sync();toast('📱 Listo: tu cuenta queda con la estancia de este dispositivo.');};}
+  $('el-cta').onclick=()=>{SYNC.eligiendo=false;SYNC.petOk=true;ls.set(KEY+'-respaldo',JSON.stringify(E));aplicarE(R,true);SY.gen=gen;syMeta();closeSheet();setSy('ok');toast('☁️ Listo: seguís con la estancia de tu cuenta.');};
+  $('el-aca').onclick=()=>{SYNC.eligiendo=false;SYNC.petOk=true;ls.set(KEY+'-respaldo',JSON.stringify(R));SY.gen=gen;SY.dirty=true;SY.base=baseDe(E);syMeta();closeSheet();sync();toast('📱 Listo: tu cuenta queda con la estancia de este dispositivo.');};}
 // La de la cuenta reemplaza a la de este dispositivo.
 const baseDe=o=>({p:o.pesos||0,t:o.trofeos||0,x:o.xp||0});
-function aplicarE(R,silent){const antes=E;baseSet(R);E=R;fixE();ls.set(KEY,JSON.stringify(E));SY.dirty=false;SY.virgen=false;SY.base=baseDe(E);
+function aplicarE(R,silent){const antes=E;baseSet(R);const resc=!silent&&antes&&rescatarPets(R,antes);E=R;fixE();ls.set(KEY,JSON.stringify(E));SY.dirty=false;SY.virgen=false;SY.base=baseDe(E);
+  if(resc){SY.dirty=true;SY.cc++;syMeta();try{schedSync();}catch(_){}}   // v75: una mascota que la cuenta daba por muerta por error vuelve: se sube
   WK.pj=null;WK.pets={};WK.vis=null;WK.blk=null;WK.blkKey='';GC.key='';tick();tickPedidos();tickVisita();
   if(!VISIT&&!BAT){focusLand();renderAll();}
   if(!silent&&antes&&(antes.items.length!==E.items.length||Math.floor(antes.pesos)!==Math.floor(E.pesos)))toast('☁️ Trajimos tu estancia de la cuenta: está igual que en tu otro dispositivo.');}
@@ -7284,7 +7362,7 @@ async function pull(){
     if(j.gen===0&&SY.virgen){SY.virgen=false;SY.dirty=true;syMeta();}
     if(j.gen!==undefined&&j.gen===SY.gen&&!SY.dirty&&!SY.base){SY.base=baseDe(E);syMeta();}   // los que venían de antes de la v67
   }catch(e){if(/desconocid/i.test(e.message)){SYNC.legacy=true;SYNC.pulled=true;}else{setSy(/conexi|tard/i.test(e.message)?'off':'err',e.message);SYNC.pulling=false;return;}}
-  SYNC.pulling=false;
+  SYNC.pulling=false;if(!SYNC.eligiendo){SYNC.petOk=true;try{ofrecerRevivir();}catch(_){}}   // v75: ya está lo de la cuenta: ahora sí corre el tiempo de la mascota
   try{if(!VISIT&&!BAT&&!SYNC.eligiendo)takePremios();}catch(_){}   // ahora sí: los regalos van sobre la estancia de la cuenta
   if(SY.dirty||SYNC.legacy)await sync();else setSy('ok');
 }

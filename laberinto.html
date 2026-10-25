@@ -104,6 +104,11 @@ body{background:#000}
 .ctrl .info{font-size:12px;color:#6c7bb0;max-width:140px;line-height:1.35}
 .ctrl.swipe .pad{display:none}
 .ctrl.swipe{min-height:52px}
+/* v75: deslizar en el celular: sin barra de controles (el tablero usa todo el alto), y nada de scroll ni zoom */
+body.desliza .ctrl{display:none}
+body.desliza .zona,body.desliza .vp{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.desliz{position:absolute;left:50%;bottom:14px;transform:translate(-50%,8px);padding:8px 14px;border-radius:999px;background:#0a1030ee;border:1px solid #2f6bff88;color:#cfe0ff;font:700 13px/1.2 system-ui,sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:5}
+.desliz.on{opacity:1;transform:translate(-50%,0)}.desliz b{font-size:16px;margin-right:4px}
 .ctrl .ayuda-pc{display:none;font:700 12px/1.3 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;color:#6c7bb0;text-transform:uppercase}
 body.pc .ctrl .pad{display:none}
 body.pc .ctrl .ayuda-pc{display:block}
@@ -213,7 +218,9 @@ const PARTES={
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
     'bloques-favoritos-v1','bloques-orden-v1']   // v67: juegos fijados y orden propio del menú de juegos
 };
-const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1'];
+// v75: también el oro. Antes, el oro que ganabas sin que cambiara otra cosa de «rk» (el cofre al subir de nivel la estancia,
+// la pulpería, una compra con oro) no se marcaba para subir: si cerrabas la app, el otro dispositivo nunca lo veía.
+const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1','bloques-oro-v1'];
 const clavesDe=n=>(PARTES[n]||[]).map(x=>{const [k,r]=Array.isArray(x)?x:[x,'nuevo'];return [k.replace('{me}',me()),r];});
 let MAPA=null,MAPA_U='';
 function parteDe(k){
@@ -1576,8 +1583,8 @@ invasores:{n:'InvasorAR',e:'👾',   // v73
     {id:'gane1',e:'🏆',n:'Defensor de la llanura',d:'Ganá una partida: completá el Arcade o el desafío del día, o ganá un duelo.',k:'ganadas'},
     {id:'centinela',e:'🛸',n:'Abajo el Centinela',d:'Derribá al Centinela.',k:'centinela'},
     {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
-    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
-    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
+    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experto sin perder ninguna vida.',k:'limpio'},
+    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experto.',k:'gan_experta'},
     {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a ×4 en la cadena (18 bajas seguidas sin dejarla caer).',k:'max_combo',m:4,marca:true},
     {id:'racha8',e:'💥',n:'Cadena ×8',d:'Llegá a ×8 en la cadena (42 bajas seguidas).',k:'max_combo',m:8,marca:true},
     {id:'perfecto',e:'⭐',n:'Bonus perfecto',d:'Bajá a todos los dorados de una oleada bonus.',k:'perfectos'},
@@ -3438,6 +3445,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:75,grande:true,titulo:'Novedades',items:[
+    ['🐶','EstanciAR: la mascota ya no se muere por abrir la estancia en un aparato con datos viejos, y si se te murió por ese error, podés revivirla desde su ficha.'],
+    ['💰','El oro ganado en un aparato ahora llega siempre al otro.'],
+    ['🔔','Los avisos se van solos a los pocos segundos o al tocarlos, y ya no se amontonan.'],
+    ['🐤','LaberintAR en el celular se maneja deslizando el dedo en cualquier parte de la pantalla.'],
+    ['👾','InvasorAR sin barra abajo: arrastrá en cualquier parte. Y ahora Fácil, Normal y Experto se notan de verdad, cada una con su récord.']]},
   {v:74,grande:true,titulo:'Novedades',items:[
     ['🐤','LaberintAR rehecho: estilo maquinita, mucho más rápido y ágil, doblás al toque en las esquinas y 5 laberintos nuevos llenos de escapes.'],
     ['👾','InvasorAR rehecho: nave ágil, disparo seco, explosiones, rachas ×8, enemigos y poderes nuevos y oleadas cortas. ¡Otra!'],
@@ -4274,7 +4287,10 @@ const M_RAPIDA=Array.from({length:10},(_,i)=>i%NM);
 const REGIONES=['Patio','Estación','Pampa nocturna'];
 const ETAPAS=Array.from({length:15},(_,i)=>({i,m:i%NM,reg:Math.floor(i/5),acel:[1,1.06,1.12][Math.floor(i/5)],obj:[100,95,90][Math.floor(i/5)]}));
 const DIFN={facil:'Fácil',normal:'Normal',dificil:'Difícil'};
-const PREF=Object.assign({ctrl:'pad',zurdo:false,umbral:14,objetivos:false},ls.json('laberinto-pref',{}));
+const PREF=Object.assign({ctrl:'swipe',zurdo:false,umbral:14,objetivos:false},ls.json('laberinto-pref',{}));
+// v75 (pedido del 25/10: «en celular tienen que ser deslizando, no con el mando»): deslizar es lo de siempre; la cruceta
+// queda como opción en Controles. Quien la tenía guardada pasa a deslizar una vez.
+if(!PREF.v75){PREF.v75=1;PREF.ctrl='swipe';try{ls.set('laberinto-pref',JSON.stringify(PREF));}catch(_){}}
 const guardaPref=()=>ls.set('laberinto-pref',JSON.stringify(PREF));
 const REC=()=>ls.json('laberinto-records-v1',{});
 const ESTR=()=>ls.json('laberinto-campana-v1',{});
@@ -4363,7 +4379,8 @@ function acomodar(){
   const S=G.S||G.D,W=S?S.M.W:23,H=S?S.M.H:27;
   // Dos formas: el puntaje arriba y las vidas abajo (parado), o todo en una columna al costado (acostado, compu): la que
   // deja el laberinto más grande
-  const cA=Math.floor(Math.min((w-4)/W,(h-4)/(H+HUD_T+HUD_B))),cB=Math.floor(Math.min((w-4)/(W+LADO),(h-4)/H));
+  // v75: medio píxel de resolución (en vez de píxel entero): en el celular parado el ancho manda y así el tablero gana ~4 %
+  const q=v=>Math.floor(v*2)/2,cA=q(Math.min((w-2)/W,(h-4)/(H+HUD_T+HUD_B))),cB=q(Math.min((w-2)/(W+LADO),(h-4)/H));
   G.lado=cB>cA;G.cell=Math.max(8,G.lado?cB:cA);G.dpr=Math.min(3,window.devicePixelRatio||1);
   G.mx=G.lado?LADO:0;G.my=G.lado?0:HUD_T;
   const bw=Math.round(G.cell*(G.lado?W+LADO:W)),bh=Math.round(G.cell*(G.lado?H:H+HUD_T+HUD_B));
@@ -4606,19 +4623,29 @@ addEventListener('blur',()=>{PULS.length=0;G.held=-1;if(juegoActivo()&&!G.pausa)
   zona.addEventListener('pointermove',ev=>{if(ev.pointerId!==id)return;const d=dirDe(ev);if(d!==G.held){G.held=d;if(d>=0)G.once=d;marca(d);}});
   const suelta=ev=>{if(ev.pointerId!==id)return;id=null;G.held=-1;marca(-1);};
   zona.addEventListener('pointerup',suelta);zona.addEventListener('pointercancel',suelta);zona.addEventListener('lostpointercapture',suelta);})();
-// Deslizar (opcional): sobre el tablero o la zona de abajo; la orden sale apenas el dedo se mueve un poco (y se puede
-// seguir deslizando sin levantarlo); un segundo dedo no cambia nada
-(function(){let id=null,x0=0,y0=0;
-  for(const z of [$('vp'),$('ctrl')]){
-    z.addEventListener('pointerdown',ev=>{if(PREF.ctrl!=='swipe'||ev.target.closest('button,a'))return;if(id!==null)return;id=ev.pointerId;x0=ev.clientX;y0=ev.clientY;actx();});
-    z.addEventListener('pointermove',ev=>{if(ev.pointerId!==id)return;const dx=ev.clientX-x0,dy=ev.clientY-y0,ax=Math.abs(dx),ay=Math.abs(dy),u=PREF.umbral||14;
-      if(Math.max(ax,ay)<u)return;const r=Math.max(ax,ay)/Math.max(1,Math.min(ax,ay));if(r<1.25&&Math.max(ax,ay)<u*1.8)return;
-      const d=ax>ay?(dx<0?1:3):(dy<0?0:2);G.once=d;x0=ev.clientX;y0=ev.clientY;});
-    const fin=ev=>{if(ev.pointerId===id)id=null;};z.addEventListener('pointerup',fin);z.addEventListener('pointercancel',fin);}
+// Deslizar (lo de siempre en el celular desde v75): en cualquier lugar de la pantalla de juego (tablero incluido); la
+// orden sale apenas el dedo se mueve un poco y se puede seguir deslizando sin levantarlo (cada cambio de dirección es
+// un giro nuevo). Tocar sin deslizar no hace nada; un segundo dedo no cambia nada. Sin scroll ni zoom de la página.
+(function(){let id=null,x0=0,y0=0,ult=-1;const z=$('app');
+  const enJuego=ev=>PREF.ctrl==='swipe'&&!ev.target.closest('button,a,input,.top');
+  z.addEventListener('pointerdown',ev=>{if(!enJuego(ev))return;if(id!==null)return;id=ev.pointerId;x0=ev.clientX;y0=ev.clientY;ult=-1;actx();});
+  z.addEventListener('pointermove',ev=>{if(ev.pointerId!==id)return;const dx=ev.clientX-x0,dy=ev.clientY-y0,ax=Math.abs(dx),ay=Math.abs(dy),u=PREF.umbral||14;
+    if(Math.max(ax,ay)<u)return;const r=Math.max(ax,ay)/Math.max(1,Math.min(ax,ay));if(r<1.25&&Math.max(ax,ay)<u*1.8)return;
+    const d=ax>ay?(dx<0?1:3):(dy<0?0:2);G.once=d;if(d!==ult){ult=d;ayudaDesliz(false);}x0=ev.clientX;y0=ev.clientY;});
+  const fin=ev=>{if(ev.pointerId===id)id=null;};z.addEventListener('pointerup',fin);z.addEventListener('pointercancel',fin);
+  // iOS Safari: que deslizar no mueva la página ni haga zoom de dos dedos
+  z.addEventListener('touchmove',e=>{if(PREF.ctrl==='swipe'&&!e.target.closest('.sheet,.side-panel,.menu-list'))e.preventDefault();},{passive:false});
+  document.addEventListener('gesturestart',e=>e.preventDefault());
 })();
+// La primera vez (y las 3 primeras partidas): un aviso chico «Deslizá el dedo» que se va solo o al primer giro.
+function ayudaDesliz(mostrar){let el=$('desliz');if(!mostrar){if(el)el.classList.remove('on');return;}
+  if(PREF.ctrl!=='swipe'||esPC)return;const n=Number(ls.get('laberinto-desliz')||0);if(n>=3)return;ls.set('laberinto-desliz',String(n+1));
+  if(!el){el=document.createElement('div');el.id='desliz';el.className='desliz';el.innerHTML='<b>👆</b> Deslizá el dedo hacia donde querés ir';$('vp').appendChild(el);}
+  el.classList.add('on');clearTimeout(ayudaDesliz.t);ayudaDesliz.t=setTimeout(()=>el.classList.remove('on'),3200);}
 function aplicarCtrl(){$('ctrl').classList.toggle('swipe',PREF.ctrl==='swipe');document.body.classList.toggle('zurdo',!!PREF.zurdo);
   $('info').textContent=PREF.ctrl==='swipe'?'Deslizá el dedo hacia donde querés ir.':'Tocá o mantené: sigue solo hasta la pared. Doblá antes de la esquina.';
-  if(PREF.ctrl==='swipe'&&esPC)document.body.classList.remove('pc');else if(esPC)document.body.classList.add('pc');
+  // v75: con deslizar, en el celular no hay barra de controles (el tablero usa todo el alto); en la compu sigue el teclado
+  if(esPC)document.body.classList.add('pc');document.body.classList.toggle('desliza',PREF.ctrl==='swipe'&&!esPC);
   requestAnimationFrame(acomodar);}
 
 /* ── Pausa, continuidad ── */
@@ -4660,7 +4687,7 @@ function iniciar(op){
   else if(op.modo==='libre')Object.assign(base,{mapas:op.secuencia?M_RAPIDA.slice(0,NM):[op.mapa||0],niveles:op.niveles||1,semilla:LAB.hash(G.run),vidas:op.vidas,enemigos:op.enemigos,vJug:op.vJug,vEnem:op.vEnem,mate:op.mate,libre:true});
   G.S=LAB.crear(base,MAPAS);G.D=null;G.fin=false;G.pausa=false;G.prev=null;G.acc=0;G.last=0;G.flot=[];G.objMostrar=op.modo==='practica'&&!!op.objetivos;G.mateMax=G.S.v.mate||1;
   G.recIni=(REC()[base.dif]||0);
-  ls.set('laberinto-partida-v1',null);hideOver();closeSheet&&($('modal').hidden=true);HUDK='';acomodar();hud();actx();sfx('arranque');
+  ls.set('laberinto-partida-v1',null);hideOver();closeSheet&&($('modal').hidden=true);HUDK='';acomodar();hud();actx();sfx('arranque');ayudaDesliz(true);
 }
 
 /* ── Fin y premios ── */
@@ -4783,10 +4810,10 @@ function comoSeJuega(){sheet('Cómo se juega',`<p>Recorré el laberinto y comé 
   <p>Un <b>mate</b> los asusta unos segundos: se ponen azules y los podés correr (200, 400, 800 y 1600 puntos seguidos). Cuando titilan, se les pasa. En los <b>túneles</b> de los costados ellos van más lento: usalos para escaparte.</p>
   <p><b>Doblá antes de llegar a la esquina:</b> la orden queda guardada y el pajarito corta la curva; doblar bien te hace más rápido que ellos.</p>
   <p>Dos veces por laberinto aparece un <b>bonus</b> abajo del corral (torta frita, empanada, alfajor…): vale más en cada nivel. A los 10.000 puntos, una vida más.</p>
-  <h4>Controles</h4><ul><li><b>Celular:</b> la cruceta (toda la zona de abajo responde; mantener o tocar: sigue solo hasta la próxima pared). En Controles podés cambiar a deslizar el dedo y ponerla del otro lado.</li><li><b>Compu:</b> flechas o WASD; P o Esc para pausar.</li></ul>
+  <h4>Controles</h4><ul><li><b>Celular:</b> deslizá el dedo en cualquier parte de la pantalla hacia donde querés ir: el pajarito sigue solo hasta la próxima pared y podés encadenar giros sin levantar el dedo. Si preferís la cruceta, está en Controles.</li><li><b>Compu:</b> flechas o WASD; P o Esc para pausar.</li></ul>
   <h4>Premios</h4><p>Partida rápida, Del día y Campaña dan oro, XP y una legua por día para La Gran Pampa si la partida vale (un minuto con 30 recogidas, o un laberinto limpio). El del día da otra legua y va a la tabla del día. Práctica y reglas libres no dan premios.</p>`);}
 function ajustes(enPausa){const pintar=()=>{sheet('Controles',`<div class="ajustes">
-    <button class="aj${PREF.ctrl==='swipe'?' on':''}" data-k="swipe"><span><b>Deslizar el dedo</b><small>En vez de la cruceta: deslizá sobre el tablero o abajo</small></span><i></i></button>
+    <button class="aj${PREF.ctrl==='swipe'?' on':''}" data-k="swipe"><span><b>Deslizar el dedo</b><small>En cualquier parte de la pantalla (si lo apagás, aparece la cruceta abajo)</small></span><i></i></button>
     <button class="aj${PREF.zurdo?' on':''}" data-k="zurdo"><span><b>Zurdo</b><small>Los controles del otro lado</small></span><i></i></button>
     <button class="aj${PREF.vibrar!==false?' on':''}" data-k="vibrar"><span><b>Vibrar</b><small>Al comer un mate, correr a uno o perder una vida</small></span><i></i></button>
     <button class="aj${SND?' on':''}" data-k="son"><span><b>Sonido</b></span><i></i></button>

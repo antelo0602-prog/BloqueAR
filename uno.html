@@ -275,7 +275,9 @@ const PARTES={
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
     'bloques-favoritos-v1','bloques-orden-v1']   // v67: juegos fijados y orden propio del menú de juegos
 };
-const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1'];
+// v75: también el oro. Antes, el oro que ganabas sin que cambiara otra cosa de «rk» (el cofre al subir de nivel la estancia,
+// la pulpería, una compra con oro) no se marcaba para subir: si cerrabas la app, el otro dispositivo nunca lo veía.
+const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1','bloques-oro-v1'];
 const clavesDe=n=>(PARTES[n]||[]).map(x=>{const [k,r]=Array.isArray(x)?x:[x,'nuevo'];return [k.replace('{me}',me()),r];});
 let MAPA=null,MAPA_U='';
 function parteDe(k){
@@ -1638,8 +1640,8 @@ invasores:{n:'InvasorAR',e:'👾',   // v73
     {id:'gane1',e:'🏆',n:'Defensor de la llanura',d:'Ganá una partida: completá el Arcade o el desafío del día, o ganá un duelo.',k:'ganadas'},
     {id:'centinela',e:'🛸',n:'Abajo el Centinela',d:'Derribá al Centinela.',k:'centinela'},
     {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
-    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
-    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
+    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experto sin perder ninguna vida.',k:'limpio'},
+    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experto.',k:'gan_experta'},
     {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a ×4 en la cadena (18 bajas seguidas sin dejarla caer).',k:'max_combo',m:4,marca:true},
     {id:'racha8',e:'💥',n:'Cadena ×8',d:'Llegá a ×8 en la cadena (42 bajas seguidas).',k:'max_combo',m:8,marca:true},
     {id:'perfecto',e:'⭐',n:'Bonus perfecto',d:'Bajá a todos los dorados de una oleada bonus.',k:'perfectos'},
@@ -3500,6 +3502,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:75,grande:true,titulo:'Novedades',items:[
+    ['🐶','EstanciAR: la mascota ya no se muere por abrir la estancia en un aparato con datos viejos, y si se te murió por ese error, podés revivirla desde su ficha.'],
+    ['💰','El oro ganado en un aparato ahora llega siempre al otro.'],
+    ['🔔','Los avisos se van solos a los pocos segundos o al tocarlos, y ya no se amontonan.'],
+    ['🐤','LaberintAR en el celular se maneja deslizando el dedo en cualquier parte de la pantalla.'],
+    ['👾','InvasorAR sin barra abajo: arrastrá en cualquier parte. Y ahora Fácil, Normal y Experto se notan de verdad, cada una con su récord.']]},
   {v:74,grande:true,titulo:'Novedades',items:[
     ['🐤','LaberintAR rehecho: estilo maquinita, mucho más rápido y ágil, doblás al toque en las esquinas y 5 laberintos nuevos llenos de escapes.'],
     ['👾','InvasorAR rehecho: nave ágil, disparo seco, explosiones, rachas ×8, enemigos y poderes nuevos y oleadas cortas. ¡Otra!'],
@@ -4473,7 +4481,7 @@ function openMenu(){
     <button id="m-new">🃏 Partida nueva</button><button id="m-friend">👥 Jugar en línea con amigos</button>${enPartida()?'<button id="m-salir">🚪 Salir de la partida</button>':''}<button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-anim">${VUELO.etiqueta()}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=uno">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 74</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 75</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='juego'&&!(E&&E.fin)){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});

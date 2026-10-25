@@ -64,6 +64,18 @@ body.auto .cb.fuego{display:none}
 body.sin-escudo .cb.escudo{display:none}
 body.zurdo .ctrl-acc{flex-direction:row-reverse}
 body.menu .ctrl-mov,body.menu .ctrl-acc{visibility:hidden}
+/* v75 (pedido del 25/10: «no necesito una barra abajo que me indique»): con Deslizar en el celular no hay barra de abajo:
+   se arrastra en cualquier parte, el campo queda arriba y el escudo (y el disparo, si no es automático) flotan chicos en la
+   esquina de abajo, en el lugar que sobra debajo del campo. */
+body.tactil.c-deslizar .ctrl-mov{display:none}
+body.tactil.c-deslizar .juego{grid-template-rows:1fr;grid-template-areas:"campo campo";touch-action:none;-webkit-user-select:none;user-select:none}
+body.tactil.c-deslizar #campo-box{place-items:start center;padding-top:6px}
+body.tactil.c-deslizar .ctrl-acc{position:absolute;z-index:5;right:max(8px,env(safe-area-inset-right));bottom:calc(8px + env(safe-area-inset-bottom));padding:0;min-height:0;gap:8px}
+body.tactil.c-deslizar.zurdo .ctrl-acc{right:auto;left:max(8px,env(safe-area-inset-left))}
+body.tactil.c-deslizar .ctrl-acc .cb{min-width:56px;min-height:56px;border-radius:16px;opacity:.9}
+body.tactil.c-deslizar .ctrl-acc .cb small{display:none}
+.desliz{position:absolute;left:50%;bottom:18%;transform:translate(-50%,8px);padding:8px 14px;border-radius:999px;background:rgba(10,16,40,.92);border:1px solid #7ce9e588;color:#d6f6ff;font:700 13px/1.2 system-ui,sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:6}
+.desliz.on{opacity:1;transform:translate(-50%,0)}.desliz b{font-size:16px;margin-right:4px}
 /* horizontal (celular acostado): los controles a los costados */
 @media (orientation:landscape) and (max-height:560px){
   .juego,body.zurdo .juego{grid-template-columns:1fr minmax(0,calc((var(--app-h,100vh) - 56px)*.75)) 1fr;grid-template-rows:1fr;grid-template-areas:"mov campo acc"}
@@ -239,7 +251,9 @@ const PARTES={
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
     'bloques-favoritos-v1','bloques-orden-v1']   // v67: juegos fijados y orden propio del menú de juegos
 };
-const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1'];
+// v75: también el oro. Antes, el oro que ganabas sin que cambiara otra cosa de «rk» (el cofre al subir de nivel la estancia,
+// la pulpería, una compra con oro) no se marcaba para subir: si cerrabas la app, el otro dispositivo nunca lo veía.
+const RK_CLAVES=['bloques-rangos-v1','bloques-xpjuegos-v1','bloques-logros-v1','bloques-partidas-v1','bloques-oro-v1'];
 const clavesDe=n=>(PARTES[n]||[]).map(x=>{const [k,r]=Array.isArray(x)?x:[x,'nuevo'];return [k.replace('{me}',me()),r];});
 let MAPA=null,MAPA_U='';
 function parteDe(k){
@@ -1602,8 +1616,8 @@ invasores:{n:'InvasorAR',e:'👾',   // v73
     {id:'gane1',e:'🏆',n:'Defensor de la llanura',d:'Ganá una partida: completá el Arcade o el desafío del día, o ganá un duelo.',k:'ganadas'},
     {id:'centinela',e:'🛸',n:'Abajo el Centinela',d:'Derribá al Centinela.',k:'centinela'},
     {id:'nodriza',e:'🌑',n:'Cayó la Nodriza',d:'Derribá a la Nodriza.',k:'nodriza'},
-    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experta sin perder ninguna vida.',k:'limpio'},
-    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experta.',k:'gan_experta'},
+    {id:'noche',e:'🌙',n:'Defensor de la noche',d:'Completá el Arcade en Normal o Experto sin perder ninguna vida.',k:'limpio'},
+    {id:'experta',e:'🎖️',n:'Piloto experto',d:'Completá el Arcade en Experto.',k:'gan_experta'},
     {id:'racha',e:'🔥',n:'Racha ×4',d:'Llegá a ×4 en la cadena (18 bajas seguidas sin dejarla caer).',k:'max_combo',m:4,marca:true},
     {id:'racha8',e:'💥',n:'Cadena ×8',d:'Llegá a ×8 en la cadena (42 bajas seguidas).',k:'max_combo',m:8,marca:true},
     {id:'perfecto',e:'⭐',n:'Bonus perfecto',d:'Bajá a todos los dorados de una oleada bonus.',k:'perfectos'},
@@ -3464,6 +3478,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:75,grande:true,titulo:'Novedades',items:[
+    ['🐶','EstanciAR: la mascota ya no se muere por abrir la estancia en un aparato con datos viejos, y si se te murió por ese error, podés revivirla desde su ficha.'],
+    ['💰','El oro ganado en un aparato ahora llega siempre al otro.'],
+    ['🔔','Los avisos se van solos a los pocos segundos o al tocarlos, y ya no se amontonan.'],
+    ['🐤','LaberintAR en el celular se maneja deslizando el dedo en cualquier parte de la pantalla.'],
+    ['👾','InvasorAR sin barra abajo: arrastrá en cualquier parte. Y ahora Fácil, Normal y Experto se notan de verdad, cada una con su récord.']]},
   {v:74,grande:true,titulo:'Novedades',items:[
     ['🐤','LaberintAR rehecho: estilo maquinita, mucho más rápido y ágil, doblás al toque en las esquinas y 5 laberintos nuevos llenos de escapes.'],
     ['👾','InvasorAR rehecho: nave ágil, disparo seco, explosiones, rachas ×8, enemigos y poderes nuevos y oleadas cortas. ¡Otra!'],
@@ -3721,10 +3741,14 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
 const MUNDO={W:720,H:960,LINEA:820,NAVE_Y:880,NAVE_MIN:30,NAVE_MAX:690,TOPE_Y:70};
 const DT=1/60;
 const MOTOR_V=2;
+// v75 (pedido del 25/10: «aparece la opción pero no tiene fácil ni experto»): las tres son de verdad, sin tocar el ritmo:
+// la nave y los tiros propios son iguales; cambia lo que te tira, cuánto aguantás y cuánta ayuda llega.
+//   vidas · ene (velocidad enemiga) · proy (velocidad de sus tiros) · int (cada cuánto tiran) · tope (tope de tiros)
+//   jefe (vida de los jefes) · drop (chance de poder por baja) · rec (recarga del escudo) · tir (cuánto eligen tirar los francotiradores)
 const DIFS={
-  tranquila:{n:'Tranquila',vidas:4,ene:.85,proy:.85,int:1.25,tope:90},
-  normal:{n:'Normal',vidas:3,ene:1,proy:1,int:1,tope:110},
-  experta:{n:'Experta',vidas:3,ene:1.12,proy:1.12,int:.8,tope:130}};
+  tranquila:{n:'Fácil',vidas:4,ene:.85,proy:.8,int:1.35,tope:90,jefe:.75,drop:.1,rec:.65,tir:2},
+  normal:{n:'Normal',vidas:3,ene:1,proy:1,int:1,tope:110,jefe:1,drop:.06,rec:1,tir:3},
+  experta:{n:'Experto',vidas:2,ene:1.08,proy:1.22,int:.72,tope:140,jefe:1.4,drop:.045,rec:1.25,tir:5}};
 // Tipos de enemigo: vida, puntos y tamaño del golpe (el dibujo es un poco más grande).
 const TIPOS={
   exp:{n:'Explorador',vida:1,pts:10,w:34,h:26},
@@ -3831,7 +3855,7 @@ function cargarOla(G,i){
   G.rs={tiro:flujo(G.seed,i,'tiro'),pica:flujo(G.seed,i,'pica'),jefe:flujo(G.seed,i,'jefe'),met:flujo(G.seed,i,'met'),bot:flujo(G.seed,i,'bot')};
   G.ene=[];G.hostiles=[];G.barr=[];G.sum=null;G.jefe=null;G.rocas=[];G.bonusT=0;G.bonusN=0;G.bonusK=0;
   G.form={fx:0,fy:0,dir:1,olaT:0,tiroT:1.4,picT:3.2,kamT:5,sumT:7,metT:O.meteoros?9:0,metN:0,dropCd:0};
-  if(O.jefe){const J=JEFES[O.jefe],vida=Math.ceil(J.vida*G.escala.jefe);
+  if(O.jefe){const J=JEFES[O.jefe],vida=Math.ceil(J.vida*G.escala.jefe*(DIFS[G.dif].jefe||1));
     G.jefe={tipo:O.jefe,x:360,y:-80,y0:J.y,w:J.w,h:J.h,vida,max:vida,dir:1,fase:1,trans:0,t:0,a:0,abT:1.4,rafT:2.2,espT:0,espA:0,espN:0,barrT:4,refT:5,alterna:0,flash:0,muerto:false};
     G.fase='jefeIntro';G.faseT=1.5;}
   else if(O.bonus){
@@ -3890,7 +3914,7 @@ function paso(G,inp){
   // 1) escudo, poderes y movimiento propio
   if(N.esc.act>0)N.esc.act=Math.max(0,N.esc.act-DT);
   if(N.esc.rec>0)N.esc.rec=Math.max(0,N.esc.rec-DT);
-  if(inp.escudo&&R.escudo&&N.esc.rec<=0&&N.esc.act<=0){N.esc.act=1.2;N.esc.rec=R.recarga+1.2;G.ev.push({t:'escudo'});}
+  if(inp.escudo&&R.escudo&&N.esc.rec<=0&&N.esc.act<=0){N.esc.act=1.2;N.esc.rec=R.recarga*(DIFS[G.dif].rec||1)+1.2;G.ev.push({t:'escudo'});}
   if(N.inv>0)N.inv=Math.max(0,N.inv-DT);
   for(const k of Object.keys(N.pw)){if(N.pw[k]>0){N.pw[k]-=DT;if(N.pw[k]<=0){N.pw[k]=0;G.ev.push({t:'pwFin',k});}}}
   moverNave(G,inp);
@@ -3980,7 +4004,7 @@ function moverFormacion(G){
     const cand=Object.keys(cols).sort((a,b)=>a-b).map(c=>cols[c]);
     const maxF=G.escala.blq?Math.min(14,9+G.escala.blq):9,propios=G.hostiles.filter(h=>h.de==='f').length;
     if(cand.length&&propios<maxF&&G.hostiles.length<40){
-      let tot=0;const W=cand.map(e=>{const w=e.tipo==='tir'?3:e.tipo==='bli'?2:1;tot+=w;return w;});
+      let tot=0;const W=cand.map(e=>{const w=e.tipo==='tir'?(D.tir||3):e.tipo==='bli'?2:1;tot+=w;return w;});
       let r=rngNext(G.rs.tiro)*tot,sel=cand[0];for(let i=0;i<cand.length;i++){r-=W[i];if(r<=0){sel=cand[i];break;}}
       if(sel.tipo==='tir'){sel.carga=.4;G.ev.push({t:'carga',x:sel.x,y:sel.y});}
       else tiroEnemigo(G,sel);}
@@ -4143,7 +4167,7 @@ function pegarEnemigo(G,e,d){e.vida-=d;e.fl=.08;G.st.aciertos++;
   if(tipo==='div')spawnMinis(G,e.x,e.y,2);
   gema(G,e.x,e.y,tipo==='bon'?10:5);
   // de vez en cuando, un poder (con una espera mínima entre uno y otro)
-  if(G.R.poderes&&G.form.dropCd<=0&&tipo!=='bon'&&rngNext(G.rs.bot)<.06){soltarPoder(G,e.x,e.y);G.form.dropCd=4;}
+  if(G.R.poderes&&G.form.dropCd<=0&&tipo!=='bon'&&rngNext(G.rs.bot)<(DIFS[G.dif].drop||.06)){soltarPoder(G,e.x,e.y);G.form.dropCd=4;}
   if(tipo==='bon'){G.bonusK++;if(G.bonusK===G.iniciales){sumarPuntos(G,1500,360,420,false);G.st.perfectos++;G.ev.push({t:'perfecto'});}}}
 function golpeJefe(G,d,x,y){const J=G.jefe;J.vida-=d;J.flash=.06;G.st.aciertos++;G.ev.push({t:'golpe',x,y,jefe:1});
   if(J.vida<=0&&!J.muerto){J.muerto=true;sumarPuntos(G,JEFES[J.tipo].pts,J.x,J.y,false);G.st[J.tipo]++;G.ev.push({t:'explotaJefe',x:J.x,y:J.y,k:J.tipo});G.hostiles=[];G.barr=[];G.ene.forEach(e=>e.est='muerto');
@@ -4375,7 +4399,10 @@ botonTactil('b-escudo',()=>{IN.escudoP=true;},null);
 function deslizador(el,soloAbajo){
   el.addEventListener('pointerdown',e=>{
     if(!jugando()||IN.dedo!==null)return;
-    if(soloAbajo){const r=CV.getBoundingClientRect();if(e.clientY<r.top+r.height*.66||e.clientX<r.left||e.clientX>r.right)return;}
+    if(e.target.closest('button,a,.over,.sheet'))return;
+    // v75: con «Deslizar» (lo de siempre en el celular) se arrastra en cualquier parte de la pantalla de juego; con botones,
+    // sólo en la parte de abajo del campo
+    if(soloAbajo&&AJ.ctrl==='botones'){const r=CV.getBoundingClientRect();if(e.clientY<r.top+r.height*.66||e.clientX<r.left||e.clientX>r.right)return;}
     e.preventDefault();IN.dedo={id:e.pointerId,x0:e.clientX,n0:G?G.nave.x:360,el};try{el.setPointerCapture(e.pointerId);}catch(_){}actx();
     if(el===$('pad')){el.classList.add('activo');const d=document.createElement('i');d.className='dedo';const r=el.getBoundingClientRect();d.style.left=(e.clientX-r.left)+'px';d.style.top=(e.clientY-r.top)+'px';el.appendChild(d);}});
   el.addEventListener('pointermove',e=>{const D=IN.dedo;if(!D||D.id!==e.pointerId)return;
@@ -4384,7 +4411,11 @@ function deslizador(el,soloAbajo){
   const fin=e=>{const D=IN.dedo;if(!D||D.id!==e.pointerId)return;IN.dedo=null;IN.tx=null;el.classList.remove('activo');const d=el.querySelector('.dedo');if(d)d.remove();};
   el.addEventListener('pointerup',fin);el.addEventListener('pointercancel',fin);el.addEventListener('lostpointercapture',fin);}
 deslizador($('pad'),false);
-deslizador($('campo-box'),true);   // también se puede deslizar sobre la parte de abajo del campo (debajo de los refugios)
+deslizador($('juego'),true);   // v75: en toda la zona de juego (sin barra abajo); con botones, sólo debajo de los refugios
+// La primera vez (las 3 primeras partidas con deslizar): un aviso chico «Deslizá el dedo para mover» que se va solo.
+function ayudaDesliz(){if(!TACTIL||AJ.ctrl!=='deslizar')return;const n=Number(ls.get('invasores-desliz')||0);if(n>=3)return;ls.set('invasores-desliz',String(n+1));
+  let el=$('desliz');if(!el){el=document.createElement('div');el.id='desliz';el.className='desliz';el.innerHTML='<b>👆</b> Deslizá el dedo para mover la nave';$('campo-box').appendChild(el);}
+  el.classList.add('on');clearTimeout(ayudaDesliz.t);ayudaDesliz.t=setTimeout(()=>el.classList.remove('on'),3500);}
 // Rotar la pantalla cancela los gestos; en individual, pausa.
 window.addEventListener('orientationchange',()=>{soltarTodo();if(jugando()&&!enDuelo())pausar(true);setTimeout(()=>{try{medirCampo();}catch(_){}},300);});
 
@@ -4768,7 +4799,7 @@ function botDemo(G){const N=G.nave,x=N.x;let tx=x;
 let ESC_PINTADO='';
 function pintarEscudo(){const b=$('b-escudo');if(!b||!G)return;const N=G.nave,listo=N.esc.rec<=0&&N.esc.act<=0;
   const k=(listo?1:0)+':'+Math.round((N.esc.rec||0)*4);if(k===ESC_PINTADO)return;ESC_PINTADO=k;
-  b.classList.toggle('recarga',!listo);const p=G.R.recarga+1.2;$('esc-carga').style.width=(listo?100:Math.max(0,100*(1-N.esc.rec/p)))+'%';
+  b.classList.toggle('recarga',!listo);const p=G.R.recarga*((DIFS[G.dif]||{}).rec||1)+1.2;$('esc-carga').style.width=(listo?100:Math.max(0,100*(1-N.esc.rec/p)))+'%';
   document.body.classList.toggle('sin-escudo',!G.R.escudo);}
 
 /* ── Lo que pasó en el paso: sonidos, chispas, puntos que suben ── */
@@ -4825,7 +4856,7 @@ function empezar(modo,op={}){
   if(modo==='tutorial'){TUT={paso:0,t:0,mov0:0};}else TUT=null;
   ESCENA=modo;document.body.classList.remove('menu');$('hud-pausa').hidden=false;
   if(modo!=='duelo')ls.set(SAVE,null);
-  aplicarAj();medirCampo();cuenta(op.cuenta??2);
+  aplicarAj();medirCampo();cuenta(op.cuenta??2);if(modo!=='tutorial')try{ayudaDesliz();}catch(_){}
   ls.set('bloques-ultimo-juego','invasores');
 }
 function cuenta(seg){if(seg<=0||RM&&!enDuelo()){EST='jugando';ACC=0;return;}EST='cuenta';CUENTA_T=seg;const c=$('cuenta');c.hidden=false;c.textContent=String(Math.ceil(seg));}
@@ -4975,7 +5006,7 @@ function elegirModo(m){
   if(m==='libre'){openTaller();return;}
   if(m==='tutorial'){empezar('tutorial',{cuenta:1});return;}
   const difs=m==='dia'?'':`<h4>Dificultad</h4><div class="seg">${Object.keys(DIFS).map(d=>`<button class="btn${CFG.dif===d?' on':''}" data-dif="${d}">${DIFS[d].n}</button>`).join('')}</div>
-    <p class="note">${CFG.dif==='tranquila'?'4 vidas, invasores más lentos y menos tiros.':CFG.dif==='normal'?'3 vidas. La tabla principal es en Normal.':'2 vidas, todo más rápido. Para los que ya le agarraron la mano.'}</p>`;
+    <p class="note">${CFG.dif==='tranquila'?'4 vidas, te tiran menos y más lento, el escudo se recarga antes, caen más poderes y los jefes aguantan menos.':CFG.dif==='normal'?'3 vidas. El equilibrio de siempre.':'2 vidas, tiros más rápidos y seguidos, más francotiradores, menos poderes y jefes más duros.'} Cada dificultad tiene su récord y su tabla.</p>`;
   const txt={arcade:'Diez oleadas cortas: dos son bonus (bajá los dorados en 10 s), la quinta es el Centinela y la décima, la Nodriza. Cada tercera oleada limpia se reparan los refugios.',
     resistencia:'Oleadas sin fin, cada vez más duras, con un bonus y un jefe cada cinco. La expedición se cierra a los 20 minutos.',
     dia:`Cinco oleadas con la misma semilla para todos (la 1, la 2, un bonus, la 4 y el Centinela), una sola dificultad y hasta 5 minutos. ${diaHecho()?'El oficial de hoy ya lo jugaste: ahora es práctica.':'El primer intento que termines es el oficial: va a la tabla del día y de la semana.'}`}[m]||'';
@@ -5343,10 +5374,10 @@ function showInvite(inv){UIQ.dismissed.add(inv.id);const of=String(inv.oferta||'
 window.addEventListener('pagehide',()=>{if(DUELO)sendCh({t:'bye',corte:1});});
 
 /* ───────── InvasorAR · arranque ───────── */
-function pcPanel(){const R=records(),rec=R['arcade:normal']||0;
+function pcPanel(){const R=records(),rec=R['arcade:'+CFG.dif]||0;
   $('pc-panel').innerHTML=`<h3>Controles</h3><div class="fila"><kbd>◀</kbd><kbd>▶</kbd> o <kbd>A</kbd><kbd>D</kbd> mover</div><div class="fila"><kbd>Espacio</kbd> disparar (mantené)</div>
     <div class="fila"><kbd>Shift</kbd> o <kbd>E</kbd> escudo</div><div class="fila"><kbd>P</kbd> o <kbd>Esc</kbd> pausa</div>
-    <div class="rec">Récord de Arcade (Normal): <b>${rec?fmt(rec):'—'}</b><br><small>Los botones táctiles se prenden en Ajustes › Mover.</small></div>`;}
+    <div class="rec">Récord de Arcade (${DIFS[CFG.dif].n}): <b>${rec?fmt(rec):'—'}</b><br><small>Los botones táctiles se prenden en Ajustes › Mover.</small></div>`;}
 function aceptando(){try{return !!sessionStorage.getItem('invasores-accept');}catch(_){return false;}}
 function esperarInvitacion(){sheet('Duelo con un amigo','<p><span class="busy"></span>Buscando la invitación de tu amigo…</p>');
   let n=0;const t=setInterval(()=>{if(DUELO||!aceptando()){clearInterval(t);return;}
@@ -5384,7 +5415,7 @@ function openMenu(){
     ${G&&!G.fin&&EST!=='menu'?'<button id="m-pausa">⏸ Pausa</button>':''}<button id="m-modos">👾 Modos de juego</button><button id="m-duelo">⚔️ Duelo con un amigo</button>
     <button id="m-aj">⚙️ Controles y sonido</button><button id="m-help">❓ Cómo se juega</button><button id="m-rec">🏆 Récords</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=invasores">📊 Tablas</a><button id="m-share">📲 Pasar el juego</button>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 74</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 75</p>`);
   const go=f=>()=>{closeSide();f();};$('m-x').onclick=closeSide;
   if($('m-pausa'))$('m-pausa').onclick=go(()=>pausar());
   $('m-modos').onclick=go(()=>{if(G&&!G.fin&&EST!=='menu'){if(enDuelo()){toast('Estás en un duelo: abandonalo desde la pausa del duelo.');return;}EST='jugando';pausar();return;}portada();});
