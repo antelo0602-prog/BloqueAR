@@ -3773,6 +3773,8 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:78,grande:false,titulo:'Novedades',items:[
+    ['🌾','EstanciAR: la granja da el doble — cultivos, animales y talleres pagan mucho más que antes.']]},
   {v:77,grande:true,titulo:'Novedades',items:[
     ['🎵','Jugar ya no corta la música de otras apps del celular.'],
     ['🔁','El sudoku, el solitario y el buscaminas del día siguen en otro aparato donde los dejaste. Y si te cortás de una partida, aparece «Volver» o «Abandonar»; si se va el que lleva la mesa, la partida sigue.'],
@@ -4766,7 +4768,7 @@ function openMenu(){
     ${G&&!G.fin?'<button id="m-salir" class="salir">🚪 Salir de la partida</button>':''}<button id="m-new">♟️ Partida nueva</button><button id="m-lista">📮 Mis partidas${DIST.toca?`<span class="tg">te toca en ${DIST.toca}</span>`:''}</button><button id="m-log">📜 Jugadas</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-flip">⟲ Girar el tablero</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=ajedrez">🏆 Tabla</a>
-    <a href="estancia.html" data-campo>🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">AjedrezAR · versión 77</p>`);
+    <a href="estancia.html" data-campo>🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">AjedrezAR · versión 78</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;if($('m-salir'))$('m-salir').onclick=go(salirPartida);
   $('m-new').onclick=go(()=>openNew());$('m-lista').onclick=go(openPartidas);$('m-log').onclick=go(openLog);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);

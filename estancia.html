@@ -3827,6 +3827,8 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:78,grande:false,titulo:'Novedades',items:[
+    ['🌾','EstanciAR: la granja da el doble — cultivos, animales y talleres pagan mucho más que antes.']]},
   {v:77,grande:true,titulo:'Novedades',items:[
     ['🎵','Jugar ya no corta la música de otras apps del celular.'],
     ['🔁','El sudoku, el solitario y el buscaminas del día siguen en otro aparato donde los dejaste. Y si te cortás de una partida, aparece «Volver» o «Abandonar»; si se va el que lleva la mesa, la partida sigue.'],
@@ -5682,13 +5684,13 @@ ART.tumba=(g,it,t,l)=>{const e=tumbaEtapa(it);if(e===2){tree(g,it.x+.5,it.y+.5,.
 /*ECO*/const ECO={
   ver:65,   // v65 (pedido del 19/10, 01:38: «todo tiene que dar menos monedas y las cosas tienen que salir más… Tiene que sentirse un esfuerzo»)
   inicio:400,
-  // Cultivos: [costo, tiempo, da, xp]
-  seeds:{trigo:[8,3*MIN,12,1],papa:[20,HOUR,45,2],maiz:[25,30*MIN,44,3],girasol:[45,2*HOUR,100,5],tomate:[60,3*HOUR,125,6],alfalfa:[70,6*HOUR,170,8],zapallo:[90,8*HOUR,210,9],sandia:[130,12*HOUR,280,13]},
-  // Animales y producción: [costo, cada cuánto, da]
+  // Cultivos: [costo, tiempo, da, xp] · v78 (pedido del 26/10: «las cosas de la granja dan muy poquito»): la ganancia de cada cultivo se duplicó
+  seeds:{trigo:[8,3*MIN,16,1],papa:[20,HOUR,70,2],maiz:[25,30*MIN,63,3],girasol:[45,2*HOUR,155,5],tomate:[60,3*HOUR,190,6],alfalfa:[70,6*HOUR,270,8],zapallo:[90,8*HOUR,330,9],sandia:[130,12*HOUR,430,13]},
+  // Animales y producción: [costo, cada cuánto, da] · v78: todo da el doble
   // v77: lo que tarda mucho da proporcionalmente más (≈ +3,5 % por hora de espera, hasta +30 %): «si van a tardar tanto, que den un poco más».
-  prod:{gallinero:[500,HOUR,18],huerta:[400,90*MIN,19],patos:[900,2*HOUR,35],colmena:[1000,2*HOUR,35],chiquero:[1400,3*HOUR,56],tambo:[2400,4*HOUR,100],cabras:[3000,5*HOUR,132],
-    frutales:[1800,5*HOUR,90],ovejas:[5000,8*HOUR,265],harinero:[3600,3*HOUR,67],queseria:[5200,6*HOUR,205],panaderia:[4400,4*HOUR,135],caballeriza:[6400,10*HOUR,420],
-    llamas:[8400,9*HOUR,440],vinedo:[4000,8*HOUR,230],bodega:[9600,12*HOUR,640],nandues:[11000,12*HOUR,710],pulperia:[12000,8*HOUR,420],empanadas:[1000,4*HOUR,74]},
+  prod:{gallinero:[500,HOUR,36],huerta:[400,90*MIN,38],patos:[900,2*HOUR,70],colmena:[1000,2*HOUR,70],chiquero:[1400,3*HOUR,112],tambo:[2400,4*HOUR,200],cabras:[3000,5*HOUR,264],
+    frutales:[1800,5*HOUR,180],ovejas:[5000,8*HOUR,530],harinero:[3600,3*HOUR,134],queseria:[5200,6*HOUR,410],panaderia:[4400,4*HOUR,270],caballeriza:[6400,10*HOUR,840],
+    llamas:[8400,9*HOUR,880],vinedo:[4000,8*HOUR,460],bodega:[9600,12*HOUR,1280],nandues:[11000,12*HOUR,1420],pulperia:[12000,8*HOUR,840],empanadas:[1000,4*HOUR,148]},
   // Adornos, cosas para usar, feria y defensas: precio base (lo que no está, queda como estaba)
   precio:{ombu:1400,molino:3600,carreta:1200,laguna:2400,sauce:600,eucalipto:450,glorieta:12000,estatua:18000,capilla:100000,piedra:7000,calesita:24000,fuente:12000,
     telescopio:1800,tablado:2200,guitarrero:1400,banco:200,aljibe:450,fogon:350,parrilla:450,farol:150,palenque:200,mesamate:300,mecedora:380,hamaca:450,columpio:500,banderines:350,arbol:120,
@@ -6998,7 +7000,7 @@ function openMenu(){
     <button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     <label class="amb-vol">🌿 Ambiente <input type="range" id="m-amb" min="0" max="1" step="0.1" value="${AMB.vol}" aria-label="Volumen del ambiente"${SND?'':' disabled'}></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=estancia">🏆 Tabla</a>
-    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 77</p>`);
+    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 78</p>`);
   $('m-x').onclick=closeSide;$('m-help').onclick=()=>{closeSide();openHelp();};$('m-juegos').onclick=()=>{closeSide();openJuegos();};$('m-pj').onclick=()=>{closeSide();openPersonaje();};$('m-ped').onclick=()=>{closeSide();openPedidos();};$('m-moch').onclick=()=>{closeSide();openMochila();};
   if($('m-pets'))$('m-pets').onclick=()=>{closeSide();openShop('mascotas');};
   $('m-snd').onclick=()=>{SND=!SND;ls.set('estancia-sonido',SND?'1':'0');if(SND)ambStart();openMenu();};

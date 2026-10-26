@@ -3710,6 +3710,8 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:78,grande:false,titulo:'Novedades',items:[
+    ['🌾','EstanciAR: la granja da el doble — cultivos, animales y talleres pagan mucho más que antes.']]},
   {v:77,grande:true,titulo:'Novedades',items:[
     ['🎵','Jugar ya no corta la música de otras apps del celular.'],
     ['🔁','El sudoku, el solitario y el buscaminas del día siguen en otro aparato donde los dejaste. Y si te cortás de una partida, aparece «Volver» o «Abandonar»; si se va el que lleva la mesa, la partida sigue.'],
@@ -4455,7 +4457,7 @@ function openMenu(){
     <button id="m-new">🂠 Partida nueva</button><button id="m-dia">📅 Partida del día</button><button id="m-recs">⏱️ Tus récords</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     <a id="m-salir" href="./#juegos">🚪 Salir de la partida</a>
-    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 77</p>`);
+    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 78</p>`);
   const go=f=>()=>{$('side').hidden=true;f();};
   $('m-x').onclick=closeSide;$('m-new').onclick=go(openNew);$('m-dia').onclick=go(()=>nuevo({fecha:fechaSol()}));$('m-recs').onclick=go(openRecs);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-snd').onclick=()=>{SND=!SND;ls.set('solitario-sonido',SND?'1':'0');openMenu();};
