@@ -2667,9 +2667,11 @@ function toast(who,txt,openWho=who){
 function badges(){
   const n=unreadTotal();
   document.querySelectorAll('[data-chat-btn]').forEach(b=>{let s=b.querySelector('.cx-badge');if(!n){if(s)s.remove();return;}if(!s){s=document.createElement('span');s.className='cx-badge';b.appendChild(s);}s.textContent=n>9?'9+':String(n);});
-  // v77: puntito verde en el 💬 cuando hay amigos conectados (tocá el 💬 › 🤝 Amigos para verlos).
+  // v77: puntito verde cuando hay amigos conectados · v79 (pedido del 26/10): va sobre «Gente» del inicio, no sobre el 💬 (parecía un mensaje nuevo); en los juegos no va.
   const A=new Set(S.am.a.map(lc)),on=S.users.filter(u=>u.enLinea&&A.has(lc(u.usuario))&&lc(u.usuario)!==lc(S.me)).length;
-  document.querySelectorAll('[data-chat-btn]').forEach(b=>{let d=b.querySelector('.cx-ondot');if(!on){if(d)d.remove();b.title='Chat';return;}if(!d){d=document.createElement('span');d.className='cx-ondot';d.setAttribute('aria-hidden','true');b.appendChild(d);}b.title=`Chat · ${on} ${on===1?'amigo conectado':'amigos conectados'}`;});
+  document.querySelectorAll('[data-chat-btn] .cx-ondot').forEach(d=>d.remove());
+  const g=document.getElementById('hub-gente');
+  if(g){let d=g.querySelector('.cx-ondot');if(!on){if(d)d.remove();g.title='Gente';}else{if(!d){d=document.createElement('span');d.className='cx-ondot';d.setAttribute('aria-hidden','true');g.appendChild(d);}if(getComputedStyle(g).position==='static')g.style.position='relative';g.title=`Gente · ${on} ${on===1?'amigo conectado':'amigos conectados'}`;}}
   if(!document.hidden)document.title=baseTitle;
 }
 
