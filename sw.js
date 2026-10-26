@@ -1,6 +1,6 @@
 /* BLOQUES: guarda el juego en el dispositivo para abrirlo sin señal.
    Con internet siempre intenta la versión publicada más nueva; sin internet usa la guardada. */
-const CACHE='bloques-v79';
+const CACHE='bloques-v80';
 const ARTE='estancia-arte-v74';   // aparte: no se borra con cada versión (cambia sólo si cambia el arte)
 const FILES=['./','./index.html','./poblar.html','./estancia.html','./pampa.html','./truco.html','./uno.html','./ludo.html','./ajedrez.html','./pool.html','./sudoku.html','./solitario.html','./buscaminas.html','./laberinto.html','./invasores.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{

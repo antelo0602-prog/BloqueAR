@@ -3372,7 +3372,7 @@ function init(opts={}){
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
   usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
-  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,get state(){return S;},poll,bindButtons};
+  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons};
 })();
 
 </script>
@@ -3806,6 +3806,9 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:80,grande:false,titulo:'Novedades',items:[
+    ['👾','InvasorAR ocupa toda la pantalla del celular: el marcador arriba y abajo una franja para el dedo.'],
+    ['🗺️','La Gran Pampa: la inscripción ahora cierra el martes a las 20, y cuando termina una semana te avisa quién ganó.']]},
   {v:79,grande:false,titulo:'Novedades',items:[
     ['⚔️','La Gran Pampa: los cruces ahora se pelean con juegos cortos y arcade: BloqueAR, InvasorAR a dos vidas, TrucAR, UnoAR y BuscaminAR contra reloj.']]},
   {v:78,grande:false,titulo:'Novedades',items:[
@@ -4029,6 +4032,96 @@ function mostrar(){
 function arrancar(){if(document.visibilityState==='hidden'){document.addEventListener('visibilitychange',function v(){if(document.visibilityState==='visible'){document.removeEventListener('visibilitychange',v);setTimeout(mostrar,700);}});return;}setTimeout(mostrar,900);}
 if(document.readyState==='complete')arrancar();else window.addEventListener('load',arrancar,{once:true});
 window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.slice(0,1)),pendientes};
+})();
+
+/* ───────── v80 · Aviso de La Gran Pampa: «terminó la semana, ganó X, ya podés sumarte» ─────────
+   (pedido del 26/10). Una sola vez por semana y por aparato: la primera vez que se abre la app después de que
+   cerró la semana. Le pide a la planilla «pampaAviso» (barato, en caché) el podio de la semana pasada.
+   · No se encima con Novedades (espera a que se cierre) ni aparece en medio de una partida.
+   · No sale en La Gran Pampa misma (ahí ya se ve el mapa nuevo), ni dentro de la ventanita de la estancia.
+   · Si nadie jugó la semana pasada, no hay nada que contar: no sale. */
+(function(){
+'use strict';
+const K='bloques-pampa-aviso';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}}};
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// El lunes (hora argentina, UTC−3) de la semana de hoy.
+function lunesHoy(){const d=new Date(Date.now()-3*3600e3),w=(d.getUTCDay()+6)%7;return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()-w)).toISOString().slice(0,10);}
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function rango(lun){const p=lun.split('-').map(Number),a=new Date(Date.UTC(p[0],p[1]-1,p[2])),b=new Date(a.getTime()+6*864e5);
+  return a.getUTCMonth()===b.getUTCMonth()?`del ${a.getUTCDate()} al ${b.getUTCDate()} de ${MESES[b.getUTCMonth()]}`:`del ${a.getUTCDate()} de ${MESES[a.getUTCMonth()]} al ${b.getUTCDate()} de ${MESES[b.getUTCMonth()]}`;}
+const CSS=`.pa-scrim{position:fixed;inset:0;z-index:2147482990;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% 40%,rgba(64,44,20,.84),rgba(10,8,5,.95));font:500 15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.pa-caja{position:relative;width:min(420px,100%);max-height:100%;overflow:auto;background:linear-gradient(#3d2d1b,#231910);border:2px solid #c4a265;border-radius:22px;box-shadow:0 0 0 4px #160f08,0 26px 60px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,230,170,.22);padding:32px 16px 16px;text-align:center;color:#efe6d2}
+.pa-luces{position:absolute;left:18px;right:18px;top:12px;display:flex;justify-content:space-between;pointer-events:none}
+.pa-luces i{width:9px;height:9px;border-radius:50%;background:#f6c453;box-shadow:0 0 8px #f6c453aa}
+.pa-luces i:nth-child(odd){background:#c4a265;box-shadow:none}
+.pa-caja h2{margin:2px 0 2px;font:700 24px/1.15 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;color:#f6c453}
+.pa-sem{margin:0 0 14px;color:#cdbb98;font-size:13.5px}
+.pa-gana{background:linear-gradient(#f7f0de,#e7dcc4);color:#2a2118;border-radius:16px;padding:14px 12px 12px;box-shadow:inset 0 0 0 1px #cdbb98,0 6px 16px rgba(0,0,0,.35)}
+.pa-copa{font-size:34px;line-height:1}
+.pa-av{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;font-size:26px;margin:6px 0 4px;box-shadow:0 0 0 3px #f6c453}
+.pa-nom{font:700 21px/1.2 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+.pa-det{color:#7d6d58;font-size:13px;margin-top:2px}
+.pa-pod{display:flex;gap:8px;margin-top:10px}
+.pa-pod div{flex:1;background:#2e2216;border:1px solid #5a4630;border-radius:12px;padding:8px 6px;font-size:13px;color:#eadcbe}
+.pa-pod b{display:block;font:700 15px/1.2 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;color:#fff3d6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pa-ligas{margin:10px 0 0;font-size:13px;color:#cdbb98}
+.pa-yo{margin:12px 0 0;font-size:14px;color:#fff3d6}
+.pa-txt{margin:12px 0 14px;font-size:15px;line-height:1.4;color:#eadcbe}
+.pa-txt b{color:#fff3d6}
+.pa-caja button{display:block;width:100%;min-height:50px;border-radius:14px;font:800 16px system-ui,-apple-system,sans-serif;cursor:pointer}
+.pa-go{border:0;background:#5f7a3a;color:#fff;box-shadow:inset 0 -3px 0 #4a6030}
+.pa-no{margin-top:8px;background:none;border:1px solid #6b5a3e;color:#eadcbe;min-height:44px!important;font-weight:700!important}
+.pa-caja button:focus-visible{outline:3px solid #f6c453;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.pa-caja{animation:pa-in .3s ease-out}.pa-copa{animation:pa-copa .9s ease-out .15s both}}
+@keyframes pa-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes pa-copa{0%{transform:scale(.4) rotate(-12deg);opacity:0}60%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:none}}`;
+function css(){if(document.getElementById('pa-css'))return;const s=document.createElement('style');s.id='pa-css';s.textContent=CSS;document.head.appendChild(s);}
+function av(x){return `<span class="pa-av" style="background:${esc(x.col||'#c4a265')}" aria-hidden="true">${esc(x.av||'🤠')}</span>`;}
+function abrir(r,sem){
+  css();const top=r.top||[],l1=top.filter(x=>(x.liga||1)===1),g=l1.find(x=>x.puesto===1)||top[0];if(!g)return false;
+  const otros=l1.filter(x=>x.puesto===2||x.puesto===3).sort((a,b)=>a.puesto-b.puesto),ligas=[...new Set(top.map(x=>x.liga||1))].filter(l=>l>1);
+  const yo=r.yo?`<p class="pa-yo">${r.yo.puesto===1?'🏆 <b>¡Ganaste vos!</b>':`Vos quedaste <b>${r.yo.puesto}.º de ${r.yo.de}</b>`}${r.yo.liga>1?` en la liga ${r.yo.liga}`:''}.</p>`:'';
+  const w=document.createElement('div');w.className='pa-scrim';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','pa-t');
+  w.innerHTML=`<div class="pa-caja"><div class="pa-luces" aria-hidden="true">${'<i></i>'.repeat(12)}</div>
+    <h2 id="pa-t">Terminó La Gran Pampa</h2><p class="pa-sem">Semana ${esc(rango(r.pasada))}</p>
+    <div class="pa-gana"><div class="pa-copa" aria-hidden="true">🏆</div>${av(g)}<div class="pa-nom">${esc(g.n)}</div><div class="pa-det">ganó la semana · ${Number(g.tierras)||0} ${Number(g.tierras)===1?'paraje':'parajes'} · ${Number(g.pts)||0} puntos</div></div>
+    ${otros.length?`<div class="pa-pod">${otros.map(x=>`<div>${x.puesto===2?'🥈':'🥉'} ${x.puesto}.º<b>${esc(x.n)}</b>${Number(x.pts)||0} puntos</div>`).join('')}</div>`:''}
+    ${ligas.length?`<p class="pa-ligas">${ligas.map(l=>{const x=top.find(y=>(y.liga||1)===l&&y.puesto===1);return x?`Liga ${l}: ganó <b>${esc(x.n)}</b>`:'';}).filter(Boolean).join(' · ')}</p>`:''}
+    ${yo}
+    <p class="pa-txt">${r.abierta?'Ya arrancó una semana nueva, con mapa nuevo. <b>Sumate hasta el martes a las 20.</b>':'Ya arrancó la semana nueva, pero la inscripción cerró el martes a las 20. Podés mirar el mapa y sumarte el lunes.'}</p>
+    <button type="button" class="pa-go" id="pa-go">${r.abierta?'🚩 Sumarme':'🗺️ Ver La Gran Pampa'}</button><button type="button" class="pa-no" id="pa-no">Ahora no</button></div>`;
+  const cerrar=()=>{w.remove();document.removeEventListener('keydown',tecla,true);};
+  const tecla=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cerrar();}};
+  w.addEventListener('click',e=>{if(e.target===w)cerrar();});
+  document.body.appendChild(w);document.addEventListener('keydown',tecla,true);
+  w.querySelector('#pa-no').onclick=cerrar;
+  w.querySelector('#pa-go').onclick=()=>{cerrar();location.href='./pampa.html';};
+  setTimeout(()=>{try{w.querySelector('#pa-go').focus({preventScroll:true});}catch(_){}},60);
+  return true;
+}
+let corriendo=false;
+async function mirar(){
+  if(corriendo)return;const sem=lunesHoy();if(ls.get(K)===sem)return;
+  if(!window.CHAT||typeof CHAT.api!=='function')return;
+  corriendo=true;let r=null;
+  try{r=await CHAT.api({accion:'pampaAviso'});}catch(_){corriendo=false;return;}   // sin conexión: la próxima vez
+  if(!r||!r.ok){corriendo=false;return;}
+  if(!r.pasada||!(r.top||[]).length){ls.set(K,sem);corriendo=false;return;}   // la semana pasada no se jugó: nada que contar
+  // Espera a que no haya Novedades a la vista, ni una partida en curso, ni la pestaña escondida.
+  const listo=()=>!document.querySelector('.nv-scrim,.nv-toast,.pa-scrim')&&document.visibilityState==='visible'&&!(window.CHAT&&CHAT.ocupado&&CHAT.ocupado());
+  const intentar=()=>{if(ls.get(K)===sem){corriendo=false;return;}if(!listo()){setTimeout(intentar,1500);return;}if(abrir(r,sem))ls.set(K,sem);corriendo=false;};
+  intentar();
+}
+function arrancar(){
+  if(window.top!==window)return;                                     // dentro de la ventanita de la estancia
+  if(/pampa\.html$/.test(location.pathname)){ls.set(K,lunesHoy());return;}   // en La Gran Pampa ya se ve todo
+  if(navigator.webdriver&&ls.get('bloques-pa-force')!=='1')return;    // las pruebas automáticas no lo ven (salvo que lo pidan)
+  setTimeout(mirar,2600);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(mirar,1500);});
+}
+if(document.readyState==='complete')arrancar();else window.addEventListener('load',arrancar,{once:true});
+window.PAMPA_AVISO={mirar,abrir,lunesHoy};
 })();
 
 </script>
@@ -4429,7 +4522,7 @@ function renderAlert(){
     // v63: sólo lunes y martes; v68: el martes cierra a las 12 del mediodía. Si nadie se sumó, esa semana no se juega.
     else{const falta=I.proxima?` Faltan ${quedan(I.proxima-ahoraS())}.`:'';el.className='alert';
       el.innerHTML=I.sinJuego?`<span class="tx">🗓️ <b>Esta semana no se juega:</b> nadie se sumó a tiempo. El lunes arranca otra.${falta}</span>`
-        :`<span class="tx">👀 Estás mirando. <b>Las inscripciones abren el lunes</b> (hasta el martes a las 12).${falta}</span>`;el.hidden=false;}
+        :`<span class="tx">👀 Estás mirando. <b>Las inscripciones abren el lunes</b> (hasta el martes a las 20).${falta}</span>`;el.hidden=false;}
     return;}
   const def=toDefend()[0],play=toPlay()[0],help=toHelp()[0];
   if(def){const J=JG(def.j),espera=turnoDef(def)>ahoraS();el.className='alert hot';
@@ -4503,7 +4596,7 @@ function renderPanelVisita(el){
   if(i<0){const n=V.jugadores.length;
     const paz=V.modo&&!V.modo.puedePampa;
     h=`<h3>La semana en la pampa${V.ligas>1?` · Liga ${V.liga}`:''}</h3><div class="stats"><span class="st"><b>${n}</b> ${n===1?'estanciero':'estancieros'}</span><span class="st"><b>${Object.keys(V.own).length}</b> parajes con dueño</span></div>
-      ${paz?`<p>🕊️ ${V.modo.modo==='pacifico'?'Estás en <b>modo pacífico</b>: sin malones ni La Gran Pampa, que es un juego de guerra. Podés mirar el mapa.':V.modo.pend?'Pediste volver al modo pacífico: mientras tanto no podés sumarte.':'Ya estás en campo abierto: La Gran Pampa se te habilita el lunes.'}</p>${V.modo.modo==='pacifico'?'<div class="row"><button class="btn gold" id="pn-modo">⚔️ Pasar a campo abierto</button></div>':''}`:`<p>${I.abierta?'Sumate para plantar tu casco y empezar a juntar parajes. Cuantos más se suman, más grande el mapa.':(I.sinJuego?'Esta semana no se juega: nadie se sumó a tiempo. El lunes arranca otra.':'Estás mirando: esta semana ya arrancó sin vos. Las inscripciones abren el lunes y cierran el martes a las 12 del mediodía.')}</p>${I.abierta?'<div class="row"><button class="btn go" id="pn-join">Sumarme a la semana</button></div>':''}`}`;}
+      ${paz?`<p>🕊️ ${V.modo.modo==='pacifico'?'Estás en <b>modo pacífico</b>: sin malones ni La Gran Pampa, que es un juego de guerra. Podés mirar el mapa.':V.modo.pend?'Pediste volver al modo pacífico: mientras tanto no podés sumarte.':'Ya estás en campo abierto: La Gran Pampa se te habilita el lunes.'}</p>${V.modo.modo==='pacifico'?'<div class="row"><button class="btn gold" id="pn-modo">⚔️ Pasar a campo abierto</button></div>':''}`:`<p>${I.abierta?'Sumate para plantar tu casco y empezar a juntar parajes. Cuantos más se suman, más grande el mapa.':(I.sinJuego?'Esta semana no se juega: nadie se sumó a tiempo. El lunes arranca otra.':'Estás mirando: esta semana ya arrancó sin vos. Las inscripciones abren el lunes y cierran el martes a las 20.')}</p>${I.abierta?'<div class="row"><button class="btn go" id="pn-join">Sumarme a la semana</button></div>':''}`}`;}
   else{const k=V.own[i],T=V.tipos[V.t[i]],P=k?Pof(k):null,casco=k&&V.cas[k]===i;
     h=`<button class="x" id="pn-x" aria-label="Cerrar">✕</button><h3>${swatch(i)}${casco?`Casco de ${esc(P?P.n:'')}`:esc(T.n)}${!casco&&V.es?' '+estHtml(estDe(i)):''}</h3>
       <p>${casco?`${esc(P?P.n:'')} plantó acá su casco.`:`${esc(DESC[V.t[i]])} Da <b>+${valorDe(i)} por día</b>.`}</p>${!casco&&V.reglas.mec&&ROL[V.t[i]]?`<p class="note rol">${ROL[V.t[i]](V.reglas.mec)}</p>`:''}${casco&&!I.abierta?'':`<p class="note">${casco?'':k?`De <b>${esc(P?P.n:k)}</b>. `:'Libre. '}${I.abierta?'Sumate a la semana para jugar.':''}</p>`}`;}
@@ -4514,7 +4607,7 @@ function renderPanelVisita(el){
   if(!USERCAM){fitCam(true);redraw();}
 }
 // v68: la inscripción cierra el martes a las 12:00 (hora argentina).
-function cierreTxt(){const I=V&&V.inscripcion;if(!I||!I.hasta)return 'martes 12:00';const ms=I.hasta-ahoraS();return ms<24*3600e3?'hoy a las 12':'el martes a las 12';}
+function cierreTxt(){const I=V&&V.inscripcion;if(!I||!I.hasta)return 'martes 20:00';const ms=I.hasta-ahoraS();return ms<24*3600e3?'hoy a las 20':'el martes a las 20';}
 function diaCierre(){const I=V&&V.inscripcion;if(!I)return 'martes';try{return new Date(I.hasta-60000).toLocaleDateString('es-AR',{weekday:'long',timeZone:'America/Argentina/Buenos_Aires'});}catch(_){return 'martes';}}
 // v68: la leyenda de dueños: cada uno con su color y cuántos parajes tiene; tocarlo resalta su territorio en el mapa.
 function renderLeyenda(){
@@ -4602,14 +4695,14 @@ function openLeguas(){
     <h4>Jugando te ganás leguas</h4>
     <div class="lv-list">${rows}<div class="lv-src"><span class="ic" aria-hidden="true">🗺️</span><span class="tx"><b>Entrar al mapa <em>+${V.reglas.dia} leguas</em></b><small>Una vez por día, sólo con abrir La Gran Pampa</small></span></div></div>
     <p class="note">Sólo cuentan las partidas <b>ranked</b>: las amistosas y las de Fácil no dan.${top?` Entre todo, hasta <b>${top} por día</b> (más las de entrar al mapa).`:''} Lo que jugás en los otros juegos se cobra cuando abrís el mapa.</p>
-    ${V.yo?`<div class="item ini"><span class="tx"><b>🚩 Esta semana arrancaste con ${fmt(V.yo.ini||ini)} leguas</b><small>Las leguas no pasan de una semana a otra: cada lunes todos arrancan con ${ini}${V.reglas.atraso?` (y ${V.reglas.atraso} más si te sumás el martes antes de las 12)`:''}.</small></span></div>`:`<p class="note">Las leguas son para los que se sumaron a la semana. Cada lunes todos arrancan con ${ini}.</p>`}`);
+    ${V.yo?`<div class="item ini"><span class="tx"><b>🚩 Esta semana arrancaste con ${fmt(V.yo.ini||ini)} leguas</b><small>Las leguas no pasan de una semana a otra: cada lunes todos arrancan con ${ini}${V.reglas.atraso?` (y ${V.reglas.atraso} más si te sumás el martes)`:''}.</small></span></div>`:`<p class="note">Las leguas son para los que se sumaron a la semana. Cada lunes todos arrancan con ${ini}.</p>`}`);
 }
 // v69: «Cómo se juega» corto y visual (las semanas de antes siguen con la ayuda de antes).
 function openHelp(){
   if(!V||V.v69)return openHelp69();
   const legend=Object.keys(TIPO).map(q=>`<span><i style="background:${thumb(q)?`url(${thumb(q)}) center/contain no-repeat`:TIPO[q].c}"></i><b>${TIPO[q].n}</b> +${V?V.tipos[q].v:{p:3,a:2,m:2,s:3,l:4,x:1}[q]}</span>`).join('');
   sheet('Cómo se juega',`<p><b>Una temporada por semana.</b> Cada lunes hay un mapa nuevo y todos arrancan parejo, con su casco. El domingo a la medianoche gana el que juntó más puntos.</p>
-    <h4>Sumarse</h4><p>Para jugar hay que <b>sumarse a la semana</b>: el lunes o el martes <b>hasta las 12 del mediodía</b>. El mapa se arma con los que se suman y crece según cuántos son. Si se suman más de ${V&&V.reglas.liga||12}, se abre otra liga con su propio mapa, sus premios y su copa. Después del martes a las 12 se puede mirar, pero no jugar.</p>
+    <h4>Sumarse</h4><p>Para jugar hay que <b>sumarse a la semana</b>: el lunes o el martes <b>hasta las 20</b>. El mapa se arma con los que se suman y crece según cuántos son. Si se suman más de ${V&&V.reglas.liga||12}, se abre otra liga con su propio mapa, sus premios y su copa. Después del martes a las 20 se puede mirar, pero no jugar.</p>
     <h4>Puntos</h4><p>Cada paraje tuyo da puntos por día, todo el tiempo (también cuando no jugás). Cuanto antes lo tengas, más suma. Un paraje <b>en disputa ⚔️ no rinde</b> hasta que se resuelva el cruce.</p><div class="legend">${legend}</div>
     ${!V||V.reglas.mec?`<h4>Cada paraje tiene su papel</h4><ul class="roles"><li><b>💧 Laguna:</b> riega. Cada pastura tuya pegada a una laguna tuya da +1 por día.</li><li><b>⛰️ Sierra:</b> mirador. Desde una sierra tuya podés reclamar parajes libres a 2 de distancia, sin estar pegados.</li><li><b>🌳 Monte:</b> se defiende solo. Desafiar un monte cuesta 3 leguas más.</li><li><b>🌾 Pampa</b> da mucho y <b>🧂 salitral</b> es barato: buenos para crecer rápido.</li></ul>`:''}
     <h4>Leguas</h4><p>${V&&V.reglas.mec?`Cada lunes todos arrancan con <b>${V.reglas.inicio} leguas</b>: no pasan de una semana a otra. `:''}Se ganan entrando cada día, con partidas <b>ranked</b> de los otros juegos (contra personas dan más que contra la compu, y según cómo terminó), cosechando en EstanciAR, con el del día de SudokAR y SolitARio y cumpliendo los retos de la semana. Las amistosas y las de Fácil no dan. Sirven para <b>reclamar</b> parajes libres pegados a tu tierra.</p><button class="btn gold" id="h-leg">🚩 ¿Cómo gano leguas?</button>
@@ -4623,7 +4716,7 @@ function openHelp69(){
   const ter=[['p','🌾','Pampa','+1 por día extra'],['a','🐄','Pastura','+1 si una laguna tuya la riega'],['l','💧','Laguna','riega las pasturas tuyas pegadas'],['s','⛰️','Sierra','reclamás parajes a 2 de distancia'],['m','🌳','Monte','desafiarlo cuesta 3 leguas más'],['x','🧂','Salitral','el más barato (1 legua menos)']];
   sheet('Cómo se juega',`<p><b>Un mapa nuevo cada semana.</b> Juntá parajes, ganá puntos todos los días y el domingo a la medianoche gana el que más juntó.</p>
     <div class="como dos">
-      <div><span class="ic">🚩</span><span><b>1 · Sumate</b><p>Lunes o martes <b>hasta las 12 del mediodía</b>. Plantás tu casco y arrancás con ${ini} leguas.</p></span></div>
+      <div><span class="ic">🚩</span><span><b>1 · Sumate</b><p>Lunes o martes <b>hasta las 20</b>. Plantás tu casco y arrancás con ${ini} leguas.</p></span></div>
       <div><span class="ic">🎮</span><span><b>2 · Ganá leguas jugando</b><p>Entrando cada día y con partidas ranked de los otros juegos. <a href="#" id="h-leg2">¿Cuántas da cada uno?</a></p></span></div>
       <div><span class="ic">⭐</span><span><b>3 · Parajes de 1 a 5 estrellas</b><p>Cada paraje da por día sus ⭐. El centro vale más; el borde, menos. Reclamar cuesta <b>2 + ⭐</b> (y 1 más cada ${R.admin||5} parajes que ya tenés: crecer sale caro).</p></span></div>
       <div><span class="ic">⚔️</span><span><b>4 · Cruces</b><p>Desafiá a un vecino por un paraje pegado. <b>El juego se sortea:</b> salen tres, el que desafía tacha uno y la suerte elige entre los otros dos. Los dos juegan lo mismo (las mismas piezas, cartas u oleadas) y gana el que hace más (si empatan, defiende el dueño).</p></span></div>
@@ -4761,7 +4854,7 @@ function ofrecerSumarse(){
     if($('j-modo'))$('j-modo').onclick=()=>{hideCenter();openModo();};$('j-ver').onclick=hideCenter;$('j-help').onclick=openHelp;return;}
   center(`<div class="ic">🗺️</div><h3>Sumate a la semana</h3>
     <p>Cada lunes arranca un mapa nuevo y se arma con los que se suman: cuantos más son, más grande el mapa.</p>
-    <p>Te podés sumar desde el lunes hasta el <b>martes a las 12 del mediodía</b>. Cierra en <b>${quedan(V.inscripcion.hasta-ahoraS())}</b>.</p>
+    <p>Te podés sumar desde el lunes hasta el <b>martes a las 20</b>. Cierra en <b>${quedan(V.inscripcion.hasta-ahoraS())}</b>.</p>
     ${n?`<div class="avs">${L.slice(0,10).map(avHtml).join('')}${n>10?`<span class="mas">+${n-10}</span>`:''}</div>`:''}
     <p class="note">${n?`${n===1?'Ya se sumó':'Ya se sumaron'} ${n===1?esc(L[0].n):n+(V.ligas>1?' en esta liga':'')}.`:'Todavía no se sumó nadie: ¡sé el primero!'}</p>
     <button class="btn go" id="j-go">Sumarme</button><button class="btn" id="j-ver">Mirar el mapa</button><button class="btn link" id="j-help">¿Cómo se juega?</button>`);
@@ -4916,7 +5009,7 @@ function openMenu(){
     <button id="m-snd">${SND?'🔊 Sonidos: prendidos':'🔇 Sonidos: apagados'}</button>
     <label class="amb">🌾 Ambiente de campo<input type="range" id="m-amb" min="0" max="100" step="5" value="${Math.round(AMBV*100)}" aria-label="Volumen del ambiente"><small>${AMBV>0?Math.round(AMBV*100)+' %':'apagado'}</small></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros</button>':''}
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 79</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 80</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-pos').onclick=go(()=>openPos('pos'));$('m-cru').onclick=go(()=>openPos('cruces'));$('m-log').onclick=go(()=>openPos('log'));
   $('m-leg').onclick=go(openLeguas);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);

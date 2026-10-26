@@ -3278,7 +3278,7 @@ function init(opts={}){
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
   usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
-  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,get state(){return S;},poll,bindButtons};
+  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons};
 })();
 
 </script>
@@ -3712,6 +3712,9 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:80,grande:false,titulo:'Novedades',items:[
+    ['👾','InvasorAR ocupa toda la pantalla del celular: el marcador arriba y abajo una franja para el dedo.'],
+    ['🗺️','La Gran Pampa: la inscripción ahora cierra el martes a las 20, y cuando termina una semana te avisa quién ganó.']]},
   {v:79,grande:false,titulo:'Novedades',items:[
     ['⚔️','La Gran Pampa: los cruces ahora se pelean con juegos cortos y arcade: BloqueAR, InvasorAR a dos vidas, TrucAR, UnoAR y BuscaminAR contra reloj.']]},
   {v:78,grande:false,titulo:'Novedades',items:[
@@ -3935,6 +3938,96 @@ function mostrar(){
 function arrancar(){if(document.visibilityState==='hidden'){document.addEventListener('visibilitychange',function v(){if(document.visibilityState==='visible'){document.removeEventListener('visibilitychange',v);setTimeout(mostrar,700);}});return;}setTimeout(mostrar,900);}
 if(document.readyState==='complete')arrancar();else window.addEventListener('load',arrancar,{once:true});
 window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.slice(0,1)),pendientes};
+})();
+
+/* ───────── v80 · Aviso de La Gran Pampa: «terminó la semana, ganó X, ya podés sumarte» ─────────
+   (pedido del 26/10). Una sola vez por semana y por aparato: la primera vez que se abre la app después de que
+   cerró la semana. Le pide a la planilla «pampaAviso» (barato, en caché) el podio de la semana pasada.
+   · No se encima con Novedades (espera a que se cierre) ni aparece en medio de una partida.
+   · No sale en La Gran Pampa misma (ahí ya se ve el mapa nuevo), ni dentro de la ventanita de la estancia.
+   · Si nadie jugó la semana pasada, no hay nada que contar: no sale. */
+(function(){
+'use strict';
+const K='bloques-pampa-aviso';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}}};
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// El lunes (hora argentina, UTC−3) de la semana de hoy.
+function lunesHoy(){const d=new Date(Date.now()-3*3600e3),w=(d.getUTCDay()+6)%7;return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()-w)).toISOString().slice(0,10);}
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function rango(lun){const p=lun.split('-').map(Number),a=new Date(Date.UTC(p[0],p[1]-1,p[2])),b=new Date(a.getTime()+6*864e5);
+  return a.getUTCMonth()===b.getUTCMonth()?`del ${a.getUTCDate()} al ${b.getUTCDate()} de ${MESES[b.getUTCMonth()]}`:`del ${a.getUTCDate()} de ${MESES[a.getUTCMonth()]} al ${b.getUTCDate()} de ${MESES[b.getUTCMonth()]}`;}
+const CSS=`.pa-scrim{position:fixed;inset:0;z-index:2147482990;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% 40%,rgba(64,44,20,.84),rgba(10,8,5,.95));font:500 15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.pa-caja{position:relative;width:min(420px,100%);max-height:100%;overflow:auto;background:linear-gradient(#3d2d1b,#231910);border:2px solid #c4a265;border-radius:22px;box-shadow:0 0 0 4px #160f08,0 26px 60px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,230,170,.22);padding:32px 16px 16px;text-align:center;color:#efe6d2}
+.pa-luces{position:absolute;left:18px;right:18px;top:12px;display:flex;justify-content:space-between;pointer-events:none}
+.pa-luces i{width:9px;height:9px;border-radius:50%;background:#f6c453;box-shadow:0 0 8px #f6c453aa}
+.pa-luces i:nth-child(odd){background:#c4a265;box-shadow:none}
+.pa-caja h2{margin:2px 0 2px;font:700 24px/1.15 "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;color:#f6c453}
+.pa-sem{margin:0 0 14px;color:#cdbb98;font-size:13.5px}
+.pa-gana{background:linear-gradient(#f7f0de,#e7dcc4);color:#2a2118;border-radius:16px;padding:14px 12px 12px;box-shadow:inset 0 0 0 1px #cdbb98,0 6px 16px rgba(0,0,0,.35)}
+.pa-copa{font-size:34px;line-height:1}
+.pa-av{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;font-size:26px;margin:6px 0 4px;box-shadow:0 0 0 3px #f6c453}
+.pa-nom{font:700 21px/1.2 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+.pa-det{color:#7d6d58;font-size:13px;margin-top:2px}
+.pa-pod{display:flex;gap:8px;margin-top:10px}
+.pa-pod div{flex:1;background:#2e2216;border:1px solid #5a4630;border-radius:12px;padding:8px 6px;font-size:13px;color:#eadcbe}
+.pa-pod b{display:block;font:700 15px/1.2 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;color:#fff3d6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pa-ligas{margin:10px 0 0;font-size:13px;color:#cdbb98}
+.pa-yo{margin:12px 0 0;font-size:14px;color:#fff3d6}
+.pa-txt{margin:12px 0 14px;font-size:15px;line-height:1.4;color:#eadcbe}
+.pa-txt b{color:#fff3d6}
+.pa-caja button{display:block;width:100%;min-height:50px;border-radius:14px;font:800 16px system-ui,-apple-system,sans-serif;cursor:pointer}
+.pa-go{border:0;background:#5f7a3a;color:#fff;box-shadow:inset 0 -3px 0 #4a6030}
+.pa-no{margin-top:8px;background:none;border:1px solid #6b5a3e;color:#eadcbe;min-height:44px!important;font-weight:700!important}
+.pa-caja button:focus-visible{outline:3px solid #f6c453;outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.pa-caja{animation:pa-in .3s ease-out}.pa-copa{animation:pa-copa .9s ease-out .15s both}}
+@keyframes pa-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes pa-copa{0%{transform:scale(.4) rotate(-12deg);opacity:0}60%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:none}}`;
+function css(){if(document.getElementById('pa-css'))return;const s=document.createElement('style');s.id='pa-css';s.textContent=CSS;document.head.appendChild(s);}
+function av(x){return `<span class="pa-av" style="background:${esc(x.col||'#c4a265')}" aria-hidden="true">${esc(x.av||'🤠')}</span>`;}
+function abrir(r,sem){
+  css();const top=r.top||[],l1=top.filter(x=>(x.liga||1)===1),g=l1.find(x=>x.puesto===1)||top[0];if(!g)return false;
+  const otros=l1.filter(x=>x.puesto===2||x.puesto===3).sort((a,b)=>a.puesto-b.puesto),ligas=[...new Set(top.map(x=>x.liga||1))].filter(l=>l>1);
+  const yo=r.yo?`<p class="pa-yo">${r.yo.puesto===1?'🏆 <b>¡Ganaste vos!</b>':`Vos quedaste <b>${r.yo.puesto}.º de ${r.yo.de}</b>`}${r.yo.liga>1?` en la liga ${r.yo.liga}`:''}.</p>`:'';
+  const w=document.createElement('div');w.className='pa-scrim';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','pa-t');
+  w.innerHTML=`<div class="pa-caja"><div class="pa-luces" aria-hidden="true">${'<i></i>'.repeat(12)}</div>
+    <h2 id="pa-t">Terminó La Gran Pampa</h2><p class="pa-sem">Semana ${esc(rango(r.pasada))}</p>
+    <div class="pa-gana"><div class="pa-copa" aria-hidden="true">🏆</div>${av(g)}<div class="pa-nom">${esc(g.n)}</div><div class="pa-det">ganó la semana · ${Number(g.tierras)||0} ${Number(g.tierras)===1?'paraje':'parajes'} · ${Number(g.pts)||0} puntos</div></div>
+    ${otros.length?`<div class="pa-pod">${otros.map(x=>`<div>${x.puesto===2?'🥈':'🥉'} ${x.puesto}.º<b>${esc(x.n)}</b>${Number(x.pts)||0} puntos</div>`).join('')}</div>`:''}
+    ${ligas.length?`<p class="pa-ligas">${ligas.map(l=>{const x=top.find(y=>(y.liga||1)===l&&y.puesto===1);return x?`Liga ${l}: ganó <b>${esc(x.n)}</b>`:'';}).filter(Boolean).join(' · ')}</p>`:''}
+    ${yo}
+    <p class="pa-txt">${r.abierta?'Ya arrancó una semana nueva, con mapa nuevo. <b>Sumate hasta el martes a las 20.</b>':'Ya arrancó la semana nueva, pero la inscripción cerró el martes a las 20. Podés mirar el mapa y sumarte el lunes.'}</p>
+    <button type="button" class="pa-go" id="pa-go">${r.abierta?'🚩 Sumarme':'🗺️ Ver La Gran Pampa'}</button><button type="button" class="pa-no" id="pa-no">Ahora no</button></div>`;
+  const cerrar=()=>{w.remove();document.removeEventListener('keydown',tecla,true);};
+  const tecla=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cerrar();}};
+  w.addEventListener('click',e=>{if(e.target===w)cerrar();});
+  document.body.appendChild(w);document.addEventListener('keydown',tecla,true);
+  w.querySelector('#pa-no').onclick=cerrar;
+  w.querySelector('#pa-go').onclick=()=>{cerrar();location.href='./pampa.html';};
+  setTimeout(()=>{try{w.querySelector('#pa-go').focus({preventScroll:true});}catch(_){}},60);
+  return true;
+}
+let corriendo=false;
+async function mirar(){
+  if(corriendo)return;const sem=lunesHoy();if(ls.get(K)===sem)return;
+  if(!window.CHAT||typeof CHAT.api!=='function')return;
+  corriendo=true;let r=null;
+  try{r=await CHAT.api({accion:'pampaAviso'});}catch(_){corriendo=false;return;}   // sin conexión: la próxima vez
+  if(!r||!r.ok){corriendo=false;return;}
+  if(!r.pasada||!(r.top||[]).length){ls.set(K,sem);corriendo=false;return;}   // la semana pasada no se jugó: nada que contar
+  // Espera a que no haya Novedades a la vista, ni una partida en curso, ni la pestaña escondida.
+  const listo=()=>!document.querySelector('.nv-scrim,.nv-toast,.pa-scrim')&&document.visibilityState==='visible'&&!(window.CHAT&&CHAT.ocupado&&CHAT.ocupado());
+  const intentar=()=>{if(ls.get(K)===sem){corriendo=false;return;}if(!listo()){setTimeout(intentar,1500);return;}if(abrir(r,sem))ls.set(K,sem);corriendo=false;};
+  intentar();
+}
+function arrancar(){
+  if(window.top!==window)return;                                     // dentro de la ventanita de la estancia
+  if(/pampa\.html$/.test(location.pathname)){ls.set(K,lunesHoy());return;}   // en La Gran Pampa ya se ve todo
+  if(navigator.webdriver&&ls.get('bloques-pa-force')!=='1')return;    // las pruebas automáticas no lo ven (salvo que lo pidan)
+  setTimeout(mirar,2600);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(mirar,1500);});
+}
+if(document.readyState==='complete')arrancar();else window.addEventListener('load',arrancar,{once:true});
+window.PAMPA_AVISO={mirar,abrir,lunesHoy};
 })();
 
 </script>
@@ -4461,7 +4554,7 @@ function openMenu(){
     <button id="m-new">🂠 Partida nueva</button><button id="m-dia">📅 Partida del día</button><button id="m-recs">⏱️ Tus récords</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     <a id="m-salir" href="./#juegos">🚪 Salir de la partida</a>
-    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 79</p>`);
+    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 80</p>`);
   const go=f=>()=>{$('side').hidden=true;f();};
   $('m-x').onclick=closeSide;$('m-new').onclick=go(openNew);$('m-dia').onclick=go(()=>nuevo({fecha:fechaSol()}));$('m-recs').onclick=go(openRecs);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-snd').onclick=()=>{SND=!SND;ls.set('solitario-sonido',SND?'1':'0');openMenu();};
