@@ -244,6 +244,34 @@ button{font:inherit;color:inherit;cursor:pointer}
 .sheet .ulist,.ulist.chica,.ulist.compacta,.ulist.corta{flex:none}.ulist li{flex:none}.ulist.chica,.ulist.compacta{max-height:max(156px,min(240px,34vh))}
 </style>
 <script>
+/* ───────── v77 · El sonido de la app no corta la música del celular ─────────
+   Pedido del 25/10: «no se puede escuchar música en el celular mientras se juega».
+   · En iOS (Safari 16.4+ y la app instalada) el sonido de una página usa por defecto una «sesión de audio» que pausa a
+     Spotify/Apple Music. Con navigator.audioSession.type = 'ambient' la app SE MEZCLA con la música de otras apps.
+     Contra: en 'ambient' el sonido de la app respeta el interruptor de silencio (con el celu en silencio, la app no suena).
+   · Va antes que todo (es el primer script de cada página) y además envuelve AudioContext para volver a ponerlo justo antes
+     de crear cada contexto (iOS a veces lo resetea al volver de segundo plano).
+   · En Android y en la compu no hace falta: Chrome ya mezcla el audio de la página con el de otras apps.
+   · iOS más viejo (sin audioSession): no hay forma desde una página web de no pausar la otra música si la app suena;
+     ahí lo único que se puede hacer es no crear audio hasta que haga falta (los juegos ya lo crean recién con el primer
+     sonido) y bajar el sonido de la app desde sus menús. */
+(function(){
+'use strict';
+function ambient(){try{const s=navigator.audioSession;if(s&&s.type!=='ambient')s.type='ambient';}catch(_){}}
+ambient();
+for(const k of ['AudioContext','webkitAudioContext']){
+  const C=window[k];if(!C||C.__ambient)continue;
+  const W=function(...a){ambient();return new C(...a);};
+  W.prototype=C.prototype;W.__ambient=true;try{Object.setPrototypeOf(W,C);}catch(_){}
+  try{window[k]=W;}catch(_){}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)ambient();});
+window.addEventListener('pageshow',ambient);
+window.SONIDO={ambient,tipo:()=>{try{return navigator.audioSession?navigator.audioSession.type:null;}catch(_){return null;}}};
+})();
+
+</script>
+<script>
 /* ───────── Latido (v76): UNA sola consulta periódica a la planilla para toda la página ─────────
    Antes cada parte preguntaba por su lado (el chat cada 4 s, el buzón del juego cada 5–8 s, los amigos del menú
    cada 4 s, la lista de gente cada 25–30 s, la estancia cada 90 s). Ahora pregunta sólo esto, con la acción «latido»
@@ -291,7 +319,7 @@ function intervalo(){
   return ms;
 }
 function programar(ms){
-  if(L.viejo||!acct()||!Object.keys(L.parts).length)return;
+  if(L.viejo||L.pausa||!acct()||!Object.keys(L.parts).length)return;
   if(ms===undefined)ms=Math.max(0,L.ult+intervalo()-Date.now());
   const cuando=Date.now()+ms;
   if(L.timer&&L.prox&&L.prox<=cuando)return;   // ya hay uno antes
@@ -300,7 +328,7 @@ function programar(ms){
 function reprogramar(){clearTimeout(L.timer);L.timer=0;L.prox=0;programar();}
 async function tick(){
   L.timer=0;L.prox=0;
-  if(L.viejo)return;
+  if(L.viejo||L.pausa)return;
   const a=acct();if(!a)return;
   if(L.enCurso){L.otra=true;return;}
   L.enCurso=true;L.ult=Date.now();
@@ -359,6 +387,10 @@ window.LATIDO={
   buzon(){return L.j&&L.j.bz&&Date.now()-L.jAt<2500?Object.assign({ok:true},L.j.bz):null;},
   espera(t0){L.mesaHasta=Date.now()+10000;return Date.now()-(t0||0)<90000?700:2000;},
   mesa(seg){L.mesaHasta=Date.now()+(seg||10)*1000;programar();},
+  // v77: la estancia abre un juego en una ventanita adentro (un iframe con su propio latido): mientras tanto el de la estancia
+  // se calla, para que no pregunten los dos ni salgan dos veces las invitaciones. Al cerrar la ventanita, pregunta enseguida.
+  pausar(v){v=!!v;if(v===!!L.pausa)return;L.pausa=v;if(v){clearTimeout(L.timer);L.timer=0;L.prox=0;}else programar(0);},
+  get pausado(){return !!L.pausa;},
   intervalo,
   get estado(){return {quietos:L.quietos,ms:intervalo(),n:L.n,ok:L.ok,viejo:L.viejo};}
 };
@@ -402,11 +434,13 @@ const PARTES={
   pool:['pool-modo','pool-dif','pool-serie','pool-meta','pool-guia','pool-reloj','pool-reloj-on','pool-n','pool-sonido','pool-vibrar','pool-zurdo','pool-soltar','pool-sens','pool-efecto-fijo','pool-ayuda','pool-tutorial-ok','pool-partida-v1',['pool-xp-hechas','union']],
   ludo:['ludo-dif','ludo-bots','ludo-color','ludo-eq','ludo-reglas','ludo-auto1','ludo-ayuda','ludo-mesa-n','ludo-partida-v1',['ludo-xp-hechas','union']],
   poblar:['poblar-dificultad','poblar-jugadores','poblar-jugadores-online','poblar-ayuda','poblar-partida-v2',['poblar-xp-hechas','union']],
-  solos:['sudoku-dif','sudoku-errores','sudoku-choques','sudoku-zona','sudoku-iguales','sudoku-notasAuto','sudoku-faltan','sudoku-ayuda','sudoku-partida-v1',['sudoku-records-v1','min'],['sudoku-dias-v1','claves'],['sudoku-xp-hechas','union'],
-    'solitario-robo','solitario-consol','solitario-nivel','solitario-ayuda','solitario-partida-v1','solitario-racha',['solitario-records-v1','recsol'],['solitario-dias-v1','claves'],['solitario-xp-hechas','union'],
-    'buscaminas-dif','buscaminas-resaltar','buscaminas-listos','buscaminas-chord','buscaminas-mantener','buscaminas-vibrar','buscaminas-ayuda','buscaminas-partida-v1',['buscaminas-records-v1','min'],['buscaminas-dias-v1','claves'],['buscaminas-stats-v1','nuevo'],['buscaminas-xp-hechas','union']],
+  solos:['sudoku-dif','sudoku-errores','sudoku-choques','sudoku-zona','sudoku-iguales','sudoku-notasAuto','sudoku-faltan','sudoku-ayuda','sudoku-partida-v1','sudoku-dia-curso-v1',['sudoku-records-v1','min'],['sudoku-dias-v1','claves'],['sudoku-xp-hechas','union'],
+    'solitario-robo','solitario-consol','solitario-nivel','solitario-ayuda','solitario-partida-v1','solitario-dia-curso-v1','solitario-racha',['solitario-records-v1','recsol'],['solitario-dias-v1','claves'],['solitario-xp-hechas','union'],
+    'buscaminas-dif','buscaminas-resaltar','buscaminas-listos','buscaminas-chord','buscaminas-mantener','buscaminas-vibrar','buscaminas-ayuda','buscaminas-partida-v1','buscaminas-dia-curso-v1',['buscaminas-records-v1','min'],['buscaminas-dias-v1','claves'],['buscaminas-stats-v1','nuevo'],['buscaminas-xp-hechas','union']],
   laberinto:['laberinto-pref','laberinto-dif','laberinto-libre','laberinto-ayuda','laberinto-sonido','laberinto-partida-v1',['laberinto-records-v1','max'],['laberinto-campana-v1','max'],['laberinto-dias-v1','claves'],['laberinto-xp-hechas','union']],   // v73
-  invasores:['invasores-ajustes','invasores-cfg','invasores-taller','invasores-tut','invasores-partida-v1',['invasores-records','max'],['invasores-dia','claves'],['invasores-xp-hechas','union']],   // v73 InvasorAR
+  invasores:['invasores-ajustes','invasores-cfg','invasores-taller','invasores-tut','invasores-partida-v1',['invasores-records','max'],['invasores-dia','claves'],['invasores-xp-hechas','union'],['invasores-historia','max']],   // v73 InvasorAR · v77 progreso de Historia
+  bloquear:['bloques-resume-v1'],   // v77: la partida Solo de BloqueAR que quedó a medias (el resto de BloqueAR sincroniza aparte)
+  ajedrez:['ajedrez-dif','ajedrez-color','ajedrez-tc','ajedrez-ayuda','ajedrez-sonido','ajedrez-partida-v1',['ajedrez-xp-hechas','union']],   // v77: la partida contra la compu sigue en otro dispositivo
   pampa:['pampa-resultado','pampa-visto','pampa-resumen','pampa-cruce','pampa-copas','pampa-ayuda-9'],
   gen:[['bloques-novedades','maxnum'],['bloques-chat-read-{me}','max'],['bloques-chat-borr-{me}','max'],'bloques-chat-frase','bloques-chat-modo',
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
@@ -639,11 +673,29 @@ const GRACIA_FONDO=Number(ls.get('recon-gracia'))?GRACIA_BASE*3:300000;
 const FONDO={yoDesde:0};
 const MARCA='\u0001fondo:';
 const CANALES=new Set(),FUERA=new Map();
+const PING='\u0001ping:',PONG='\u0001pong:',RTT=new WeakMap();
+setInterval(()=>{if(document.hidden)return;const t=String(Date.now());for(const ch of CANALES){try{if(ch.readyState==='open')ch.send(PING+t);}catch(_){}}},5000);
+function rtt(ch){const v=ch&&RTT.get(ch);return v==null?Infinity:v;}
+/* v77 · RELEVO: si el que lleva la mesa se va, la sigue otro (el «suplente»).
+   · El que lleva la mesa elige el suplente: el jugador con mejor conexión (menor RTT medido con los ping de arriba) y,
+     a igualdad, el primero. Le manda a él solo el estado completo de la partida (también en los juegos con cartas tapadas:
+     así, si la mesa se cae, nadie pierde la mano) y a todos quién es el suplente. Lo hace cada juego (uno, truco, ludo, pool).
+   · Si la mesa se cae y no vuelve en RELEVO_MS (o se fue a propósito: enseguida), el suplente pasa a llevarla: arma la mesa
+     con ese estado, la compu ocupa los lugares de los que faltan y les manda a todos la invitación de vuelta de la misma mesa
+     (los demás ya la están buscando y aceptan la del suplente igual que la del que llevaba la mesa).
+   · El que llevaba la mesa, si vuelve, queda como uno más: busca la invitación del suplente. */
+function elegirSuplente(lugares,excluir){let mejor=-1,r=Infinity;
+  (lugares||[]).forEach((L,i)=>{if(i===excluir||!L||L.tipo!=='humano'||!L.ch||L.ch.readyState!=='open')return;const x=rtt(L.ch);if(mejor<0||x<r){mejor=i;r=x;}});return mejor;}
+function relevoMs(){return Number(ls.get('recon-relevo'))||(fondoOtro()?45000:20000);}
 function registrar(ch){
   if(!ch||CANALES.has(ch))return;CANALES.add(ch);
   // Primer oyente del canal: lo nuestro no le llega al juego.
   // Cada conexión lleva su propio «se fue un momento» (se borra con el «volví» o a los GRACIA_FONDO).
-  ch.addEventListener('message',e=>{if(typeof e.data==='string'&&e.data.startsWith(MARCA)){e.stopImmediatePropagation();if(e.data.endsWith('1'))FUERA.set(ch,Date.now());else FUERA.delete(ch);}});
+  ch.addEventListener('message',e=>{if(typeof e.data!=='string'||e.data.charCodeAt(0)!==1)return;
+    if(e.data.startsWith(MARCA)){e.stopImmediatePropagation();if(e.data.endsWith('1'))FUERA.set(ch,Date.now());else FUERA.delete(ch);return;}
+    // v77 · RTT: «ping» de un lado, «pong» del otro; cuánto tarda cada conexión (para elegir quién sigue la mesa si el que la lleva se va)
+    if(e.data.startsWith(PING)){e.stopImmediatePropagation();try{if(ch.readyState==='open')ch.send(PONG+e.data.slice(PING.length));}catch(_){}return;}
+    if(e.data.startsWith(PONG)){e.stopImmediatePropagation();const ms=Date.now()-Number(e.data.slice(PONG.length));if(ms>=0&&ms<60000){const v=RTT.get(ch);RTT.set(ch,v==null?ms:Math.round(v*.7+ms*.3));}return;}});
   ch.addEventListener('close',()=>CANALES.delete(ch));
 }
 function avisarFondo(si){for(const ch of CANALES){try{if(ch.readyState==='open')ch.send(MARCA+(si?'1':'0'));}catch(_){}}}
@@ -706,8 +758,14 @@ async function call(p,ms=12000){
 /* ── La mesa en la que estás ── */
 function recordar(juego,info){ls.set('recon-'+juego,JSON.stringify({...info,t:Date.now()}));}
 // (v67) Si la página se fue a segundo plano después del último recordar(), la partida te espera más (GRACIA_FONDO).
-function recuerdo(juego){const o=ls.json('recon-'+juego,null);if(!o)return null;const f=Number(ls.get('recon-fondo'))||0,lim=f&&f>=(o.t||0)-5000?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;return Date.now()-(o.t||0)<lim?o:null;}
-function olvidar(juego){ls.set('recon-'+juego,null);}
+// v77 · BUG «a los demás les aparece que puedo volver, pero yo no puedo»: la página que se abre de nuevo calculaba su espera
+// con t + RECON.GRACIA, y en una página recién abierta GRACIA vale 60 s aunque la mesa te espere 5 min (saliste «un momento»).
+// Ahora recuerdo() devuelve t corrido para que t + GRACIA sea justo hasta cuándo te espera la mesa (t0: el original; hasta).
+function limite(o){const f=Number(ls.get('recon-fondo'))||0;return f&&f>=(o.t||0)-5000?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;}
+function recuerdo(juego){const o=ls.json('recon-'+juego,null);if(!o)return null;const lim=limite(o),t0=o.t||0;
+  if(Date.now()-t0>=lim||ls.get('recon-ab-'+juego+'-'+o.mesa))return null;const hasta=Math.max(t0+lim,Date.now()+15000);   // (al menos 15 s para buscar: la mesa cuenta su espera desde el corte, que pudo ser después)
+  return {...o,t0,t:hasta-GRACIA_BASE,hasta};}
+function olvidar(juego){ls.set('recon-'+juego,null);try{quitar('recon-aviso');}catch(_){}}
 /* ── Cartel con cuenta regresiva ── */
 const CART=new Map();
 function mmss(ms){const s=Math.max(0,Math.ceil(ms/1000));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
@@ -716,14 +774,16 @@ function css(){if(document.getElementById('recon-css'))return;const s=document.c
 .recon-bar>div{pointer-events:auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(20,26,34,.92);color:#f4f1e8;border:1px solid rgba(242,193,78,.55);box-shadow:0 6px 20px rgba(0,0,0,.35);font:600 13.5px/1.3 system-ui,-apple-system,sans-serif;max-width:100%}
 .recon-bar>div i{font-style:normal}.recon-bar>div b{font-variant-numeric:tabular-nums;color:#f2c14e;margin-left:auto}
 .recon-bar .recon-sp{width:12px;height:12px;border-radius:50%;border:2px solid #f2c14e;border-right-color:transparent;animation:recon-g 1s linear infinite;flex:none}
+.recon-bar>div.recon-aviso{border-radius:16px;flex-wrap:wrap}.recon-bar>div.recon-aviso .recon-t{flex:1 1 150px}
 @keyframes recon-g{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.recon-bar .recon-sp{animation:none}}`;
   (document.head||document.documentElement).appendChild(s);}
 function barra(){let b=document.querySelector('.recon-bar');if(!b){css();b=document.createElement('div');b.className='recon-bar';b.setAttribute('role','status');b.setAttribute('aria-live','polite');document.body.appendChild(b);}return b;}
 function cartel(id,texto,hasta,onFin){quitar(id);
   if(fondoOtro()&&/se cort|desconect/i.test(String(texto)))texto=String(texto).replace(/se cortó|se desconectó/i,'salió un momento de la app');const el=document.createElement('div');el.dataset.recon=id;
   el.innerHTML='<span class="recon-sp" aria-hidden="true"></span><span class="recon-t"></span><b></b>';el.querySelector('.recon-t').textContent=texto;barra().appendChild(el);
+  if(/^Volviendo a la partida/i.test(String(texto)))setTimeout(()=>{try{if(CART.get(id)&&CART.get(id).el===el)abandonarDesdeCartel(id,el);}catch(_){}},0);
   const pinta=()=>{const r=hasta-Date.now();el.querySelector('b').textContent=mmss(r);if(r<=0){quitar(id);try{onFin&&onFin();}catch(e){console.warn(e);}}};
-  pinta();const iv=setInterval(pinta,500);CART.set(id,{el,iv});return el;}
+  pinta();const iv=setInterval(pinta,500);CART.set(id,{el,iv,texto:String(texto),onFin});return el;}
 function quitar(id){const c=CART.get(id);if(!c)return;clearInterval(c.iv);c.el.remove();CART.delete(id);}
 /* ── El que lleva la mesa: manda la invitación de vuelta y espera ── */
 function reinvitar(o){
@@ -735,11 +795,19 @@ function reinvitar(o){
     while(!fin()){await sleep(window.LATIDO?LATIDO.espera(t0):2000);if(fin())break;
       let r;try{r=await call({accion:'buzon',usuario:a.usuario,token:a.token,id});}catch(_){continue;}
       if(r.estado==='aceptada'&&r.respuesta){vivo=false;let sdp='';try{sdp=JSON.parse(r.respuesta).sdp||'';}catch(_){}o.onRespuesta(sdp,id,r.respuesta);return;}   // (raw: para respuestas que no son JSON, como las de BloqueAR)
-      if(r.estado==='rechazada'||r.estado==='cancelada'||r.estado==='vencida')break;}
+      if(r.estado==='rechazada'){vivo=false;dejoLaMesa(o.para);return;}   // v77: abandonó («Abandonar»): no se lo espera más
+      if(r.estado==='cancelada'||r.estado==='vencida')break;}
     if(id){try{await call({accion:'cancelar',usuario:a.usuario,token:a.token,id});}catch(_){}}
   })();
   return {cancelar(){vivo=false;},get id(){return id;}};
 }
+/* v77 · El que se cortó apretó «Abandonar»: se terminan ya los carteles «X se cortó · esperándolo…» de esa persona
+   (su onFin es lo mismo que pasa cuando se acaba la espera: la compu ocupa su lugar o la partida termina) y se avisa. */
+function dejoLaMesa(nom){const n=String(nom||'').toLowerCase();if(!n)return;let hubo=false;
+  for(const [id,c] of [...CART]){if(String(c.texto||'').toLowerCase().includes(n)&&/cort|momento|esperándol|desconect/i.test(c.texto)){hubo=true;quitar(id);try{c.onFin&&c.onFin();}catch(e){console.warn(e);}}}
+  aviso(`${nom} abandonó la partida.`);return hubo;}
+function aviso(txt){try{if(typeof window.toast==='function'){window.toast(txt);return;}}catch(_){}
+  try{css();const el=document.createElement('div');el.textContent=txt;el.style.cssText='opacity:1;transition:opacity .4s';barra().appendChild(el);setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),450);},3800);}catch(_){}}
 /* ── El que se cortó: busca la invitación de vuelta ── */
 function esVuelta(inv,prefijo,mesa){const of=String(inv&&inv.oferta||'');if(!of.startsWith(prefijo))return false;
   try{const o=JSON.parse(of.slice(prefijo.length));return !!o.re&&String(o.re)===String(mesa);}catch(_){return false;}}
@@ -753,7 +821,43 @@ function buscarVuelta(o){
   })();
   return {cancelar(){vivo=false;}};
 }
-window.RECON={get GRACIA(){return fondoOtro()?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;},GRACIA_BASE,GRACIA_FONDO,fondo,recordar,recuerdo,olvidar,cartel,quitar,mmss,reinvitar,buscarVuelta,esVuelta};
+/* ── v77 · «Tenés una partida en curso: Volver / Abandonar» en TODAS las páginas ──
+   Antes, volver sólo pasaba si abrías la página de ese juego; si reabrías la app en el inicio (o en otro juego) no había forma
+   de volver aunque la mesa te estuviera esperando. Ahora cualquier página muestra el renglón con la cuenta regresiva:
+   · Volver → abre el juego, que acepta solo la invitación de vuelta (como siempre).
+   · Abandonar → avisa a la planilla (accion «abandonar»): la invitación de vuelta (la que está y las que vengan) se rechaza
+     sola, la mesa deja de esperarte enseguida y la compu ocupa tu lugar. En la página del juego, el cartel «Volviendo a la
+     partida…» también trae «Abandonar». */
+const JUEGOS={uno:['uno.html','UnoAR'],truco:['truco.html','TrucAR'],'truco-eq':['truco.html','TrucAR'],ludo:['ludo.html','LudoAR'],pool:['pool.html','PoolAR'],poblar:['poblar.html','PoblAR']};   // (InvasorAR no: en el duelo cada uno juega su campo en su aparato; si cerrás la app, esa partida no se puede retomar)
+const pagina=()=>{try{return (location.pathname.split('/').pop()||'index.html').toLowerCase();}catch(_){return '';}};
+function enCurso(){const out=[];for(const j of Object.keys(JUEGOS)){const rc=recuerdo(j);if(rc&&rc.rol!=='host'&&rc.mesa&&rc.host)out.push([j,rc]);}return out;}
+async function abandonar(juego){const o=ls.json('recon-'+juego,null);olvidar(juego);if(!o||!o.mesa)return false;
+  ls.set('recon-ab-'+juego+'-'+o.mesa,'1');const a=acct();if(!a||!o.host)return false;
+  for(let i=0;i<4;i++){try{await call({accion:'abandonar',usuario:a.usuario,token:a.token,mesa:String(o.mesa),de:String(o.host)});return true;}catch(_){await sleep(1500);}}
+  return false;}
+function boton(txt,fn,fuerte){const b=document.createElement('button');b.type='button';b.textContent=txt;
+  b.style.cssText='font:700 12.5px/1 system-ui,sans-serif;border-radius:999px;padding:6px 11px;cursor:pointer;border:1px solid rgba(242,193,78,.7);'+(fuerte?'background:#f2c14e;color:#1a1f27':'background:transparent;color:#f4f1e8');
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();fn();});return b;}
+let AV_T=0;
+function avisoEnCurso(){
+  if(CART.has('recon-aviso'))return;const L=enCurso();if(!L.length)return;
+  const pag=pagina(),[j,rc]=L[0],[url,nom]=JUEGOS[j];
+  if(pag===url)return;   // en la página del juego se encarga el juego (y su cartel trae «Abandonar»)
+  if(Date.now()-rc.t0<8000){clearTimeout(AV_T);AV_T=setTimeout(arrancarAviso,8200-(Date.now()-rc.t0));return;}   // ¿todavía estás jugando (en otra pestaña)? se mira de nuevo en un rato
+  const el=cartel('recon-aviso',`Tenés una partida de ${nom} en curso con ${rc.host}`,rc.hasta,()=>{});
+  el.classList.add('recon-aviso');el.querySelector('.recon-sp').remove();
+  el.insertBefore(boton('Volver',()=>{location.href=url;},true),el.querySelector('b'));
+  el.insertBefore(boton('Abandonar',()=>{quitar('recon-aviso');abandonar(j).then(()=>aviso(`Abandonaste la partida de ${nom}.`));}),el.querySelector('b'));
+}
+// En la página del juego: «Volviendo a la partida de X…» + «Abandonar» (recarga la página sin esa mesa).
+function abandonarDesdeCartel(id,el){
+  const pag=pagina(),j=Object.keys(JUEGOS).find(k=>JUEGOS[k][0]===pag&&ls.get('recon-'+k));if(!j)return;
+  el.insertBefore(boton('Abandonar',()=>{const c=CART.get(id);if(c)c.onFin=null;quitar(id);abandonar(j).finally(()=>{try{location.replace(location.pathname);}catch(_){location.reload();}});}),el.querySelector('b'));
+}
+function arrancarAviso(){try{avisoEnCurso();}catch(e){console.warn(e);}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(arrancarAviso,1200));else setTimeout(arrancarAviso,1200);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(arrancarAviso,1500);});
+window.RECON={get GRACIA(){return fondoOtro()?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;},GRACIA_BASE,GRACIA_FONDO,fondo,recordar,recuerdo,olvidar,cartel,quitar,mmss,reinvitar,buscarVuelta,esVuelta,abandonar,enCurso,dejoLaMesa,avisoEnCurso,JUEGOS,rtt,elegirSuplente,relevoMs};
 })();
 
 </script>
@@ -2442,6 +2546,7 @@ function aplicarPresencia(pr){
   S.users=S.users.map(u=>{const k=lc(u.usuario),en=M.has(k);return en===u.enLinea&&JSON.stringify(u.estado||null)===JSON.stringify(en?M.get(k):null)?u:{...u,enLinea:en,estado:en?M.get(k):null};});
   S.users.sort((a,b)=>(b.enLinea-a.enLinea)||a.usuario.localeCompare(b.usuario));
   if(on(S.users)!==antes)avisarAmigos();
+  try{revisarConexiones();}catch(_){}
   return falta;
 }
 async function recibirChat(j){
@@ -2480,7 +2585,7 @@ async function poll(){
 }
 // Si la planilla no conoce «latido», el chat vuelve a preguntar por su cuenta (como en la v75).
 window.addEventListener('bloques-latido-viejo',()=>{S.err='';schedule();if(!S.polling)setTimeout(poll,200);});
-async function loadUsers(){try{const j=await call({accion:'usuarios'},false);if(Array.isArray(j.usuarios)){try{if(window.TITULOS)TITULOS.guardarLista(j.usuarios,j.cau);}catch(_){}const on=a=>a.filter(u=>u.enLinea).map(u=>lc(u.usuario)).sort().join(',');const ch=on(j.usuarios)!==on(S.users);S.users=j.usuarios;S.usersAt=Date.now();if(ch)avisarAmigos();}}catch(_){}}
+async function loadUsers(){try{const j=await call({accion:'usuarios'},false);if(Array.isArray(j.usuarios)){try{if(window.TITULOS)TITULOS.guardarLista(j.usuarios,j.cau);}catch(_){}const on=a=>a.filter(u=>u.enLinea).map(u=>lc(u.usuario)).sort().join(',');const ch=on(j.usuarios)!==on(S.users);S.users=j.usuarios;S.usersAt=Date.now();if(ch)avisarAmigos();try{revisarConexiones();}catch(_){}}}catch(_){}}
 const lastFrom=n=>{let t=0;if(esGK(n)){for(const m of S.msgs)if(conv(m)===lc(n)&&lc(m.de)!==lc(S.me)&&m.t>t)t=m.t;return t;}for(const m of S.msgs)if(!esG(m)&&lc(m.de)===lc(n)&&m.t>t)t=m.t;return t;};
 async function fetchNew(pre){
   const j=pre||await call(auth({accion:'mensajes',desde:S.last}));
@@ -2558,7 +2663,7 @@ function arrived(m){
   if(viewing){if(m.tipo==='zumbido')shake();else beep('soft');markRead(key);return;}
   if(ST.m==='dnd'){badges();return;}
   if(document.hidden){sysNotify(m);flashTitle();}
-  if(H.busy()){beep(m.tipo==='zumbido'?'soft':'soft');badges();return;}
+  if(H.busy()){beep(m.tipo==='zumbido'?'soft':'soft');FP.ms.push(m);badges();return;}   // v77: se cuentan para «Recibiste X mensajes»
   notice(m);
 }
 function notice(m){
@@ -2584,6 +2689,41 @@ function sysNotify(m){
     const g=esG(m),u=userOf(m.de),n=new Notification(g?`👥 ${conNombre(m.para)}`:`${u?u.avatar+' ':''}${m.de}`,{body:g?`${m.de}: ${preview(m)}`:preview(m),tag:'bloques-chat-'+conv(m),silent:false});
     n.onclick=()=>{window.focus();open(g?m.para:m.de);n.close();};}catch(_){}
 }
+/* v77: avisos chiquitos arriba (una píldora, no un cartel) — «Recibiste X mensajes» al terminar la partida y «Se conectó…».
+   Mientras jugás se guardan; cuando la partida termina (H.busy() pasa a falso) sale un solo aviso con todo junto. */
+const FP={ms:[],cola:[],busy:false,k:'bloques-am-on-v77'};
+function avisoAmigosOn(){return ls.get('bloques-aviso-amigos')!=='0';}
+function mini(txt,sub,onTap,cls){
+  const box=$('.cx-toasts');if(!box)return null;const el=document.createElement('button');el.type='button';el.className='cx-toast cx-mini'+(cls?' '+cls:'');
+  el.innerHTML=`<span><b>${esc(txt)}</b>${sub?`<small>${esc(sub)}</small>`:''}</span>`;
+  el.onclick=()=>{el.remove();try{onTap&&onTap();}catch(_){}};
+  box.appendChild(el);while(box.children.length>3)box.firstChild.remove();
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},5200);return el;}
+function finPartida(){
+  const L=FP.ms.splice(0).filter(m=>m.t>(S.read[conv(m)]||0)&&!(S.open&&S.view==='conv'&&lc(S.con)===conv(m)));
+  if(!L.length||ST.m==='dnd')return;
+  const keys=[...new Set(L.map(m=>esG(m)?m.para:m.de))],names=keys.map(conNombre),n=L.length;
+  FP.msgT=Date.now();mini(`💬 Recibiste ${n} ${n===1?'mensaje':'mensajes'}`,(names.length>3?names.slice(0,3).join(', ')+'…':names.join(', ')),()=>open(keys.length===1?keys[0]:undefined),'cx-msgs');}
+function revisarConexiones(){
+  if(!S.users.length||!S.me)return;const now=Date.now();let D=ls.json(FP.k,null);if(!D||typeof D!=='object')D={t:0,v:{},a:{}};D.v=D.v||{};D.a=D.a||{};
+  // Recién abrís (o volvés después de un rato): no avisa de los que ya estaban; sólo de los que se conectan desde ahora.
+  const calla=!D.t||now-D.t>180000,A=new Set(S.am.a.map(lc)),me=lc(S.me);
+  for(const u of S.users){const k=lc(u.usuario);if(!u.enLinea||!A.has(k)||k===me)continue;
+    // Sin repetir: no avisa si estuvo conectado en los últimos 10 minutos (entra y sale) ni más de una vez cada media hora.
+    if(!calla&&now-(D.v[k]||0)>600000&&now-(D.a[k]||0)>1800000&&avisoAmigosOn()){D.a[k]=now;if(!FP.cola.some(x=>lc(x)===k))FP.cola.push(u.usuario);}
+    D.v[k]=now;}
+  for(const o of [D.v,D.a])for(const k in o)if(now-o[k]>2*864e5)delete o[k];
+  D.t=now;ls.set(FP.k,JSON.stringify(D));soltarConexiones();badges();}
+function soltarConexiones(){
+  if(!FP.cola.length||H.busy()||Date.now()-(FP.msgT||0)<5600)return;   // durante la partida espera (y no se apila con «Recibiste…»)
+  const L=FP.cola.splice(0).filter(n=>{const u=userOf(n);return u&&u.enLinea&&!S.msgs.some(m=>!esG(m)&&lc(m.de)===lc(n)&&Date.now()-m.t<600000&&!(S.plain[m.id]&&S.plain[m.id].card&&S.plain[m.id].card.am));});   // si te acaba de escribir, ya sabés que está
+  if(!L.length||ST.m==='dnd'||!avisoAmigosOn())return;
+  const t=L.length===1?`🟢 ${L[0]} se conectó`:`🟢 Se conectaron ${L.length>3?L.slice(0,3).join(', ')+'…':L.slice(0,-1).join(', ')+' y '+L[L.length-1]}`;
+  const u=L.length===1?userOf(L[0]):null,j=u&&u.estado&&GAMES[u.estado.j]?'en '+GAMES[u.estado.j]:'';
+  mini(t,j?j+' · tocá para ver tus amigos':'Tocá para ver tus amigos',verAmigos,'cx-amon');}
+function verAmigos(){S.tab='amigos';ls.set('bloques-chat-tab','amigos');S.view='list';S.con=null;open();const p=$('.cx-panel');if(p){p.dataset.sig='';render();}}
+setInterval(()=>{if(S.open)return;   // con el chat abierto (que pausa el juego) no cuenta como «terminó la partida»
+  let b=false;try{b=!!H.busy();}catch(_){}if(FP.busy&&!b)finPartida();FP.busy=b;if(!b)soltarConexiones();},1500);
 function toast(who,txt,openWho=who){
   const box=$('.cx-toasts');if(!box)return;const u=esGK(openWho)?{avatar:'👥',color:'#8b7cff'}:userOf(who);
   const el=document.createElement('button');el.type='button';el.className='cx-toast';
@@ -2595,6 +2735,9 @@ function toast(who,txt,openWho=who){
 function badges(){
   const n=unreadTotal();
   document.querySelectorAll('[data-chat-btn]').forEach(b=>{let s=b.querySelector('.cx-badge');if(!n){if(s)s.remove();return;}if(!s){s=document.createElement('span');s.className='cx-badge';b.appendChild(s);}s.textContent=n>9?'9+':String(n);});
+  // v77: puntito verde en el 💬 cuando hay amigos conectados (tocá el 💬 › 🤝 Amigos para verlos).
+  const A=new Set(S.am.a.map(lc)),on=S.users.filter(u=>u.enLinea&&A.has(lc(u.usuario))&&lc(u.usuario)!==lc(S.me)).length;
+  document.querySelectorAll('[data-chat-btn]').forEach(b=>{let d=b.querySelector('.cx-ondot');if(!on){if(d)d.remove();b.title='Chat';return;}if(!d){d=document.createElement('span');d.className='cx-ondot';d.setAttribute('aria-hidden','true');b.appendChild(d);}b.title=`Chat · ${on} ${on===1?'amigo conectado':'amigos conectados'}`;});
   if(!document.hidden)document.title=baseTitle;
 }
 
@@ -2612,7 +2755,8 @@ function ensureDom(){
   p.addEventListener('click',onClick);
   p.addEventListener('focusout',e=>{if(e.target.id==='cx-frase')saveFrase(e.target.value);});
   p.addEventListener('input',e=>{if(e.target.id==='cx-in'){S.typedAt=Date.now();autoGrow(e.target);}
-    if(e.target.id==='cx-gq'){S.gq=e.target.value;const l=$('.cx-list');if(l)l.innerHTML=filasGlobal();}});
+    if(e.target.id==='cx-gq'){S.gq=e.target.value;const l=$('.cx-list');if(l)l.innerHTML=filasGlobal();}
+    if(e.target.id==='cx-aq'){S.aq=e.target.value;const l=$('.cx-list');if(l)l.innerHTML=filasAmigos();}});
   p.addEventListener('keydown',e=>{
     if(e.target.id==='cx-in'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send();}
     if(e.target.id==='cx-pin'&&e.key==='Enter'){e.preventDefault();activate();}
@@ -2651,14 +2795,15 @@ function render(){
     <div class="cx-modes" role="group" aria-label="Mi estado"><button type="button" data-a="modo" data-m="on">🟢 Conectado</button><button type="button" data-a="modo" data-m="aus">🌙 Ausente</button><button type="button" data-a="modo" data-m="dnd">⛔ No molestar</button></div>`+
     `<div class="cx-tabs" role="tablist" aria-label="Listas">${[['charlas','💬 Charlas'],['amigos','🤝 Amigos'],['global','🌎 Global']].map(([k,t])=>`<button type="button" role="tab" data-a="tab" data-t="${k}" aria-selected="${k===tab}" class="${k===tab?'on':''}">${t}${k==='amigos'&&nIn?` <span class="cx-n">${nIn}</span>`:''}</button>`).join('')}</div>`+
     (S.err?`<p class="cx-err cx-pad">${esc(S.err)}</p>`:'')+(tab==='charlas'?`<button type="button" class="cx-ask cx-gnew" data-a="gnuevo">👥 Armar un grupo</button>`+(canAsk?`<button type="button" class="cx-ask" data-a="permiso">🔔 Avisarme en la compu cuando me escriben</button>`:''):'')+
+    (tab==='amigos'&&S.am.a.length>3?`<div class="cx-pad cx-gqw"><input id="cx-aq" type="search" placeholder="Buscar entre tus amigos" value="${esc(S.aq||'')}" autocomplete="off"></div>`:'')+
     (tab==='global'?`<div class="cx-pad cx-gqw"><input id="cx-gq" type="search" placeholder="Buscar a alguien por su nombre" value="${esc(S.gq)}" autocomplete="off"></div>`:'')+
     `<div class="cx-list">${rows}</div>`;
   modeBtns();
 }
 // Una fila de persona. extra: botón de la derecha (agregar, aceptar…); conDel: con «⋯» para borrar la charla.
-function filaUsuario(u,m,extra,conDel){
+function filaUsuario(u,m,extra,conDel,subX){
     const n=unreadFrom(u.usuario),typing=S.typing.some(x=>lc(x)===lc(u.usuario)),am=amEstado(u.usuario)==='amigo';
-    const sub=typing?'<i class="cx-typing">escribiendo…</i>':m?esc((lc(m.de)===lc(S.me)?'Vos: ':'')+(m.tipo==='zumbido'?'📳 Zumbido':m.tipo==='reac'?'Reaccionó a un mensaje':previewOwn(m))):esc(u.frase||estTxt(u));
+    const sub=typing?'<i class="cx-typing">escribiendo…</i>':m?esc((lc(m.de)===lc(S.me)?'Vos: ':'')+(m.tipo==='zumbido'?'📳 Zumbido':m.tipo==='reac'?'Reaccionó a un mensaje':previewOwn(m))):esc(subX||u.frase||estTxt(u));
     const row=`<button type="button" class="cx-row${n?' unread':''}" data-con="${esc(u.usuario)}">${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}" title="${esc(estTxt(u))}"></i>${am?'<em class="cx-st" title="Amigo">🤝</em>':''}${u.estado&&u.estado.g?'<em class="cx-st">🎮</em>':''}</b><small>${sub}</small></span><span class="cx-end">${m?`<small>${hora(m.t)}</small>`:''}${n?`<span class="cx-n">${n}</span>`:''}</span></button>`;
     if(extra)return `<div class="cx-rw">${row}${extra}</div>`;
     // v63: «⋯» para borrar la charla (sólo aparece si hay mensajes).
@@ -2687,11 +2832,17 @@ function filasAmigos(){
   const last={};for(const m of S.msgs){if(esG(m))continue;const o=lc(other(m));if(!last[o]||m.t>last[o].t)last[o]=m;}
   let h='';
   if(S.am.in.length)h+=`<p class="cx-sec-t">Te quieren agregar</p>`+S.am.in.map(n=>filaUsuario(userOrX(n),null,`<span class="cx-amb"><button type="button" class="cx-cplay" data-a="amSi" data-u="${esc(n)}">Aceptar</button><button type="button" class="cx-ghost" data-a="amNo" data-u="${esc(n)}" aria-label="Rechazar la solicitud de ${esc(n)}">✕</button></span>`)).join('');
-  const A=S.am.a.map(userOrX).sort(porConexion),on=A.filter(u=>u.enLinea).length;
-  h+=`<p class="cx-sec-t">Tus amigos${A.length?` · ${on} ${on===1?'conectado':'conectados'}`:''}</p>`;
-  h+=A.length?A.map(u=>filaUsuario(u,last[lc(u.usuario)]||null,'',false)).join(''):`<p class="cx-dim cx-pad">Todavía no tenés amigos. Mandá una solicitud desde 🌎 Global (＋👤); cuando la acepte, aparece acá.</p>`;
+  // v77: arriba los conectados, con en qué juego están, 🎮 invitar a tu mesa y 🏡 visitar su estancia; buscador si son muchos.
+  const q=lc(S.aq||'').trim(),A=S.am.a.map(userOrX).filter(u=>!q||lc(u.usuario).includes(q)).sort(porConexion),on=A.filter(u=>u.enLinea).length;
+  if(S.invFor)h=invSheet()+h;
+  const acc=u=>{const n=esc(u.usuario);return `<span class="cx-amb">${H.invite?`<button type="button" class="cx-amadd" data-a="invitar" data-u="${n}" aria-label="Invitar a ${n} a jugar" title="Invitar a jugar">🎮</button>`:''}<button type="button" class="cx-amadd" data-a="visitarEst" data-u="${n}" aria-label="Visitar la estancia de ${n}" title="Visitar su estancia">🏡</button></span>`;};
+  if(on)h+=`<p class="cx-sec-t">Tus amigos · 🟢 Conectados ahora · ${on}</p>`+A.filter(u=>u.enLinea).map(u=>filaUsuario(u,null,acc(u),false,estTxt(u))).join('');
+  const off=A.filter(u=>!u.enLinea);
+  if(off.length||!on)h+=`<p class="cx-sec-t">${on?'Los demás':'Tus amigos'}${S.am.a.length&&!on&&!q?' · nadie conectado':''}</p>`;
+  h+=q&&!A.length?'<p class="cx-dim cx-pad">Ningún amigo con ese nombre.</p>':off.length?off.map(u=>filaUsuario(u,last[lc(u.usuario)]||null,'',false)).join(''):A.length?'':`<p class="cx-dim cx-pad">Todavía no tenés amigos. Mandá una solicitud desde 🌎 Global (＋👤); cuando la acepte, aparece acá.</p>`;
   if(S.am.out.length)h+=`<p class="cx-sec-t">Esperando que acepten</p>`+S.am.out.map(n=>filaUsuario(userOrX(n),null,`<span class="cx-amb"><button type="button" class="cx-ghost" data-a="amCancelar" data-u="${esc(n)}">Cancelar</button></span>`)).join('');
   h+=`<button type="button" class="cx-ask" data-a="tab" data-t="global">🌎 Buscar gente para agregar</button>`;
+  h+=`<button type="button" class="cx-ask" data-a="avAm" aria-pressed="${avisoAmigosOn()}">${avisoAmigosOn()?'🔔 Te aviso cuando se conecta un amigo · tocá para apagarlo':'🔕 No te aviso cuando se conecta un amigo · tocá para prenderlo'}</button>`;
   return h;
 }
 // v68: en Global, un ícono chico: ＋👤 agregar · ⏳ pedido (tocarlo pide confirmar y lo cancela) · ✓ aceptar. Con los amigos, nada
@@ -2745,7 +2896,7 @@ function renderShare(p){
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
 function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏',uno:'🎴',ajedrez:'',ludo:'🎲',pool:'🎱',invasores:'👾'}[c.j]??'🎮';
-  return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&H.play?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">▶ Jugar</button>`:''}`;}
+  return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&(H.play||c.ve)?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">${c.ve?'🏡 Ir':'▶ Jugar'}</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
   const sig=[S.msgs.filter(x=>x.tmp).map(x=>x.id+(x.fail?'f':x.sending?'s':'')).join(','),JSON.stringify(S.invSt),JSON.stringify(S.invBusy),S.con,S.msgs.length,S.typing.join(','),JSON.stringify(S.vistos),S.err,S.pickFor,S.invFor,S.pinAsk,!!S.key,Object.keys(S.plain).length,JSON.stringify(grupoDe(S.con)),JSON.stringify(S.espero),(userOf(S.con)||{}).enLinea,JSON.stringify((userOf(S.con)||{}).estado),(userOf(S.con)||{}).pub?1:0].join('|');
@@ -2807,7 +2958,8 @@ async function onClick(e){
   else if(a==='inv'){const who=S.invFor,g=b.dataset.g;S.invFor=null;close();if((g==='ajedrez'||g==='ludo'||g==='pool'||g==='invasores')&&H.game()!==g){location.href=g+'.html#invitar='+encodeURIComponent(who);return;}try{H.invite&&H.invite(g,who);}catch(_){}}
   else if(a==='sharecon')shareTo(b.dataset.u);
   else if(a==='inventrar'||a==='invno'||a==='invcancel')invAccion(a,b.dataset.id,b.dataset.j);
-  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario','laberinto','invasores'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
+  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='estancia'&&o.card.ve&&H.game()!=='estancia'){close();location.href='estancia.html#visitar='+encodeURIComponent(o.card.ve);return;}   /* v77: invitación a una estancia */
+    if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario','laberinto','invasores'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
   else if(a==='cuenta'){close();H.account();}
   else if(a==='activar')activate();
   else if(a==='verpin'){S.pinAsk=true;$('.cx-panel').dataset.sig='';render();setTimeout(()=>$('#cx-pin')?.focus(),50);}
@@ -2837,7 +2989,8 @@ async function onClick(e){
   else if(a==='amNo'){b.disabled=true;responderAmistad(b.dataset.u,false);}
   else if(a==='amCancelar'){b.disabled=true;S.cancConf=null;cancelarAmistad(b.dataset.u);}
   else if(a==='amCancelarQ'){S.cancConf=lc(b.dataset.u);p0().dataset.sig='';render();setTimeout(()=>{if(S.cancConf===lc(b.dataset.u)){S.cancConf=null;p0().dataset.sig='';render();}},4000);}
-  else if(a==='visitarEst'){location.href='estancia.html#visitar='+encodeURIComponent(b.dataset.u);}
+  else if(a==='visitarEst'){const h='#visitar='+encodeURIComponent(b.dataset.u);if(H.game()==='estancia'){location.hash=h;location.reload();}else location.href='estancia.html'+h;}
+  else if(a==='avAm'){ls.set('bloques-aviso-amigos',avisoAmigosOn()?'0':'1');p0().dataset.sig='';render();}
   else if(a==='amQuitar'){if(S.quitarConf!==lc(b.dataset.u)){S.quitarConf=lc(b.dataset.u);render();return;}S.quitarConf=null;quitarAmigo(b.dataset.u);}
   else if(a==='emo'){emoToggle();}
   else if(a==='emoT'){S.emoCat=b.dataset.c;emoDibujar();}
@@ -3179,6 +3332,8 @@ const CSS=`
 .cx-toast{pointer-events:auto;display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:18px;border:1px solid #3a4a60;background:#141e2cf2;color:#f4f7fe;text-align:left;box-shadow:0 14px 40px #000a;cursor:pointer;animation:cxDrop .28s ease-out;font:500 14px/1.35 system-ui,-apple-system,sans-serif;backdrop-filter:blur(8px)}
 .cx-toast span{display:flex;flex-direction:column;min-width:0}.cx-toast b{font-size:14px}.cx-toast small{color:#cbd6e3;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cx-toast.out{opacity:0;transform:translateY(-10px);transition:.35s}
+.cx-ondot{position:absolute;left:3px;bottom:3px;width:9px;height:9px;border-radius:50%;background:#57d49b;box-shadow:0 0 0 2px #0c131e;pointer-events:none}
+.cx-toast.cx-mini{width:auto;max-width:100%;align-self:center;padding:7px 14px;border-radius:999px;gap:8px;font-size:13px;box-shadow:0 8px 24px #0008}.cx-mini b{font-size:13px!important}.cx-mini small{font-size:12px!important}.cx-mini span{align-items:center;text-align:center}
 @keyframes cxDrop{from{transform:translateY(-16px);opacity:0}}
 .cx-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;background:#ff5d73;color:#fff;font:900 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #0b1019;pointer-events:none}
 [data-chat-btn]{position:relative}
@@ -3238,7 +3393,7 @@ function init(opts={}){
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
   usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
-  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},get state(){return S;},poll,bindButtons};
+  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,get state(){return S;},poll,bindButtons};
 })();
 
 </script>
@@ -3672,6 +3827,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:77,grande:true,titulo:'Novedades',items:[
+    ['🎵','Jugar ya no corta la música de otras apps del celular.'],
+    ['🔁','El sudoku, el solitario y el buscaminas del día siguen en otro aparato donde los dejaste. Y si te cortás de una partida, aparece «Volver» o «Abandonar»; si se va el que lleva la mesa, la partida sigue.'],
+    ['🟢','Te avisa chiquito cuando se conecta un amigo y cuántos mensajes recibiste al terminar. Ves a tus amigos conectados desde cualquier juego, y podés usar la cara de tu gaucho como foto.'],
+    ['👾','InvasorAR: Infinito, Historia de 100 niveles, de a dos con un amigo y el modo En contra, donde uno arma las oleadas y el otro se defiende.'],
+    ['🎱','PoolAR: si no entra nada al romper, se sigue jugando, y la 8 va al agujero opuesto a tu última bola, sin ayuda.'],
+    ['🏡','EstanciAR: jugás sin salir de la estancia, mirás las partidas de tus amigos, la mascota es mucho más jugable, mejoras que se notan, mochila con post-its, más caras y peinados, e invitar amigos a tu estancia.'],
+    ['🗺️','La Gran Pampa avisa en su tarjeta cuando hay noticias.']]},
   {v:76,grande:true,titulo:'Novedades',items:[
     ['⚡','Por dentro, la app ahora le pregunta mucho menos a la planilla: más estable con mucha gente conectada, conexiones a las mesas más rápidas y los cambios de tu estancia llegan antes al otro aparato.'],
     ['🧹','Los mensajes viejos del chat se van limpiando solos; tus partidas, récords, rankings y tu estancia quedan como estaban.']]},
@@ -4146,7 +4309,7 @@ const DIFN={facil:'Fácil',normal:'Normal',dificil:'Difícil'};
 const acct=()=>{try{const o=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');return o&&o.usuario&&o.token?o:null;}catch(_){return null;}};
 function miNombre(){const a=acct();return a?a.usuario:'Vos';}
 const PERFILES=[];          // avatar y color de cada lugar (para dibujar)
-function refrescar(){if(M)E=estadoPara(M,0);}
+function refrescar(){if(M)E=estadoPara(M,YO);}
 const yo=()=>(E&&Number.isInteger(E.yo))?E.yo:0;
 /* v72: cruce de La Gran Pampa («#pampa-cruce=SEMILLA&duelo=ID»): mano a mano contra la compu en Normal, reglas clásicas,
    los mismos dados (la semilla). No se guarda ni da XP, rango, oro o leguas. Gana: 2000 − 4 por tirada (≥ 1001);
@@ -4157,7 +4320,7 @@ function pampaFin(gane){const P=PAMPA_CRUCE;PAMPA_CRUCE=null;if(P.cfg)CFG=P.cfg;
   ls.set('pampa-resultado',JSON.stringify({j:'ludo',seed:P.seed,duelo:P.duelo,puntos,txt:gane?`Ganaste en ${M.tiros} tiradas`:`Perdiste con ${meta} ${meta===1?'ficha':'fichas'} en la meta`,t:Date.now()}));
   over(`<div class="ic">${gane?'🏆':'🎲'}</div><h3>${gane?'¡Ganaste el cruce!':'Ganó la compu'}</h3>
     <p>Para el cruce de La Gran Pampa: <b>${puntos} puntos</b><br><small>${gane?'2000 − 4 por cada tirada de la partida':'200 por ficha en la meta + 2 por casilla avanzada'}</small></p><a class="btn go" id="pf-pampa" href="pampa.html#resultado">🗺️ Volver a La Gran Pampa</a>`);}
-function guardar(){if(MODO!=='compu'||!M||AUTO||PAMPA_CRUCE)return;ls.set(SAVE,JSON.stringify({M,cfg:CFG,perf:PERFILES,t:Date.now()}));}
+function guardar(){if(MODO!=='compu'||!M||AUTO||PAMPA_CRUCE)return;ls.set(SAVE,JSON.stringify({M,cfg:CFG,perf:PERFILES,yo:YO,t:Date.now()}));}
 // La compu tiene nombre propio: nombres criollos al azar, distintos entre sí y de la gente de la mesa (con 🤖 al lado).
 const NOMBRES_BOT=['Chacho','Pocha','Tito','Coca','Cacho','Mirta','Rulo','Pepa','Lalo','Chola','Toto','Nené','Fito','Moni','Quique','Tota','Cholo','Beba','Pancho','Lula'];
 function botNombres(n,usados=[]){const u=new Set(usados.map(x=>String(x).toLowerCase())),pool=NOMBRES_BOT.filter(x=>!u.has(x.toLowerCase()));
@@ -4401,7 +4564,7 @@ async function jugarYo(a){
     PEND_GUEST=true;const acc0=E.acc;renderPanel();marcarMovibles();netSend({t:'accion',a,acc:E.acc});
     setTimeout(()=>{if(PEND_GUEST&&E&&E.acc===acc0){PEND_GUEST=false;renderPanel();marcarMovibles();toast(`La mesa no contesta. Si ${esc(ON&&ON.host?ON.host.usuario:'quien la armó')} salió de la app, avisale que vuelva.`);}},6000);return;}
   if(!M)return;
-  const err=aplicar(0,a);if(err)toast(esc(err));
+  const err=aplicar(YO,a);if(err)toast(esc(err));
 }
 // Después de cada jugada: si le toca a la compu (o a alguien que se cortó), juega cuando terminan las animaciones.
 function seguir(){
@@ -4409,12 +4572,12 @@ function seguir(){
   if(M.fin){clearTimeout(ON_T);LIMITE=0;return;}
   const tok=++BOTTOK,q=quienJuega(M);if(q===null)return;
   armarTimer(q);
-  if(M.tipos[q]==='bot'||(AUTO&&q===0)){
+  if(M.tipos[q]==='bot'||(AUTO&&q===YO)){
     COLA.then(()=>wait(M&&M.fase==='tirar'?520+Math.random()*420:380+Math.random()*420)).then(()=>{if(tok!==BOTTOK||!M||quienJuega(M)!==q)return;
       if(ocupado()){COLA.then(()=>{if(tok===BOTTOK&&M&&quienJuega(M)===q)turnoBot(q);});return;}turnoBot(q);});}
 }
 function nivelBot(q){return MODO==='compu'?CFG.dif:'normal';}
-function turnoBot(q){const nv=AUTO&&q===0?'normal':nivelBot(q),a=decidir(estadoPara(M,q),q,nv);if(!a)return;const err=aplicar(q,a);if(err)console.warn('compu',err);}
+function turnoBot(q){const nv=AUTO&&q===YO?'normal':nivelBot(q),a=decidir(estadoPara(M,q),q,nv);if(!a)return;const err=aplicar(q,a);if(err)console.warn('compu',err);}
 // En línea: cada persona tiene 20 segundos por acción; si no, tira o mueve sola (como lo haría la compu).
 const TURNO_MS=20000;
 function hayGente(){return M&&M.tipos.filter(t=>t!=='bot').length>1;}
@@ -4423,7 +4586,7 @@ function armarTimer(q){clearTimeout(ON_T);LIMITE=0;
   if(MODO!=='host'||!hayGente()||M.tipos[q]==='bot')return;
   LIMITE=Date.now()+TURNO_MS+(ocupado()?1500:0);const acc=M.acc;
   ON_T=setTimeout(()=>{if(!M||M.acc!==acc||quienJuega(M)!==q)return;const a=decidir(estadoPara(M,q),q,'normal');if(!a)return;
-    aplicar(q,a);if(q===0)toast('Se te pasó el tiempo: se jugó solo.');},LIMITE-Date.now());
+    aplicar(q,a);if(q===YO)toast('Se te pasó el tiempo: se jugó solo.');},LIMITE-Date.now());
 }
 
 /* ───────── Fin de la partida ───────── */
@@ -4519,7 +4682,7 @@ function empezarVista(){DICHOS={};CHIPS={};FIN_VISTO=null;AUTO1_ACC=-1;DADO_V=0;
 function nuevaCompu(seed,cruce){
   if(ON)netLeave();
   if(PAMPA_CRUCE&&!cruce&&PAMPA_CRUCE.cfg)CFG=PAMPA_CRUCE.cfg;PAMPA_CRUCE=cruce||null;   // v72: otra partida deja el cruce
-  BOTTOK++;MODO='compu';LIMITE=0;hideOver();closeSheet();empezarVista();
+  BOTTOK++;MODO='compu';YO=0;LIMITE=0;hideOver();closeSheet();empezarVista();
   const a=acct(),bn=botNombres(CFG.bots,[miNombre()]);
   PERFILES.length=0;PERFILES.push({a:a?a.avatar:'🙂',c:a?a.color:'#3b5866'});bn.forEach((_,i)=>PERFILES.push({a:AV_BOT[i]||'🤖',c:COL_BOT[i]||'#46555f'}));
   M=nuevaPartida({nombres:[miNombre(),...bn],tipos:['humano',...bn.map(()=>'bot')],color:CFG.color,eq:CFG.eq&&CFG.bots===3,reglas:CFG.reglas,seed});
@@ -4533,7 +4696,7 @@ function openMenu(){
     <button id="m-new">🎲 Partida nueva</button><button id="m-friend">👥 Jugar en línea con amigos</button>${enPartida()?'<button id="m-salir">🚪 Salir de la partida</button>':''}<button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-auto">${CFG.auto1?'✅':'⬜'} Mover sola si hay una sola jugada</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=ludo">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">LudAR · versión 76</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">LudAR · versión 77</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='juego'&&!(E&&E.fin)){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});
@@ -4599,6 +4762,8 @@ async function iceServers(){
 function gathered(pc){if(window.RED)return RED.gathered(pc,6000);/* v67: chat/recon.js */return new Promise(res=>{if(pc.iceGatheringState==='complete')return res();const t=setTimeout(res,6000);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res();}});});}
 const yoPerfil=()=>{const a=acct();return {usuario:a?a.usuario:'Vos',avatar:a?a.avatar:'🙂',color:a?a.color:'#3b5866'};};
 const UIQ={users:null,err:'',dismissed:new Set(),q:'',todos:false};
+let YO=0;   // v77: en qué lugar de la partida está el que lleva la mesa (0, salvo que la haya tomado como suplente)
+let SUP={i:-1,nom:''};   // v77: el suplente elegido (el que lleva la mesa)
 let ON=null;   // host: {role:'host',state:'mesa'|'juego',mesa:{id,n,meta,apilar,lugares:[…]}}  ·  guest: {role:'guest',state,host,pc,ch,seat,mesa}
 let MCH=[],MCH_NO=0;
 const MAX_LUG=4;
@@ -4610,10 +4775,50 @@ function netSend(m){if(!ON)return;if(ON.role==='guest')sendCh(ON.ch,m);else for(
 function enviarEstados(){
   if(!ON||ON.role!=='host'||!M)return;
   const lim=LIMITE?Math.max(0,LIMITE-Date.now()):0,perf=PERFILES.map(P=>({a:P.a,c:P.c}));
-  ON.mesa.lugares.forEach((L,s)=>{if(s===0||!L.ch||L.tipo!=='humano')return;sendCh(L.ch,{t:'estado',E:{...estadoPara(M,s),perfiles:perf},lim});});
+  ON.mesa.lugares.forEach((L,s)=>{if(s===YO||!L.ch||L.tipo!=='humano')return;sendCh(L.ch,{t:'estado',E:{...estadoPara(M,s),perfiles:perf},lim});});
+  relevoEnviar();
+}
+/* ── v77 · RELEVO (chat/recon.js): si el que lleva la mesa se va, la sigue el suplente ── */
+function relevoEnviar(){
+  if(!ON||ON.role!=='host'||!M||!window.RECON||!RECON.elegirSuplente)return;
+  if(M.fin){if(SUP.i>=0){SUP={i:-1,nom:''};netSend({t:'relevo',sup:''});try{RECON.olvidar('ludo');}catch(_){}}return;}
+  const i=RECON.elegirSuplente(ON.mesa.lugares,YO);if(i<0)return;const L=ON.mesa.lugares[i];
+  if(SUP.i!==i||SUP.nom!==L.usuario){SUP={i,nom:L.usuario};netSend({t:'relevo',sup:L.usuario});}
+  const {lugares,...m}=ON.mesa;
+  sendCh(L.ch,{t:'sup',S:{M,yo:YO,host:yoPerfil(),perf:PERFILES,mesa:{...m,lugares:lugares.map(x=>({tipo:x.tipo,usuario:x.usuario||'',avatar:x.avatar,color:x.color,hasta:x.hasta||0}))}}});
+  // si este aparato se cierra, al volver a abrir busca la mesa en manos del suplente
+  try{RECON.recordar('ludo',{mesa:m.id,host:L.usuario,seat:YO,rol:'ex'});}catch(_){}
+}
+// El suplente pasa a llevar la mesa: la arma con el último estado, la compu juega por los que faltan y los llama a volver.
+function tomarMesa(o){
+  const S=o&&o.supS;if(!S||!S.M||S.M.fin)return false;
+  try{o.busca&&o.busca.cancelar();}catch(_){}try{o.pc&&o.pc.close();}catch(_){}RECON.quitar('ludo-host');
+  const me=yoPerfil(),viejo=S.yo,hostNom=S.host&&S.host.usuario||o.host.usuario,seat=o.seat;
+  BOTTOK++;M=S.M;YO=seat;MODO='host';PEND_GUEST=false;PERFILES.length=0;(S.perf||[]).forEach(p=>PERFILES.push(p));
+  const lug=S.mesa.lugares.map(x=>({tipo:x.tipo==='yo'?'humano':x.tipo,usuario:x.usuario,avatar:x.avatar,color:x.color,hasta:x.hasta}));
+  ON={role:'host',state:'juego',mesa:{...S.mesa,lugares:lug},relevo:1};
+  lug[YO]={tipo:'yo',usuario:me.usuario,avatar:me.avatar,color:me.color};M.tipos[YO]='humano';
+  SUP={i:-1,nom:''};try{RECON.olvidar('ludo');}catch(_){}
+  lug.forEach((L,i)=>{if(i===YO||i>=M.n||!L.usuario||(L.tipo!=='humano'&&L.tipo!=='ausente'))return;const nom=L.usuario;
+    if(i===viejo&&o.hostSalio){M.tipos[i]='bot';M.nombres[i]=nom+' 🤖';lug[i]={tipo:'libre'};return;}
+    const hasta=Date.now()+(i===viejo?Math.max(RECON.GRACIA,RECON.GRACIA_FONDO):RECON.GRACIA);
+    M.tipos[i]='bot';lug[i]={tipo:'ausente',usuario:nom,avatar:L.avatar,color:L.color,hasta};
+    RECON.cartel('ludo-'+i,`${nom} se cortó · esperándolo…`,hasta,()=>noVolvio(i,nom));esperarVuelta(i,nom,hasta);});
+  const txt=o.hostSalio?`${hostNom} se fue: ahora la mesa la llevás vos.`:`Se cortó ${hostNom}: ahora la mesa la llevás vos (si vuelve, sigue jugando).`;
+  addChat('',txt);toast('🔁 '+esc(txt));
+  refrescar();mostrar(E);renderOnline();seguir();return true;
+}
+// El que llevaba la mesa y se quedó sin nadie (se le cortó a él): busca la invitación del suplente para volver como jugador.
+function relevoVigilar(){
+  if(!ON||ON.role!=='host'||!SUP.nom||ON.relevoBusca||!window.RECON||!M||M.fin)return;
+  const solo=()=>!ON.mesa.lugares.some((L,i)=>i!==YO&&L.tipo==='humano');if(!solo())return;
+  const o=ON,sup=SUP.nom;
+  o.relevoBusca=RECON.buscarVuelta({prefijo:'LUDO:',mesa:o.mesa.id,de:sup,hasta:Date.now()+Math.max(RECON.GRACIA,RECON.GRACIA_FONDO),vivo:()=>ON===o&&solo(),
+    onInv:inv=>{UIQ.dismissed.add(inv.id);o.mesa.lugares.forEach((L,i)=>{try{L.rv&&L.rv.cancelar();}catch(_){}RECON.quitar('ludo-'+i);});
+      SUP={i:-1,nom:''};toast(`🔁 La mesa siguió con ${esc(sup)}: volvés como jugador.`);ON=null;acceptInvite(inv,true);}});
 }
 function mesaVista(s){// lo que ve un invitado en la espera
-  const m=ON.mesa;return {id:m.id,n:m.n,eq:!!m.eq,color:m.color,reglas:m.reglas,host:m.lugares[0].usuario,lugares:m.lugares.map((L,i)=>({tipo:L.tipo,usuario:L.usuario||'',avatar:L.avatar||'',color:L.color||'',vos:i===s}))};}
+  const m=ON.mesa;return {id:m.id,n:m.n,eq:!!m.eq,color:m.color,reglas:m.reglas,host:(m.lugares[YO]||m.lugares[0]).usuario,lugares:m.lugares.map((L,i)=>({tipo:L.tipo,usuario:L.usuario||'',avatar:L.avatar||'',color:L.color||'',vos:i===s}))};}
 function enviarMesa(){if(!ON||ON.role!=='host')return;ON.mesa.lugares.forEach((L,s)=>{if(s&&L.ch)sendCh(L.ch,{t:'mesa',mesa:mesaVista(s)});});renderOnline();if(LOBBY)drawLobby();}
 
 /* ── Armar la mesa (el que invita) ──
@@ -4765,7 +4970,7 @@ function perdioLugar(i,L){
     M.tipos[i]='bot';ON.mesa.lugares[i]={tipo:'ausente',usuario:nom,avatar:L.avatar,color:L.color,hasta};
     const txt=`${nom} se cortó: juega la compu por ${nom} hasta que vuelva.`;addChat('',txt);netSend({t:'chat',de:'',txt});
     RECON.cartel('ludo-'+i,`${nom} se cortó · esperándolo…`,hasta,()=>noVolvio(i,nom));netSend({t:'corte',nom,ms:RECON.GRACIA});
-    refrescar();mostrar(E);enviarEstados();seguir();esperarVuelta(i,nom,hasta);return;}
+    refrescar();mostrar(E);enviarEstados();seguir();esperarVuelta(i,nom,hasta);relevoVigilar();return;}
   if(ON.state==='juego'&&M&&M.tipos[i]==='humano'){// sigue la compu en su lugar
     M.tipos[i]='bot';M.nombres[i]=nom+' 🤖';ON.mesa.lugares[i]={tipo:'libre'};
     toast(`⚠️ ${esc(nom)} se desconectó. Sigue la compu en su lugar.`);addChat('',`${nom} se desconectó: juega la compu en su lugar.`);
@@ -4811,7 +5016,7 @@ function empezarMesa(){
   m.lugares.forEach((L,i)=>{if(i>=m.n)return;if(L.tipo==='invitado')soltarLugar(i,true);});
   // los que quedaron más allá de n se van
   m.lugares.forEach((L,i)=>{if(i>=m.n&&L.tipo!=='libre')soltarLugar(i,true);});
-  ON.state='juego';MODO='host';BOTTOK++;hideOver();empezarVista();
+  ON.state='juego';MODO='host';YO=0;SUP={i:-1,nom:''};BOTTOK++;hideOver();empezarVista();
   const L=m.lugares.slice(0,m.n),bots=L.filter(x=>x.tipo==='libre').length,bn=botNombres(bots,L.filter(x=>x.usuario).map(x=>x.usuario));let b=0;
   PERFILES.length=0;
   const nombres=[],tipos=[];
@@ -4863,7 +5068,9 @@ function msgDelHost(x){
   if(x.t==='error'){PEND_GUEST=false;toast(esc(x.msg));if(EV){renderPanel();marcarMovibles();}return;}
   if(x.t==='corte'&&window.RECON){RECON.cartel('ludo-c-'+x.nom,`${x.nom} se cortó · esperándolo…`,Date.now()+(x.ms||60000));return;}
   if(x.t==='volvio'&&window.RECON){RECON.quitar('ludo-c-'+x.nom);return;}
-  if(x.t==='bye'){ON.salio=!x.corte;hostPerdido(x.corte?'se desconectó':'cerró la mesa');}
+  if(x.t==='relevo'){ON.sup=x.sup||'';if(!ON.sup)ON.supS=null;return;}
+  if(x.t==='sup'&&x.S){ON.supS=x.S;return;}
+  if(x.t==='bye'){if(!x.corte&&ON.sup&&E&&!E.fin&&ON.state==='juego'){ON.hostSalio=true;hostPerdido('se fue');return;}ON.salio=!x.corte;hostPerdido(x.corte?'se desconectó':'cerró la mesa');}
 }
 function recibirEstado(En,lim){
   const Ea=E;PEND_GUEST=false;MODO='guest';M=null;BOTTOK++;ON.state='juego';
@@ -4878,9 +5085,11 @@ function hostPerdido(why){
   if(!ON||ON.role!=='guest'||ON.state==='perdido'||ON.state==='reconectando')return;
   // v63: si se cortó en medio de la partida, se espera un rato a que la mesa nos vuelva a llamar.
   if(ON.state==='juego'&&E&&!E.fin&&!ON.salio&&window.RECON&&(ON.mesaId||ON.mesa)){
-    const o=ON,host=ON.host.usuario,mesa=ON.mesaId||ON.mesa.id,hasta=Date.now()+RECON.GRACIA;o.state='reconectando';try{o.pc&&o.pc.close();}catch(_){}PEND_GUEST=false;LIMITE=0;renderOnline();
-    RECON.cartel('ludo-host',`Se cortó con la mesa de ${host} · volviendo…`,hasta,()=>{if(ON===o&&o.state==='reconectando'){o.state='juego';o.salio=true;hostPerdido('se desconectó');}});
-    o.busca=RECON.buscarVuelta({prefijo:'LUDO:',mesa,de:host,hasta,vivo:()=>ON===o&&o.state==='reconectando',onInv:inv=>{UIQ.dismissed.add(inv.id);acceptInvite(inv,true);}});
+    const o=ON,host=ON.host.usuario,mesa=ON.mesaId||ON.mesa.id,rel=o.sup?RECON.relevoMs():0,hasta=Date.now()+RECON.GRACIA+(rel?rel+30000:0);o.state='reconectando';try{o.pc&&o.pc.close();}catch(_){}PEND_GUEST=false;LIMITE=0;renderOnline();
+    // v77: si yo soy el suplente, tomo la mesa si no vuelve (o enseguida, si se fue a propósito)
+    if(o.sup&&o.supS&&o.sup===yoPerfil().usuario)setTimeout(()=>{if(ON===o&&o.state==='reconectando')tomarMesa(o);},o.hostSalio?300:rel);
+    RECON.cartel('ludo-host',o.hostSalio?`${host} se fue · la mesa sigue con ${o.sup}…`:`Se cortó con la mesa de ${host} · volviendo…`,hasta,()=>{if(ON===o&&o.state==='reconectando'){o.state='juego';o.salio=true;hostPerdido('se desconectó');}});
+    o.busca=RECON.buscarVuelta({prefijo:'LUDO:',mesa,de:o.sup?null:host,hasta,vivo:()=>ON===o&&o.state==='reconectando',onInv:inv=>{UIQ.dismissed.add(inv.id);acceptInvite(inv,true);}});
     return;}
   const was=ON.state,host=ON.host.usuario;ON.state='perdido';try{ON.pc&&ON.pc.close();}catch(_){}
   try{window.RECON&&RECON.olvidar('ludo');RECON.quitar('ludo-host');}catch(_){}
@@ -4891,7 +5100,7 @@ function hostPerdido(why){
   if(was==='mesa'){sheet('Mesa',`<p>${esc(host)} ${esc(why)}.</p><button class="btn go" id="fw-new">Jugar con la compu</button>`);$('fw-new').onclick=()=>{closeSheet();openNew();};}
 }
 function netLeave(){if(!ON)return;const o=ON;try{window.RECON&&RECON.olvidar('ludo');if(o.busca)o.busca.cancelar();}catch(_){}
-  if(o.role==='host'){o.mesa.lugares.forEach((L,i)=>{if(i&&L.tipo!=='libre')soltarLugar(i,true);});}
+  if(o.role==='host'){o.mesa.lugares.forEach((L,i)=>{if(i!==YO&&L.tipo!=='libre'&&L.tipo!=='yo')soltarLugar(i,true);});}
   else{sendCh(o.ch,{t:'bye'});try{o.pc&&o.pc.close();}catch(_){}}
   ON=null;LOBBY=false;if(MODO!=='compu'){MODO='compu';}renderOnline();}
 function renderOnline(){const el=$('onl'),b=$('btn-mesa');
@@ -4984,7 +5193,7 @@ function esperarInvitacion(){
   setTimeout(()=>pollInbox(true),300);
 }
 // Retoma una partida contra la compu guardada (en este dispositivo o en otro de tu cuenta)
-function retomar(s){M=s.M;CFG={...CFG,...(s.cfg||{}),reglas:reglasDe((s.cfg||{}).reglas||M.R)};PERFILES.length=0;(s.perf||[]).forEach(p=>PERFILES.push(p));MODO='compu';empezarVista();refrescar();mostrar(E);seguir();}
+function retomar(s){M=s.M;YO=s.yo|0;CFG={...CFG,...(s.cfg||{}),reglas:reglasDe((s.cfg||{}).reglas||M.R)};PERFILES.length=0;(s.perf||[]).forEach(p=>PERFILES.push(p));MODO='compu';empezarVista();refrescar();mostrar(E);seguir();}
 (function start(){
   try{window.LOGROS&&LOGROS.aplicar('ludo');}catch(_){}
   fitScreen();
@@ -5022,7 +5231,7 @@ window.addEventListener('bloques-sync',e=>{const k=(e.detail&&e.detail.claves)||
   try{$('modal').hidden=true;}catch(_){}hideOver();
   retomar(saved);toast('Seguís la partida que venías jugando en tu otro dispositivo.');
 });
-window.LUDO={get M(){return M;},get E(){return E;},get EV(){return EV;},get MODO(){return MODO;},get ON(){return ON;},get CFG(){return CFG;},get LIMITE(){return LIMITE;},get MCH(){return MCH;},get GIRO(){return GIRO;},
+window.LUDO={get M(){return M;},get E(){return E;},get EV(){return EV;},get MODO(){return MODO;},get ON(){return ON;},get CFG(){return CFG;},get LIMITE(){return LIMITE;},get YO(){return YO;},get SUP(){return SUP;},tomarMesa,get MCH(){return MCH;},get GIRO(){return GIRO;},
   get ocupado(){return ocupado();},cola:()=>COLA,
   jugarYo,nuevaCompu,openNew,openHelp,openMesa,irAInvitar,salirPartida,invitarALugar,empezarMesa,acceptInvite,mandarChat,openChat,pollInbox,netLeave,aplicar,
   decidir,estadoPara,quienJuega,movimientos,jugar,seguir,mostrar,mostrarFin,refrescar,enviarEstados,perdioLugar,lugarFicha,rotar,

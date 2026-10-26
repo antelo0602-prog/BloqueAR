@@ -167,8 +167,15 @@ body.tactil.c-deslizar .ctrl-acc .cb small{display:none}
 .charla .msgs{max-height:110px;min-height:48px;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:4px;font-size:14px}
 .charla .msg b{margin-right:4px}.charla .msg.yo{color:var(--olive2)}.charla .empty{color:var(--soft);font-size:12.5px}
 .charla form{display:flex;border-top:1px solid var(--rule)}.charla input{flex:1;min-width:0;border:0;background:transparent;padding:10px;font:inherit;font-size:16px;color:var(--brown);-webkit-user-select:text;user-select:text}
-.charla form button{border:0;background:var(--olive);color:#f4efe0;font-weight:700;padding:0 14px}
-.side{position:fixed;inset:0;z-index:19;display:flex;justify-content:flex-end;background:rgba(4,7,16,.72)}
+.charla form button{border:0;background:var(--olive);color:#f4efe0;font-weight:700;padding:0 16px;min-height:44px;border-radius:0;margin:0}
+/* v77: sin la raya amarilla del foco (el contorno quedaba recortado por la caja): el foco se marca adentro, limpio */
+.charla form{align-items:stretch;margin:0;transition:background .15s}.charla form:focus-within{background:#fffdf6;box-shadow:inset 0 2px 0 var(--olive)}
+.charla input:focus,.charla input:focus-visible,.charla form button:focus{outline:none}.charla form button:focus-visible{outline:none;box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+.side{position:fixed;inset:0;z-index:25;display:flex;justify-content:flex-end;background:rgba(4,7,16,.72)}
+/* v77: la barra de arriba (Juegos, chat, ☰) queda siempre por encima de los carteles y hojas del juego: siempre se puede salir. */
+.top{position:relative;z-index:21}
+/* (.app es position:fixed y arma su propia capa: los carteles empiezan debajo de la barra; --top-h lo pone inicio.js) */
+.modal{top:var(--top-h,0px)}
 .side[hidden]{display:none}
 .side-panel{width:min(340px,88vw);height:100%;overflow-y:auto;background:#10172a;color:var(--ink);border-left:1px solid var(--line);box-shadow:-24px 0 60px #000b;padding:calc(12px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;animation:sideIn .2s ease-out}
 @keyframes sideIn{from{transform:translateX(36px);opacity:.3}}
@@ -203,7 +210,58 @@ body.tactil.c-deslizar .ctrl-acc .cb small{display:none}
 
 /* v74: la lista de amigos para invitar no se achica dentro de la hoja (se veía una sola fila cortada): se ven 2 o 3 filas enteras y, si hay más, scroll */
 .sheet .ulist,.ulist.chica,.ulist.compacta,.ulist.corta{flex:none}.ulist li{flex:none}.ulist.chica,.ulist.compacta{max-height:max(156px,min(240px,34vh))}
+/* v77: Historia (la grilla de los 100 niveles y las estrellas), En contra (el panel del que ataca) y el modo espectador */
+.niveles{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-height:min(46vh,380px);overflow-y:auto;padding:2px;overscroll-behavior:contain}
+.niv{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50px;border-radius:10px;border:1px solid #c9b48a;background:#fbf7ee;color:var(--brown);padding:4px 2px}
+.niv b{font:800 16px/1 system-ui,sans-serif}.niv small{font-size:11px;color:#c9902a;min-height:13px;letter-spacing:-.05em}
+.niv.jefe{border-color:#c9472a;background:#fff1ea}.niv.sig{outline:none;box-shadow:inset 0 0 0 2px #3f7a5a;background:#eef7ef}.niv:disabled{opacity:.45}
+.estrellas{display:flex;justify-content:center;gap:6px;font-size:36px;line-height:1}.estrellas span{color:#d8ccb2}.estrellas span.on{color:#f2b51c;text-shadow:0 2px 0 #b07a10}
+body.atacando .ctrl-mov,body.atacando .ctrl-acc,body.mirando .ctrl-mov,body.mirando .ctrl-acc,body.atacando #b-escudo,body.mirando #b-escudo,body.atacando #desliz,body.mirando #desliz{visibility:hidden!important}
+.contra{position:absolute;z-index:6;left:50%;transform:translateX(-50%);bottom:6px;width:min(96%,440px);max-height:58%;overflow-y:auto;padding:8px 10px;border-radius:14px;background:rgba(10,16,32,.9);border:1px solid #2c3a5a;color:#e8eef8;display:flex;flex-direction:column;gap:6px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.contra[hidden]{display:none}
+.cp-cab{display:flex;justify-content:space-between;align-items:center;font-size:14px}.cp-pres b{color:#ffd23f;font-size:16px}
+.cp-tipos{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.cp-t{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 2px;border-radius:9px;border:1px solid #2c3a5a;background:#141d33;color:#cfe3ff;min-height:52px}
+.cp-t small{font-size:9.5px;line-height:1.1;white-space:nowrap;overflow:hidden;max-width:100%}.cp-t b{font-size:12px;color:#ffd23f}.cp-t.on{border-color:#3ff0e8;background:#16304a;box-shadow:inset 0 0 0 1px #3ff0e8}
+.cp-grilla{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.cp-c{aspect-ratio:1.5;min-height:22px;border-radius:5px;border:1px dashed #33415f;background:#0c1426;padding:0;display:grid;place-items:center}
+.cp-c:not(:empty){border-style:solid;border-color:#46577d;background:#16213a}
+.cp-ic{display:block;width:14px;height:11px;border-radius:3px 3px 1px 1px}
+.cp-ic.exp{background:#39ffb0}.cp-ic.tir{background:#c45bff}.cp-ic.bli{background:#9fc0ff;border-radius:2px}.cp-ic.pic{background:#ff8a2a}.cp-ic.div{background:#ff5ec4}.cp-ic.kam{background:#ff3b3b;border-radius:50% 50% 2px 2px}
+.cp-pie{display:flex;gap:6px}.cp-pie .btn{flex:1;min-height:40px}.cp-pie .btn.go{flex:2}
+.contra .note.cp-nota{color:#9fb6cc;margin:0;font-size:12px}
+.mirando{position:absolute;z-index:6;left:0;right:0;margin:0 auto;width:fit-content;bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;padding:8px 12px;border-radius:14px;background:rgba(10,16,32,.9);border:1px solid #2c3a5a;color:#e8eef8;font-size:13px;max-width:calc(100% - 20px);box-sizing:border-box}.mirando span{white-space:nowrap}.mirando .btn{flex:none;width:auto;min-height:36px;padding:0 12px}
+.mirando[hidden]{display:none}.mirando b{color:#ffd9a8}
+.modos-en .btn{flex:1 1 45%}
 </style>
+<script>
+/* ───────── v77 · El sonido de la app no corta la música del celular ─────────
+   Pedido del 25/10: «no se puede escuchar música en el celular mientras se juega».
+   · En iOS (Safari 16.4+ y la app instalada) el sonido de una página usa por defecto una «sesión de audio» que pausa a
+     Spotify/Apple Music. Con navigator.audioSession.type = 'ambient' la app SE MEZCLA con la música de otras apps.
+     Contra: en 'ambient' el sonido de la app respeta el interruptor de silencio (con el celu en silencio, la app no suena).
+   · Va antes que todo (es el primer script de cada página) y además envuelve AudioContext para volver a ponerlo justo antes
+     de crear cada contexto (iOS a veces lo resetea al volver de segundo plano).
+   · En Android y en la compu no hace falta: Chrome ya mezcla el audio de la página con el de otras apps.
+   · iOS más viejo (sin audioSession): no hay forma desde una página web de no pausar la otra música si la app suena;
+     ahí lo único que se puede hacer es no crear audio hasta que haga falta (los juegos ya lo crean recién con el primer
+     sonido) y bajar el sonido de la app desde sus menús. */
+(function(){
+'use strict';
+function ambient(){try{const s=navigator.audioSession;if(s&&s.type!=='ambient')s.type='ambient';}catch(_){}}
+ambient();
+for(const k of ['AudioContext','webkitAudioContext']){
+  const C=window[k];if(!C||C.__ambient)continue;
+  const W=function(...a){ambient();return new C(...a);};
+  W.prototype=C.prototype;W.__ambient=true;try{Object.setPrototypeOf(W,C);}catch(_){}
+  try{window[k]=W;}catch(_){}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)ambient();});
+window.addEventListener('pageshow',ambient);
+window.SONIDO={ambient,tipo:()=>{try{return navigator.audioSession?navigator.audioSession.type:null;}catch(_){return null;}}};
+})();
+
+</script>
 <script>
 /* ───────── Latido (v76): UNA sola consulta periódica a la planilla para toda la página ─────────
    Antes cada parte preguntaba por su lado (el chat cada 4 s, el buzón del juego cada 5–8 s, los amigos del menú
@@ -252,7 +310,7 @@ function intervalo(){
   return ms;
 }
 function programar(ms){
-  if(L.viejo||!acct()||!Object.keys(L.parts).length)return;
+  if(L.viejo||L.pausa||!acct()||!Object.keys(L.parts).length)return;
   if(ms===undefined)ms=Math.max(0,L.ult+intervalo()-Date.now());
   const cuando=Date.now()+ms;
   if(L.timer&&L.prox&&L.prox<=cuando)return;   // ya hay uno antes
@@ -261,7 +319,7 @@ function programar(ms){
 function reprogramar(){clearTimeout(L.timer);L.timer=0;L.prox=0;programar();}
 async function tick(){
   L.timer=0;L.prox=0;
-  if(L.viejo)return;
+  if(L.viejo||L.pausa)return;
   const a=acct();if(!a)return;
   if(L.enCurso){L.otra=true;return;}
   L.enCurso=true;L.ult=Date.now();
@@ -320,6 +378,10 @@ window.LATIDO={
   buzon(){return L.j&&L.j.bz&&Date.now()-L.jAt<2500?Object.assign({ok:true},L.j.bz):null;},
   espera(t0){L.mesaHasta=Date.now()+10000;return Date.now()-(t0||0)<90000?700:2000;},
   mesa(seg){L.mesaHasta=Date.now()+(seg||10)*1000;programar();},
+  // v77: la estancia abre un juego en una ventanita adentro (un iframe con su propio latido): mientras tanto el de la estancia
+  // se calla, para que no pregunten los dos ni salgan dos veces las invitaciones. Al cerrar la ventanita, pregunta enseguida.
+  pausar(v){v=!!v;if(v===!!L.pausa)return;L.pausa=v;if(v){clearTimeout(L.timer);L.timer=0;L.prox=0;}else programar(0);},
+  get pausado(){return !!L.pausa;},
   intervalo,
   get estado(){return {quietos:L.quietos,ms:intervalo(),n:L.n,ok:L.ok,viejo:L.viejo};}
 };
@@ -363,11 +425,13 @@ const PARTES={
   pool:['pool-modo','pool-dif','pool-serie','pool-meta','pool-guia','pool-reloj','pool-reloj-on','pool-n','pool-sonido','pool-vibrar','pool-zurdo','pool-soltar','pool-sens','pool-efecto-fijo','pool-ayuda','pool-tutorial-ok','pool-partida-v1',['pool-xp-hechas','union']],
   ludo:['ludo-dif','ludo-bots','ludo-color','ludo-eq','ludo-reglas','ludo-auto1','ludo-ayuda','ludo-mesa-n','ludo-partida-v1',['ludo-xp-hechas','union']],
   poblar:['poblar-dificultad','poblar-jugadores','poblar-jugadores-online','poblar-ayuda','poblar-partida-v2',['poblar-xp-hechas','union']],
-  solos:['sudoku-dif','sudoku-errores','sudoku-choques','sudoku-zona','sudoku-iguales','sudoku-notasAuto','sudoku-faltan','sudoku-ayuda','sudoku-partida-v1',['sudoku-records-v1','min'],['sudoku-dias-v1','claves'],['sudoku-xp-hechas','union'],
-    'solitario-robo','solitario-consol','solitario-nivel','solitario-ayuda','solitario-partida-v1','solitario-racha',['solitario-records-v1','recsol'],['solitario-dias-v1','claves'],['solitario-xp-hechas','union'],
-    'buscaminas-dif','buscaminas-resaltar','buscaminas-listos','buscaminas-chord','buscaminas-mantener','buscaminas-vibrar','buscaminas-ayuda','buscaminas-partida-v1',['buscaminas-records-v1','min'],['buscaminas-dias-v1','claves'],['buscaminas-stats-v1','nuevo'],['buscaminas-xp-hechas','union']],
+  solos:['sudoku-dif','sudoku-errores','sudoku-choques','sudoku-zona','sudoku-iguales','sudoku-notasAuto','sudoku-faltan','sudoku-ayuda','sudoku-partida-v1','sudoku-dia-curso-v1',['sudoku-records-v1','min'],['sudoku-dias-v1','claves'],['sudoku-xp-hechas','union'],
+    'solitario-robo','solitario-consol','solitario-nivel','solitario-ayuda','solitario-partida-v1','solitario-dia-curso-v1','solitario-racha',['solitario-records-v1','recsol'],['solitario-dias-v1','claves'],['solitario-xp-hechas','union'],
+    'buscaminas-dif','buscaminas-resaltar','buscaminas-listos','buscaminas-chord','buscaminas-mantener','buscaminas-vibrar','buscaminas-ayuda','buscaminas-partida-v1','buscaminas-dia-curso-v1',['buscaminas-records-v1','min'],['buscaminas-dias-v1','claves'],['buscaminas-stats-v1','nuevo'],['buscaminas-xp-hechas','union']],
   laberinto:['laberinto-pref','laberinto-dif','laberinto-libre','laberinto-ayuda','laberinto-sonido','laberinto-partida-v1',['laberinto-records-v1','max'],['laberinto-campana-v1','max'],['laberinto-dias-v1','claves'],['laberinto-xp-hechas','union']],   // v73
-  invasores:['invasores-ajustes','invasores-cfg','invasores-taller','invasores-tut','invasores-partida-v1',['invasores-records','max'],['invasores-dia','claves'],['invasores-xp-hechas','union']],   // v73 InvasorAR
+  invasores:['invasores-ajustes','invasores-cfg','invasores-taller','invasores-tut','invasores-partida-v1',['invasores-records','max'],['invasores-dia','claves'],['invasores-xp-hechas','union'],['invasores-historia','max']],   // v73 InvasorAR · v77 progreso de Historia
+  bloquear:['bloques-resume-v1'],   // v77: la partida Solo de BloqueAR que quedó a medias (el resto de BloqueAR sincroniza aparte)
+  ajedrez:['ajedrez-dif','ajedrez-color','ajedrez-tc','ajedrez-ayuda','ajedrez-sonido','ajedrez-partida-v1',['ajedrez-xp-hechas','union']],   // v77: la partida contra la compu sigue en otro dispositivo
   pampa:['pampa-resultado','pampa-visto','pampa-resumen','pampa-cruce','pampa-copas','pampa-ayuda-9'],
   gen:[['bloques-novedades','maxnum'],['bloques-chat-read-{me}','max'],['bloques-chat-borr-{me}','max'],'bloques-chat-frase','bloques-chat-modo',
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
@@ -600,11 +664,29 @@ const GRACIA_FONDO=Number(ls.get('recon-gracia'))?GRACIA_BASE*3:300000;
 const FONDO={yoDesde:0};
 const MARCA='\u0001fondo:';
 const CANALES=new Set(),FUERA=new Map();
+const PING='\u0001ping:',PONG='\u0001pong:',RTT=new WeakMap();
+setInterval(()=>{if(document.hidden)return;const t=String(Date.now());for(const ch of CANALES){try{if(ch.readyState==='open')ch.send(PING+t);}catch(_){}}},5000);
+function rtt(ch){const v=ch&&RTT.get(ch);return v==null?Infinity:v;}
+/* v77 · RELEVO: si el que lleva la mesa se va, la sigue otro (el «suplente»).
+   · El que lleva la mesa elige el suplente: el jugador con mejor conexión (menor RTT medido con los ping de arriba) y,
+     a igualdad, el primero. Le manda a él solo el estado completo de la partida (también en los juegos con cartas tapadas:
+     así, si la mesa se cae, nadie pierde la mano) y a todos quién es el suplente. Lo hace cada juego (uno, truco, ludo, pool).
+   · Si la mesa se cae y no vuelve en RELEVO_MS (o se fue a propósito: enseguida), el suplente pasa a llevarla: arma la mesa
+     con ese estado, la compu ocupa los lugares de los que faltan y les manda a todos la invitación de vuelta de la misma mesa
+     (los demás ya la están buscando y aceptan la del suplente igual que la del que llevaba la mesa).
+   · El que llevaba la mesa, si vuelve, queda como uno más: busca la invitación del suplente. */
+function elegirSuplente(lugares,excluir){let mejor=-1,r=Infinity;
+  (lugares||[]).forEach((L,i)=>{if(i===excluir||!L||L.tipo!=='humano'||!L.ch||L.ch.readyState!=='open')return;const x=rtt(L.ch);if(mejor<0||x<r){mejor=i;r=x;}});return mejor;}
+function relevoMs(){return Number(ls.get('recon-relevo'))||(fondoOtro()?45000:20000);}
 function registrar(ch){
   if(!ch||CANALES.has(ch))return;CANALES.add(ch);
   // Primer oyente del canal: lo nuestro no le llega al juego.
   // Cada conexión lleva su propio «se fue un momento» (se borra con el «volví» o a los GRACIA_FONDO).
-  ch.addEventListener('message',e=>{if(typeof e.data==='string'&&e.data.startsWith(MARCA)){e.stopImmediatePropagation();if(e.data.endsWith('1'))FUERA.set(ch,Date.now());else FUERA.delete(ch);}});
+  ch.addEventListener('message',e=>{if(typeof e.data!=='string'||e.data.charCodeAt(0)!==1)return;
+    if(e.data.startsWith(MARCA)){e.stopImmediatePropagation();if(e.data.endsWith('1'))FUERA.set(ch,Date.now());else FUERA.delete(ch);return;}
+    // v77 · RTT: «ping» de un lado, «pong» del otro; cuánto tarda cada conexión (para elegir quién sigue la mesa si el que la lleva se va)
+    if(e.data.startsWith(PING)){e.stopImmediatePropagation();try{if(ch.readyState==='open')ch.send(PONG+e.data.slice(PING.length));}catch(_){}return;}
+    if(e.data.startsWith(PONG)){e.stopImmediatePropagation();const ms=Date.now()-Number(e.data.slice(PONG.length));if(ms>=0&&ms<60000){const v=RTT.get(ch);RTT.set(ch,v==null?ms:Math.round(v*.7+ms*.3));}return;}});
   ch.addEventListener('close',()=>CANALES.delete(ch));
 }
 function avisarFondo(si){for(const ch of CANALES){try{if(ch.readyState==='open')ch.send(MARCA+(si?'1':'0'));}catch(_){}}}
@@ -667,8 +749,14 @@ async function call(p,ms=12000){
 /* ── La mesa en la que estás ── */
 function recordar(juego,info){ls.set('recon-'+juego,JSON.stringify({...info,t:Date.now()}));}
 // (v67) Si la página se fue a segundo plano después del último recordar(), la partida te espera más (GRACIA_FONDO).
-function recuerdo(juego){const o=ls.json('recon-'+juego,null);if(!o)return null;const f=Number(ls.get('recon-fondo'))||0,lim=f&&f>=(o.t||0)-5000?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;return Date.now()-(o.t||0)<lim?o:null;}
-function olvidar(juego){ls.set('recon-'+juego,null);}
+// v77 · BUG «a los demás les aparece que puedo volver, pero yo no puedo»: la página que se abre de nuevo calculaba su espera
+// con t + RECON.GRACIA, y en una página recién abierta GRACIA vale 60 s aunque la mesa te espere 5 min (saliste «un momento»).
+// Ahora recuerdo() devuelve t corrido para que t + GRACIA sea justo hasta cuándo te espera la mesa (t0: el original; hasta).
+function limite(o){const f=Number(ls.get('recon-fondo'))||0;return f&&f>=(o.t||0)-5000?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;}
+function recuerdo(juego){const o=ls.json('recon-'+juego,null);if(!o)return null;const lim=limite(o),t0=o.t||0;
+  if(Date.now()-t0>=lim||ls.get('recon-ab-'+juego+'-'+o.mesa))return null;const hasta=Math.max(t0+lim,Date.now()+15000);   // (al menos 15 s para buscar: la mesa cuenta su espera desde el corte, que pudo ser después)
+  return {...o,t0,t:hasta-GRACIA_BASE,hasta};}
+function olvidar(juego){ls.set('recon-'+juego,null);try{quitar('recon-aviso');}catch(_){}}
 /* ── Cartel con cuenta regresiva ── */
 const CART=new Map();
 function mmss(ms){const s=Math.max(0,Math.ceil(ms/1000));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
@@ -677,14 +765,16 @@ function css(){if(document.getElementById('recon-css'))return;const s=document.c
 .recon-bar>div{pointer-events:auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(20,26,34,.92);color:#f4f1e8;border:1px solid rgba(242,193,78,.55);box-shadow:0 6px 20px rgba(0,0,0,.35);font:600 13.5px/1.3 system-ui,-apple-system,sans-serif;max-width:100%}
 .recon-bar>div i{font-style:normal}.recon-bar>div b{font-variant-numeric:tabular-nums;color:#f2c14e;margin-left:auto}
 .recon-bar .recon-sp{width:12px;height:12px;border-radius:50%;border:2px solid #f2c14e;border-right-color:transparent;animation:recon-g 1s linear infinite;flex:none}
+.recon-bar>div.recon-aviso{border-radius:16px;flex-wrap:wrap}.recon-bar>div.recon-aviso .recon-t{flex:1 1 150px}
 @keyframes recon-g{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.recon-bar .recon-sp{animation:none}}`;
   (document.head||document.documentElement).appendChild(s);}
 function barra(){let b=document.querySelector('.recon-bar');if(!b){css();b=document.createElement('div');b.className='recon-bar';b.setAttribute('role','status');b.setAttribute('aria-live','polite');document.body.appendChild(b);}return b;}
 function cartel(id,texto,hasta,onFin){quitar(id);
   if(fondoOtro()&&/se cort|desconect/i.test(String(texto)))texto=String(texto).replace(/se cortó|se desconectó/i,'salió un momento de la app');const el=document.createElement('div');el.dataset.recon=id;
   el.innerHTML='<span class="recon-sp" aria-hidden="true"></span><span class="recon-t"></span><b></b>';el.querySelector('.recon-t').textContent=texto;barra().appendChild(el);
+  if(/^Volviendo a la partida/i.test(String(texto)))setTimeout(()=>{try{if(CART.get(id)&&CART.get(id).el===el)abandonarDesdeCartel(id,el);}catch(_){}},0);
   const pinta=()=>{const r=hasta-Date.now();el.querySelector('b').textContent=mmss(r);if(r<=0){quitar(id);try{onFin&&onFin();}catch(e){console.warn(e);}}};
-  pinta();const iv=setInterval(pinta,500);CART.set(id,{el,iv});return el;}
+  pinta();const iv=setInterval(pinta,500);CART.set(id,{el,iv,texto:String(texto),onFin});return el;}
 function quitar(id){const c=CART.get(id);if(!c)return;clearInterval(c.iv);c.el.remove();CART.delete(id);}
 /* ── El que lleva la mesa: manda la invitación de vuelta y espera ── */
 function reinvitar(o){
@@ -696,11 +786,19 @@ function reinvitar(o){
     while(!fin()){await sleep(window.LATIDO?LATIDO.espera(t0):2000);if(fin())break;
       let r;try{r=await call({accion:'buzon',usuario:a.usuario,token:a.token,id});}catch(_){continue;}
       if(r.estado==='aceptada'&&r.respuesta){vivo=false;let sdp='';try{sdp=JSON.parse(r.respuesta).sdp||'';}catch(_){}o.onRespuesta(sdp,id,r.respuesta);return;}   // (raw: para respuestas que no son JSON, como las de BloqueAR)
-      if(r.estado==='rechazada'||r.estado==='cancelada'||r.estado==='vencida')break;}
+      if(r.estado==='rechazada'){vivo=false;dejoLaMesa(o.para);return;}   // v77: abandonó («Abandonar»): no se lo espera más
+      if(r.estado==='cancelada'||r.estado==='vencida')break;}
     if(id){try{await call({accion:'cancelar',usuario:a.usuario,token:a.token,id});}catch(_){}}
   })();
   return {cancelar(){vivo=false;},get id(){return id;}};
 }
+/* v77 · El que se cortó apretó «Abandonar»: se terminan ya los carteles «X se cortó · esperándolo…» de esa persona
+   (su onFin es lo mismo que pasa cuando se acaba la espera: la compu ocupa su lugar o la partida termina) y se avisa. */
+function dejoLaMesa(nom){const n=String(nom||'').toLowerCase();if(!n)return;let hubo=false;
+  for(const [id,c] of [...CART]){if(String(c.texto||'').toLowerCase().includes(n)&&/cort|momento|esperándol|desconect/i.test(c.texto)){hubo=true;quitar(id);try{c.onFin&&c.onFin();}catch(e){console.warn(e);}}}
+  aviso(`${nom} abandonó la partida.`);return hubo;}
+function aviso(txt){try{if(typeof window.toast==='function'){window.toast(txt);return;}}catch(_){}
+  try{css();const el=document.createElement('div');el.textContent=txt;el.style.cssText='opacity:1;transition:opacity .4s';barra().appendChild(el);setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),450);},3800);}catch(_){}}
 /* ── El que se cortó: busca la invitación de vuelta ── */
 function esVuelta(inv,prefijo,mesa){const of=String(inv&&inv.oferta||'');if(!of.startsWith(prefijo))return false;
   try{const o=JSON.parse(of.slice(prefijo.length));return !!o.re&&String(o.re)===String(mesa);}catch(_){return false;}}
@@ -714,7 +812,43 @@ function buscarVuelta(o){
   })();
   return {cancelar(){vivo=false;}};
 }
-window.RECON={get GRACIA(){return fondoOtro()?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;},GRACIA_BASE,GRACIA_FONDO,fondo,recordar,recuerdo,olvidar,cartel,quitar,mmss,reinvitar,buscarVuelta,esVuelta};
+/* ── v77 · «Tenés una partida en curso: Volver / Abandonar» en TODAS las páginas ──
+   Antes, volver sólo pasaba si abrías la página de ese juego; si reabrías la app en el inicio (o en otro juego) no había forma
+   de volver aunque la mesa te estuviera esperando. Ahora cualquier página muestra el renglón con la cuenta regresiva:
+   · Volver → abre el juego, que acepta solo la invitación de vuelta (como siempre).
+   · Abandonar → avisa a la planilla (accion «abandonar»): la invitación de vuelta (la que está y las que vengan) se rechaza
+     sola, la mesa deja de esperarte enseguida y la compu ocupa tu lugar. En la página del juego, el cartel «Volviendo a la
+     partida…» también trae «Abandonar». */
+const JUEGOS={uno:['uno.html','UnoAR'],truco:['truco.html','TrucAR'],'truco-eq':['truco.html','TrucAR'],ludo:['ludo.html','LudoAR'],pool:['pool.html','PoolAR'],poblar:['poblar.html','PoblAR']};   // (InvasorAR no: en el duelo cada uno juega su campo en su aparato; si cerrás la app, esa partida no se puede retomar)
+const pagina=()=>{try{return (location.pathname.split('/').pop()||'index.html').toLowerCase();}catch(_){return '';}};
+function enCurso(){const out=[];for(const j of Object.keys(JUEGOS)){const rc=recuerdo(j);if(rc&&rc.rol!=='host'&&rc.mesa&&rc.host)out.push([j,rc]);}return out;}
+async function abandonar(juego){const o=ls.json('recon-'+juego,null);olvidar(juego);if(!o||!o.mesa)return false;
+  ls.set('recon-ab-'+juego+'-'+o.mesa,'1');const a=acct();if(!a||!o.host)return false;
+  for(let i=0;i<4;i++){try{await call({accion:'abandonar',usuario:a.usuario,token:a.token,mesa:String(o.mesa),de:String(o.host)});return true;}catch(_){await sleep(1500);}}
+  return false;}
+function boton(txt,fn,fuerte){const b=document.createElement('button');b.type='button';b.textContent=txt;
+  b.style.cssText='font:700 12.5px/1 system-ui,sans-serif;border-radius:999px;padding:6px 11px;cursor:pointer;border:1px solid rgba(242,193,78,.7);'+(fuerte?'background:#f2c14e;color:#1a1f27':'background:transparent;color:#f4f1e8');
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();fn();});return b;}
+let AV_T=0;
+function avisoEnCurso(){
+  if(CART.has('recon-aviso'))return;const L=enCurso();if(!L.length)return;
+  const pag=pagina(),[j,rc]=L[0],[url,nom]=JUEGOS[j];
+  if(pag===url)return;   // en la página del juego se encarga el juego (y su cartel trae «Abandonar»)
+  if(Date.now()-rc.t0<8000){clearTimeout(AV_T);AV_T=setTimeout(arrancarAviso,8200-(Date.now()-rc.t0));return;}   // ¿todavía estás jugando (en otra pestaña)? se mira de nuevo en un rato
+  const el=cartel('recon-aviso',`Tenés una partida de ${nom} en curso con ${rc.host}`,rc.hasta,()=>{});
+  el.classList.add('recon-aviso');el.querySelector('.recon-sp').remove();
+  el.insertBefore(boton('Volver',()=>{location.href=url;},true),el.querySelector('b'));
+  el.insertBefore(boton('Abandonar',()=>{quitar('recon-aviso');abandonar(j).then(()=>aviso(`Abandonaste la partida de ${nom}.`));}),el.querySelector('b'));
+}
+// En la página del juego: «Volviendo a la partida de X…» + «Abandonar» (recarga la página sin esa mesa).
+function abandonarDesdeCartel(id,el){
+  const pag=pagina(),j=Object.keys(JUEGOS).find(k=>JUEGOS[k][0]===pag&&ls.get('recon-'+k));if(!j)return;
+  el.insertBefore(boton('Abandonar',()=>{const c=CART.get(id);if(c)c.onFin=null;quitar(id);abandonar(j).finally(()=>{try{location.replace(location.pathname);}catch(_){location.reload();}});}),el.querySelector('b'));
+}
+function arrancarAviso(){try{avisoEnCurso();}catch(e){console.warn(e);}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(arrancarAviso,1200));else setTimeout(arrancarAviso,1200);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(arrancarAviso,1500);});
+window.RECON={get GRACIA(){return fondoOtro()?Math.max(GRACIA_BASE,GRACIA_FONDO):GRACIA_BASE;},GRACIA_BASE,GRACIA_FONDO,fondo,recordar,recuerdo,olvidar,cartel,quitar,mmss,reinvitar,buscarVuelta,esVuelta,abandonar,enCurso,dejoLaMesa,avisoEnCurso,JUEGOS,rtt,elegirSuplente,relevoMs};
 })();
 
 </script>
@@ -2403,6 +2537,7 @@ function aplicarPresencia(pr){
   S.users=S.users.map(u=>{const k=lc(u.usuario),en=M.has(k);return en===u.enLinea&&JSON.stringify(u.estado||null)===JSON.stringify(en?M.get(k):null)?u:{...u,enLinea:en,estado:en?M.get(k):null};});
   S.users.sort((a,b)=>(b.enLinea-a.enLinea)||a.usuario.localeCompare(b.usuario));
   if(on(S.users)!==antes)avisarAmigos();
+  try{revisarConexiones();}catch(_){}
   return falta;
 }
 async function recibirChat(j){
@@ -2441,7 +2576,7 @@ async function poll(){
 }
 // Si la planilla no conoce «latido», el chat vuelve a preguntar por su cuenta (como en la v75).
 window.addEventListener('bloques-latido-viejo',()=>{S.err='';schedule();if(!S.polling)setTimeout(poll,200);});
-async function loadUsers(){try{const j=await call({accion:'usuarios'},false);if(Array.isArray(j.usuarios)){try{if(window.TITULOS)TITULOS.guardarLista(j.usuarios,j.cau);}catch(_){}const on=a=>a.filter(u=>u.enLinea).map(u=>lc(u.usuario)).sort().join(',');const ch=on(j.usuarios)!==on(S.users);S.users=j.usuarios;S.usersAt=Date.now();if(ch)avisarAmigos();}}catch(_){}}
+async function loadUsers(){try{const j=await call({accion:'usuarios'},false);if(Array.isArray(j.usuarios)){try{if(window.TITULOS)TITULOS.guardarLista(j.usuarios,j.cau);}catch(_){}const on=a=>a.filter(u=>u.enLinea).map(u=>lc(u.usuario)).sort().join(',');const ch=on(j.usuarios)!==on(S.users);S.users=j.usuarios;S.usersAt=Date.now();if(ch)avisarAmigos();try{revisarConexiones();}catch(_){}}}catch(_){}}
 const lastFrom=n=>{let t=0;if(esGK(n)){for(const m of S.msgs)if(conv(m)===lc(n)&&lc(m.de)!==lc(S.me)&&m.t>t)t=m.t;return t;}for(const m of S.msgs)if(!esG(m)&&lc(m.de)===lc(n)&&m.t>t)t=m.t;return t;};
 async function fetchNew(pre){
   const j=pre||await call(auth({accion:'mensajes',desde:S.last}));
@@ -2519,7 +2654,7 @@ function arrived(m){
   if(viewing){if(m.tipo==='zumbido')shake();else beep('soft');markRead(key);return;}
   if(ST.m==='dnd'){badges();return;}
   if(document.hidden){sysNotify(m);flashTitle();}
-  if(H.busy()){beep(m.tipo==='zumbido'?'soft':'soft');badges();return;}
+  if(H.busy()){beep(m.tipo==='zumbido'?'soft':'soft');FP.ms.push(m);badges();return;}   // v77: se cuentan para «Recibiste X mensajes»
   notice(m);
 }
 function notice(m){
@@ -2545,6 +2680,41 @@ function sysNotify(m){
     const g=esG(m),u=userOf(m.de),n=new Notification(g?`👥 ${conNombre(m.para)}`:`${u?u.avatar+' ':''}${m.de}`,{body:g?`${m.de}: ${preview(m)}`:preview(m),tag:'bloques-chat-'+conv(m),silent:false});
     n.onclick=()=>{window.focus();open(g?m.para:m.de);n.close();};}catch(_){}
 }
+/* v77: avisos chiquitos arriba (una píldora, no un cartel) — «Recibiste X mensajes» al terminar la partida y «Se conectó…».
+   Mientras jugás se guardan; cuando la partida termina (H.busy() pasa a falso) sale un solo aviso con todo junto. */
+const FP={ms:[],cola:[],busy:false,k:'bloques-am-on-v77'};
+function avisoAmigosOn(){return ls.get('bloques-aviso-amigos')!=='0';}
+function mini(txt,sub,onTap,cls){
+  const box=$('.cx-toasts');if(!box)return null;const el=document.createElement('button');el.type='button';el.className='cx-toast cx-mini'+(cls?' '+cls:'');
+  el.innerHTML=`<span><b>${esc(txt)}</b>${sub?`<small>${esc(sub)}</small>`:''}</span>`;
+  el.onclick=()=>{el.remove();try{onTap&&onTap();}catch(_){}};
+  box.appendChild(el);while(box.children.length>3)box.firstChild.remove();
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},5200);return el;}
+function finPartida(){
+  const L=FP.ms.splice(0).filter(m=>m.t>(S.read[conv(m)]||0)&&!(S.open&&S.view==='conv'&&lc(S.con)===conv(m)));
+  if(!L.length||ST.m==='dnd')return;
+  const keys=[...new Set(L.map(m=>esG(m)?m.para:m.de))],names=keys.map(conNombre),n=L.length;
+  FP.msgT=Date.now();mini(`💬 Recibiste ${n} ${n===1?'mensaje':'mensajes'}`,(names.length>3?names.slice(0,3).join(', ')+'…':names.join(', ')),()=>open(keys.length===1?keys[0]:undefined),'cx-msgs');}
+function revisarConexiones(){
+  if(!S.users.length||!S.me)return;const now=Date.now();let D=ls.json(FP.k,null);if(!D||typeof D!=='object')D={t:0,v:{},a:{}};D.v=D.v||{};D.a=D.a||{};
+  // Recién abrís (o volvés después de un rato): no avisa de los que ya estaban; sólo de los que se conectan desde ahora.
+  const calla=!D.t||now-D.t>180000,A=new Set(S.am.a.map(lc)),me=lc(S.me);
+  for(const u of S.users){const k=lc(u.usuario);if(!u.enLinea||!A.has(k)||k===me)continue;
+    // Sin repetir: no avisa si estuvo conectado en los últimos 10 minutos (entra y sale) ni más de una vez cada media hora.
+    if(!calla&&now-(D.v[k]||0)>600000&&now-(D.a[k]||0)>1800000&&avisoAmigosOn()){D.a[k]=now;if(!FP.cola.some(x=>lc(x)===k))FP.cola.push(u.usuario);}
+    D.v[k]=now;}
+  for(const o of [D.v,D.a])for(const k in o)if(now-o[k]>2*864e5)delete o[k];
+  D.t=now;ls.set(FP.k,JSON.stringify(D));soltarConexiones();badges();}
+function soltarConexiones(){
+  if(!FP.cola.length||H.busy()||Date.now()-(FP.msgT||0)<5600)return;   // durante la partida espera (y no se apila con «Recibiste…»)
+  const L=FP.cola.splice(0).filter(n=>{const u=userOf(n);return u&&u.enLinea&&!S.msgs.some(m=>!esG(m)&&lc(m.de)===lc(n)&&Date.now()-m.t<600000&&!(S.plain[m.id]&&S.plain[m.id].card&&S.plain[m.id].card.am));});   // si te acaba de escribir, ya sabés que está
+  if(!L.length||ST.m==='dnd'||!avisoAmigosOn())return;
+  const t=L.length===1?`🟢 ${L[0]} se conectó`:`🟢 Se conectaron ${L.length>3?L.slice(0,3).join(', ')+'…':L.slice(0,-1).join(', ')+' y '+L[L.length-1]}`;
+  const u=L.length===1?userOf(L[0]):null,j=u&&u.estado&&GAMES[u.estado.j]?'en '+GAMES[u.estado.j]:'';
+  mini(t,j?j+' · tocá para ver tus amigos':'Tocá para ver tus amigos',verAmigos,'cx-amon');}
+function verAmigos(){S.tab='amigos';ls.set('bloques-chat-tab','amigos');S.view='list';S.con=null;open();const p=$('.cx-panel');if(p){p.dataset.sig='';render();}}
+setInterval(()=>{if(S.open)return;   // con el chat abierto (que pausa el juego) no cuenta como «terminó la partida»
+  let b=false;try{b=!!H.busy();}catch(_){}if(FP.busy&&!b)finPartida();FP.busy=b;if(!b)soltarConexiones();},1500);
 function toast(who,txt,openWho=who){
   const box=$('.cx-toasts');if(!box)return;const u=esGK(openWho)?{avatar:'👥',color:'#8b7cff'}:userOf(who);
   const el=document.createElement('button');el.type='button';el.className='cx-toast';
@@ -2556,6 +2726,9 @@ function toast(who,txt,openWho=who){
 function badges(){
   const n=unreadTotal();
   document.querySelectorAll('[data-chat-btn]').forEach(b=>{let s=b.querySelector('.cx-badge');if(!n){if(s)s.remove();return;}if(!s){s=document.createElement('span');s.className='cx-badge';b.appendChild(s);}s.textContent=n>9?'9+':String(n);});
+  // v77: puntito verde en el 💬 cuando hay amigos conectados (tocá el 💬 › 🤝 Amigos para verlos).
+  const A=new Set(S.am.a.map(lc)),on=S.users.filter(u=>u.enLinea&&A.has(lc(u.usuario))&&lc(u.usuario)!==lc(S.me)).length;
+  document.querySelectorAll('[data-chat-btn]').forEach(b=>{let d=b.querySelector('.cx-ondot');if(!on){if(d)d.remove();b.title='Chat';return;}if(!d){d=document.createElement('span');d.className='cx-ondot';d.setAttribute('aria-hidden','true');b.appendChild(d);}b.title=`Chat · ${on} ${on===1?'amigo conectado':'amigos conectados'}`;});
   if(!document.hidden)document.title=baseTitle;
 }
 
@@ -2573,7 +2746,8 @@ function ensureDom(){
   p.addEventListener('click',onClick);
   p.addEventListener('focusout',e=>{if(e.target.id==='cx-frase')saveFrase(e.target.value);});
   p.addEventListener('input',e=>{if(e.target.id==='cx-in'){S.typedAt=Date.now();autoGrow(e.target);}
-    if(e.target.id==='cx-gq'){S.gq=e.target.value;const l=$('.cx-list');if(l)l.innerHTML=filasGlobal();}});
+    if(e.target.id==='cx-gq'){S.gq=e.target.value;const l=$('.cx-list');if(l)l.innerHTML=filasGlobal();}
+    if(e.target.id==='cx-aq'){S.aq=e.target.value;const l=$('.cx-list');if(l)l.innerHTML=filasAmigos();}});
   p.addEventListener('keydown',e=>{
     if(e.target.id==='cx-in'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send();}
     if(e.target.id==='cx-pin'&&e.key==='Enter'){e.preventDefault();activate();}
@@ -2612,14 +2786,15 @@ function render(){
     <div class="cx-modes" role="group" aria-label="Mi estado"><button type="button" data-a="modo" data-m="on">🟢 Conectado</button><button type="button" data-a="modo" data-m="aus">🌙 Ausente</button><button type="button" data-a="modo" data-m="dnd">⛔ No molestar</button></div>`+
     `<div class="cx-tabs" role="tablist" aria-label="Listas">${[['charlas','💬 Charlas'],['amigos','🤝 Amigos'],['global','🌎 Global']].map(([k,t])=>`<button type="button" role="tab" data-a="tab" data-t="${k}" aria-selected="${k===tab}" class="${k===tab?'on':''}">${t}${k==='amigos'&&nIn?` <span class="cx-n">${nIn}</span>`:''}</button>`).join('')}</div>`+
     (S.err?`<p class="cx-err cx-pad">${esc(S.err)}</p>`:'')+(tab==='charlas'?`<button type="button" class="cx-ask cx-gnew" data-a="gnuevo">👥 Armar un grupo</button>`+(canAsk?`<button type="button" class="cx-ask" data-a="permiso">🔔 Avisarme en la compu cuando me escriben</button>`:''):'')+
+    (tab==='amigos'&&S.am.a.length>3?`<div class="cx-pad cx-gqw"><input id="cx-aq" type="search" placeholder="Buscar entre tus amigos" value="${esc(S.aq||'')}" autocomplete="off"></div>`:'')+
     (tab==='global'?`<div class="cx-pad cx-gqw"><input id="cx-gq" type="search" placeholder="Buscar a alguien por su nombre" value="${esc(S.gq)}" autocomplete="off"></div>`:'')+
     `<div class="cx-list">${rows}</div>`;
   modeBtns();
 }
 // Una fila de persona. extra: botón de la derecha (agregar, aceptar…); conDel: con «⋯» para borrar la charla.
-function filaUsuario(u,m,extra,conDel){
+function filaUsuario(u,m,extra,conDel,subX){
     const n=unreadFrom(u.usuario),typing=S.typing.some(x=>lc(x)===lc(u.usuario)),am=amEstado(u.usuario)==='amigo';
-    const sub=typing?'<i class="cx-typing">escribiendo…</i>':m?esc((lc(m.de)===lc(S.me)?'Vos: ':'')+(m.tipo==='zumbido'?'📳 Zumbido':m.tipo==='reac'?'Reaccionó a un mensaje':previewOwn(m))):esc(u.frase||estTxt(u));
+    const sub=typing?'<i class="cx-typing">escribiendo…</i>':m?esc((lc(m.de)===lc(S.me)?'Vos: ':'')+(m.tipo==='zumbido'?'📳 Zumbido':m.tipo==='reac'?'Reaccionó a un mensaje':previewOwn(m))):esc(subX||u.frase||estTxt(u));
     const row=`<button type="button" class="cx-row${n?' unread':''}" data-con="${esc(u.usuario)}">${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}" title="${esc(estTxt(u))}"></i>${am?'<em class="cx-st" title="Amigo">🤝</em>':''}${u.estado&&u.estado.g?'<em class="cx-st">🎮</em>':''}</b><small>${sub}</small></span><span class="cx-end">${m?`<small>${hora(m.t)}</small>`:''}${n?`<span class="cx-n">${n}</span>`:''}</span></button>`;
     if(extra)return `<div class="cx-rw">${row}${extra}</div>`;
     // v63: «⋯» para borrar la charla (sólo aparece si hay mensajes).
@@ -2648,11 +2823,17 @@ function filasAmigos(){
   const last={};for(const m of S.msgs){if(esG(m))continue;const o=lc(other(m));if(!last[o]||m.t>last[o].t)last[o]=m;}
   let h='';
   if(S.am.in.length)h+=`<p class="cx-sec-t">Te quieren agregar</p>`+S.am.in.map(n=>filaUsuario(userOrX(n),null,`<span class="cx-amb"><button type="button" class="cx-cplay" data-a="amSi" data-u="${esc(n)}">Aceptar</button><button type="button" class="cx-ghost" data-a="amNo" data-u="${esc(n)}" aria-label="Rechazar la solicitud de ${esc(n)}">✕</button></span>`)).join('');
-  const A=S.am.a.map(userOrX).sort(porConexion),on=A.filter(u=>u.enLinea).length;
-  h+=`<p class="cx-sec-t">Tus amigos${A.length?` · ${on} ${on===1?'conectado':'conectados'}`:''}</p>`;
-  h+=A.length?A.map(u=>filaUsuario(u,last[lc(u.usuario)]||null,'',false)).join(''):`<p class="cx-dim cx-pad">Todavía no tenés amigos. Mandá una solicitud desde 🌎 Global (＋👤); cuando la acepte, aparece acá.</p>`;
+  // v77: arriba los conectados, con en qué juego están, 🎮 invitar a tu mesa y 🏡 visitar su estancia; buscador si son muchos.
+  const q=lc(S.aq||'').trim(),A=S.am.a.map(userOrX).filter(u=>!q||lc(u.usuario).includes(q)).sort(porConexion),on=A.filter(u=>u.enLinea).length;
+  if(S.invFor)h=invSheet()+h;
+  const acc=u=>{const n=esc(u.usuario);return `<span class="cx-amb">${H.invite?`<button type="button" class="cx-amadd" data-a="invitar" data-u="${n}" aria-label="Invitar a ${n} a jugar" title="Invitar a jugar">🎮</button>`:''}<button type="button" class="cx-amadd" data-a="visitarEst" data-u="${n}" aria-label="Visitar la estancia de ${n}" title="Visitar su estancia">🏡</button></span>`;};
+  if(on)h+=`<p class="cx-sec-t">Tus amigos · 🟢 Conectados ahora · ${on}</p>`+A.filter(u=>u.enLinea).map(u=>filaUsuario(u,null,acc(u),false,estTxt(u))).join('');
+  const off=A.filter(u=>!u.enLinea);
+  if(off.length||!on)h+=`<p class="cx-sec-t">${on?'Los demás':'Tus amigos'}${S.am.a.length&&!on&&!q?' · nadie conectado':''}</p>`;
+  h+=q&&!A.length?'<p class="cx-dim cx-pad">Ningún amigo con ese nombre.</p>':off.length?off.map(u=>filaUsuario(u,last[lc(u.usuario)]||null,'',false)).join(''):A.length?'':`<p class="cx-dim cx-pad">Todavía no tenés amigos. Mandá una solicitud desde 🌎 Global (＋👤); cuando la acepte, aparece acá.</p>`;
   if(S.am.out.length)h+=`<p class="cx-sec-t">Esperando que acepten</p>`+S.am.out.map(n=>filaUsuario(userOrX(n),null,`<span class="cx-amb"><button type="button" class="cx-ghost" data-a="amCancelar" data-u="${esc(n)}">Cancelar</button></span>`)).join('');
   h+=`<button type="button" class="cx-ask" data-a="tab" data-t="global">🌎 Buscar gente para agregar</button>`;
+  h+=`<button type="button" class="cx-ask" data-a="avAm" aria-pressed="${avisoAmigosOn()}">${avisoAmigosOn()?'🔔 Te aviso cuando se conecta un amigo · tocá para apagarlo':'🔕 No te aviso cuando se conecta un amigo · tocá para prenderlo'}</button>`;
   return h;
 }
 // v68: en Global, un ícono chico: ＋👤 agregar · ⏳ pedido (tocarlo pide confirmar y lo cancela) · ✓ aceptar. Con los amigos, nada
@@ -2706,7 +2887,7 @@ function renderShare(p){
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
 function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏',uno:'🎴',ajedrez:'',ludo:'🎲',pool:'🎱',invasores:'👾'}[c.j]??'🎮';
-  return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&H.play?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">▶ Jugar</button>`:''}`;}
+  return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&(H.play||c.ve)?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">${c.ve?'🏡 Ir':'▶ Jugar'}</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
   const sig=[S.msgs.filter(x=>x.tmp).map(x=>x.id+(x.fail?'f':x.sending?'s':'')).join(','),JSON.stringify(S.invSt),JSON.stringify(S.invBusy),S.con,S.msgs.length,S.typing.join(','),JSON.stringify(S.vistos),S.err,S.pickFor,S.invFor,S.pinAsk,!!S.key,Object.keys(S.plain).length,JSON.stringify(grupoDe(S.con)),JSON.stringify(S.espero),(userOf(S.con)||{}).enLinea,JSON.stringify((userOf(S.con)||{}).estado),(userOf(S.con)||{}).pub?1:0].join('|');
@@ -2768,7 +2949,8 @@ async function onClick(e){
   else if(a==='inv'){const who=S.invFor,g=b.dataset.g;S.invFor=null;close();if((g==='ajedrez'||g==='ludo'||g==='pool'||g==='invasores')&&H.game()!==g){location.href=g+'.html#invitar='+encodeURIComponent(who);return;}try{H.invite&&H.invite(g,who);}catch(_){}}
   else if(a==='sharecon')shareTo(b.dataset.u);
   else if(a==='inventrar'||a==='invno'||a==='invcancel')invAccion(a,b.dataset.id,b.dataset.j);
-  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario','laberinto','invasores'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
+  else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='estancia'&&o.card.ve&&H.game()!=='estancia'){close();location.href='estancia.html#visitar='+encodeURIComponent(o.card.ve);return;}   /* v77: invitación a una estancia */
+    if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario','laberinto','invasores'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
   else if(a==='cuenta'){close();H.account();}
   else if(a==='activar')activate();
   else if(a==='verpin'){S.pinAsk=true;$('.cx-panel').dataset.sig='';render();setTimeout(()=>$('#cx-pin')?.focus(),50);}
@@ -2798,7 +2980,8 @@ async function onClick(e){
   else if(a==='amNo'){b.disabled=true;responderAmistad(b.dataset.u,false);}
   else if(a==='amCancelar'){b.disabled=true;S.cancConf=null;cancelarAmistad(b.dataset.u);}
   else if(a==='amCancelarQ'){S.cancConf=lc(b.dataset.u);p0().dataset.sig='';render();setTimeout(()=>{if(S.cancConf===lc(b.dataset.u)){S.cancConf=null;p0().dataset.sig='';render();}},4000);}
-  else if(a==='visitarEst'){location.href='estancia.html#visitar='+encodeURIComponent(b.dataset.u);}
+  else if(a==='visitarEst'){const h='#visitar='+encodeURIComponent(b.dataset.u);if(H.game()==='estancia'){location.hash=h;location.reload();}else location.href='estancia.html'+h;}
+  else if(a==='avAm'){ls.set('bloques-aviso-amigos',avisoAmigosOn()?'0':'1');p0().dataset.sig='';render();}
   else if(a==='amQuitar'){if(S.quitarConf!==lc(b.dataset.u)){S.quitarConf=lc(b.dataset.u);render();return;}S.quitarConf=null;quitarAmigo(b.dataset.u);}
   else if(a==='emo'){emoToggle();}
   else if(a==='emoT'){S.emoCat=b.dataset.c;emoDibujar();}
@@ -3140,6 +3323,8 @@ const CSS=`
 .cx-toast{pointer-events:auto;display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:18px;border:1px solid #3a4a60;background:#141e2cf2;color:#f4f7fe;text-align:left;box-shadow:0 14px 40px #000a;cursor:pointer;animation:cxDrop .28s ease-out;font:500 14px/1.35 system-ui,-apple-system,sans-serif;backdrop-filter:blur(8px)}
 .cx-toast span{display:flex;flex-direction:column;min-width:0}.cx-toast b{font-size:14px}.cx-toast small{color:#cbd6e3;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cx-toast.out{opacity:0;transform:translateY(-10px);transition:.35s}
+.cx-ondot{position:absolute;left:3px;bottom:3px;width:9px;height:9px;border-radius:50%;background:#57d49b;box-shadow:0 0 0 2px #0c131e;pointer-events:none}
+.cx-toast.cx-mini{width:auto;max-width:100%;align-self:center;padding:7px 14px;border-radius:999px;gap:8px;font-size:13px;box-shadow:0 8px 24px #0008}.cx-mini b{font-size:13px!important}.cx-mini small{font-size:12px!important}.cx-mini span{align-items:center;text-align:center}
 @keyframes cxDrop{from{transform:translateY(-16px);opacity:0}}
 .cx-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;background:#ff5d73;color:#fff;font:900 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #0b1019;pointer-events:none}
 [data-chat-btn]{position:relative}
@@ -3199,7 +3384,7 @@ function init(opts={}){
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
   usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
-  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},get state(){return S;},poll,bindButtons};
+  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,get state(){return S;},poll,bindButtons};
 })();
 
 </script>
@@ -3633,6 +3818,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:77,grande:true,titulo:'Novedades',items:[
+    ['🎵','Jugar ya no corta la música de otras apps del celular.'],
+    ['🔁','El sudoku, el solitario y el buscaminas del día siguen en otro aparato donde los dejaste. Y si te cortás de una partida, aparece «Volver» o «Abandonar»; si se va el que lleva la mesa, la partida sigue.'],
+    ['🟢','Te avisa chiquito cuando se conecta un amigo y cuántos mensajes recibiste al terminar. Ves a tus amigos conectados desde cualquier juego, y podés usar la cara de tu gaucho como foto.'],
+    ['👾','InvasorAR: Infinito, Historia de 100 niveles, de a dos con un amigo y el modo En contra, donde uno arma las oleadas y el otro se defiende.'],
+    ['🎱','PoolAR: si no entra nada al romper, se sigue jugando, y la 8 va al agujero opuesto a tu última bola, sin ayuda.'],
+    ['🏡','EstanciAR: jugás sin salir de la estancia, mirás las partidas de tus amigos, la mascota es mucho más jugable, mejoras que se notan, mochila con post-its, más caras y peinados, e invitar amigos a tu estancia.'],
+    ['🗺️','La Gran Pampa avisa en su tarjeta cuando hay noticias.']]},
   {v:76,grande:true,titulo:'Novedades',items:[
     ['⚡','Por dentro, la app ahora le pregunta mucho menos a la planilla: más estable con mucha gente conectada, conexiones a las mesas más rápidas y los cambios de tu estancia llegan antes al otro aparato.'],
     ['🧹','Los mensajes viejos del chat se van limpiando solos; tus partidas, récords, rankings y tu estancia quedan como estaban.']]},
@@ -3864,6 +4057,8 @@ window.NOVEDADES={LISTA,abrir:()=>abrir(LISTA.slice(0,1)),chico:()=>chico(LISTA.
       <div class="rival" id="rival" hidden></div>
       <div class="cuenta" id="cuenta" hidden></div>
       <div class="tut" id="tut" hidden></div>
+      <div class="contra" id="contra" hidden></div>
+      <div class="mirando" id="mirando" hidden></div>
     </div>
     <div class="ctrl-mov" id="ctrl-mov">
       <div class="pad" id="pad" aria-label="Deslizá para mover la nave"><i>◀</i>Deslizá para mover<i>▶</i></div>
@@ -3947,7 +4142,12 @@ const MODOS={
   dia:{n:'Desafío del día',lim:300,seq:[0,1,2,3,4]},
   duelo:{n:'Duelo',lim:180},
   libre:{n:'Reglas libres',lim:1200},
-  tutorial:{n:'Tutorial',lim:0,seq:[0]}};
+  tutorial:{n:'Tutorial',lim:0,seq:[0]},
+  // v77: Infinito (el de siempre, sin fin y con oleadas generadas, cada vez más difíciles), Historia (100 niveles fijos)
+  // y En contra (uno defiende y el otro arma las oleadas; 150 s por ronda)
+  infinito:{n:'Infinito',lim:0},
+  historia:{n:'Historia',lim:0},
+  contra:{n:'En contra',lim:150}};
 // Reglas que se pueden tocar en el Taller (con su valor normal y su rango). Cambiar cualquiera vuelve la partida «libre».
 const REGLAS0={vidas:0,oleadas:10,naveVel:640,fVel:1,fProy:1,fInt:1,cad:.1,refugios:3,resRef:2,poderes:true,escudo:true,recarga:12,jefes:true,reparar:3,invasion:'derrota',invul:false,lento:false};
 const RANGO_REGLAS={vidas:[1,9],oleadas:[1,30],naveVel:[360,900],fVel:[.5,2],fProy:[.5,1.6],fInt:[.6,2],cad:[.06,.4],resRef:[1,4],recarga:[6,30]};
@@ -3976,11 +4176,112 @@ function refugiosNuevos(R){const xs=R.refugios===3?[150,360,570]:R.refugios===2?
   return xs.map(cx=>({cx,cy:740,c:REF_MASK.map(m=>m?R.resRef:0)}));}
 const refX0=r=>r.cx-REF_C*REF_CEL/2,refY0=r=>r.cy-REF_F*REF_CEL/2;
 
+/* ── v77: oleadas generadas (Infinito e Historia) ──
+   Cada oleada sale de una semilla: una forma de formación (bloque, cuña, copa, rombo, columnas, damero, alas, escalera,
+   marco), un «tema» (blindada, de francotiradores, en picada, enjambre, kamikaze, con tormenta, veloz o mixta) y una mezcla
+   de enemigos que se va abriendo con la dificultad «d» (la oleada equivalente): primero exploradores, después
+   francotiradores y picadores, blindados, divisores y, desde la 6.ª, kamikazes. Así no se siente siempre igual. */
+const FORMAS={
+  bloque:()=>true,
+  cuna:(c,f,F)=>Math.abs(c-3.5)+.5>=F-1-f,
+  copa:(c,f)=>Math.abs(c-3.5)+.5>=f,
+  rombo:(c,f,F)=>Math.abs(c-3.5)+Math.abs(f-(F-1)/2)*1.7<=3.8,
+  columnas:c=>c%3!==2,
+  damero:(c,f)=>(c+f)%2===0,
+  alas:c=>c<3||c>4,
+  escalera:(c,f)=>(c-f+16)%8<5,
+  marco:(c,f,F)=>f===0||f===F-1||c===0||c===7||c===3&&f%2===0||c===4&&f%2===1};
+const TEMAS=[
+  {k:'mixta',n:'',w:{}},
+  {k:'blindada',n:'blindada',w:{bli:4},min:2},
+  {k:'tiradores',n:'de francotiradores',w:{tir:4},min:1},
+  {k:'picada',n:'en picada',w:{pic:4},pic:1,min:1},
+  {k:'enjambre',n:'enjambre',w:{exp:3,div:3},vel:1.15,filas:1,min:3},
+  {k:'kamikaze',n:'kamikaze',w:{kam:4},kam:1,min:5},
+  {k:'tormenta',n:'con tormenta',w:{},meteoros:true,min:3},
+  {k:'veloz',n:'veloz',w:{exp:2,pic:2},vel:1.35,filas:-1,min:2}];
+const DESDE={exp:0,tir:1,pic:1,bli:2,div:3,kam:5};
+function olaGen(sem,i,d){
+  const st={a:hash32(sem+':gen:'+i)||1},rnd=()=>rngNext(st);
+  const temas=TEMAS.filter(T=>(T.min||0)<=d),T=d<1?TEMAS[0]:temas[Math.floor(rnd()*temas.length)];
+  const nombres=Object.keys(FORMAS).filter(k=>d>=2||k==='bloque'||k==='columnas'),forma=nombres[Math.floor(rnd()*nombres.length)];
+  const F=Math.max(2,Math.min(5,3+Math.floor(d/3)+(T.filas||0)));
+  const W={};for(const k of Object.keys(DESDE))if(d>=DESDE[k])W[k]=({exp:Math.max(1,6-d*.35),tir:1+d*.08,bli:.8+d*.09,pic:1,div:.9,kam:.6+d*.05})[k]*(T.w[k]||1);
+  const tipos=Object.keys(W),tot=tipos.reduce((a,k)=>a+W[k],0);
+  const elegir=()=>{let r=rnd()*tot;for(const k of tipos){r-=W[k];if(r<=0)return k;}return tipos[0];};
+  let cel=[];for(let f=0;f<F;f++)for(let c=0;c<8;c++)if(FORMAS[forma](c,f,F))cel.push([c,f]);
+  if(cel.length<10){cel=[];for(let f=0;f<F;f++)for(let c=0;c<8;c++)cel.push([c,f]);}
+  const fila=[];for(let f=0;f<F;f++){const a=elegir(),b=rnd()<.3?elegir():a;fila.push([a,b]);}
+  const celdas=cel.map(([c,f])=>[fila[f][c%2],c,f]),comp={};for(const [t] of celdas)comp[t]=(comp[t]||0)+1;
+  const pic=W.pic?Math.min(4,1+Math.floor(d/6)+(T.pic||0)):0,kam=comp.kam?Math.min(3,1+Math.floor(Math.max(0,d-5)/6)+(T.kam||0)):0;
+  return {gen:1,forma,tema:T.n,filas:F,celdas,comp,vel:(24+Math.min(8,d*.5))*(T.vel||1),int:Math.max(.7,1.1-d*.025),pic,kam,sum:d>=1,
+    meteoros:!!T.meteoros||d>=3&&rnd()<.22,baja:Math.min(40,Math.floor(d)*3)};}
+// Infinito: ciclos de 10 (8 formaciones generadas, un bonus en la 5.ª y un jefe en la 10.ª, que se alterna); cada ciclo
+// suma un escalón (formación más rápida, tiros más seguidos, jefes con más vida, blindados más duros).
+function olaInfinito(G,i){const blq=Math.floor(i/10),r=i%10;
+  if(r===9)return {blq,def:{jefe:blq%2?'nodriza':'centinela'}};
+  if(r===4)return {blq,def:{bonus:true}};
+  return {blq,def:olaGen(G.seed,i,i)};}
+// Historia: 100 niveles fijos (la misma semilla para todos), cada uno de 1 a 3 oleadas, cada vez más difíciles; cada 10, un
+// jefe (Centinela y Nodriza alternados, cada vez más fuertes) y los terminados en 5 tienen un bonus en el medio.
+const HISTORIA_N=100;
+function nivelOlas(n){n=Math.max(1,Math.min(HISTORIA_N,Math.round(n)||1));const sem='invasorar-historia:'+n;
+  if(n%10===0)return [{blq:Math.floor((n-10)/20),def:{jefe:n%20?'centinela':'nodriza'}}];
+  const w=n<=3?1:n%10===5||n%10>=8||n>50?3:2,L=[];
+  for(let q=0;q<w;q++){if(n%10===5&&q===1){L.push({blq:Math.floor((n-1)*.08),def:{bonus:true}});continue;}
+    const d=(n-1)*.8+q*.5;L.push({blq:Math.floor(d/7),def:olaGen(sem,q,d)});}
+  return L;}
+const semillaHistoria=n=>hash32('invasorar-historia:'+n);
+/* ── v77: En contra ──
+   El que ataca tiene un presupuesto que se recarga con el tiempo; compra invasores (cada tipo cuesta distinto), los ubica en
+   una grilla de 8 × 5 y los manda en grupo. Si el campo está ocupado, la oleada espera (una en cola); cuando el que
+   defiende limpia, entra la siguiente. El que defiende suma por cada baja y también por cada segundo que aguanta (así no
+   conviene «no mandar nada»), y si una oleada llega a la línea pierde una vida y esa oleada se va. Ronda de 150 s o hasta
+   quedarse sin vidas; después se invierten los papeles y gana el que hizo más puntos defendiendo. */
+const CONTRA={ini:45,reg:5,max:160,cola:1,aguante:12,maxCel:40,auto:5,costo:{exp:2,tir:6,bli:7,pic:5,div:5,kam:8}};
+const OLA_CONTRA0={filas:2,celdas:[0,1,2,3,4,5,6,7].flatMap(c=>[['exp',c,0],['exp',c,1]]),comp:{exp:16},vel:24,int:1.1,pic:0,kam:0,sum:false,inicial:1};
+function costoOla(celdas){let c=0;for(const x of celdas||[])c+=CONTRA.costo[x&&x[0]]||0;return c;}
+function olaContra(celdas,n){const comp={};for(const [t] of celdas)comp[t]=(comp[t]||0)+1;
+  const filas=1+Math.max(...celdas.map(x=>x[2]));
+  return {filas,celdas:celdas.map(x=>x.slice()),comp,vel:26+Math.min(6,n*.5),int:Math.max(.75,1-n*.02),pic:comp.pic?Math.min(3,Math.ceil(comp.pic/3)):0,
+    kam:comp.kam?Math.min(3,Math.ceil(comp.kam/3)):0,sum:false,contra:1};}
+// Valida y encola la oleada del que ataca: [[tipo, columna 0-7, fila 0-4], …]. Devuelve {ok, costo} o {ok:false, error}.
+function encolarOla(G,celdas){
+  if(!G||G.modo!=='contra'||G.fin)return {ok:false,error:'fin'};
+  if(!Array.isArray(celdas)||!celdas.length||celdas.length>CONTRA.maxCel)return {ok:false,error:'vacia'};
+  const usadas=new Set(),L=[];
+  for(const x of celdas){if(!Array.isArray(x))return {ok:false,error:'celda'};const t=String(x[0]),c=x[1]|0,f=x[2]|0;
+    if(!CONTRA.costo[t]||c<0||c>7||f<0||f>4||usadas.has(c+':'+f))return {ok:false,error:'celda'};usadas.add(c+':'+f);L.push([t,c,f]);}
+  L.sort((a,b)=>a[2]-b[2]||a[1]-b[1]);
+  const costo=costoOla(L);if(costo>G.pres+1e-9)return {ok:false,error:'presupuesto'};
+  if(G.cola.length>=CONTRA.cola)return {ok:false,error:'cola'};
+  G.pres-=costo;G.enviadas=(G.enviadas||0)+1;G.cola.push(olaContra(L,G.enviadas));G.st.mandadas=(G.st.mandadas||0)+1;G.ev.push({t:'mandada',n:L.length,costo});
+  if(G.espera){G.espera=false;G.esperaT=0;G.faseT=0;siguienteOla(G);}
+  return {ok:true,costo};}
+// Si el que ataca no manda nada y el campo queda vacío 5 s, sale sola una oleada con lo que haya en el presupuesto (no
+// conviene guardarse: el que defiende igual suma por aguantar).
+const ORD_AUTO=['tir','exp','pic','exp','bli','div','exp','kam'];
+function autoOla(G){if(G.pres<10)return;let p=G.pres;const cel=[];
+  for(let f=0;f<5;f++)for(let c=0;c<8;c++){const t=ORD_AUTO[(c+f*3)%ORD_AUTO.length],k=CONTRA.costo[t]<=p?t:CONTRA.costo.exp<=p?'exp':null;if(k){cel.push([k,c,f]);p-=CONTRA.costo[k];}}
+  if(cel.length){const r=encolarOla(G,cel);if(r.ok){G.st.autos=(G.st.autos||0)+1;G.ev.push({t:'autoOla'});}}}
+function contraTick(G){G.pres=Math.min(CONTRA.max,(G.pres||0)+CONTRA.reg*DT);
+  if(Math.floor(G.seg)!==Math.floor(G.seg-DT))G.puntos+=CONTRA.aguante;}
+/* ── v77: de a dos (cooperativo). G.nave es la del que hospeda y G.nave2 la del invitado; cada una con sus vidas, el puntaje
+   y la cadena son de los dos. Si una se queda sin vidas cae: se la rescata pasando por encima 2 segundos (o vuelve sola,
+   con una vida, al terminar la oleada). Se pierde cuando caen las dos. */
+const naveNueva=(x,vidas,p)=>({x,vx:0,vidas,vidas0:vidas,inv:0,cad:0,esc:{act:0,rec:0},pw:{},laserT:0,p});
+const navesDe=G=>G.nave2?[G.nave,G.nave2]:[G.nave];
+function masCerca(G,x){let b=null;for(const N of navesDe(G))if(!N.caida&&(!b||Math.abs(N.x-x)<Math.abs(b.x-x)))b=N;return b||G.nave;}
+function revivir(G,N){N.caida=false;N.vidas=1;N.inv=2;N.resc=0;G.ev.push({t:'revive',p:N.p,x:N.x});}
+function rescate(G){const NS=navesDe(G);for(const C of NS){if(!C.caida)continue;const A=NS.find(N=>N!==C&&!N.caida);if(!A)continue;
+  if(Math.abs(A.x-C.x)<44){C.resc=(C.resc||0)+DT;if(C.resc>=2)revivir(G,C);}else C.resc=Math.max(0,(C.resc||0)-DT*.5);}}
+
 /* ── Partida nueva ──
-   op = {modo, dif, seed, reglas} */
+   op = {modo, dif, seed, reglas, nivel (Historia), coop (de a dos)} */
 function nuevaPartida(op){
   op=op||{};const modo=MODOS[op.modo]?op.modo:'arcade',dif=DIFS[op.dif]?op.dif:'normal',R=reglasDe(op.reglas),D=DIFS[dif];
-  const seed=(op.seed>>>0)||((Math.random()*4294967296)>>>0);
+  const nivel=modo==='historia'?Math.max(1,Math.min(HISTORIA_N,Math.round(op.nivel)||1)):0;
+  const seed=(op.seed>>>0)||(nivel?semillaHistoria(nivel):0)||((Math.random()*4294967296)>>>0);
   const vidas=R.vidas||D.vidas;
   const G={v:MOTOR_V,seed,modo,dif,R,oficial:reglasOficiales(op.reglas)&&modo!=='libre'&&modo!=='tutorial',
     t:0,seg:0,fase:'intro',faseT:1,ola:0,olaN:0,def:null,escala:{vel:1,int:1,jefe:1,blq:0,vida:0},
@@ -3990,12 +4291,18 @@ function nuevaPartida(op){
     ref:refugiosNuevos(R),puntos:0,combo:{n:0,mult:1,t:0},
     st:{bajas:0,oleadas:0,danio:0,disparos:0,aciertos:0,escudosOk:0,suministros:0,centinela:0,nodriza:0,maxCombo:1,poderes:0,gemas:0,perfectos:0,actSeg:0,actT:{}},
     fin:null,ev:[],rs:null,sigId:1,dur:0,mov:0};
+  if(nivel)G.nivel=nivel;
+  if(op.coop){G.coop=1;G.nave.p=1;G.nave.x=240;G.nave2=naveNueva(480,vidas,2);}
+  if(modo==='contra'){G.pres=CONTRA.ini;G.cola=[];G.enviadas=0;G.espera=false;}
   cargarOla(G,0);
   return G;
 }
 // Qué oleada (de la tabla) toca en el lugar «i» de la secuencia del modo, y con qué escala.
 function olaDe(G,i){
   const M=MODOS[G.modo];
+  if(G.modo==='infinito')return {k:-1,...olaInfinito(G,i)};
+  if(G.modo==='historia'){const L=nivelOlas(G.nivel);return {k:-1,...(L[i]||L[L.length-1])};}
+  if(G.modo==='contra')return {k:-1,blq:Math.floor((G.enviadas||0)/4),def:G.cola&&G.cola.length?G.cola.shift():OLA_CONTRA0};
   if(M.seq)return {k:M.seq[i],blq:0};
   if(G.modo==='arcade')return {k:i,blq:0};
   // resistencia, duelo y libre: las 5 primeras de Arcade y después bloques de 5 (6, bonus, 8, 9 y un jefe que se alterna),
@@ -4006,14 +4313,14 @@ function olaDe(G,i){
   if(G.modo==='libre'&&!G.R.poderes&&OLEADAS[k].bonus)k=5;
   return {k,blq};
 }
-function hayMasOlas(G,i){const M=MODOS[G.modo];if(M.seq)return i<M.seq.length;if(G.modo==='arcade')return i<OLEADAS.length;if(G.modo==='libre')return i<G.R.oleadas;return true;}
+function hayMasOlas(G,i){const M=MODOS[G.modo];if(G.modo==='historia')return i<nivelOlas(G.nivel).length;if(G.modo==='infinito'||G.modo==='contra')return true;if(M.seq)return i<M.seq.length;if(G.modo==='arcade')return i<OLEADAS.length;if(G.modo==='libre')return i<G.R.oleadas;return true;}
 function cargarOla(G,i){
-  const {k,blq}=olaDe(G,i),O=OLEADAS[k];
+  const {k,blq,def}=olaDe(G,i),O=def||OLEADAS[k];
   G.ola=i;G.def={...O,k};G.escala={vel:Math.pow(1.06,blq),int:Math.pow(1/1.06,blq),jefe:Math.pow(1.2,blq),blq,vida:Math.floor(blq/2)};
   G.rs={tiro:flujo(G.seed,i,'tiro'),pica:flujo(G.seed,i,'pica'),jefe:flujo(G.seed,i,'jefe'),met:flujo(G.seed,i,'met'),bot:flujo(G.seed,i,'bot')};
   G.ene=[];G.hostiles=[];G.barr=[];G.sum=null;G.jefe=null;G.rocas=[];G.bonusT=0;G.bonusN=0;G.bonusK=0;
   G.form={fx:0,fy:0,dir:1,olaT:0,tiroT:1.4,picT:3.2,kamT:5,sumT:7,metT:O.meteoros?9:0,metN:0,dropCd:0};
-  if(O.jefe){const J=JEFES[O.jefe],vida=Math.ceil(J.vida*G.escala.jefe*(DIFS[G.dif].jefe||1));
+  if(O.jefe){const J=JEFES[O.jefe],vida=Math.ceil(J.vida*G.escala.jefe*(DIFS[G.dif].jefe||1)*(G.nave2?1.5:1));
     G.jefe={tipo:O.jefe,x:360,y:-80,y0:J.y,w:J.w,h:J.h,vida,max:vida,dir:1,fase:1,trans:0,t:0,a:0,abT:1.4,rafT:2.2,espT:0,espA:0,espN:0,barrT:4,refT:5,alterna:0,flash:0,muerto:false};
     G.fase='jefeIntro';G.faseT=1.5;}
   else if(O.bonus){
@@ -4026,7 +4333,9 @@ function cargarOla(G,i){
   else{
     const tipos=[];for(const t of Object.keys(O.comp))for(let q=0;q<O.comp[t];q++)tipos.push(t);
     const cols=8,filas=O.filas,y0=130+(O.baja||0);
-    for(let f=0;f<filas;f++)for(let c=0;c<cols;c++){const idx=f*cols+c;if(idx>=tipos.length)break;const t=tipos[idx],T=TIPOS[t];
+    const lista=[];if(O.celdas)for(const x of O.celdas)lista.push([x[0],x[1],x[2]]);
+    else for(let f=0;f<filas;f++)for(let c=0;c<cols;c++){const idx=f*cols+c;if(idx>=tipos.length)break;lista.push([tipos[idx],c,f]);}
+    for(const [t,c,f] of lista){const T=TIPOS[t];
       // entran volando en formación: cada fila desde un costado (alternado), en curva, una detrás de la otra
       const lado=f%2?1:-1,d=f*.22+c*.06;
       G.ene.push({id:G.sigId++,tipo:t,vida:T.vida+G.escala.vida*(t==='bli'?1:0),bx:360+(c-(cols-1)/2)*66,by:y0+f*50,x:lado>0?780:-60,y:-40,col:c,fila:f,est:'entra',fl:0,carga:0,
@@ -4040,11 +4349,12 @@ function cargarOla(G,i){
 const vivos=G=>G.ene.filter(e=>e.est!=='muerto');
 const enForm=G=>G.ene.filter(e=>e.est==='form');
 const solapa=(ax,ay,aw,ah,bx,by,bw,bh)=>Math.abs(ax-bx)*2<aw+bw&&Math.abs(ay-by)*2<ah+bh;
-const ralento=G=>G.nave.pw.lento>0?.5:1;
+const ralento=G=>G.nave.pw.lento>0||G.nave2&&G.nave2.pw.lento>0?.5:1;
 // Vida extra a los 30.000, 80.000 y 160.000 puntos (hasta 5).
 const VIDA_EXTRA=[30000,80000,160000];
 function sumarPuntos(G,base,x,y,conCombo=true){const p=Math.round(base*(conCombo?G.combo.mult:1)),antes=G.puntos;G.puntos+=p;G.ev.push({t:'pts',x,y,p});
-  for(const v of VIDA_EXTRA)if(antes<v&&G.puntos>=v&&G.nave.vidas<5&&!G.R.invul){G.nave.vidas++;G.ev.push({t:'vida',vidas:G.nave.vidas});}
+  if(G.modo!=='contra')for(const v of VIDA_EXTRA)if(antes<v&&G.puntos>=v&&!G.R.invul){const L=navesDe(G).filter(N=>!N.caida&&N.vidas<5).sort((a,b)=>a.vidas-b.vidas);
+    if(L.length){L[0].vidas++;G.ev.push({t:'vida',vidas:L[0].vidas,p:L[0].p,x:L[0].x});}}
   return p;}
 // La cadena: cada baja (o gema) la sostiene 2,2 s; cada 6 bajas seguidas sube el multiplicador (hasta ×8).
 function baja(G){const C=G.combo;C.n++;C.t=0;const m=Math.min(8,1+Math.floor(C.n/6));if(m>C.mult){C.mult=m;G.ev.push({t:'combo',m});}if(C.mult>G.st.maxCombo)G.st.maxCombo=C.mult;}
@@ -4053,29 +4363,36 @@ function posForm(G,e){return [e.bx+G.form.fx,e.by+G.form.fy];}
 
 /* ── Un paso (1/60 s) ──
    inp = {mov:-1|0|1, tx: x objetivo o null (deslizar), fuego: bool, escudo: bool (se apretó en este paso)} */
-function paso(G,inp){
+function paso(G,inp,inp2){
   if(G.fin)return G;
-  inp=inp||{};G.t++;G.ev.length=0;
-  const N=G.nave,R=G.R;
+  inp=inp||{};inp2=inp2||{};G.t++;G.ev.length=0;
+  const R=G.R,NS=navesDe(G),IN=[inp,inp2],N=G.nave;
   // la fase de introducción o de transición: se mueve la nave, se dispara y se juntan cosas, nada más
   if(G.fase!=='juego'){
-    moverNave(G,inp);
+    NS.forEach((M,j)=>{if(!M.caida)moverNave(G,IN[j],M);});
     G.faseT-=DT;
+    if(G.modo==='contra'){G.seg+=DT;contraTick(G);}   // en contra el reloj de la ronda corre siempre
     if(G.fase==='jefeIntro'&&G.jefe){const J=G.jefe;J.y+=(J.y0-J.y)*.08;}
     if(G.fase==='intro'||G.fase==='jefeIntro'){moverEntradas(G);}
-    disparar(G,inp);moverTiros(G,G.fase==='transicion');moverPoderes(G,G.fase==='transicion');moverGemas(G,G.fase==='transicion');
-    if(G.faseT<=0){if(G.fase==='transicion'){siguienteOla(G);}else{G.fase='juego';if(G.jefe)G.jefe.y=G.jefe.y0;}}
+    NS.forEach((M,j)=>{if(!M.caida)disparar(G,IN[j],M);});moverTiros(G,G.fase==='transicion');moverPoderes(G,G.fase==='transicion');moverGemas(G,G.fase==='transicion');
+    if(G.faseT<=0){if(G.fase==='transicion'){if(G.modo==='contra'&&!(G.cola&&G.cola.length)){G.faseT=0;G.espera=true;G.esperaT=(G.esperaT||0)+DT;if(G.esperaT>=CONTRA.auto)autoOla(G);}else{G.espera=false;siguienteOla(G);}}
+      else{G.fase='juego';if(G.jefe)G.jefe.y=G.jefe.y0;}}
+    if(G.modo==='contra'&&!G.fin&&G.seg>=MODOS.contra.lim)terminar(G,'tiempo','tiempo');
     return G;}
   G.seg+=DT;G.form.olaT+=DT;if(G.form.dropCd>0)G.form.dropCd-=DT;
+  if(G.modo==='contra')contraTick(G);
   // actividad (para saber si la partida fue de verdad): un segundo cuenta si te moviste, disparaste o usaste el escudo
-  const sec=Math.floor(G.seg);if(inp.mov||inp.tx!=null&&Math.abs(inp.tx-N.x)>2||inp.fuego||inp.escudo)G.st.actT[sec]=1;
-  // 1) escudo, poderes y movimiento propio
-  if(N.esc.act>0)N.esc.act=Math.max(0,N.esc.act-DT);
-  if(N.esc.rec>0)N.esc.rec=Math.max(0,N.esc.rec-DT);
-  if(inp.escudo&&R.escudo&&N.esc.rec<=0&&N.esc.act<=0){N.esc.act=1.2;N.esc.rec=R.recarga*(DIFS[G.dif].rec||1)+1.2;G.ev.push({t:'escudo'});}
-  if(N.inv>0)N.inv=Math.max(0,N.inv-DT);
-  for(const k of Object.keys(N.pw)){if(N.pw[k]>0){N.pw[k]-=DT;if(N.pw[k]<=0){N.pw[k]=0;G.ev.push({t:'pwFin',k});}}}
-  moverNave(G,inp);
+  const sec=Math.floor(G.seg);
+  NS.forEach((M,j)=>{const q=IN[j];if(!M.caida&&(q.mov||q.tx!=null&&Math.abs(q.tx-M.x)>2||q.fuego||q.escudo))G.st.actT[sec]=1;});
+  // 1) escudo, poderes y movimiento propio (de cada nave)
+  NS.forEach((M,j)=>{const q=IN[j];if(M.caida)return;
+    if(M.esc.act>0)M.esc.act=Math.max(0,M.esc.act-DT);
+    if(M.esc.rec>0)M.esc.rec=Math.max(0,M.esc.rec-DT);
+    if(q.escudo&&R.escudo&&M.esc.rec<=0&&M.esc.act<=0){M.esc.act=1.2;M.esc.rec=R.recarga*(DIFS[G.dif].rec||1)+1.2;G.ev.push({t:'escudo',x:M.x,p:M.p});}
+    if(M.inv>0)M.inv=Math.max(0,M.inv-DT);
+    for(const k of Object.keys(M.pw)){if(M.pw[k]>0){M.pw[k]-=DT;if(M.pw[k]<=0){M.pw[k]=0;G.ev.push({t:'pwFin',k,p:M.p});}}}
+    moverNave(G,q,M);});
+  if(G.nave2)rescate(G);
   // 2) formación, picadas, kamikazes, bandadas, suministros, meteoros y jefe
   moverEntradas(G);
   if(G.jefe)moverJefe(G);else if(G.def.bonus)moverBandadas(G);else moverFormacion(G);
@@ -4083,10 +4400,10 @@ function paso(G,inp){
   moverSuministro(G);
   moverRocas(G);
   // 3) tiros propios
-  disparar(G,inp);
+  NS.forEach((M,j)=>{if(!M.caida)disparar(G,IN[j],M);});
   // 4) proyectiles (con pasos chicos: un tiro rápido no atraviesa una celda ni un enemigo entre dos pasos), láser, poderes, gemas
   moverTiros(G,false);
-  if(N.pw.laser>0&&inp.fuego)laser(G);
+  NS.forEach((M,j)=>{if(!M.caida&&M.pw.laser>0&&IN[j].fuego)laser(G,M);});
   moverHostiles(G);
   moverPoderes(G,false);
   moverGemas(G,false);
@@ -4095,9 +4412,10 @@ function paso(G,inp){
   // 6) ¿terminó? invasión, vidas, objetivos y reloj, en ese orden
   if(!G.jefe&&!G.def.bonus&&!G.fin){const inv=enForm(G).some(e=>e.y+TIPOS[e.tipo].h/2>=MUNDO.LINEA);
     if(inv){G.ev.push({t:'invasion'});
-      if(R.invasion==='vida'&&N.vidas>1){N.vidas--;G.st.danio++;N.inv=1.5;cortaCombo(G);G.hostiles=[];G.form.fx=0;G.form.fy=0;G.form.dir=1;G.ene.forEach(e=>{if(e.est!=='muerto'){e.est='form';const p=posForm(G,e);e.x=p[0];e.y=p[1];}});G.fase='intro';G.faseT=1;}
-      else{N.vidas=Math.max(0,N.vidas-(R.invasion==='vida'?1:N.vidas));terminar(G,'derrota','invasion');return G;}}}
-  if(N.vidas<=0){terminar(G,'derrota','vidas');return G;}
+      if(G.modo==='contra'){N.vidas--;G.st.danio++;N.inv=1.5;cortaCombo(G);G.ene=[];G.hostiles=[];G.rocas=[];G.barr=[];if(N.vidas>0)olaCompleta(G,true);}
+      else if(R.invasion==='vida'&&N.vidas>1){N.vidas--;G.st.danio++;N.inv=1.5;cortaCombo(G);G.hostiles=[];G.form.fx=0;G.form.fy=0;G.form.dir=1;G.ene.forEach(e=>{if(e.est!=='muerto'){e.est='form';const p=posForm(G,e);e.x=p[0];e.y=p[1];}});G.fase='intro';G.faseT=1;}
+      else{N.vidas=Math.max(0,N.vidas-(R.invasion==='vida'?1:N.vidas));if(G.nave2)G.nave2.vidas=0;terminar(G,'derrota','invasion');return G;}}}
+  if(NS.every(M=>M.vidas<=0)){terminar(G,'derrota','vidas');return G;}
   if(G.jefe&&G.jefe.vida<=0&&!G.jefe.muerto){G.jefe.muerto=true;}
   if(G.def.bonus){G.bonusT-=DT;if(G.bonusT<=0||vivos(G).length===0)olaCompleta(G);}
   else if((G.jefe&&G.jefe.muerto)||(!G.jefe&&vivos(G).length===0)){olaCompleta(G);}
@@ -4106,17 +4424,17 @@ function paso(G,inp){
 }
 // La nave: con el dedo (tx) va casi al instante (hasta 2600 por segundo, sin inercia); con teclas o botones acelera en
 // 0,05 s a su velocidad y frena en seco.
-function moverNave(G,inp){const N=G.nave,v=G.R.naveVel;let nx=N.x;
+function moverNave(G,inp,N=G.nave){const v=G.R.naveVel;let nx=N.x;
   if(inp.tx!=null&&Number.isFinite(inp.tx)){const d=inp.tx-N.x,m=2600*DT;nx+=Math.max(-m,Math.min(m,d));N.vx=(nx-N.x)/DT;}
   else if(inp.mov){const obj=Math.sign(inp.mov)*v;N.vx+=(obj-N.vx)*.45;if(Math.sign(N.vx)!==Math.sign(obj))N.vx=obj*.5;nx+=N.vx*DT;}
   else N.vx=0;
   nx=Math.max(MUNDO.NAVE_MIN,Math.min(MUNDO.NAVE_MAX,nx));if(Math.abs(nx-N.x)>.01)G.mov++;N.x=nx;}
 
-function disparar(G,inp){const N=G.nave,R=G.R;N.cad=Math.max(0,N.cad-DT);
+function disparar(G,inp,N=G.nave){const R=G.R;N.cad=Math.max(0,N.cad-DT);
   if(!inp.fuego||N.cad>0||N.pw.laser>0)return;
-  const propios=G.tiros.length,y=MUNDO.NAVE_Y-20;
-  if(N.pw.triple>0){if(propios+3<=20){G.tiros.push({x:N.x,y,vx:0,h:[]},{x:N.x-8,y:y+4,vx:-150,h:[]},{x:N.x+8,y:y+4,vx:150,h:[]});G.st.disparos+=3;G.ev.push({t:'tiro',x:N.x,k:3});}}
-  else if(propios<8){G.tiros.push({x:N.x,y,vx:0,h:[]});G.st.disparos++;G.ev.push({t:'tiro',x:N.x});}
+  const dos=!!G.nave2,propios=dos?G.tiros.filter(t=>(t.p||1)===N.p).length:G.tiros.length,y=MUNDO.NAVE_Y-20,tiro=(x,yy,vx)=>dos?{x,y:yy,vx,h:[],p:N.p}:{x,y:yy,vx,h:[]};
+  if(N.pw.triple>0){if(propios+3<=20){G.tiros.push(tiro(N.x,y,0),tiro(N.x-8,y+4,-150),tiro(N.x+8,y+4,150));G.st.disparos+=3;G.ev.push({t:'tiro',x:N.x,k:3,p:N.p});}}
+  else if(propios<8){G.tiros.push(tiro(N.x,y,0));G.st.disparos++;G.ev.push({t:'tiro',x:N.x,p:N.p});}
   N.cad=R.cad;}
 
 /* ── Entradas en formación (curva de Bézier desde un costado hasta el lugar en la formación, que se mueve) ── */
@@ -4189,14 +4507,14 @@ function moverFormacion(G){
 }
 function tiroEnemigo(G,e){const D=DIFS[G.dif],R=G.R,k=G.escala.blq?Math.pow(1.04,G.escala.blq):1,T=TIPOS[e.tipo];
   const y=e.y+T.h/2;
-  if(e.tipo==='tir'){const dx=G.nave.x-e.x,dy=MUNDO.NAVE_Y-y,l=Math.hypot(dx,dy)||1,v=Math.min(470,370*D.proy*R.fProy*k);
+  if(e.tipo==='tir'){const dx=masCerca(G,e.x).x-e.x,dy=MUNDO.NAVE_Y-y,l=Math.hypot(dx,dy)||1,v=Math.min(470,370*D.proy*R.fProy*k);
     G.hostiles.push({x:e.x,y,vx:v*dx/l,vy:v*dy/l,de:'f',k:'z'});G.ev.push({t:'tiroE',x:e.x,k:'z'});}
   else if(e.tipo==='bli'){const v=Math.min(380,280*D.proy*R.fProy*k);G.hostiles.push({x:e.x-10,y,vx:0,vy:v,de:'f',k:'d'},{x:e.x+10,y,vx:0,vy:v,de:'f',k:'d'});G.ev.push({t:'tiroE',x:e.x,k:'d'});}
   else{const v=Math.min(400,300*D.proy*R.fProy*k);G.hostiles.push({x:e.x,y,vx:0,vy:v,de:'f',k:'r'});G.ev.push({t:'tiroE',x:e.x,k:'r'});}}
 
 // Picadas, kamikazes, chispas (lo que dejó un divisor) y las vueltas a la formación.
-function moverAtacantes(G){const N=G.nave,k=ralento(G),D=DIFS[G.dif];
-  for(const e of G.ene){
+function moverAtacantes(G){const k=ralento(G),D=DIFS[G.dif],dos=!!G.nave2;let N=G.nave;
+  for(const e of G.ene){if(dos)N=masCerca(G,e.x);
     if(e.est==='pica'){const P=e.pk;P.t+=DT*k;
       // un rulo: baja meciéndose y se va corriendo hacia donde está la nave
       const vy=(330+60*D.ene)*k;e.y+=vy*DT;
@@ -4215,10 +4533,11 @@ function moverAtacantes(G){const N=G.nave,k=ralento(G),D=DIFS[G.dif];
       if(choqueRefugio(G,e))continue;if(choqueNave(G,e))continue;
       if(e.y>1000){e.est='muerto';e.salio=true;}}}
   if(G.ene.some(e=>e.est==='muerto'))G.ene=G.ene.filter(e=>e.est!=='muerto');}
-function choqueNave(G,e){const N=G.nave,T=TIPOS[e.tipo];
-  if(!solapa(e.x,e.y,T.w*.8,T.h*.8,N.x,MUNDO.NAVE_Y,34,22))return false;
-  if(N.esc.act>0){e.est='muerto';G.st.escudosOk++;G.ev.push({t:'explota',x:e.x,y:e.y,k:e.tipo,grande:1});sumarPuntos(G,TIPOS[e.tipo].pts,e.x,e.y);baja(G);return true;}
-  if(N.inv<=0&&!G.R.invul){e.est='muerto';G.ev.push({t:'explota',x:e.x,y:e.y,k:e.tipo});danio(G);return true;}
+function choqueNave(G,e){const T=TIPOS[e.tipo];
+  for(const N of navesDe(G)){if(N.caida)continue;
+    if(!solapa(e.x,e.y,T.w*.8,T.h*.8,N.x,MUNDO.NAVE_Y,34,22))continue;
+    if(N.esc.act>0){e.est='muerto';G.st.escudosOk++;G.ev.push({t:'explota',x:e.x,y:e.y,k:e.tipo,grande:1});sumarPuntos(G,TIPOS[e.tipo].pts,e.x,e.y);baja(G);return true;}
+    if(N.inv<=0&&!G.R.invul){e.est='muerto';G.ev.push({t:'explota',x:e.x,y:e.y,k:e.tipo});danio(G,N);return true;}}
   return false;}
 function choqueRefugio(G,e){const T=TIPOS[e.tipo];for(const r of G.ref){if(pegarRefugio(r,e.x,e.y,T.w*.7,T.h*.7,1)){comerRefugio(r,e.x,e.y,T.w,T.h*.8);e.est='muerto';G.ev.push({t:'explota',x:e.x,y:e.y,k:e.tipo});return true;}}return false;}
 
@@ -4230,19 +4549,20 @@ function moverBandadas(G){
   if(G.ene.some(e=>e.est==='muerto'))G.ene=G.ene.filter(e=>e.est!=='muerto');}
 
 function moverSuministro(G){const S=G.sum;if(!S)return;S.x+=S.dir*150*DT;if(S.fl>0)S.fl-=DT;if(S.x<-60||S.x>780)G.sum=null;}
-function moverRocas(G){const N=G.nave,k=ralento(G);const keep=[];
+function moverRocas(G){const k=ralento(G);const keep=[];
   for(const r of G.rocas){r.x+=r.vx*DT*k;r.y+=r.vy*DT*k;r.rot+=DT*2;
     if(r.y>1000)continue;
     let pego=false;for(const f of G.ref)if(pegarRefugio(f,r.x,r.y,r.r,r.r,1)){pego=true;comerRefugio(f,r.x,r.y,r.r*1.2,r.r);break;}
     if(pego){G.ev.push({t:'roca',x:r.x,y:r.y});continue;}
-    if(Math.abs(r.x-N.x)<r.r+16&&Math.abs(r.y-MUNDO.NAVE_Y)<r.r+10){
-      if(N.esc.act>0){G.st.escudosOk++;G.ev.push({t:'roca',x:r.x,y:r.y});continue;}
-      if(N.inv<=0&&!G.R.invul){G.ev.push({t:'roca',x:r.x,y:r.y});danio(G);continue;}}
+    let golpe=false;for(const N of navesDe(G)){if(N.caida)continue;if(Math.abs(r.x-N.x)<r.r+16&&Math.abs(r.y-MUNDO.NAVE_Y)<r.r+10){
+      if(N.esc.act>0){G.st.escudosOk++;G.ev.push({t:'roca',x:r.x,y:r.y});golpe=true;break;}
+      if(N.inv<=0&&!G.R.invul){G.ev.push({t:'roca',x:r.x,y:r.y});danio(G,N);golpe=true;break;}}}
+    if(golpe)continue;
     keep.push(r);}
   G.rocas=keep;}
 
 function moverJefe(G){
-  const J=G.jefe,JD=JEFES[J.tipo],D=DIFS[G.dif],R=G.R,N=G.nave,k=ralento(G);
+  const J=G.jefe,JD=JEFES[J.tipo],D=DIFS[G.dif],R=G.R,N=G.nave2?masCerca(G,J.x):G.nave,k=ralento(G);
   if(J.flash>0)J.flash-=DT;
   if(J.muerto)return;
   J.t+=DT*k;
@@ -4283,9 +4603,9 @@ function moverJefe(G){
   for(const B of G.barr){
     if(B.av>0){B.av-=DT;continue;}
     B.pe-=DT;
-    if(!B.hit&&Math.abs(N.x-B.x)<30+15){
-      if(N.esc.act>0){B.hit=true;G.st.escudosOk++;G.ev.push({t:'bloqueo',x:N.x,y:MUNDO.NAVE_Y});}
-      else if(N.inv<=0&&!G.R.invul){B.hit=true;danio(G);}}}
+    for(const M of navesDe(G)){const hk=M.p===2?'hit2':'hit';if(M.caida||B[hk]||Math.abs(M.x-B.x)>=30+15)continue;
+      if(M.esc.act>0){B[hk]=true;G.st.escudosOk++;G.ev.push({t:'bloqueo',x:M.x,y:MUNDO.NAVE_Y});}
+      else if(M.inv<=0&&!G.R.invul){B[hk]=true;danio(G,M);}}}
   G.barr=G.barr.filter(B=>B.av>0||B.pe>0);
 }
 function spawnMinis(G,x,y,n){for(let i=0;i<n;i++){if(G.ene.length>60)return;const s=i%2?1:-1;
@@ -4331,7 +4651,7 @@ function golpeJefe(G,d,x,y){const J=G.jefe;J.vida-=d;J.flash=.06;G.st.aciertos++
   if(J.vida<=0&&!J.muerto){J.muerto=true;sumarPuntos(G,JEFES[J.tipo].pts,J.x,J.y,false);G.st[J.tipo]++;G.ev.push({t:'explotaJefe',x:J.x,y:J.y,k:J.tipo});G.hostiles=[];G.barr=[];G.ene.forEach(e=>e.est='muerto');
     for(let i=0;i<10;i++)gema(G,J.x+(i-4.5)*18,J.y+((i*37)%30),20);}}
 // El láser: una columna que quema todo lo que tiene arriba (enemigos, jefe, piedras) cada 0,07 s; no gasta refugios.
-function laser(G){const N=G.nave;N.laserT-=DT;if(N.laserT>0)return;N.laserT=.07;G.st.disparos++;G.ev.push({t:'laser',x:N.x});
+function laser(G,N=G.nave){N.laserT-=DT;if(N.laserT>0)return;N.laserT=.07;G.st.disparos++;G.ev.push({t:'laser',x:N.x});
   for(const e of G.ene){if(e.est==='muerto'||e.est==='entra'&&e.en.t<0)continue;if(Math.abs(e.x-N.x)<TIPOS[e.tipo].w/2+10&&e.y<MUNDO.NAVE_Y)pegarEnemigo(G,e,1);}
   if(G.jefe&&!G.jefe.muerto&&G.fase==='juego'&&Math.abs(G.jefe.x-N.x)<G.jefe.w*.45)golpeJefe(G,1,N.x,G.jefe.y+G.jefe.h/2);
   if(G.sum&&Math.abs(G.sum.x-N.x)<30){G.sum.vida=0;sumarPuntos(G,150,G.sum.x,G.sum.y);G.st.suministros++;G.ev.push({t:'explota',x:G.sum.x,y:G.sum.y,k:'sum',grande:1});soltarPoder(G,G.sum.x,G.sum.y);G.sum=null;baja(G);}
@@ -4339,23 +4659,26 @@ function laser(G){const N=G.nave;N.laserT-=DT;if(N.laserT>0)return;N.laserT=.07;
   G.hostiles=G.hostiles.filter(h=>!(Math.abs(h.x-N.x)<12&&h.y<MUNDO.NAVE_Y));
   if(G.ene.some(e=>e.est==='muerto'))G.ene=G.ene.filter(e=>e.est!=='muerto');}
 function moverHostiles(G){
-  const N=G.nave,keep=[],k=ralento(G);
+  const NS=navesDe(G).filter(N=>!N.caida),keep=[],k=ralento(G);
   hs:for(const h of G.hostiles){
     for(let q=0;q<2;q++){h.x+=h.vx*DT*k/2;h.y+=h.vy*DT*k/2;
       if(h.y>MUNDO.H+20||h.y<-40||h.x<-20||h.x>740)continue hs;
       for(const r of G.ref)if(pegarRefugio(r,h.x,h.y,8,16,1)){G.ev.push({t:'ref',x:h.x,y:h.y});continue hs;}
-      if(solapa(h.x,h.y,8,14,N.x,MUNDO.NAVE_Y,28,18)){
-        if(N.esc.act>0){G.st.escudosOk++;G.ev.push({t:'bloqueo',x:h.x,y:h.y});continue hs;}
-        if(N.inv<=0&&!G.R.invul){danio(G);continue hs;}}
-      // el escudo también ataja lo que pasa cerca (el contorno es más grande que la nave)
-      if(N.esc.act>0&&Math.abs(h.x-N.x)<40&&Math.abs(h.y-MUNDO.NAVE_Y)<34){G.st.escudosOk++;G.ev.push({t:'bloqueo',x:h.x,y:h.y});continue hs;}}
+      for(const N of NS){
+        if(solapa(h.x,h.y,8,14,N.x,MUNDO.NAVE_Y,28,18)){
+          if(N.esc.act>0){G.st.escudosOk++;G.ev.push({t:'bloqueo',x:h.x,y:h.y});continue hs;}
+          if(N.inv<=0&&!G.R.invul){danio(G,N);continue hs;}}
+        // el escudo también ataja lo que pasa cerca (el contorno es más grande que la nave)
+        if(N.esc.act>0&&Math.abs(h.x-N.x)<40&&Math.abs(h.y-MUNDO.NAVE_Y)<34){G.st.escudosOk++;G.ev.push({t:'bloqueo',x:h.x,y:h.y});continue hs;}}}
     keep.push(h);}
-  G.hostiles=N.limpia===G.t?keep.filter(h=>Math.hypot(h.x-N.x,h.y-MUNDO.NAVE_Y)>=110):keep;
+  let L=keep;for(const N of NS)if(N.limpia===G.t)L=L.filter(h=>Math.hypot(h.x-N.x,h.y-MUNDO.NAVE_Y)>=110);
+  G.hostiles=L;
 }
-function danio(G){const N=G.nave;if(N.inv>0)return;
+function danio(G,N=G.nave){if(N.inv>0||N.caida)return;
   N.vidas--;G.st.danio++;N.inv=1.6;N.limpia=G.t;N.pw.triple=0;N.pw.laser=0;cortaCombo(G);
   G.hostiles=G.hostiles.filter(h=>Math.hypot(h.x-N.x,h.y-MUNDO.NAVE_Y)>=110);
-  G.ev.push({t:'danio',x:N.x,y:MUNDO.NAVE_Y,vidas:N.vidas});}
+  G.ev.push({t:'danio',x:N.x,y:MUNDO.NAVE_Y,vidas:N.vidas,p:N.p});
+  if(G.nave2&&N.vidas<=0){N.caida=true;N.resc=0;N.pw={};N.esc.act=0;G.ev.push({t:'caida',p:N.p,x:N.x});}}
 
 /* ── Refugios ── */
 function pegarRefugio(r,x,y,w,h,dir){
@@ -4380,11 +4703,11 @@ function repararRefugios(G,cant){const R=G.R;
 
 /* ── Gemas: cada baja suelta una; juntarlas suma puntos (por la cadena) y la sostiene. Con el imán vienen solas. ── */
 function gema(G,x,y,v){if(G.gemas.length>=40)return;G.gemas.push({x,y,v,vy:-90-((G.sigId*37)%60),t:0,id:G.sigId++});}
-function moverGemas(G,auto){const N=G.nave,keep=[],iman=N.pw.iman>0||auto;
-  for(const g of G.gemas){g.t+=DT;
-    if(iman){const dx=N.x-g.x,dy=MUNDO.NAVE_Y-g.y,l=Math.hypot(dx,dy)||1,v=Math.min(1100,300+g.t*900);g.x+=dx/l*v*DT;g.y+=dy/l*v*DT;}
+function moverGemas(G,auto){const NS=navesDe(G).filter(N=>!N.caida),keep=[];if(!NS.length)return;const IM=NS.find(N=>N.pw.iman>0);
+  for(const g of G.gemas){g.t+=DT;const N=IM||(auto?(NS.length>1?masCerca(G,g.x):NS[0]):null);
+    if(N){const dx=N.x-g.x,dy=MUNDO.NAVE_Y-g.y,l=Math.hypot(dx,dy)||1,v=Math.min(1100,300+g.t*900);g.x+=dx/l*v*DT;g.y+=dy/l*v*DT;}
     else{g.vy=Math.min(260,g.vy+600*DT);g.y+=g.vy*DT;}
-    if(Math.abs(g.x-N.x)<34&&Math.abs(g.y-MUNDO.NAVE_Y)<30){sumarPuntos(G,g.v,g.x,g.y);G.st.gemas++;G.combo.t=Math.max(0,G.combo.t-.5);G.ev.push({t:'gema',x:g.x,y:g.y,v:g.v});continue;}
+    if(NS.some(N=>Math.abs(g.x-N.x)<34&&Math.abs(g.y-MUNDO.NAVE_Y)<30)){sumarPuntos(G,g.v,g.x,g.y);G.st.gemas++;G.combo.t=Math.max(0,G.combo.t-.5);G.ev.push({t:'gema',x:g.x,y:g.y,v:g.v});continue;}
     if(g.y>MUNDO.H+20||g.t>7)continue;keep.push(g);}
   G.gemas=keep;}
 
@@ -4392,13 +4715,14 @@ function moverGemas(G,auto){const N=G.nave,keep=[],iman=N.pw.iman>0||auto;
 function soltarPoder(G,x,y){if(!G.R.poderes)return;
   if(!G.bolsa.length){const b=PODER_IDS.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(rngNext(G.bolsaS)*(i+1));[b[i],b[j]]=[b[j],b[i]];}G.bolsa=b;}
   const tipo=G.bolsa.shift();if(G.poderes.length<4)G.poderes.push({x:Math.max(30,Math.min(690,x)),y,tipo,t:7});}
-function moverPoderes(G,auto){const N=G.nave,keep=[];
+function moverPoderes(G,auto){const NS=navesDe(G).filter(N=>!N.caida),keep=[];if(!NS.length)return;const IM=NS.find(N=>N.pw.iman>0);
   for(const p of G.poderes){p.t-=DT;
-    if(N.pw.iman>0){const dx=N.x-p.x,dy=MUNDO.NAVE_Y-p.y,l=Math.hypot(dx,dy)||1;p.x+=dx/l*500*DT;p.y+=dy/l*500*DT;}else p.y+=170*DT;
-    if(auto||solapa(p.x,p.y,36,36,N.x,MUNDO.NAVE_Y,48,30)){aplicarPoder(G,p.tipo);continue;}
+    if(IM){const N=IM,dx=N.x-p.x,dy=MUNDO.NAVE_Y-p.y,l=Math.hypot(dx,dy)||1;p.x+=dx/l*500*DT;p.y+=dy/l*500*DT;}else p.y+=170*DT;
+    const N=auto?(NS.length>1?masCerca(G,p.x):NS[0]):NS.find(N=>solapa(p.x,p.y,36,36,N.x,MUNDO.NAVE_Y,48,30));
+    if(N){aplicarPoder(G,p.tipo,N);continue;}
     if(p.t>0&&p.y<MUNDO.H+20)keep.push(p);}
   G.poderes=keep;}
-function aplicarPoder(G,t){const N=G.nave;G.st.poderes++;G.ev.push({t:'poder',tipo:t,x:N.x});
+function aplicarPoder(G,t,N=G.nave){G.st.poderes++;G.ev.push({t:'poder',tipo:t,x:N.x,p:N.p});
   if(t==='bomba'){// limpia los tiros, rompe las piedras y barre la fila de abajo de la formación (al jefe le saca 8 %)
     G.hostiles=[];G.barr=[];for(const r of G.rocas){sumarPuntos(G,15,r.x,r.y);G.ev.push({t:'roca',x:r.x,y:r.y,rota:1});}G.rocas=[];
     const E=G.ene.filter(e=>e.est!=='muerto'&&!(e.est==='entra'&&e.en.t<0));
@@ -4410,13 +4734,14 @@ function aplicarPoder(G,t){const N=G.nave;G.st.poderes++;G.ev.push({t:'poder',ti
   else N.pw[t]=PODERES[t].dur;}
 
 /* ── Fin de oleada, de partida ── */
-function olaCompleta(G){
+function olaCompleta(G,sinPts){
   if(G.fase==='transicion')return;
-  const jefe=!!G.jefe,bonus=!!G.def.bonus;G.olaN++;G.st.oleadas++;
-  if(!bonus)sumarPuntos(G,100,360,480,false);if(jefe)sumarPuntos(G,500,360,520,false);
-  G.ev.push({t:'olaCompleta',i:G.ola,jefe,bonus});
+  const jefe=!!G.jefe,bonus=!!G.def.bonus;
+  if(!sinPts){G.olaN++;G.st.oleadas++;if(!bonus)sumarPuntos(G,100,360,480,false);if(jefe)sumarPuntos(G,500,360,520,false);}
+  G.ev.push({t:'olaCompleta',i:G.ola,jefe,bonus,sinPts:sinPts?1:0});
+  if(G.nave2)for(const N of navesDe(G))if(N.caida)revivir(G,N);   // de a dos: el caído vuelve con una vida
   // cada 3 oleadas completas se repara el 20 % de cada refugio
-  if(G.R.reparar&&G.olaN%G.R.reparar===0&&G.ref.length)repararRefugios(G,Math.round(REF_TOTAL*.2));
+  if(!sinPts&&G.R.reparar&&G.olaN%G.R.reparar===0&&G.ref.length)repararRefugios(G,Math.round(REF_TOTAL*.2));
   if(!hayMasOlas(G,G.ola+1)){
     if(G.modo==='arcade'){sumarPuntos(G,500*G.nave.vidas,360,560,false);}
     terminar(G,'victoria','objetivo');return;}
@@ -4425,7 +4750,7 @@ function olaCompleta(G){
 function siguienteOla(G){moverPoderes(G,true);moverGemas(G,true);G.tiros=[];cargarOla(G,G.ola+1);}
 function terminar(G,res,motivo){if(G.fin)return;
   const segs=Object.keys(G.st.actT).length;G.st.actSeg=segs;
-  G.fin={res,motivo,puntos:G.puntos,olas:G.olaN,vidas:Math.max(0,G.nave.vidas),danio:G.st.danio,seg:Math.round(G.seg),act:segs};
+  G.fin={res,motivo,puntos:G.puntos,olas:G.olaN,vidas:navesDe(G).reduce((a,N)=>a+Math.max(0,N.vidas),0),danio:G.st.danio,seg:Math.round(G.seg),act:segs};
   G.fase='fin';G.ev.push({t:'fin',res});}
 
 /* ── Comparar resultados (duelo y tablas): mayor puntaje; después más oleadas, más vidas, menos daño ── */
@@ -4714,6 +5039,12 @@ const SPR={};
 function spr(k,f=0){const key=k+':'+f;if(!SPR[key]){const base=k.startsWith('bli')?'bli':k,A=ARTE[base]||[];SPR[key]=sprite(A[f%A.length]||A[0],PAL_ENE[k],GLOW_ENE[k]);}return SPR[key];}
 let NAVE_K=null,NAVE_S=null;
 function naveSpr(){const k=apar('nave');if(k!==NAVE_K){NAVE_K=k;const N=NAVES[k]||NAVES.chispa;NAVE_S=sprite(N.f,N.p,N.gl);}return NAVE_S;}
+// v77: la nave del compañero (de a dos) es la misma silueta en naranja y dorado, para no confundirlas nunca.
+let NAVE2_S=null;function nave2Spr(){if(!NAVE2_S){const N=NAVES.chispa;NAVE2_S=sprite(N.f,{s:'#fff1dc',u:'#3ff0e8',t:'#ff9f1c',v:'#ff9f1c'},'#ff9f1c');}return NAVE2_S;}
+// La nave que maneja esta pantalla (en el cooperativo, el invitado maneja la 2) y la otra.
+let MI_P=1;
+function miNave(G){return G&&G.nave2&&MI_P===2?G.nave2:G?G.nave:null;}
+function otraNave(G){return G&&G.nave2?(MI_P===2?G.nave:G.nave2):null;}
 function apar(tipo){try{if(window.LOGROS)return LOGROS.apariencia('invasores',tipo)||'';}catch(_){}return '';}
 
 /* ── Fondo: la base (cielo, nebulosas, horizonte) se pre-dibuja; las estrellas corren por capas en cada cuadro ── */
@@ -4741,14 +5072,17 @@ function fondoCanvas(){
     g.save();g.translate(656,834);for(let i=0;i<12;i++){g.rotate(Math.PI/6);g.fillRect(0,-1.2,22,2.4);}g.restore();}
   FONDO=c;return c;
 }
-// Estrellas: tres capas (lejos lento y tenue, cerca rápido y brillante). Corren más rápido con la cadena alta.
-const ESTR=(()=>{const L=[];for(let c=0;c<3;c++){const n=[60,36,18][c];for(let i=0;i<n;i++)L.push({x:Math.random()*720,y:Math.random()*960,c,s:[1,1.6,2.4][c],v:[18,46,110][c],a:[.35,.6,.9][c]});}return L;})();
+// Estrellas: tres capas (lejos lento y tenue, cerca algo más rápido). v77 (pedido: «las estrellas se confunden con los
+// disparos»): son puntitos chicos, tenues, grises azulados y redondos, que nunca se estiran en raya; los tiros, en cambio,
+// son cápsulas largas de color vivo con brillo. Corren un poco más rápido con la cadena alta.
+const ESTR=(()=>{const L=[];for(let c=0;c<3;c++){const n=[60,34,16][c];for(let i=0;i<n;i++)L.push({x:Math.random()*720,y:Math.random()*960,c,s:[.9,1.2,1.6][c],v:[14,32,62][c],f:Math.random()*6.28});}return L;})();
 let VEL_ESTR=1;
-function estrellas(g,dt,G){const obj=G?(G.nave.pw.lento>0?.35:1+Math.min(2.2,(G.combo.mult-1)*.35)+(G.fase==='transicion'?2.5:0)):1;VEL_ESTR+=(obj-VEL_ESTR)*Math.min(1,dt*3);
+function estrellas(g,dt,G){const lento=G&&(G.nave.pw.lento>0||G.nave2&&G.nave2.pw.lento>0);const obj=G?(lento?.35:1+Math.min(1.6,(G.combo.mult-1)*.25)+(G.fase==='transicion'?1.6:0)):1;VEL_ESTR+=(obj-VEL_ESTR)*Math.min(1,dt*3);
   if(AJ.contraste)return;
-  for(let c=0;c<3;c++){g.fillStyle=COL_ESTR[c];const largo=c===2&&VEL_ESTR>1.8?VEL_ESTR*2:1;
-    for(const s of ESTR){if(s.c!==c)continue;s.y+=s.v*VEL_ESTR*dt;if(s.y>960){s.y-=960;s.x=Math.random()*720;}g.fillRect(s.x,s.y,s.s,s.s*largo);}}}
-const COL_ESTR=['rgba(150,160,220,.35)','rgba(170,200,255,.6)','rgba(220,240,255,.9)'];
+  for(let c=0;c<3;c++){g.fillStyle=COL_ESTR[c];
+    if(c<2){for(const s of ESTR){if(s.c!==c)continue;s.y+=s.v*VEL_ESTR*dt;if(s.y>960){s.y-=960;s.x=Math.random()*720;}g.fillRect(s.x,s.y,s.s,s.s);}}
+    else{g.beginPath();for(const s of ESTR){if(s.c!==c)continue;s.y+=s.v*VEL_ESTR*dt;if(s.y>960){s.y-=960;s.x=Math.random()*720;}g.moveTo(s.x+s.s,s.y);g.arc(s.x,s.y,s.s,0,6.283);}g.fill();}}}
+const COL_ESTR=['rgba(140,140,190,.22)','rgba(160,170,215,.32)','rgba(190,195,235,.42)'];
 
 /* ── Partículas: un pozo fijo (sin basura para el recolector), dibujadas sumando luz ── */
 const PMAX=AJ&&AJ.reducir?200:480,PART=[];for(let i=0;i<PMAX;i++)PART.push({on:false,x:0,y:0,vx:0,vy:0,l:0,l0:1,s:2,c:'#fff',gr:0,k:0,r:0,r0:0});
@@ -4780,7 +5114,7 @@ function dibujar(G,dt){
   g.setTransform(s,0,0,s,sx*s,sy*s);
   estrellas(g,dt,G);
   if(!G){moverParticulas(dt);return;}
-  const T=G.t,anim=Math.floor(RELOJ*(G.form&&G.form.vel>60?6:3.5))%2,N=G.nave;
+  const T=G.t,anim=Math.floor(RELOJ*(G.form&&G.form.vel>60?6:3.5))%2,N=miNave(G),NS=G.nave2?[G.nave,G.nave2]:[G.nave];
   // la línea de invasión
   g.strokeStyle='rgba(255,70,110,.28)';g.setLineDash([10,12]);g.lineWidth=2;g.beginPath();g.moveTo(0,MUNDO.LINEA);g.lineTo(720,MUNDO.LINEA);g.stroke();g.setLineDash([]);
   // refugios (neón verde, más oscuro donde están golpeados)
@@ -4803,9 +5137,9 @@ function dibujar(G,dt){
     let x=e.x,y=e.y;
     if(e.est==='apunta'){x+=(Math.random()-.5)*5;
       // la mira del kamikaze: una línea punteada hacia la nave
-      g.strokeStyle=`rgba(255,60,60,${.35+.3*(Math.floor(RELOJ*14)%2)})`;g.lineWidth=2;g.setLineDash([8,8]);g.beginPath();g.moveTo(e.x,e.y);g.lineTo(N.x,MUNDO.NAVE_Y);g.stroke();g.setLineDash([]);}
+      g.strokeStyle=`rgba(255,60,60,${.35+.3*(Math.floor(RELOJ*14)%2)})`;g.lineWidth=2;g.setLineDash([8,8]);g.beginPath();const Nk=G.nave2?masCerca(G,e.x):G.nave;g.moveTo(e.x,e.y);g.lineTo(Nk.x,MUNDO.NAVE_Y);g.stroke();g.setLineDash([]);}
     if(e.carga>0){g.fillStyle=`rgba(255,61,127,${.5+.5*Math.sin(RELOJ*40)})`;g.beginPath();g.arc(x,y+H/2,5+(.4-e.carga)*14,0,7);g.fill();}
-    if(e.est==='pica'||e.est==='kami'||e.est==='mini'){g.save();g.translate(x,y);const ang=e.est==='kami'?Math.atan2(e.kv.vx,e.kv.vy):e.est==='pica'?Math.sin(e.pk.t*3.2)*.5:Math.sin(RELOJ*10)*.4;g.rotate(-ang+Math.PI*(e.est==='kami'?1:0));
+    if(e.est==='pica'||e.est==='kami'||e.est==='mini'){g.save();g.translate(x,y);const ang=e.ang!=null&&e.est!=='mini'?e.ang:e.est==='kami'?Math.atan2(e.kv.vx,e.kv.vy):e.est==='pica'?Math.sin(e.pk.t*3.2)*.5:Math.sin(RELOJ*10)*.4;g.rotate(-ang+Math.PI*(e.est==='kami'?1:0));
       pintar(g,S,0,0,W,H,e.fl>0);g.restore();
       // estela
       g.fillStyle=(COL_ENE[e.tipo]||'#fff')+'66';g.fillRect(x-2,y-H/2-10-Math.random()*8,4,10);}
@@ -4826,10 +5160,12 @@ function dibujar(G,dt){
     g.fillStyle=P.col;g.globalAlpha=.3;g.beginPath();g.arc(p.x,p.y,24*pul,0,7);g.fill();g.globalAlpha=1;}
   // tiros propios
   const tc=TIROS_AP[apar('tiro')]||TIROS_AP.celeste;
-  for(const t of G.tiros){let a=tc?tc[0]:'#ffffff',b=tc?tc[1]:`hsl(${(t.y+T*6)%360},100%,60%)`;
-    g.fillStyle=b;g.globalAlpha=.45;g.fillRect(t.x-5,t.y-14,10,30);g.globalAlpha=1;g.fillStyle=a;g.fillRect(t.x-2,t.y-12,4,24);}
+  // v77: cápsula larga con estela, cabeza redonda y núcleo blanco: imposible de confundir con una estrella
+  for(const t of G.tiros){let a=tc?tc[0]:'#ffffff',b=t.p===2?'#ff9f1c':tc?tc[1]:`hsl(${(t.y+T*6)%360},100%,60%)`;
+    g.fillStyle=b;g.globalAlpha=.22;g.fillRect(t.x-3,t.y+10,6,26);g.globalAlpha=.55;g.fillRect(t.x-5.5,t.y-14,11,30);g.beginPath();g.arc(t.x,t.y-14,7,0,6.283);g.fill();
+    g.globalAlpha=1;g.fillStyle=a;g.fillRect(t.x-2.5,t.y-13,5,25);g.beginPath();g.arc(t.x,t.y-13,3.2,0,6.283);g.fill();}
   // láser
-  if(N.pw.laser>0&&LASER_T>0){const w=10+Math.sin(RELOJ*60)*3;const gr=g.createLinearGradient(N.x-w*2,0,N.x+w*2,0);gr.addColorStop(0,'rgba(255,60,200,0)');gr.addColorStop(.5,'rgba(255,200,250,.95)');gr.addColorStop(1,'rgba(255,60,200,0)');
+  for(const N of NS)if(N.pw.laser>0&&(LASER_T>0||G.espejo)){const w=10+Math.sin(RELOJ*60)*3;const gr=g.createLinearGradient(N.x-w*2,0,N.x+w*2,0);gr.addColorStop(0,'rgba(255,60,200,0)');gr.addColorStop(.5,'rgba(255,200,250,.95)');gr.addColorStop(1,'rgba(255,60,200,0)');
     g.fillStyle=gr;g.fillRect(N.x-w*2,MUNDO.TOPE_Y,w*4,MUNDO.NAVE_Y-20-MUNDO.TOPE_Y);g.fillStyle='#fff';g.fillRect(N.x-2,MUNDO.TOPE_Y,4,MUNDO.NAVE_Y-20-MUNDO.TOPE_Y);}
   // tiros enemigos: formas distintas (rayo apuntado, doble, común, orbe del jefe)
   for(const h of G.hostiles){
@@ -4844,12 +5180,19 @@ function dibujar(G,dt){
     g.fillStyle='rgba(10,12,30,.92)';g.beginPath();g.arc(p.x,p.y,16,0,7);g.fill();g.strokeStyle=P.col;g.lineWidth=3;g.stroke();
     g.fillStyle='#fff';g.font='900 17px system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(P.e,p.x,p.y+1);
     g.font='800 11px system-ui,sans-serif';g.fillStyle=P.col;g.fillText(P.n.toUpperCase(),p.x,p.y+27);}
-  // la nave
-  if(!(G.fin&&N.vidas<=0)){const S=naveSpr(),vis=N.inv>0?(Math.floor(RELOJ*16)%2===0):true;const inc=Math.max(-.25,Math.min(.25,(N.vx||0)/2600));
-    if(vis){g.save();g.translate(N.x,MUNDO.NAVE_Y);g.rotate(inc);pintar(g,S,0,0,46,29,false);g.restore();
-      if(!AJ.reducir){g.globalCompositeOperation='lighter';const f=4+Math.random()*7;g.fillStyle='rgba(63,240,232,.8)';g.fillRect(N.x-13,MUNDO.NAVE_Y+14,4,f);g.fillRect(N.x+9,MUNDO.NAVE_Y+14,4,f);g.globalCompositeOperation='source-over';}}
-    if(N.esc.act>0){g.strokeStyle=`rgba(159,231,255,${.6+.3*Math.sin(RELOJ*20)})`;g.lineWidth=3;g.beginPath();g.ellipse(N.x,MUNDO.NAVE_Y,42,32,0,0,7);g.stroke();g.fillStyle='rgba(159,231,255,.12)';g.fill();}
-    if(N.pw.iman>0){g.strokeStyle=`rgba(255,224,102,${.25+.15*Math.sin(RELOJ*10)})`;g.lineWidth=2;g.beginPath();g.arc(N.x,MUNDO.NAVE_Y,60+(RELOJ*80)%40,Math.PI*1.1,Math.PI*1.9);g.stroke();}}
+  // las naves (la propia y, de a dos, la del compañero; la caída queda como restos que se rescatan)
+  for(const M of NS){const S=M.p===2?nave2Spr():naveSpr();
+    if(M.caida){g.globalAlpha=.35;pintar(g,S,M.x,MUNDO.NAVE_Y,46,29,false);g.globalAlpha=1;const r=(M.resc||0)/2;
+      g.strokeStyle='rgba(255,255,255,.25)';g.lineWidth=3;g.setLineDash([6,6]);g.beginPath();g.arc(M.x,MUNDO.NAVE_Y,40,0,6.283);g.stroke();g.setLineDash([]);
+      if(r>0){g.strokeStyle='#3ff0e8';g.lineWidth=4;g.beginPath();g.arc(M.x,MUNDO.NAVE_Y,40,-Math.PI/2,-Math.PI/2+6.283*Math.min(1,r));g.stroke();}
+      g.fillStyle='#e8f4ff';g.font='800 13px system-ui,sans-serif';g.textAlign='center';g.fillText(M===N?'Esperá el rescate':'¡Rescatalo! Pasá por encima',M.x,MUNDO.NAVE_Y-46);continue;}
+    if(G.fin&&M.vidas<=0)continue;
+    const vis=M.inv>0?(Math.floor(RELOJ*16)%2===0):true;const inc=Math.max(-.25,Math.min(.25,(M.vx||0)/2600));
+    if(vis){g.save();g.translate(M.x,MUNDO.NAVE_Y);g.rotate(inc);pintar(g,S,0,0,46,29,false);g.restore();
+      if(!AJ.reducir){g.globalCompositeOperation='lighter';const f=4+Math.random()*7;g.fillStyle=M.p===2?'rgba(255,159,28,.8)':'rgba(63,240,232,.8)';g.fillRect(M.x-13,MUNDO.NAVE_Y+14,4,f);g.fillRect(M.x+9,MUNDO.NAVE_Y+14,4,f);g.globalCompositeOperation='source-over';}}
+    if(G.nave2){g.fillStyle=M.p===2?'#ffb347':'#7ff7f2';g.font='800 11px system-ui,sans-serif';g.textAlign='center';g.fillText(M===N?'VOS':(window.COMP_NOMBRE||'J'+M.p),M.x,MUNDO.NAVE_Y+34);}
+    if(M.esc.act>0){g.strokeStyle=`rgba(159,231,255,${.6+.3*Math.sin(RELOJ*20)})`;g.lineWidth=3;g.beginPath();g.ellipse(M.x,MUNDO.NAVE_Y,42,32,0,0,7);g.stroke();g.fillStyle='rgba(159,231,255,.12)';g.fill();}
+    if(M.pw.iman>0){g.strokeStyle=`rgba(255,224,102,${.25+.15*Math.sin(RELOJ*10)})`;g.lineWidth=2;g.beginPath();g.arc(M.x,MUNDO.NAVE_Y,60+(RELOJ*80)%40,Math.PI*1.1,Math.PI*1.9);g.stroke();}}
   // partículas y puntos
   moverParticulas(dt);
   g.globalCompositeOperation='lighter';
@@ -4862,14 +5205,14 @@ function dibujar(G,dt){
     g.strokeStyle='rgba(0,0,0,.55)';g.lineWidth=4;g.strokeText(t.t,t.x,t.y);g.fillText(t.t,t.x,t.y);}
   g.globalAlpha=1;
   // el ralentí tiñe la pantalla; la última vida, un borde rojo que late
-  if(N.pw.lento>0){g.fillStyle='rgba(120,255,140,.06)';g.fillRect(0,0,720,960);}
+  if(NS.some(M=>M.pw.lento>0)){g.fillStyle='rgba(120,255,140,.06)';g.fillRect(0,0,720,960);}
   if(N.vidas===1&&!G.fin&&!AJ.reducir){const a=.18+.12*Math.sin(RELOJ*5),vg=g.createRadialGradient(360,480,300,360,480,640);vg.addColorStop(0,'rgba(255,0,60,0)');vg.addColorStop(1,`rgba(255,0,60,${a})`);g.fillStyle=vg;g.fillRect(0,0,720,960);}
   hud(G,dt);
   if(DESTELLO>0){g.globalAlpha=Math.min(1,DESTELLO);g.fillStyle=DESTELLO_C;g.fillRect(0,0,720,960);g.globalAlpha=1;DESTELLO=Math.max(0,DESTELLO-dt*3.5);}
 }
 // El HUD va arriba, en una franja liviana (y < 70): puntaje con la cadena, oleada, vidas y escudo. Abajo, los poderes activos.
 let HUD_GR=null;
-function hud(G,dt){const g=CX,N=G.nave;
+function hud(G,dt){const g=CX,N=miNave(G),O=otraNave(G);
   if(!HUD_GR){HUD_GR=g.createLinearGradient(0,0,0,MUNDO.TOPE_Y);HUD_GR.addColorStop(0,'rgba(4,5,20,.85)');HUD_GR.addColorStop(1,'rgba(4,5,20,0)');}g.fillStyle=HUD_GR;g.fillRect(0,0,720,MUNDO.TOPE_Y);
   g.textBaseline='alphabetic';g.textAlign='left';
   const pts=G.puntos.toLocaleString('es-AR');g.fillStyle='#ffffff';g.font='900 34px system-ui,sans-serif';g.fillText(pts,18,44);
@@ -4880,17 +5223,19 @@ function hud(G,dt){const g=CX,N=G.nave;
     g.fillStyle='rgba(255,255,255,.7)';g.font='700 12px system-ui,sans-serif';g.fillText('cadena '+G.combo.n,172,58);}
   // centro: oleada y avance
   g.textAlign='center';const M_=MODOS[G.modo];
-  const nOla=G.jefe?JEFES[G.jefe.tipo].n:G.def&&G.def.bonus?'BONUS':'OLEADA '+(G.ola+1)+(M_.seq?'/'+M_.seq.length:G.modo==='arcade'?'/10':G.modo==='libre'?'/'+G.R.oleadas:'');
+  const nOla=(G.modo==='historia'?'NIVEL '+G.nivel+' · ':'')+(G.jefe?JEFES[G.jefe.tipo].n:G.def&&G.def.bonus?'BONUS':G.modo==='historia'?'OLEADA '+(G.ola+1)+'/'+nivelOlas(G.nivel).length:'OLEADA '+(G.ola+1)+(M_.seq?'/'+M_.seq.length:G.modo==='arcade'?'/10':G.modo==='libre'?'/'+G.R.oleadas:''));
   g.fillStyle='#cfe3ff';g.font='800 15px system-ui,sans-serif';g.fillText(nOla,400,24);
   if(G.jefe&&!G.jefe.muerto){const J=G.jefe;g.fillStyle='rgba(255,255,255,.15)';g.fillRect(300,32,200,9);g.fillStyle=J.vida/J.max>.25?'#ff3d6e':'#ffd23f';g.fillRect(300,32,200*J.vida/J.max,9);}
   else if(G.def&&G.def.bonus){g.fillStyle='#ffd23f';g.font='900 18px system-ui,sans-serif';g.fillText(Math.max(0,Math.ceil(G.bonusT))+' s',400,44);}
+  else if(G.modo==='contra'&&G.espera){g.fillStyle='#ffd23f';g.font='800 13px system-ui,sans-serif';g.fillText('Esperando la próxima oleada…',400,46);}
   else if(G.iniciales){const v=G.ene.filter(e=>e.est!=='muerto').length;g.fillStyle='rgba(255,255,255,.15)';g.fillRect(320,32,160,6);g.fillStyle='#3ff0e8';g.fillRect(320,32,160*(1-v/G.iniciales),6);}
   const lim=M_.lim;if(lim){const r=Math.max(0,Math.ceil(lim-G.seg)),m=Math.floor(r/60),s2=r%60;g.fillStyle=r<=20?'#ff6a7a':'#8fa2b8';g.font='800 14px system-ui,sans-serif';g.fillText(`${m}:${String(s2).padStart(2,'0')}`,400,60);}
   // derecha: vidas y escudo (dejando lugar al botón de pausa)
   g.textAlign='right';const xr=Math.min(700,720-58/Math.max(.2,ESC));
   const S=naveSpr();if(N.vidas<=5)for(let i=0;i<N.vidas;i++)g.drawImage(S.c,xr-24-i*28,12,24,15);
   else{g.drawImage(S.c,xr-24,12,24,15);g.fillStyle='#eef6ff';g.font='800 15px system-ui';g.fillText('×'+N.vidas,xr-30,25);}
-  if(G.R.escudo){const listo=N.esc.rec<=0&&N.esc.act<=0;g.fillStyle=listo?'#9fe7ff':'#5a6a84';g.font='800 12px system-ui,sans-serif';g.fillText(listo?'🛡 LISTO':N.esc.act>0?'🛡 ACTIVO':'🛡 '+Math.ceil(N.esc.rec)+' s',xr,46);}
+  if(O){const S2=nave2Spr();g.globalAlpha=O.caida?.4:.9;g.drawImage(O.p===2?S2.c:S.c,xr-24,52,18,11);g.fillStyle=O.caida?'#ff6a7a':'#cfe3ff';g.font='800 12px system-ui,sans-serif';g.fillText(O.caida?'caído':'×'+O.vidas,xr-28,62);g.globalAlpha=1;}
+  if(G.R.escudo){const listo=N.esc.rec<=0&&N.esc.act<=0;g.fillStyle=listo?'#9fe7ff':'#5a6a84';g.font='800 12px system-ui,sans-serif';g.fillText(listo?'🛡 LISTO':N.esc.act>0?'🛡 ACTIVO':'🛡 '+Math.ceil(N.esc.rec)+' s',xr-(O?60:0),46);}
   // abajo: los poderes activos con su barra
   const act=Object.keys(N.pw).filter(k=>N.pw[k]>0);if(act.length){g.textAlign='center';let x=360-(act.length-1)*58;
     for(const k of act){const P=PODERES[k];g.fillStyle='rgba(8,10,28,.8)';g.fillRect(x-52,926,104,24);g.fillStyle=P.col;g.fillRect(x-52,946,104*Math.min(1,N.pw[k]/P.dur),4);
@@ -4907,8 +5252,14 @@ function olaTexto(G){const d=G.def;if(!d||d.jefe)return '';if(d.bonus)return '¡
    Portada con los modos, preparación, el bucle (paso fijo de 1/60 s, dibujo a lo que dé la pantalla), pausa con cuenta,
    resultado con premios (XP, oro, un poquito de pesos, leguas), récords, el desafío del día, el tutorial y el taller. */
 let G=null,EST='menu',DEMO=null,ULT=0,ACC=0,GUARD_T=0,CUENTA_T=0,ESCENA='',HITSTOP=0;
-function congelar(ms){if(AJ.reducir||(G&&G.modo==='duelo'))return;HITSTOP=Math.max(HITSTOP,ms/1000);}
-const SAVE='invasores-partida-v1',REC_K='invasores-records',DIA_K='invasores-dia',CFG_K='invasores-cfg',TALLER_K='invasores-taller';
+function congelar(ms){if(AJ.reducir||(G&&(G.modo==='duelo'||G._online||G._espejo)))return;HITSTOP=Math.max(HITSTOP,ms/1000);}
+const SAVE='invasores-partida-v1',REC_K='invasores-records',DIA_K='invasores-dia',CFG_K='invasores-cfg',TALLER_K='invasores-taller',HIS_K='invasores-historia';
+// v77: el progreso de la Historia: {max: el último nivel superado, '<n>': estrellas de ese nivel (1 a 3)} (se sincroniza con «max»)
+function historia(){const H=ls.json(HIS_K,{});return H&&typeof H==='object'?H:{};}
+function hisMax(){return Math.max(0,Math.min(HISTORIA_N,Number(historia().max)||0));}
+function hisEstrellas(n){return Number(historia()[n])||0;}
+function hisAnotar(n,est){const H=historia(),antes=Number(H[n])||0;H[n]=Math.max(antes,est);H.max=Math.max(Number(H.max)||0,n);ls.set(HIS_K,JSON.stringify(H));return {antes,nuevo:est>antes};}
+const estrellasDe=F=>F.res!=='victoria'?0:F.danio===0?3:F.danio<=1?2:1;
 const CFG={dif:'normal',...ls.json(CFG_K,{})};if(!DIFS[CFG.dif])CFG.dif='normal';
 const DIF_ORO={tranquila:'facil',normal:'normal',experta:'dificil'};
 function jugando(){return EST==='jugando';}
@@ -4918,12 +5269,14 @@ const hoyAR=()=>new Date(Date.now()-3*3600e3).toISOString().slice(0,10);
 /* ── Bucle ── */
 function frame(ts){
   const dt=Math.min(.1,Math.max(0,(ts-ULT)/1000)||0);ULT=ts;
-  if(EST==='jugando'&&G&&!G.fin){
+  if(EST==='jugando'&&G&&G._espejo){try{espejoPaso(dt);}catch(e){console.warn('espejo',e);}if(G.fin)alTerminar();}   // v77: el invitado mira lo que manda el anfitrión
+  else if(EST==='mirando'){try{espejoPaso(dt);}catch(_){}}   // v77: terminó tu campo del duelo: mirás el del otro en vivo
+  else if(EST==='jugando'&&G&&!G.fin){
     // v74: «hit-stop» — en los golpes grandes la acción se congela unos milisegundos (sólo el reloj de la pantalla: los
     // pasos del motor son los mismos, así que no cambia nada del resultado)
     if(HITSTOP>0){HITSTOP-=dt;ACC=0;}
     else{ACC+=dt*(G.R.lento?.5:1);let n=0;
-    while(ACC>=DT&&n<8&&!G.fin){paso(G,entrada(G));eventos(G);ACC-=DT;n++;tutPaso();if(HITSTOP>0){ACC=0;break;}}}
+    while(ACC>=DT&&n<8&&!G.fin){if(G._online){const E=entradasOnline(G);paso(G,E[0],E[1]);eventos(G);hostPaso(G);}else{paso(G,entrada(G));eventos(G);}ACC-=DT;n++;tutPaso();if(HITSTOP>0){ACC=0;break;}}}
     if(ACC>DT*8)ACC=0;
     marcha(G,dt);
     GUARD_T+=dt;if(GUARD_T>5){GUARD_T=0;guardar();}
@@ -4934,7 +5287,7 @@ function frame(ts){
     try{duelTick&&duelTick(dt);}catch(_){}}
   else if(EST==='menu'&&!G){demoPaso(dt);}
   try{duelTick&&EST!=='jugando'&&EST!=='cuenta'&&duelTick(dt);}catch(_){}
-  dibujar(G||DEMO,dt);
+  dibujar(EST==='mirando'&&ESPEJO?ESPEJO:G||DEMO,dt);
   pintarEscudo();
   requestAnimationFrame(frame);
 }
@@ -4943,7 +5296,7 @@ function demoPaso(dt){if(document.hidden)return;if(!DEMO||DEMO.fin)DEMO=nuevaPar
   DEMO._acc=(DEMO._acc||0)+dt;let n=0;while(DEMO._acc>=DT&&n<4){paso(DEMO,botDemo(DEMO));DEMO._acc-=DT;n++;}DEMO.ev.length=0;if(DEMO.seg>240)DEMO=null;}
 // La compu de la portada (y de las pruebas): apunta adelantándose a donde va a estar el blanco, esquiva lo que le cae
 // cerca y junta poderes. No es perfecta: es para mostrar el juego.
-function botDemo(G){const N=G.nave,x=N.x;let tx=x;
+function botDemo(G,N){N=N||miNave(G)||G.nave;const x=N.x;let tx=x;
   const E=G.ene.filter(e=>e.est!=='muerto'&&!(e.est==='entra'&&e.en.t<0)&&!(e.est==='bandada'&&e.bd.t<0));
   if(G.jefe&&!G.jefe.muerto)tx=G.jefe.x+Math.sin(G.t/40)*50;
   else if(E.length){const e=E.reduce((a,e)=>e.y>a.y+4||(Math.abs(e.y-a.y)<=4&&Math.abs(e.x-x)<Math.abs(a.x-x))?e:a);
@@ -4955,7 +5308,7 @@ function botDemo(G){const N=G.nave,x=N.x;let tx=x;
   if(peligro.length||at.length||barr.length){const L=peligro.concat(at,barr),izq=L.reduce((s,h)=>s+(h.x<x?1:-1),0);tx=x+(izq>0?110:-110);if(tx<40)tx=x+110;if(tx>680)tx=x-110;}
   return {tx:Math.max(MUNDO.NAVE_MIN,Math.min(MUNDO.NAVE_MAX,tx)),fuego:true,escudo:false,mov:0};}
 let ESC_PINTADO='';
-function pintarEscudo(){const b=$('b-escudo');if(!b||!G)return;const N=G.nave,listo=N.esc.rec<=0&&N.esc.act<=0;
+function pintarEscudo(){const b=$('b-escudo');if(!b||!G)return;const N=miNave(G),listo=N.esc.rec<=0&&N.esc.act<=0;
   const k=(listo?1:0)+':'+Math.round((N.esc.rec||0)*4);if(k===ESC_PINTADO)return;ESC_PINTADO=k;
   b.classList.toggle('recarga',!listo);const p=G.R.recarga*((DIFS[G.dif]||{}).rec||1)+1.2;$('esc-carga').style.width=(listo?100:Math.max(0,100*(1-N.esc.rec/p)))+'%';
   document.body.classList.toggle('sin-escudo',!G.R.escudo);}
@@ -4972,20 +5325,24 @@ function eventos(G){
         if(e.grande){sacudir(.12,6);congelar(e.k==='bli'||e.k==='kam'?45:30);sfx('grande');}else sfx('explota');}
       vibrar(e.grande?25:8);break;}
     case 'golpe':chispas(e.x,e.y,e.jefe?'#ffd36b':'#e8f4ff',e.jefe?5:4,160);sfx(e.jefe?'golpeJefe':'golpe');break;
-    case 'danio':sacudir(.4,14);destello(.35,'#ff2050');congelar(140);chispas(e.x,e.y,'#ffb347',26,280);anillo(e.x,e.y,'#ff4060',80,.4);sfx('danio');vibrar(90);
-      if(e.vidas===1)texto(360,500,'¡ÚLTIMA VIDA!','#ff6a7a',true);break;
-    case 'escudo':sfx('escudo');anillo(G.nave.x,MUNDO.NAVE_Y,'#9fe7ff',60,.3);break;
+    case 'danio':{const mio=!G.nave2||(e.p||1)===MI_P;chispas(e.x,e.y,'#ffb347',26,280);anillo(e.x,e.y,'#ff4060',80,.4);sfx('danio');
+      if(mio){sacudir(.4,14);destello(.35,'#ff2050');congelar(140);vibrar(90);if(e.vidas===1)texto(360,500,'¡ÚLTIMA VIDA!','#ff6a7a',true);}break;}
+    case 'caida':cartel((e.p||1)===MI_P?'¡TE DERRIBARON!':'¡CAYÓ '+(window.COMP_NOMBRE||'TU COMPAÑERO').toUpperCase()+'!',(e.p||1)===MI_P?'Tu compañero te puede rescatar':'Pasá por encima para rescatarlo','#ff6a7a',1.4);break;
+    case 'revive':cartel('¡DE VUELTA!','','#3ff0e8',1);sfx('olaLimpia');anillo(e.x,MUNDO.NAVE_Y,'#3ff0e8',90,.4);break;
+    case 'mandada':texto(360,160,'¡Llega una oleada!','#ff9f1c',true);sfx('aviso');break;
+    case 'autoOla':texto(360,200,'(salió sola)','#8fa2b8');break;
+    case 'escudo':sfx('escudo');anillo(e.x!=null?e.x:G.nave.x,MUNDO.NAVE_Y,'#9fe7ff',60,.3);break;
     case 'bloqueo':anillo(e.x,e.y,'#9fe7ff',24,.2);sfx('bloqueo');break;
     case 'poder':{const P=PODERES[e.tipo];sfx('poder');texto(e.x,800,P.n.toUpperCase()+'!',P.col,true);anillo(e.x,MUNDO.NAVE_Y,P.col,90,.35);vibrar(20);break;}
     case 'bomba':destello(.6,'#ffd0a0');sacudir(.35,12);congelar(90);sfx('bomba');for(let i=0;i<6;i++)anillo(360+(i-2.5)*110,500,'#ff7a5a',120,.45);break;
     case 'suministro':sfx('suministro');break;
-    case 'combo':sfx('combo',e.m);texto(G.nave.x,800,'×'+e.m,e.m>=6?'#ff3d7f':e.m>=4?'#ff9f1c':'#ffd23f',true);break;
+    case 'combo':sfx('combo',e.m);texto((miNave(G)||G.nave).x,800,'×'+e.m,e.m>=6?'#ff3d7f':e.m>=4?'#ff9f1c':'#ffd23f',true);break;
     case 'combo0':if(e.m>=3){texto(150,110,'cadena rota','#8fa2b8');}break;
     case 'gema':sfx('gema',G.combo.mult);break;
     case 'ola':if(e.jefe){sfx('jefe');cartel(JEFES[e.jefe].n.toUpperCase(),'¡Mirá los avisos rojos!','#ff3d6e',1.5);}
       else if(e.bonus){sfx('bonus');cartel('¡BONUS!','Bajá todos los dorados en 10 s','#ffd23f',1.1);}
       else{sfx('ola');cartel('OLEADA '+(e.i+1),olaTexto(G),'#ffffff',.95);}break;
-    case 'olaCompleta':sfx('olaLimpia');if(!e.bonus)cartel(e.jefe?'¡DERROTADO!':'¡LIMPIA!',e.jefe?'+500':'+100','#3ff0e8',1);break;
+    case 'olaCompleta':if(e.sinPts){cartel('¡INVADIERON!','Perdiste una vida','#ff6a7a',1);break;}sfx('olaLimpia');if(!e.bonus)cartel(e.jefe?'¡DERROTADO!':'¡LIMPIA!',e.jefe?'+500':'+100','#3ff0e8',1);break;
     case 'perfecto':sfx('gano');cartel('¡PERFECTO!','+1500','#ffd23f',1.3);destello(.25,'#ffd23f');break;
     case 'explotaJefe':sacudir(.8,18);destello(.7,'#ffffff');congelar(260);for(let i=0;i<8;i++){chispas(e.x+(Math.random()-.5)*160,e.y+(Math.random()-.5)*60,i%2?'#ffd36b':'#ff3d6e',22,320);}
       estallar(e.k,e.x,e.y,JEFES[e.k].w,JEFES[e.k].h,1.6);anillo(e.x,e.y,'#ffd36b',200,.6);sfx('jefeMuere');vibrar(200);break;
@@ -4996,7 +5353,7 @@ function eventos(G){
     case 'kami':sfx('kami');break;
     case 'laser':LASER_T=.12;if(performance.now()-TIRO_SND>90){TIRO_SND=performance.now();sfx('golpe');}break;
     case 'refuerzo':texto(360,300,'¡REFUERZOS!','#ff9f1c',true);sfx('aviso');break;
-    case 'vida':cartel('¡VIDA EXTRA!','','#3ff0e8',1);sfx('olaLimpia');anillo(G.nave.x,MUNDO.NAVE_Y,'#3ff0e8',90,.4);break;
+    case 'vida':cartel('¡VIDA EXTRA!','','#3ff0e8',1);sfx('olaLimpia');anillo(e.x!=null?e.x:G.nave.x,MUNDO.NAVE_Y,'#3ff0e8',90,.4);break;
     case 'divide':chispas(e.x,e.y,'#ff5ec4',10,200);break;
     case 'meteoros':sfx('aviso');cartel('¡METEORITOS!','Rompelos o esquivalos','#ff9a5a',1);break;
     case 'roca':chispas(e.x,e.y,'#ff9a5a',e.rota?14:6,200,300);if(e.rota)sfx('explota');break;
@@ -5008,12 +5365,13 @@ function empezar(modo,op={}){
   closeSheet();hideOver();closeSide();soltarTodo();
   const reglas=modo==='libre'?tallerReglas():modo==='tutorial'?{invul:true,fInt:1.6,escudo:true}:op.reglas;
   const seed=op.seed!=null?op.seed:modo==='dia'?semillaDia(hoyAR()):undefined;
-  G=nuevaPartida({modo:modo==='tutorial'?'tutorial':modo,dif:modo==='dia'||modo==='duelo'||modo==='tutorial'?'normal':(op.dif||CFG.dif),seed,reglas});
+  G=nuevaPartida({modo:modo==='tutorial'?'tutorial':modo,dif:modo==='dia'||modo==='duelo'||modo==='tutorial'||modo==='contra'?'normal':(op.dif||CFG.dif),seed,reglas,nivel:op.nivel,coop:op.coop});
+  if(op.online)G._online=op.online;
   G._dia=modo==='dia'?hoyAR():null;G._oficialDia=modo==='dia'&&!diaHecho();G._key='i'+G.seed.toString(36)+Date.now().toString(36);G._t0=Date.now();
   if(modo==='dia'&&G._oficialDia){const D=ls.json(DIA_K,{});D[G._dia]={empezado:Date.now()};ls.set(DIA_K,JSON.stringify(D));}
   if(modo==='tutorial'){TUT={paso:0,t:0,mov0:0};}else TUT=null;
   ESCENA=modo;document.body.classList.remove('menu');$('hud-pausa').hidden=false;
-  if(modo!=='duelo')ls.set(SAVE,null);
+  if(modo!=='duelo'&&!op.online)ls.set(SAVE,null);
   aplicarAj();medirCampo();cuenta(op.cuenta??2);if(modo!=='tutorial')try{ayudaDesliz();}catch(_){}
   ls.set('bloques-ultimo-juego','invasores');
 }
@@ -5041,7 +5399,7 @@ window.addEventListener('pagehide',()=>guardar());
 $('hud-pausa').onclick=()=>{actx();pausar();};
 
 /* ── Guardar y retomar (modos individuales, hasta 24 h) ── */
-function guardar(forzar){if(!G||G.fin||G.modo==='duelo'||G.modo==='tutorial'||G._oficialDia)return;if(!forzar&&EST==='menu')return;
+function guardar(forzar){if(!G||G.fin||G.modo==='duelo'||G.modo==='tutorial'||G._oficialDia||G._online||G._espejo)return;if(!forzar&&EST==='menu')return;
   try{const c=JSON.parse(JSON.stringify(G));c.ev=[];ls.set(SAVE,JSON.stringify({t:Date.now(),G:c}));}catch(_){}}
 function guardada(){const s=ls.json(SAVE,null);if(!s||!s.G||s.G.v!==MOTOR_V||s.G.fin||Date.now()-s.t>24*3600e3)return null;return s;}
 function retomar(){const s=guardada();if(!s)return portada();G=s.G;G.ev=[];ESCENA=G.modo;document.body.classList.remove('menu');$('hud-pausa').hidden=false;hideOver();closeSheet();soltarTodo();medirCampo();
@@ -5060,34 +5418,40 @@ function alTerminar(){
   if(EST==='fin')return;EST='fin';soltarTodo();ls.set(SAVE,null);$('hud-pausa').hidden=true;
   const F=G.fin,gano=F.res==='victoria'||F.res==='expedicion';
   if(G.modo==='duelo'){duelFin();return;}
+  if(G._online||G._espejo){onlineFin();return;}
   if(G.modo==='tutorial'){tutFin();return;}
   sfx(gano?'gano':'pierdo');
   setTimeout(()=>mostrarResultado(),F.res==='victoria'?900:420);
 }
 function records(){return ls.json(REC_K,{});}
-function anotarRecord(G){if(!G.oficial)return {nuevo:false,antes:0};const R=records(),k=G.modo+':'+G.dif,antes=R[k]||0,nuevo=G.puntos>antes;
+function anotarRecord(G){if(!G.oficial||G.modo==='historia')return {nuevo:false,antes:0};const R=records(),k=G.modo+(G.nave2?'2':'')+':'+G.dif,antes=R[k]||0,nuevo=G.puntos>antes;
   if(nuevo){R[k]=G.puntos;R.at=Date.now();ls.set(REC_K,JSON.stringify(R));}return {nuevo,antes};}
 function mostrarResultado(){
   const F=G.fin,gano=F.res==='victoria'||F.res==='expedicion';
   const rec=anotarRecord(G);G._fueOficialDia=!!G._oficialDia;
   let dia='';if(G._oficialDia){anotarDia(G);G._oficialDia=false;dia='<p class="cap">✅ Quedó anotado tu intento oficial del desafío de hoy.</p>';}
   else if(G.modo==='dia')dia='<p class="cap">Práctica del desafío: el oficial de hoy ya lo jugaste (no cambia la tabla).</p>';
+  // v77: Historia (estrellas y el nivel que sigue)
+  let his='';if(G.modo==='historia'&&G.oficial&&(!G._espejo||G.nivel<=hisMax()+1)){const est=estrellasDe(F);G._estrellas=est;if(est){const r=hisAnotar(G.nivel,est);G._hisNuevo=r.antes===0;}
+    his=`<div class="estrellas">${[1,2,3].map(i=>`<span class="${i<=est?'on':''}">★</span>`).join('')}</div><p class="cap">${est===3?'¡Sin un rasguño!':est===2?'3 estrellas si no te pegan nunca.':est===1?'Con menos golpes, más estrellas.':'Probá de nuevo: el nivel es siempre el mismo.'}</p>`;}
   const pr=premios(G),lg=logrosFin(G);
-  const tit={victoria:G.modo==='dia'?'¡Desafío completo!':'¡Defendiste la llanura!',expedicion:'Expedición completada',tiempo:'¡Se acabó el tiempo!',derrota:F.motivo==='invasion'?'Invadieron la llanura':'Te derribaron',abandono:'Partida terminada'}[F.res]||'Fin';
+  const tit={victoria:G.modo==='dia'?'¡Desafío completo!':G.modo==='historia'?`¡Nivel ${G.nivel} superado!`:'¡Defendiste la llanura!',expedicion:'Expedición completada',tiempo:'¡Se acabó el tiempo!',derrota:F.motivo==='invasion'?'Invadieron la llanura':'Te derribaron',abandono:'Partida terminada'}[F.res]||'Fin';
   const ic=gano?'🏆':F.res==='tiempo'?'⏱':'👾';
   // v74: lo primero es el puntaje y «Otra», grande; si no hubo récord, cuánto faltó (las ganas de una más)
   const falta=G.oficial&&!rec.nuevo&&rec.antes>F.puntos?rec.antes-F.puntos:0;
   const recTxt=!G.oficial?'':rec.nuevo&&rec.antes>0?'<div class="rs-rec nuevo">🏆 ¡Nuevo récord!</div>':rec.nuevo?'<div class="rs-rec nuevo">🏆 Tu primer récord</div>':falta?`<div class="rs-rec">Te faltaron <b>${fmt(falta)}</b> para tu récord (${fmt(rec.antes)})</div>`:'';
   over(`<div class="ic">${ic}</div><h3>${tit}</h3>
-    <div class="rs-pts">${fmt(F.puntos)}<small>puntos</small></div>${recTxt}
-    <button class="btn go otra" id="rs-otra">▶ Otra</button>
+    <div class="rs-pts">${fmt(F.puntos)}<small>puntos</small></div>${his||recTxt}
+    <button class="btn go otra" id="rs-otra">${G.modo==='historia'?gano&&G.nivel<HISTORIA_N?'▶ Nivel '+(G.nivel+1):'↻ Reintentar':'▶ Otra'}</button>
+    ${G.modo==='historia'&&gano?'<button class="btn" id="rs-rep">↻ Repetir el nivel '+G.nivel+'</button>':''}
     <div class="lines"><div><span>Puntos</span><b>${fmt(F.puntos)}</b></div><div><span>Oleadas limpias</span><b>${F.olas}</b></div><div><span>Cadena máxima</span><b>×${G.st.maxCombo}</b></div><div><span>Duración</span><b>${durTxt(F.seg)}</b></div>
     <div><span>Precisión</span><b>${G.st.disparos?Math.round(100*Math.min(1,G.st.aciertos/G.st.disparos)):0}%</b></div></div>
     ${dia}${pr.html}${lg}
     <div class="row"><button class="btn" id="rs-modo">Cambiar modo</button>${window.CHAT&&acct()?'<button class="btn" id="rs-share">💬 Compartir</button>':''}</div>
     <a class="btn" href="./#juegos">Volver a BloqueAR</a>`);
-  $('rs-otra').onclick=()=>{const m=G.modo;hideOver();empezar(m,{dif:G.dif});};
-  $('rs-modo').onclick=()=>{G=null;EST='menu';document.body.classList.add('menu');hideOver();portada();};
+  $('rs-otra').onclick=()=>{const m=G.modo;hideOver();if(m==='historia')empezar('historia',{dif:G.dif,nivel:gano&&G.nivel<HISTORIA_N?G.nivel+1:G.nivel});else empezar(m,{dif:G.dif});};
+  if($('rs-rep'))$('rs-rep').onclick=()=>{hideOver();empezar('historia',{dif:G.dif,nivel:G.nivel});};
+  $('rs-modo').onclick=()=>{const h=G.modo==='historia';G=null;EST='menu';document.body.classList.add('menu');hideOver();portada();if(h)openHistoria();};
   if($('rs-share'))$('rs-share').onclick=()=>CHAT.share({j:'invasores',t:`InvasorAR · ${MODOS[G.modo].n}`,d:`${fmt(F.puntos)} puntos · ${F.olas} oleadas${gano?' · ¡completo!':''}`});
 }
 const durTxt=s=>`${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,'0')}`;
@@ -5100,7 +5464,8 @@ function premios(G){
   const out={html:''};const F=G.fin,R=window.RANGOS;
   const filas=[];
   if(!G.oficial){out.html=`<div class="premios"><b>Reglas libres · sin premios</b><span class="no">Las partidas con reglas cambiadas no dan XP, oro ni leguas, y no van a las tablas.</span></div>`;return out;}
-  const valida=elegible(G);
+  // Historia: un nivel superado vale la primera vez (o si la partida fue larga); repetir el nivel 1 no es una fábrica de XP
+  const valida=elegible(G)&&(G.modo!=='historia'||G._hisNuevo||G.seg>=90&&(F.act||0)>=60);
   if(!R){return out;}
   const hechas=ls.json(XP_K,[]);if(hechas.includes(G._key))return out;hechas.push(G._key);ls.set(XP_K,JSON.stringify(hechas.slice(-80)));
   const gano=F.res==='victoria'||F.res==='expedicion';
@@ -5112,6 +5477,7 @@ function premios(G){
   let legDia=0;if(G.modo==='dia'&&G._fueOficialDia&&valida&&!G._diaPremiado){G._diaPremiado=true;try{legDia=R.pampaAct('w',1)||0;}catch(_){}}
   // tabla de Arcade (la de la planilla muestra la de Normal; se anotan todas para el perfil)
   if(G.modo==='arcade'&&valida){try{R.resultado('invasores','partida',gano?1:0,{r:'s',cu:1,modo:'arcade',dif:G.dif,pts:F.puntos,ol:F.olas,vi:F.vidas},'invasores:arc:'+G._key);}catch(_){}}
+  if((G.modo==='infinito'||G.modo==='historia'&&gano)&&valida){try{R.resultado('invasores','partida',gano?1:0,{r:'s',cu:1,modo:G.modo,dif:G.dif,pts:F.puntos,ol:F.olas,vi:F.vidas,niv:G.nivel||0,dos:G.nave2?1:0},'invasores:'+G.modo.slice(0,3)+':'+G._key);}catch(_){}}   // v77
   let lv=null;try{lv=R.levelInfo(R.xp('invasores'));}catch(_){}
   if(xp)filas.push(`InvasorAR nivel ${lv?lv.lv:1} · +${xp} XP`);
   if(pr&&pr.oro)filas.push(`🟡 +${fmt(pr.oro)} de oro`);
@@ -5126,23 +5492,24 @@ function premios(G){
 }
 function logrosFin(G){if(!window.LOGROS)return '';const F=G.fin,gano=F.res==='victoria';
   try{const k='i'+G._key;
-    if(G.oficial){LOGROS.marca('invasores','max_combo',G.st.maxCombo,k,true);if(G.modo==='resistencia')LOGROS.marca('invasores','olas_res',F.olas,k,true);}
+    if(G.oficial){LOGROS.marca('invasores','max_combo',G.st.maxCombo,k,true);if(G.modo==='resistencia'||G.modo==='infinito')LOGROS.marca('invasores','olas_res',F.olas,k,true);}
     return LOGROS.fin('invasores',{gano:G.oficial&&gano,modo:'solo',dif:G.dif,olas:F.olas,bajas:G.st.bajas,sum:G.st.suministros,cen:G.st.centinela,nod:G.st.nodriza,perf:G.st.perfectos,escudos:G.st.escudosOk,
-      limpio:G.modo==='arcade'&&G.dif!=='tranquila'&&F.vidas===G.nave.vidas0,diario:G.modo==='dia'&&!!G._fueOficialDia,oficial:G.oficial},k).html;}catch(e){console.warn('logros',e);return '';}}
+      limpio:G.modo==='arcade'&&G.dif!=='tranquila'&&F.vidas===G.nave.vidas0&&!G.nave2,diario:G.modo==='dia'&&!!G._fueOficialDia,oficial:G.oficial},k).html;}catch(e){console.warn('logros',e);return '';}}
 
 /* ── Portada ── */
 function portada(){
   EST='menu';G=null;document.body.classList.add('menu');$('hud-pausa').hidden=true;$('rival').hidden=true;
-  const s=guardada(),R=records(),rec=R['arcade:'+CFG.dif]||0,d=diaHecho(),D=ls.json(DIA_K,{})[hoyAR()];
+  const s=guardada(),R=records(),rec=R['infinito:'+CFG.dif]||0,recA=R['arcade:'+CFG.dif]||0,d=diaHecho(),D=ls.json(DIA_K,{})[hoyAR()],hm=hisMax();
   over(`<div class="ccard portada" style="padding:0;background:none;border:0;box-shadow:none"></div>`);
   $('over').innerHTML=`<div class="ccard portada">
     <div class="titulo">INVASOR<span>AR</span></div><p class="bajada">Defendé la llanura de los invasores mecánicos. Mové la nave, disparale a la formación y que no lleguen a la línea.</p>
     ${s?`<button class="btn go" id="pt-sigue">▶ Seguir tu partida <small>${esc(MODOS[s.G.modo].n)} · oleada ${s.G.ola+1} · ${fmt(s.G.puntos)} pts</small></button>`:''}
     <div class="modos">
-      <button class="modo grande" data-m="arcade"><b>Jugar · Arcade</b><small>10 oleadas, 2 bonus y 2 jefes · ${DIFS[CFG.dif].n}${rec?' · récord '+fmt(rec):''}</small></button>
+      <button class="modo grande" data-m="infinito"><b>▶ Jugar · Infinito</b><small>Oleadas sin fin, cada vez más difíciles · ${DIFS[CFG.dif].n}${rec?' · récord '+fmt(rec):''}</small></button>
+      <button class="modo" data-m="historia"><b>📖 Historia</b><small>${hm?`Vas por el nivel ${Math.min(HISTORIA_N,hm+1)} de ${HISTORIA_N}`:`${HISTORIA_N} niveles, cada vez más difíciles`}</small></button>
+      <button class="modo" data-m="enlinea"><b>👥 Con un amigo</b><small>En línea: de a dos, En contra o Versus</small></button>
       <button class="modo" data-m="dia"><b>📅 Desafío del día</b><small>${d?`Hecho${D&&D.puntos!=null?': '+fmt(D.puntos)+' pts':''} · ahora es práctica`:'El mismo para todos · da 1 legua'}</small></button>
-      <button class="modo" data-m="duelo"><b>⚔️ Duelo</b><small>Con un amigo, en línea · 3 minutos</small></button>
-      <button class="modo" data-m="resistencia"><b>♾️ Resistencia</b><small>Oleadas sin fin, hasta 20 min</small></button>
+      <button class="modo" data-m="arcade"><b>🕹 Arcade</b><small>10 oleadas, 2 bonus y 2 jefes${recA?' · récord '+fmt(recA):''}</small></button>
       <button class="modo" data-m="libre"><b>🛠 Taller de reglas</b><small>Tus reglas · sin premios</small></button>
       <button class="modo" data-m="tutorial"><b>🎓 Tutorial</b><small>Aprendé en un minuto</small></button>
       <button class="modo" data-m="ap"><b>🎨 Colección</b><small>Naves, disparos y fondos</small></button>
@@ -5160,13 +5527,15 @@ function chipEl(m){const a=acct();
   return `<span class="chip-el">XP y oro${a?' · 1 legua por día':''}${m==='dia'?' · +1 legua del día':''}</span>${a?'':' <span class="chip-el no">Sin cuenta: sin leguas</span>'}`;}
 function elegirModo(m){
   if(m==='ap'){if(window.LOGROS&&LOGROS.hoja)LOGROS.hoja('invasores');else if(window.LOGROS)LOGROS.abrir('invasores',{side:openSide,volver:closeSide,cerrar:closeSide});return;}
-  if(m==='duelo'){openDuelo();return;}
+  if(m==='duelo'||m==='enlinea'){openDuelo();return;}
+  if(m==='historia'){openHistoria();return;}
   if(m==='libre'){openTaller();return;}
   if(m==='tutorial'){empezar('tutorial',{cuenta:1});return;}
   const difs=m==='dia'?'':`<h4>Dificultad</h4><div class="seg">${Object.keys(DIFS).map(d=>`<button class="btn${CFG.dif===d?' on':''}" data-dif="${d}">${DIFS[d].n}</button>`).join('')}</div>
     <p class="note">${CFG.dif==='tranquila'?'4 vidas, te tiran menos y más lento, el escudo se recarga antes, caen más poderes y los jefes aguantan menos.':CFG.dif==='normal'?'3 vidas. El equilibrio de siempre.':'2 vidas, tiros más rápidos y seguidos, más francotiradores, menos poderes y jefes más duros.'} Cada dificultad tiene su récord y su tabla.</p>`;
   const txt={arcade:'Diez oleadas cortas: dos son bonus (bajá los dorados en 10 s), la quinta es el Centinela y la décima, la Nodriza. Cada tercera oleada limpia se reparan los refugios.',
     resistencia:'Oleadas sin fin, cada vez más duras, con un bonus y un jefe cada cinco. La expedición se cierra a los 20 minutos.',
+    infinito:'Oleadas sin fin y cada vez más difíciles: cada una distinta (formas, tipos de invasores, tormentas, picadas, kamikazes). Cada 10, un jefe; en el medio, un bonus. ¿Hasta dónde llegás? De a dos, desde «Con un amigo».',
     dia:`Cinco oleadas con la misma semilla para todos (la 1, la 2, un bonus, la 4 y el Centinela), una sola dificultad y hasta 5 minutos. ${diaHecho()?'El oficial de hoy ya lo jugaste: ahora es práctica.':'El primer intento que termines es el oficial: va a la tabla del día y de la semana.'}`}[m]||'';
   const paint=()=>{sheet(MODOS[m].n,`<p>${txt}</p><div>${chipEl(m)}</div>${difs}
     ${m==='dia'?'<a class="btn chico" href="./#tablas=invasores">🏆 Tabla del día y de la semana</a>':''}
@@ -5176,12 +5545,26 @@ function elegirModo(m){
   paint();
 }
 
+/* ── v77: Historia: los 100 niveles en una grilla, con sus estrellas; se juega el siguiente al último superado ── */
+function openHistoria(){const H=historia(),mx=hisMax(),tot=Object.keys(H).filter(k=>k!=='max').reduce((a,k)=>a+(Number(H[k])||0),0);
+  const paint=()=>{sheet('Historia',`<p class="note">${HISTORIA_N} niveles fijos (iguales para todos), cada vez más difíciles. Cada 10, un jefe. Estrellas: ★★★ sin que te peguen, ★★ con un golpe, ★ superado. Llevás <b>${tot}</b> de ${HISTORIA_N*3} ★.</p>
+    <h4>Dificultad</h4><div class="seg">${Object.keys(DIFS).map(d=>`<button class="btn chico${CFG.dif===d?' on':''}" data-dif="${d}">${DIFS[d].n}</button>`).join('')}</div>
+    <div class="niveles">${Array.from({length:HISTORIA_N},(_,i)=>{const n=i+1,e=Number(H[n])||0,abierto=n<=mx+1;
+      return `<button class="niv${n%10===0?' jefe':''}${n===mx+1?' sig':''}" data-n="${n}" ${abierto?'':'disabled'} aria-label="Nivel ${n}${e?', '+e+' estrellas':''}"><b>${abierto?n:'🔒'}</b><small>${e?'★'.repeat(e):n%10===0?'jefe':''}</small></button>`;}).join('')}</div>
+    <button class="btn go" id="hi-go">${mx>=HISTORIA_N?'Repetir el nivel '+HISTORIA_N:'Jugar el nivel '+(mx+1)}</button>`);
+    document.querySelectorAll('#sheet [data-dif]').forEach(b=>b.onclick=()=>{CFG.dif=b.dataset.dif;ls.set(CFG_K,JSON.stringify(CFG));paint();});
+    document.querySelectorAll('#sheet [data-n]').forEach(b=>b.onclick=()=>{actx();empezar('historia',{nivel:Number(b.dataset.n)});});
+    $('hi-go').onclick=()=>{actx();empezar('historia',{nivel:Math.min(HISTORIA_N,mx+1)});};
+    const sig=document.querySelector('#sheet .niv.sig');if(sig)try{sig.scrollIntoView({block:'center'});}catch(_){}};
+  paint();}
+
 /* ── Récords, ayuda y ajustes ── */
 function openRecords(){const R=records(),D=ls.json(DIA_K,{}),dias=Object.keys(D).filter(k=>D[k].hecho).sort().reverse().slice(0,7);
   const fila=(m,d)=>`<div><span>${MODOS[m].n} · ${DIFS[d].n}</span><b>${R[m+':'+d]?fmt(R[m+':'+d]):'—'}</b></div>`;
-  sheet('Récords',`<div class="ccard" style="box-shadow:none;padding:0;background:none;border:0;text-align:left"><div class="lines">${['arcade','resistencia'].map(m=>Object.keys(DIFS).map(d=>fila(m,d)).join('')).join('')}</div></div>
+  sheet('Récords',`<div class="ccard" style="box-shadow:none;padding:0;background:none;border:0;text-align:left"><div class="lines">${['infinito','arcade'].map(m=>Object.keys(DIFS).map(d=>fila(m,d)).join('')).join('')}</div></div>
+    <h4>Historia</h4><p class="note">${hisMax()?`Superaste ${hisMax()} de ${HISTORIA_N} niveles · ${Object.keys(historia()).filter(k=>k!=='max').reduce((a,k)=>a+(Number(historia()[k])||0),0)} ★`:'Todavía no superaste ningún nivel.'}</p>
     <h4>Desafíos del día</h4>${dias.length?`<div class="ccard" style="box-shadow:none;padding:0;background:none;border:0;text-align:left"><div class="lines">${dias.map(k=>`<div><span>${k.split('-').reverse().join('/')}</span><b>${fmt(D[k].puntos)} pts · ${D[k].olas} oleadas</b></div>`).join('')}</div></div>`:'<p class="note">Todavía no jugaste ninguno.</p>'}
-    <a class="btn go" href="./#tablas=invasores">🏆 Tablas con todos (Arcade, del día, duelos)</a>`);}
+    <a class="btn go" href="./#tablas=invasores">🏆 Tablas con todos (Infinito, Arcade, Historia, del día, en línea)</a>`);}
 function openHelp(){
   sheet('Cómo se juega',`<p><b>Mové la nave</b> de lado a lado y <b>disparale</b> a la formación (tus tiros pasan por los refugios verdes; los de ellos, no). Si un invasor llega a la línea roja punteada, perdés.</p>
     <h4>Controles</h4><ul>${TACTIL?'<li><b>Deslizar:</b> apoyá el dedo en la franja de abajo (o en la parte de abajo del campo) y corrélo: la nave te sigue al instante.</li><li><b>Botones:</b> ◀ ▶ grandes, en los ajustes.</li><li><b>Autodisparo</b> (prendido): dispara solo, igual que mantener el botón.</li>':''}<li><b>Compu:</b> flechas o A-D para mover, <b>Espacio</b> para disparar, <b>Shift</b> o <b>E</b> para el escudo, <b>P</b> o <b>Esc</b> para pausar. Al perder, <b>Enter</b> es «Otra».</li></ul>
@@ -5293,7 +5676,7 @@ const UIQ={users:null,err:'',dismissed:new Set(),q:'',todos:false};
 let DUELO=null,MCH=[],MCH_NO=0,EST_T=0;
 // DUELO = {role:'host'|'guest', estado:'invitando'|'conectando'|'sala'|'juego'|'fin'|'cortado', rival:{usuario,avatar,color}, pc, ch, id (invitación),
 //          mesa, listoYo, listoEl, ronda, seed, re:{p,v,o,fin,F} (lo último del rival), t0, finYo, finEl, corte}
-function enDuelo(){return !!(DUELO&&(DUELO.estado==='juego'||DUELO.estado==='fin')&&G&&G.modo==='duelo');}
+function enDuelo(){return !!(DUELO&&(DUELO.estado==='juego'||DUELO.estado==='fin')&&G&&(G.modo==='duelo'||G._online||G._espejo));}
 function sendCh(m){try{if(DUELO&&DUELO.ch&&DUELO.ch.readyState==='open')DUELO.ch.send(JSON.stringify(m));}catch(_){}}
 
 /* ── Invitar ── */
@@ -5317,7 +5700,7 @@ function listaHtml(){
   return todos+L.map(u=>`<li>${avHtml(u.avatar,u.color)}<span class="nm">${esc(u.usuario)}${u.enLinea?'<i class="dot"></i>':''}${u.amigo?' <small>amigo</small>':''}</span><button data-u="${esc(u.usuario)}" ${ocupado?'disabled':''}>Invitar</button></li>`).join('');}
 function drawInvitar(){
   const D=DUELO;
-  sheet('Duelo con un amigo',`<p class="note">3 minutos, las mismas oleadas para los dos, en Normal. Cada uno en su campo: gana el que hace más puntos. No hay pausa.</p>
+  sheet('Jugar con un amigo',`<p class="note">En línea, sin pausa: <b>de a dos</b> en el mismo campo (Infinito o un nivel de la Historia), <b>En contra</b> (uno defiende y el otro arma las oleadas) o <b>Versus</b> (cada uno en su campo, 3 minutos). El modo se elige en la sala.</p>
     ${D&&D.rival?`<div class="lugar">${avHtml(D.rival.avatar,D.rival.color)}<div><b>${esc(D.rival.usuario)}</b><small><span class="busy"></span>${esc(D.msg||'Invitado…')}</small></div><button class="btn chico" id="du-cancel" style="flex:none">Cancelar</button></div>`:''}
     <h4>¿A quién invitás?</h4><input class="buscar" id="du-q" type="search" placeholder="Buscar por nombre" value="${esc(UIQ.q)}" autocomplete="off">
     <ul class="ulist chica" id="du-ul">${listaHtml()}</ul>
@@ -5331,8 +5714,8 @@ async function cargarUsuarios(){
   try{const j=await lbCall({accion:'usuarios'},false);if(!Array.isArray(j.usuarios))throw new Error('Hay que actualizar el código de la planilla.');UIQ.users=j.usuarios;UIQ.err='';}catch(e){UIQ.err=e.message;}
   if(DUELO==null||DUELO.estado==='invitando'){if(!$('modal').hidden&&$('du-ul'))drawInvitar();}
 }
-function nuevaPC(){return iceServers().then(ice=>new RTCPeerConnection({iceServers:ice}));}
-function cablearCanal(ch){DUELO.ch=ch;const me=DUELO;
+function nuevaPC(){return iceServers().then(ice=>{const pc=new RTCPeerConnection({iceServers:ice});pc._fotos=canalFotos(pc);return pc;});}   // v77: + el canal de las fotos
+function cablearCanal(ch){DUELO.ch=ch;const me=DUELO;cablearFotos(me);
   ch.onopen=()=>{if(DUELO!==me)return;DUELO.estado=DUELO.estado==='juego'?'juego':'sala';DUELO.corte=false;sendCh({t:'hola',yo:yoPerfil(),re:G&&G.modo==='duelo'&&!G.fin?resumen():null});
     try{RECON.quitar('inv-du');}catch(_){}renderOnline();sfx('menu');if(DUELO.volviendo){DUELO.volviendo=false;toast(`🔗 ${esc(DUELO.rival.usuario)} volvió`);}else if(DUELO.estado==='sala')drawSala();};
   ch.onclose=()=>duelCorte();
@@ -5378,41 +5761,50 @@ async function acceptInvite(inv,vuelta=false){
 }
 
 /* ── La sala: los dos, «Listo» y empezar ── */
-function drawSala(){const D=DUELO;if(!D)return;const yo=yoPerfil(),host=D.role==='host';
+function drawSala(){const D=DUELO;if(!D)return;const yo=yoPerfil(),host=D.role==='host';if(!D.modo)D.modo='dos';
   const enf=document.activeElement&&document.activeElement.id==='lb-t',borr=$('lb-t')?$('lb-t').value:'';
-  sheet('Duelo con '+esc(D.rival.usuario),`<div class="sala">
+  sheet('Con '+esc(D.rival.usuario),`<div class="sala">
       <div class="lugar${D.listoYo?' listo':''}">${avHtml(yo.avatar,yo.color)}<div><b>Vos</b><small>${D.listoYo?'✓ Listo':'Preparándose…'}</small></div></div>
       <div class="lugar${D.listoEl?' listo':''}">${avHtml(D.rival.avatar,D.rival.color)}<div><b>${esc(D.rival.usuario)}</b><small>${D.estado==='cortado'?'Se cortó':D.listoEl?'✓ Listo':'Preparándose…'}</small></div></div></div>
-    <p class="note">Reglas: 3 minutos · mismas oleadas para los dos · Normal · sin pausa. Gana el que tenga más puntos.</p>
+    ${salaModosHtml(D)}
     ${D.ultimo?`<p class="note">Último duelo: ${esc(D.ultimo)}</p>`:''}
     <button class="btn${D.listoYo?' on':''}" id="sa-listo">${D.listoYo?'✓ Estoy listo (tocá para cancelar)':'Estoy listo'}</button>
-    ${host?`<button class="btn go" id="sa-go" ${D.listoYo&&D.listoEl?'':'disabled'}>${D.ronda?'Revancha':'Empezar el duelo'}</button><p class="note">Empieza cuando los dos estén listos.</p>`:`<p class="note"><span class="busy"></span>Cuando los dos estén listos, ${esc(D.rival.usuario)} lo empieza.</p>`}
+    ${host?`<button class="btn go" id="sa-go" ${D.listoYo&&D.listoEl?'':'disabled'}>${D.ronda?'Otra':'Empezar'} · ${esc(MODOS_EN[D.modo].n)}</button><p class="note">Empieza cuando los dos estén listos.</p>`:`<p class="note"><span class="busy"></span>Cuando los dos estén listos, ${esc(D.rival.usuario)} lo empieza.</p>`}
     <h4>Charla</h4>${charlaHtml()}
-    <div class="row"><button class="btn" id="sa-x">Salir del duelo</button></div>`);
+    <div class="row"><button class="btn" id="sa-x">Salir de la sala</button></div>`);
   $('sa-listo').onclick=()=>{D.listoYo=!D.listoYo;sendCh({t:'listo',v:D.listoYo});drawSala();};
-  if($('sa-go'))$('sa-go').onclick=()=>{if(!(D.listoYo&&D.listoEl))return;const seed=(Math.random()*4294967296)>>>0;D.ronda++;sendCh({t:'go',seed,ronda:D.ronda});arrancarDuelo(seed);};
+  if($('sa-go'))$('sa-go').onclick=()=>{if(!(D.listoYo&&D.listoEl))return;const seed=(Math.random()*4294967296)>>>0;D.ronda++;
+    if(D.modo==='duelo'){sendCh({t:'go',seed,ronda:D.ronda});arrancarDuelo(seed);}else{D.cr=null;arrancarOnline(seed);}};
+  cablearModos(D);
   $('sa-x').onclick=()=>{duelSalir(true);closeSheet();portada();};
   $('sh-x').onclick=()=>{$('modal').hidden=true;};
   cablearCharla();if(borr)$('lb-t').value=borr;if(enf)$('lb-t').focus({preventScroll:true});
 }
-function arrancarDuelo(seed){const D=DUELO;D.seed=seed;D.estado='juego';D.listoYo=D.listoEl=false;D.re={p:0,v:3,o:0};D.finYo=null;D.finEl=null;D.t0=Date.now()+3000;D.corte=false;D.ultimo='';
+function arrancarDuelo(seed){const D=DUELO;D.seed=seed;D.modo='duelo';MI_P=1;ESPEJO=null;D.mirado=false;D.estado='juego';D.listoYo=D.listoEl=false;D.re={p:0,v:3,o:0};D.finYo=null;D.finEl=null;D.t0=Date.now()+3000;D.corte=false;D.ultimo='';
   closeSheet();empezar('duelo',{seed,cuenta:3});G._key='d'+D.mesa+':'+D.ronda;
   try{window.RECON&&RECON.recordar('invasores',{mesa:D.mesa,host:D.role==='host'?yoPerfil().usuario:D.rival.usuario,rol:D.role});}catch(_){}
   rivalChip();}
 const resumen=()=>G?{p:G.puntos,v:G.nave.vidas,o:G.olaN,ola:G.ola+1,fin:G.fin?G.fin.res:null}:null;
 // En cada cuadro: mandar lo mío unas 4 veces por segundo y cortar a los 3 minutos de reloj (aunque la app haya estado escondida).
-function duelTick(dt){const D=DUELO;if(!D||D.estado!=='juego'||!G||G.modo!=='duelo')return;
+function duelTick(dt){const D=DUELO;if(!D)return;try{contraRefresco(dt);}catch(_){}
+  if(D.estado==='juego'&&G&&G._online&&!G._espejo&&!G.fin){EST_T+=dt;if(EST_T>.5){EST_T=0;rivalChip();}}
+  if(D.estado!=='juego'||!G||G.modo!=='duelo')return;duelMirado();
   EST_T+=dt;if(EST_T>.25){EST_T=0;sendCh({t:'est',...resumen()});}
   if(!G.fin&&D.t0&&Date.now()-D.t0>183000){G.fin||(G.fin={res:'tiempo',motivo:'tiempo',puntos:G.puntos,olas:G.olaN,vidas:G.nave.vidas,danio:G.st.danio,seg:Math.round(G.seg),act:Object.keys(G.st.actT).length});G.fase='fin';}}
-function rivalChip(){const D=DUELO,el=$('rival');if(!D||!G||G.modo!=='duelo'){el.hidden=true;return;}const r=D.re||{};
+function rivalChip(){const D=DUELO,el=$('rival');
+  if(D&&G&&(G._online||G._espejo)&&D.estado==='juego'){el.hidden=false;el.classList.remove('adelante');
+    if(G.modo==='contra'){const p0=D.cr&&D.cr.pts[0],yoDef=(D.role==='host')===(D.def===1);el.textContent=`Ronda ${D.cr?D.cr.ronda:1}/2 · ${D.corte?D.rival.usuario+' se cortó · esperándolo…':yoDef?'defendés vos':'defiende '+D.rival.usuario}${p0?' · a superar: '+fmt(p0.pts):''}`;}
+    else el.textContent=D.corte?`${D.rival.usuario} se cortó · esperándolo…`:`De a dos con ${D.rival.usuario}`;return;}
+  if(!D||!G||G.modo!=='duelo'){el.hidden=true;return;}const r=D.re||{};
   el.hidden=false;const adel=(r.p||0)<=G.puntos;el.classList.toggle('adelante',adel);
   el.textContent=D.corte?`${D.rival.usuario} se cortó · esperándolo…`:`${D.rival.usuario}: ${fmt(r.p||0)} pts · ${'♥'.repeat(Math.max(0,Math.min(5,r.v||0)))} · oleada ${r.ola||1}${r.fin?' · terminó':''}`;}
-function duelMsg(x){const D=DUELO;
+function duelMsg(x){const D=DUELO;if(coopMsg(x))return;
   if(x.t==='hola'){if(x.yo){D.rival.avatar=x.yo.avatar||D.rival.avatar;D.rival.color=x.yo.color||D.rival.color;}if(x.re)D.re=x.re;if(D.estado==='sala')drawSala();return;}
-  if(x.t==='listo'){D.listoEl=!!x.v;if(D.estado==='sala'||D.estado==='fin'){if(D.estado==='fin')D.estado='sala';drawSala();}return;}
+  if(x.t==='listo'){D.listoEl=!!x.v;if(D.estado==='sala'||D.estado==='fin'){if(D.estado==='fin'&&!$('over').hidden){toast(`${esc(D.rival.usuario)} quiere jugar otra`);return;}   // v77: no te saca de tu resultado
+      if(D.estado==='fin')D.estado='sala';drawSala();}return;}
   if(x.t==='go'&&D.role==='guest'){D.ronda=x.ronda;arrancarDuelo(x.seed);return;}
   if(x.t==='est'){D.re={...D.re,...x};rivalChip();return;}
-  if(x.t==='fin'){D.finEl=x.F;D.re={...D.re,fin:x.F.res,p:x.F.puntos,v:x.F.vidas,o:x.F.olas};rivalChip();if(D.finYo)duelResultado();return;}
+  if(x.t==='fin'){D.finEl=x.F;D.re={...D.re,fin:x.F.res,p:x.F.puntos,v:x.F.vidas,o:x.F.olas};rivalChip();if(EST==='mirando')dejarDeMirar();if(D.finYo)duelResultado();return;}
   if(x.t==='chat'){const t=limpiarChat(x.txt);if(t){addChat(D.rival.usuario,t);sfx('msg');}return;}
   if(x.t==='bye'&&x.corte){duelCorte();return;}
   if(x.t==='bye'){D.salio=true;if(D.estado==='juego'&&!D.finEl){D.finEl={res:'abandono',puntos:(D.re&&D.re.p)||0,olas:(D.re&&D.re.o)||0,vidas:0,danio:99,abandono:true};toast(`${esc(D.rival.usuario)} se fue del duelo.`);if(D.finYo)duelResultado();}
@@ -5422,6 +5814,10 @@ function duelMsg(x){const D=DUELO;
 function duelFin(){const D=DUELO;if(!D){mostrarResultado();return;}
   D.finYo=G.fin;sendCh({t:'fin',F:G.fin});rivalChip();sfx(G.fin.res==='tiempo'?'olaLimpia':'pierdo');
   if(D.finEl||D.corte&&!D.esperaVuelta){duelResultado();return;}
+  // v77: en vez de esperar mirando un cartel, mirás su campo en vivo (y el resultado aparece cuando termina)
+  if(!D.corte&&mirarRival())return;
+  duelEspera();}
+function duelEspera(){const D=DUELO;if(!D||!G||D.finEl)return;
   over(`<div class="ic">⏳</div><h3>Resultado parcial</h3><div class="lines"><div><span>Vos</span><b>${fmt(G.fin.puntos)} pts · ${G.fin.olas} oleadas</b></div><div><span>${esc(D.rival.usuario)}</span><b id="du-re">${fmt((D.re&&D.re.p)||0)} pts · sigue jugando</b></div></div>
     <p class="cap"><span class="busy"></span>Esperando que ${esc(D.rival.usuario)} termine (hasta los 3 minutos).</p>`);
   const iv=setInterval(()=>{if(!DUELO||DUELO!==D||EST!=='fin'||D.finEl){clearInterval(iv);return;}const e=$('du-re');if(e)e.textContent=`${fmt((D.re&&D.re.p)||0)} pts · ${D.corte?'se cortó':'sigue jugando'}`;
@@ -5461,7 +5857,10 @@ function duelCorte(){const D=DUELO;if(!D||D.corte)return;
   D.corte=true;try{D.pc&&D.pc.close();}catch(_){}D.ch=null;renderOnline();rivalChip();
   if(D.salio)return;
   if(D.estado==='juego'&&window.RECON){const hasta=Date.now()+Math.min(90000,RECON.GRACIA||60000);D.esperaVuelta=true;
-    RECON.cartel('inv-du',`Se cortó con ${D.rival.usuario} · esperando que vuelva…`,hasta,()=>{if(DUELO===D&&D.corte){D.esperaVuelta=false;if(D.finYo&&!D.finEl){D.finEl={res:'corte',puntos:(D.re&&D.re.p)||0,olas:0,vidas:0,danio:0,corte:true};duelResultado();}}});
+    RECON.cartel('inv-du',`Se cortó con ${D.rival.usuario} · esperando que vuelva…`,hasta,()=>{if(DUELO===D&&D.corte){D.esperaVuelta=false;
+      if(G&&G._espejo&&!G.fin){if(EST==='mirando')dejarDeMirar();const F={res:'abandono',motivo:'corte',puntos:G.puntos,olas:G.olaN,vidas:0,danio:0,seg:Math.round(G.seg||0),act:0};G.fin=F;G.fase='fin';if(EST!=='jugando'){EST='jugando';}return;}
+      if(EST==='mirando'){dejarDeMirar();}
+      if(D.finYo&&!D.finEl){D.finEl={res:'corte',puntos:(D.re&&D.re.p)||0,olas:0,vidas:0,danio:0,corte:true};duelResultado();}}});
     if(D.role==='host')reinvitar(D,hasta);
     else D.busca=RECON.buscarVuelta({prefijo:'INVASOR:',mesa:D.mesa,de:D.rival.usuario,hasta,vivo:()=>DUELO===D&&D.corte,onInv:inv=>{UIQ.dismissed.add(inv.id);acceptInvite(inv,true);}});
     return;}
@@ -5482,13 +5881,14 @@ function duelSalir(avisar){const D=DUELO;if(!D)return;
   try{D.busca&&D.busca.cancelar();D.rv&&D.rv.cancelar();RECON.quitar('inv-du');RECON.olvidar('invasores');}catch(_){}
   try{D.pc&&D.pc.close();}catch(_){}
   // salir en medio del duelo es abandonar: cuenta como derrota
-  if(D.estado==='juego'&&G&&G.modo==='duelo'&&!G.fin){G=null;EST='menu';}
+  if(D.estado==='juego'&&G&&(G.modo==='duelo'||G._online||G._espejo)&&!G.fin){G=null;EST='menu';}
+  if(EST==='mirando')EST='menu';ESPEJO=null;SNAPS=[];MI_P=1;const c=$('contra');if(c)c.hidden=true;const mi=$('mirando');if(mi)mi.hidden=true;document.body.classList.remove('atacando','mirando');
   DUELO=null;$('rival').hidden=true;renderOnline();}
 function menuDuelo(){const D=DUELO;
-  openSide(`<div class="side-head"><h2>Duelo</h2><button class="side-x" id="md-x" aria-label="Cerrar">✕</button></div><p class="note">El combate sigue mientras mirás esto.</p>
-    <div class="menu-list"><button id="md-chat">💭 Chat con ${esc(D?D.rival.usuario:'')}</button><button id="md-aj">⚙️ Controles y sonido</button><button id="md-salir">🚪 Abandonar el duelo</button></div>`);
+  openSide(`<div class="side-head"><h2>${D&&D.modo&&D.modo!=='duelo'?esc(MODOS_EN[D.modo].n):'Duelo'}</h2><button class="side-x" id="md-x" aria-label="Cerrar">✕</button></div><p class="note">El combate sigue mientras mirás esto.</p>
+    <div class="menu-list"><button id="md-chat">💭 Chat con ${esc(D?D.rival.usuario:'')}</button><button id="md-aj">⚙️ Controles y sonido</button><button id="md-salir">🚪 Abandonar</button></div>`);
   $('md-x').onclick=closeSide;$('md-chat').onclick=()=>{closeSide();openChat();};$('md-aj').onclick=()=>{closeSide();openAjustes(false);};
-  $('md-salir').onclick=()=>{if(!confirm('¿Abandonar? Perdés el duelo aunque vayas ganando.'))return;closeSide();duelSalir(true);G=null;EST='menu';portada();};}
+  $('md-salir').onclick=()=>{if(!confirm(D&&D.modo&&D.modo!=='duelo'?'¿Abandonar la partida con '+D.rival.usuario+'?':'¿Abandonar? Perdés el duelo aunque vayas ganando.'))return;closeSide();duelSalir(true);G=null;EST='menu';portada();};}
 function renderOnline(){const b=$('btn-mesa');b.hidden=!(DUELO&&DUELO.ch);}
 
 /* ── Charla ── */
@@ -5532,11 +5932,239 @@ function showInvite(inv){UIQ.dismissed.add(inv.id);const of=String(inv.oferta||'
     const pg=P?P[1]:'';try{sessionStorage.setItem(pg?pg+'-accept':'blq-accept',inv.id);}catch(_){}location.href=pg?pg+'.html':'./';};}
 window.addEventListener('pagehide',()=>{if(DUELO)sendCh({t:'bye',corte:1});});
 
+/* ───────── InvasorAR · en línea de a dos (v77) ─────────
+   Pedido del 25/10: «jugar de a 2 en cooperativo», «que en línea se pueda jugar Historia, Infinito o En contra» y
+   «cuando morís en el duelo, poder ver la partida del otro en vivo».
+   · De a dos (Infinito o Historia) y En contra: manda el anfitrión. Él corre el motor (el mismo de siempre, paso fijo de
+     1/60 s) con las dos entradas y le pasa al invitado una «foto» liviana de la partida 20 veces por segundo (por un canal
+     WebRTC sin orden ni reenvíos, el que mejor aguanta las pérdidas; si no está, por el canal del duelo, la mitad de
+     seguido). El invitado dibuja entre las dos últimas fotos (interpolando por identificador, unos 70 ms atrás) y su
+     propia nave la mueve al instante en su pantalla y le manda al anfitrión dónde está (30 veces por segundo): así se
+     siente igual de ágil que jugar solo. Los sonidos y las chispas viajan con la foto.
+   · En contra: dos rondas de 150 s; en la primera defiende el anfitrión y ataca el invitado, en la segunda al revés. El
+     que ataca arma la oleada en una grilla de 8 × 5 con su presupuesto (se recarga solo) y la manda; gana el que hizo
+     más puntos defendiendo.
+   · Versus (el duelo de antes): cada uno en su campo; cuando terminás, mirás el campo del otro en vivo con las mismas
+     fotos (te las manda sólo mientras lo estás mirando).
+   Todo reutiliza la invitación, la sala, el chat y la reconexión del duelo (enlinea.js). */
+const SNAP_CADA=3;                       // pasos del motor entre fotos (20 por segundo)
+const EST_C={form:0,entra:1,pica:2,vuelve:3,apunta:4,kami:5,mini:6,bandada:7};
+const EST_N=Object.keys(EST_C);
+const EV_VIS=new Set(['tiro','explota','golpe','danio','escudo','bloqueo','poder','bomba','suministro','combo','combo0','gema','ola','olaCompleta','perfecto','explotaJefe','invasion','pts','carga','kamAviso','barridoAviso','pica','kami','laser','refuerzo','vida','divide','meteoros','roca','fase','caida','revive','mandada','autoOla','fin']);
+let ESPEJO=null,SNAPS=[],SN_EV=[],SN_REF='',SN_REFT=0,LOC=null,REM={x:null,f:0,e:0,eV:0,t:0},IN_T=0,ESC_N=0;
+const rd=v=>Math.round(v*10)/10;
+
+/* ── La foto (anfitrión) ── */
+function naveSnap(N){if(!N)return null;const pw={};for(const k of Object.keys(N.pw||{}))if(N.pw[k]>0)pw[k]=rd(N.pw[k]);
+  return [rd(N.x),Math.round(N.vx||0),N.vidas,rd(N.inv),rd(N.esc.act),rd(N.esc.rec),pw,N.caida?1:0,rd(N.resc||0),N.p||1,N.vidas0];}
+function refStr(G){return G.ref.map(r=>r.c.join('')).join('|');}
+function snapDe(G,todo){
+  const pid=()=>G.pid=(G.pid||0)+1;
+  for(const t of G.tiros)if(!t.i)t.i=pid();for(const h of G.hostiles)if(!h.i)h.i=pid();for(const p of G.poderes)if(!p.i)p.i=pid();
+  const S={t:'s',k:G.t,f:G.fase,o:G.ola,on:G.olaN,p:G.puntos,sg:rd(G.seg),c:[G.combo.n,G.combo.mult,rd(G.combo.t)],fv:rd(G.form.vel||0),fd:G.form.dir||1,
+    bt:rd(G.bonusT||0),ini:G.iniciales||0,es:G.espera?1:0,pr:G.pres!=null?rd(G.pres):null,cl:G.cola?G.cola.length:0,
+    d:{b:G.def.bonus?1:0,j:G.def.jefe||0,comp:G.def.comp||null,tema:G.def.tema||'',m:G.def.meteoros?1:0},
+    n:[naveSnap(G.nave),naveSnap(G.nave2)],
+    e:G.ene.filter(e=>e.est!=='muerto'&&!(e.est==='entra'&&e.en.t<0)&&!(e.est==='bandada'&&e.bd.t<0)).map(e=>[e.id,e.tipo,rd(e.x),rd(e.y),e.vida,EST_C[e.est]||0,e.fl>0?1:0,e.carga>0?rd(e.carga):0,
+      e.est==='kami'&&e.kv?rd(Math.atan2(e.kv.vx,e.kv.vy)):e.est==='pica'&&e.pk?rd(Math.sin(e.pk.t*3.2)*.5):null]),
+    j:G.jefe?[G.jefe.tipo,rd(G.jefe.x),rd(G.jefe.y),G.jefe.w,G.jefe.h,G.jefe.vida,G.jefe.max,G.jefe.trans>0?1:0,G.jefe.flash>0?1:0,G.jefe.muerto?1:0]:null,
+    su:G.sum?[rd(G.sum.x),rd(G.sum.y),G.sum.fl>0?1:0]:null,
+    b:G.barr.map(B=>[rd(B.x),rd(B.av),rd(B.pe)]),
+    r:G.rocas.map(r=>[r.id,rd(r.x),rd(r.y),rd(r.r),rd(r.rot)]),
+    g:G.gemas.map(g=>[g.id,rd(g.x),rd(g.y),g.v]),
+    w:G.poderes.map(p=>[p.i,rd(p.x),rd(p.y),p.tipo,rd(p.t)]),
+    ti:G.tiros.map(t=>[t.i,rd(t.x),rd(t.y),t.p||1]),
+    h:G.hostiles.map(h=>[h.i,rd(h.x),rd(h.y),h.k,Math.round(h.vx),Math.round(h.vy)]),
+    ev:SN_EV.splice(0)};
+  const rs=refStr(G);if(todo||rs!==SN_REF||G.t-SN_REFT>60){S.ref=rs;SN_REF=rs;SN_REFT=G.t;}
+  if(G.fin){S.fin=G.fin;S.st={...G.st,actT:undefined};S.ola=G.olaN;}
+  return S;}
+function mandarSnap(G,todo){const D=DUELO;if(!D)return;const S=snapDe(G,todo),txt=JSON.stringify(S);
+  try{if(D.snap&&D.snap.readyState==='open'&&txt.length<60000){D.snap.send(txt);return;}}catch(_){}
+  if(todo||G.t%(SNAP_CADA*2)===0||S.fin)sendCh(S);}
+// Después de cada paso del anfitrión: junta lo que se ve y oye, y cada 3 pasos manda la foto.
+function hostPaso(G){for(const e of G.ev)if(EV_VIS.has(e.t)&&SN_EV.length<60)SN_EV.push(e);if(G.t%SNAP_CADA===0||G.fin)mandarSnap(G,!!G.fin);}
+// Las entradas del motor: la propia (si te toca jugar) y la del invitado (dónde está su nave, si dispara, si usó el escudo).
+function remota(){const q={tx:REM.x,fuego:!!REM.f,escudo:false,mov:0};if(REM.e!==REM.eV){REM.eV=REM.e;q.escudo=true;}if(REM.x==null)q.tx=null;return q;}
+function entradasOnline(G){const D=DUELO,yo=entrada(G);
+  if(!D||!D.ch||D.corte)REM.f=0;                       // si se cortó, la nave del otro se queda quieta y sin tirar
+  if(G.modo==='contra')return [D&&D.def===2?remota():yo];
+  return [yo,remota()];}
+
+/* ── El invitado (o el que mira): arma una partida «espejo» con las fotos ── */
+function espejoNuevo(o){const R=reglasDe(o.R||{});
+  const M={_espejo:1,v:MOTOR_V,modo:o.m,dif:o.dif||'normal',R,oficial:o.oficial!==false,nivel:o.nivel||0,seed:o.seed,t:0,seg:0,fase:'intro',ola:0,olaN:0,puntos:0,combo:{n:0,mult:1,t:0},
+    form:{vel:0,dir:1},def:{comp:null},ene:[],tiros:[],hostiles:[],gemas:[],poderes:[],rocas:[],barr:[],sum:null,jefe:null,iniciales:0,bonusT:0,espera:false,
+    ref:o.ref?refDe(o.ref,R):[],nave:naveNueva(o.coop?240:360,3,1),nave2:o.coop?naveNueva(480,3,2):null,st:{bajas:0,maxCombo:1,actT:{}},ev:[],fin:null};
+  if(!M.nave2)delete M.nave2;return M;}
+function refDe(str,R){const xs=str.split('|');const pos=xs.length===3?[150,360,570]:xs.length===2?[240,480]:[];return str?xs.map((c,i)=>({cx:pos[i],cy:740,c:c.split('').map(Number)})):[];}
+function snapLlega(S){if(!ESPEJO)return;const now=performance.now();
+  if(SNAPS.length&&S.k<=SNAPS[SNAPS.length-1].S.k)return;   // llegó tarde (canal sin orden): se descarta
+  SNAPS.push({S,at:now});if(SNAPS.length>3)SNAPS.shift();
+  if(S.ref)ESPEJO.ref=refDe(S.ref,ESPEJO.R);
+  if(S.ev&&S.ev.length){ESPEJO.ev=S.ev;try{if(EST==='jugando'||EST==='mirando')eventos(ESPEJO);}catch(_){}ESPEJO.ev=[];}
+  if(S.fin&&!ESPEJO.fin){aplicarSnap(S,S,1);ESPEJO.fin=S.fin;ESPEJO.st=Object.assign(ESPEJO.st||{},S.st||{});ESPEJO.olaN=S.ola!=null?S.ola:ESPEJO.olaN;ESPEJO.fase='fin';}}
+const mapa=L=>{const m=new Map();for(const x of L||[])m.set(x[0],x);return m;};
+const lerp=(a,b,u)=>a+(b-a)*u;
+function aplicarSnap(A,B,u){const M=ESPEJO;
+  M.t=B.k;M.fase=B.f;M.ola=B.o;M.olaN=B.on;M.puntos=B.p;M.seg=B.sg;M.combo={n:B.c[0],mult:B.c[1],t:B.c[2]};M.form={vel:B.fv,dir:B.fd};M.bonusT=B.bt;M.iniciales=B.ini;M.espera=!!B.es;M.pres=B.pr;M.colaN=B.cl;
+  M.def={bonus:!!B.d.b,jefe:B.d.j||null,comp:B.d.comp,tema:B.d.tema,meteoros:!!B.d.m};
+  const nv=(a,b,N)=>{if(!b)return null;N=N||naveNueva(b[0],b[10]||3,b[9]);const x=a?lerp(a[0],b[0],u):b[0];N.x=x;N.vx=b[1];N.vidas=b[2];N.vidas0=b[10]||N.vidas0;N.inv=b[3];N.esc={act:b[4],rec:b[5]};N.pw=b[6]||{};N.caida=!!b[7];N.resc=b[8];N.p=b[9];return N;};
+  M.nave=nv(A.n[0],B.n[0],M.nave);if(B.n[1])M.nave2=nv(A.n[1],B.n[1],M.nave2);
+  const eA=mapa(A.e);M.ene=B.e.map(x=>{const a=eA.get(x[0]);return {id:x[0],tipo:x[1],x:a?lerp(a[2],x[2],u):x[2],y:a?lerp(a[3],x[3],u):x[3],vida:x[4],est:EST_N[x[5]]||'form',fl:x[6]?.05:0,carga:x[7],ang:x[8],en:{t:1},bd:{t:1},kv:{vx:0,vy:1},pk:{t:0}};});
+  M.jefe=B.j?{tipo:B.j[0],x:A.j?lerp(A.j[1],B.j[1],u):B.j[1],y:A.j?lerp(A.j[2],B.j[2],u):B.j[2],w:B.j[3],h:B.j[4],vida:B.j[5],max:B.j[6],trans:B.j[7]?.5:0,flash:B.j[8]?.05:0,muerto:!!B.j[9]}:null;
+  M.sum=B.su?{x:A.su?lerp(A.su[0],B.su[0],u):B.su[0],y:B.su[1],fl:B.su[2]?.05:0}:null;
+  M.barr=B.b.map(x=>({x:x[0],av:x[1],pe:x[2]}));
+  const rA=mapa(A.r);M.rocas=B.r.map(x=>{const a=rA.get(x[0]);return {id:x[0],x:a?lerp(a[1],x[1],u):x[1],y:a?lerp(a[2],x[2],u):x[2],r:x[3],rot:x[4]};});
+  const gA=mapa(A.g);M.gemas=B.g.map(x=>{const a=gA.get(x[0]);return {id:x[0],x:a?lerp(a[1],x[1],u):x[1],y:a?lerp(a[2],x[2],u):x[2],v:x[3]};});
+  const wA=mapa(A.w);M.poderes=B.w.map(x=>{const a=wA.get(x[0]);return {x:a?lerp(a[1],x[1],u):x[1],y:a?lerp(a[2],x[2],u):x[2],tipo:x[3],t:x[4]};});
+  const tA=mapa(A.ti);M.tiros=B.ti.map(x=>{const a=tA.get(x[0]);return {x:a?lerp(a[1],x[1],u):x[1],y:a?lerp(a[2],x[2],u):x[2],p:x[3]};});
+  const hA=mapa(A.h);M.hostiles=B.h.map(x=>{const a=hA.get(x[0]);return {x:a?lerp(a[1],x[1],u):x[1],y:a?lerp(a[2],x[2],u):x[2],k:x[3],vx:x[4],vy:x[5]};});}
+// Cada cuadro del invitado: interpola entre las dos últimas fotos, mueve su nave al instante y le cuenta al anfitrión.
+function espejoPaso(dt){const M=ESPEJO;if(!M||!SNAPS.length)return;
+  const now=performance.now()-70,L=SNAPS;let A=L[0],B=L[L.length-1];
+  for(let i=0;i<L.length-1;i++)if(L[i].at<=now&&L[i+1].at>=now){A=L[i];B=L[i+1];break;}
+  const u=B.at>A.at?Math.max(0,Math.min(1,(now-A.at)/(B.at-A.at))):1;
+  if(!M.fin)aplicarSnap(A.S,B.S,u);
+  if(EST!=='jugando'||!G||G!==M)return;
+  // mi nave: al instante, con el mismo movimiento que en el motor
+  const mia=MI_P===2?M.nave2:MI_P===1?M.nave:null;
+  if(mia){if(!LOC||mia.caida){LOC={x:mia.x,vx:0};}
+    else{const q=entrada(M);if(q.escudo)ESC_N++;const f={R:M.R,mov:0};let pasos=Math.round(dt/DT)||1;while(pasos-->0)moverNave(f,q,LOC);LOC.f=q.fuego;}
+    mia.x=LOC.x;mia.vx=LOC.vx;
+    IN_T+=dt;if(IN_T>1/30){IN_T=0;mandarEntrada();}}
+  pintarEscudo();}
+function mandarEntrada(){const D=DUELO;if(!D||!LOC)return;const m={t:'i',x:Math.round(LOC.x*10)/10,f:LOC.f?1:0,e:ESC_N};
+  try{if(D.snap&&D.snap.readyState==='open'){D.snap.send(JSON.stringify(m));return;}}catch(_){}sendCh(m);}
+function entradaLlega(x){REM.x=Number(x.x);REM.f=x.f?1:0;if(x.e!==undefined&&x.e!==REM.e){REM.e=x.e;}REM.t=Date.now();}
+
+/* ── La sala: el anfitrión elige el modo ── */
+const MODOS_EN={dos:{n:'De a dos · Infinito',d:'Los dos en el mismo campo, oleadas sin fin cada vez más difíciles. Si uno cae, el otro lo rescata.'},
+  dosh:{n:'De a dos · Historia',d:'Un nivel de la Historia, juntos (el que elige es el que invita).'},
+  contra:{n:'En contra',d:'Uno defiende y el otro arma las oleadas (2 rondas de 150 s, se invierten). Gana el que hizo más puntos defendiendo.'},
+  duelo:{n:'Versus',d:'Cada uno en su campo, las mismas oleadas, 3 minutos: gana el que hace más puntos.'}};
+function salaModosHtml(D){const host=D.role==='host',m=D.modo||'dos';
+  return `<h4>Modo</h4>${host?`<div class="seg modos-en">${Object.keys(MODOS_EN).map(k=>`<button class="btn chico${m===k?' on':''}" data-me="${k}">${MODOS_EN[k].n}</button>`).join('')}</div>`:`<p><b>${esc(MODOS_EN[m].n)}</b></p>`}
+    <p class="note">${esc(MODOS_EN[m].d)}${m==='dosh'?` · Nivel <b>${D.nivel||1}</b>`:''}</p>
+    ${host&&m==='dosh'?`<div class="regla"><div><b>Nivel</b><output id="sa-niv-o">${D.nivel||1}</output></div><input type="range" id="sa-niv" min="1" max="${Math.min(HISTORIA_N,hisMax()+1)}" step="1" value="${D.nivel||1}"></div>`:''}`;}
+function cablearModos(D){document.querySelectorAll('#sheet [data-me]').forEach(b=>b.onclick=()=>{D.modo=b.dataset.me;if(D.modo==='dosh'&&!D.nivel)D.nivel=Math.min(HISTORIA_N,hisMax()+1);sendCh({t:'modo',m:D.modo,niv:D.nivel||1});drawSala();});
+  const r=$('sa-niv');if(r)r.oninput=()=>{D.nivel=Number(r.value);$('sa-niv-o').textContent=String(D.nivel);};if(r)r.onchange=()=>sendCh({t:'modo',m:D.modo,niv:D.nivel});}
+
+/* ── Empezar (anfitrión) ── */
+function arrancarOnline(seed){const D=DUELO,m=D.modo;D.seed=seed;D.estado='juego';D.listoYo=D.listoEl=false;D.corte=false;D.ultimo='';D.t0=Date.now()+3000;
+  if(m==='contra'&&!D.cr)D.cr={ronda:1,pts:[null,null]};
+  const def=m==='contra'?(D.cr.ronda===1?1:2):0;D.def=def;
+  const op={seed,cuenta:3,online:m,coop:m!=='contra',nivel:m==='dosh'?D.nivel||1:undefined};
+  closeSheet();empezar(m==='contra'?'contra':m==='dosh'?'historia':'infinito',op);
+  G._key='c'+D.mesa+':'+D.ronda+(m==='contra'?':'+D.cr.ronda:'');MI_P=m==='contra'?(def===1?1:0):1;window.COMP_NOMBRE=D.rival.usuario;
+  LOC=null;REM={x:null,f:0,e:0,eV:0,t:0};SN_EV=[];SN_REF='';
+  sendCh({t:'go2',m,seed,dif:G.dif,R:G.R,nivel:G.nivel||0,ronda:D.ronda,cr:D.cr?D.cr.ronda:0,def,coop:!!G.nave2,ref:refStr(G),oficial:G.oficial});
+  mandarSnap(G,true);
+  try{window.RECON&&RECON.recordar('invasores',{mesa:D.mesa,host:yoPerfil().usuario,rol:'host'});}catch(_){}
+  contraPanel();rivalChip();}
+// El invitado: la partida espejo
+function arrancarEspejo(x){const D=DUELO;D.estado='juego';D.listoYo=D.listoEl=false;D.corte=false;D.modo=x.m;D.def=x.def;D.t0=Date.now()+3000;D.ronda=x.ronda;
+  if(x.m==='contra'){D.cr=D.cr&&x.cr!==1?D.cr:{ronda:1,pts:[null,null]};D.cr.ronda=x.cr;}
+  closeSheet();hideOver();closeSide();soltarTodo();
+  ESPEJO=espejoNuevo({m:x.m==='contra'?'contra':x.m==='dosh'?'historia':'infinito',seed:x.seed,dif:x.dif,R:x.R,nivel:x.nivel,coop:x.coop,ref:x.ref,oficial:x.oficial});SNAPS=[];LOC=null;ESC_N=0;
+  G=ESPEJO;G._key='c'+D.mesa+':'+x.ronda+(x.m==='contra'?':'+x.cr:'');G._online=x.m;MI_P=x.m==='contra'?(x.def===2?1:0):2;window.COMP_NOMBRE=D.rival.usuario;
+  ESCENA=G.modo;document.body.classList.remove('menu');$('hud-pausa').hidden=false;medirCampo();cuenta(3);
+  try{window.RECON&&RECON.recordar('invasores',{mesa:D.mesa,host:D.rival.usuario,rol:'guest'});}catch(_){}
+  contraPanel();rivalChip();}
+
+/* ── En contra: el panel del que ataca ── */
+const CP={tipo:'exp',grilla:{}};
+const NOM_T={exp:'Explorador',tir:'Francotirador',bli:'Blindado',pic:'Picador',div:'Divisor',kam:'Kamikaze'};
+function atacoYo(){const D=DUELO;return !!(D&&G&&G.modo==='contra'&&D.estado==='juego'&&((D.role==='host'&&D.def===2)||(D.role==='guest'&&D.def===1)));}
+function contraPanel(){const el=$('contra');if(!el)return;if(!atacoYo()||G.fin){el.hidden=true;document.body.classList.remove('atacando');return;}
+  document.body.classList.add('atacando');el.hidden=false;
+  const celdas=Object.keys(CP.grilla).map(k=>{const [c,f]=k.split(':').map(Number);return [CP.grilla[k],c,f];}),costo=costoOla(celdas),pres=Math.floor(G.pres||0);
+  el.innerHTML=`<div class="cp-cab"><b>Armá la oleada</b><span class="cp-pres">💰 <b id="cp-pres">${pres}</b>/${CONTRA.max}</span></div>
+    <div class="cp-tipos">${Object.keys(CONTRA.costo).map(t=>`<button type="button" class="cp-t${CP.tipo===t?' on':''}" data-t="${t}" title="${NOM_T[t]}"><i class="cp-ic ${t}"></i><small>${NOM_T[t]}</small><b>${CONTRA.costo[t]}</b></button>`).join('')}</div>
+    <div class="cp-grilla">${Array.from({length:40},(_,i)=>{const c=i%8,f=Math.floor(i/8),t=CP.grilla[c+':'+f];return `<button type="button" class="cp-c${t?' '+t:''}" data-c="${c}" data-f="${f}" aria-label="Fila ${f+1}, columna ${c+1}${t?': '+NOM_T[t]:''}">${t?'<i class="cp-ic '+t+'"></i>':''}</button>`;}).join('')}</div>
+    <div class="cp-pie"><button type="button" class="btn chico" id="cp-lleno">Llenar</button><button type="button" class="btn chico" id="cp-vacio">Vaciar</button>
+      <button type="button" class="btn go chico" id="cp-mandar" ${celdas.length&&costo<=pres&&!(G.colaN||G.cola&&G.cola.length)?'':'disabled'}>Mandar ${celdas.length} · 💰${costo}</button></div>
+    <p class="note cp-nota" id="cp-nota">${(G.colaN||G.cola&&G.cola.length)?'Hay una oleada esperando: entra cuando limpie la que está.':G.espera?'¡El campo está vacío! Si no mandás nada, en 5 s sale una sola.':'Ubicá invasores tocando la grilla. Los de arriba bajan últimos.'}</p>`;
+  el.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{CP.tipo=b.dataset.t;contraPanel();});
+  el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const k=b.dataset.c+':'+b.dataset.f;if(CP.grilla[k]===CP.tipo)delete CP.grilla[k];else CP.grilla[k]=CP.tipo;contraPanel();});
+  $('cp-vacio').onclick=()=>{CP.grilla={};contraPanel();};
+  $('cp-lleno').onclick=()=>{let p=pres-costo;for(let f=0;f<5;f++)for(let c=0;c<8;c++){const k=c+':'+f;if(CP.grilla[k])continue;if(CONTRA.costo[CP.tipo]<=p){CP.grilla[k]=CP.tipo;p-=CONTRA.costo[CP.tipo];}}contraPanel();};
+  $('cp-mandar').onclick=()=>mandarOla(celdas);}
+let CP_PINT=0;
+function contraRefresco(dt){if(!atacoYo())return;CP_PINT+=dt;if(CP_PINT<.25)return;CP_PINT=0;const e=$('cp-pres');
+  const k=Math.floor(G.pres||0)+':'+(G.colaN||G.cola&&G.cola.length||0)+':'+(G.espera?1:0);if(e&&CP._k===k)return;CP._k=k;contraPanel();}
+function mandarOla(celdas){const D=DUELO;if(!D||!celdas.length)return;
+  if(D.role==='host'){const r=encolarOla(G,celdas);if(r.ok){CP.grilla={};sfx('poder');toast('¡Allá va!');}else toast(r.error==='presupuesto'?'No te alcanza el presupuesto.':r.error==='cola'?'Ya hay una oleada esperando.':'No se pudo mandar.');contraPanel();}
+  else{sendCh({t:'ola',c:celdas});CP.grilla={};sfx('poder');toast('¡Allá va!');contraPanel();}}
+
+/* ── Fin (los dos) ── */
+function onlineFin(){const D=DUELO,F=G.fin;$('contra').hidden=true;document.body.classList.remove('atacando');
+  if(!D){mostrarResultado();return;}
+  if(G.modo==='contra'){contraRondaFin();return;}
+  sfx(F.res==='victoria'?'gano':'pierdo');
+  setTimeout(()=>{mostrarResultado();const o=$('rs-otra');if(o){o.textContent=D.role==='host'?'▶ Otra, de a dos':'Volver a la sala';o.onclick=()=>{hideOver();G=null;ESPEJO=null;EST='menu';document.body.classList.add('menu');D.estado='sala';D.listoYo=true;sendCh({t:'listo',v:true});drawSala();};}
+    const mo=$('rs-modo');if(mo){mo.textContent='Salir';mo.onclick=()=>{duelSalir(true);G=null;ESPEJO=null;hideOver();portada();};}
+    D.estado='fin';try{RECON.olvidar('invasores');}catch(_){}},F.res==='victoria'?900:420);}
+function contraRondaFin(){const D=DUELO,F=G.fin;const yoDef=(D.role==='host')===(D.def===1);
+  D.cr.pts[D.cr.ronda-1]={pts:F.puntos,olas:F.olas,vidas:F.vidas,seg:F.seg,def:D.def,act:(F.act||0)};
+  if(D.cr.ronda===1&&!D.corte){D.cr.ronda=2;EST='fin';
+    over(`<div class="ic">🔁</div><h3>Fin de la ronda 1</h3><div class="lines"><div><span>${yoDef?'Vos':esc(D.rival.usuario)} defendió</span><b>${fmt(F.puntos)} pts · ${durTxt(F.seg)}</b></div></div>
+      <p class="cap">Ahora se invierten: ${yoDef?'<b>atacás vos</b>: armá las oleadas para que haga menos puntos que vos.':'<b>defendés vos</b>: hacé más de '+fmt(F.puntos)+' puntos.'}</p><p class="cap"><span class="busy"></span>La ronda 2 empieza sola…</p>`);
+    if(D.role==='host')setTimeout(()=>{if(DUELO===D&&D.estado==='juego'){hideOver();arrancarOnline((Math.random()*4294967296)>>>0);}},4000);
+    return;}
+  // las dos rondas: gana el que más puntos hizo defendiendo
+  const P=D.cr.pts,mio=P.find(p=>p&&((D.role==='host')===(p.def===1))),suyo=P.find(p=>p&&p!==mio);
+  const res=!mio||!suyo?'interrumpido':mio.pts>suyo.pts?'g':mio.pts<suyo.pts?'p':'e';D.estado='fin';EST='fin';D.cr=null;
+  try{RECON.olvidar('invasores');}catch(_){}
+  sfx(res==='g'?'gano':res==='p'?'pierdo':'olaLimpia');
+  const pr=premiosContra(res,mio);
+  over(`<div class="ic">${res==='g'?'🏆':res==='e'?'🤝':'⚔️'}</div><h3>${res==='g'?'¡Ganaste En contra!':res==='p'?'Ganó '+esc(D.rival.usuario):res==='e'?'¡Empate!':'Partida interrumpida'}</h3>
+    <div class="lines"><div><span>Vos, defendiendo</span><b class="${res==='g'?'win':''}">${mio?fmt(mio.pts)+' pts · '+durTxt(mio.seg):'—'}</b></div><div><span>${esc(D.rival.usuario)}, defendiendo</span><b class="${res==='p'?'win':''}">${suyo?fmt(suyo.pts)+' pts · '+durTxt(suyo.seg):'—'}</b></div></div>
+    ${pr}<button class="btn go" id="dr-rev">Revancha</button><div class="row"><button class="btn" id="dr-x">Salir</button><a class="btn" href="./#juegos">Volver a BloqueAR</a></div>`);
+  $('dr-rev').onclick=()=>{hideOver();G=null;ESPEJO=null;EST='menu';document.body.classList.add('menu');D.estado='sala';D.listoYo=true;sendCh({t:'listo',v:true});drawSala();};
+  $('dr-x').onclick=()=>{duelSalir(true);G=null;ESPEJO=null;hideOver();portada();};}
+function premiosContra(res,mio){const R=window.RANGOS;if(!R||res==='interrumpido'||!mio)return '';const key='k'+(G&&G._key||Date.now());
+  const hechas=ls.json(XP_K,[]);if(hechas.includes(key))return '';hechas.push(key);ls.set(XP_K,JSON.stringify(hechas.slice(-80)));
+  const valido=mio.seg>=45;const xp=valido?30+(res==='g'?20:0):0;let pr=null;
+  if(valido){try{R.addXp('invasores',xp);}catch(_){}
+    try{pr=R.premio('InvasorAR',xp,true,{j:'invasores',rival:'p',res,esf:true,key,x:{modo:'contra',pts:mio.pts,op:DUELO&&DUELO.rival.usuario}});}catch(e){console.warn('premio',e);}}
+  const f=[];if(xp)f.push(`+${xp} XP de InvasorAR`);if(pr&&pr.oro)f.push(`🟡 +${fmt(pr.oro)} de oro`);if(pr&&pr.pesos)f.push(`🎁 +${fmt(pr.pesos)} 🪙 para tu estancia`);
+  if(pr&&R.leguasTxt)f.push(R.leguasTxt(pr).replace(/^ · /,''));if(!valido)f.push('<span class="no">Ronda muy corta: no da premios.</span>');
+  return `<div class="premios">${f.filter(Boolean).map(x=>`<div>${x}</div>`).join('')}</div>`;}
+
+/* ── Versus: mirar al otro cuando terminaste ── */
+function mirarRival(){const D=DUELO;if(!D||!D.ch)return false;ESPEJO=espejoNuevo({m:'duelo',seed:D.seed,dif:'normal',R:{},coop:false});SNAPS=[];MI_P=0;
+  sendCh({t:'mirar',v:1});EST='mirando';hideOver();document.body.classList.add('mirando');
+  const el=$('mirando');if(el){el.hidden=false;el.innerHTML=`<b>👀 Mirando a ${esc(D.rival.usuario)}</b><span>Tu final: <b>${fmt(D.finYo?D.finYo.puntos:0)}</b> pts</span><button type="button" class="btn chico" id="mi-x">Dejar de mirar</button>`;
+    $('mi-x').onclick=()=>{dejarDeMirar();duelEspera();};}
+  return true;}
+function dejarDeMirar(){const el=$('mirando');if(el)el.hidden=true;document.body.classList.remove('mirando');if(EST==='mirando')EST='fin';sendCh({t:'mirar',v:0});ESPEJO=null;SNAPS=[];MI_P=1;}
+// el que sigue jugando: mientras lo miran, manda la foto de su campo
+function duelMirado(){const D=DUELO;if(!D||!D.mirado||!G||G.modo!=='duelo'||G.fin)return;if(G.t-(D.ultFoto||0)>=SNAP_CADA){D.ultFoto=G.t;mandarSnap(G,!D.fotoTodo);D.fotoTodo=true;}}
+
+/* ── Mensajes nuevos del canal ── */
+function coopMsg(x){const D=DUELO;
+  if(x.t==='s'){if(G&&G._espejo||EST==='mirando')snapLlega(x);return true;}
+  if(x.t==='i'){entradaLlega(x);return true;}
+  if(x.t==='go2'&&D.role==='guest'){arrancarEspejo(x);return true;}
+  if(x.t==='modo'){D.modo=x.m;D.nivel=x.niv||1;if(D.estado==='sala')drawSala();return true;}
+  if(x.t==='ola'&&D.role==='host'&&G&&G.modo==='contra'){const r=encolarOla(G,x.c);sendCh({t:'olaR',ok:r.ok,error:r.error});return true;}
+  if(x.t==='olaR'){if(!x.ok)toast(x.error==='presupuesto'?'No te alcanzaba el presupuesto.':x.error==='cola'?'Ya había una oleada esperando.':'No se pudo mandar.');return true;}
+  if(x.t==='mirar'){D.mirado=!!x.v;D.fotoTodo=false;return true;}
+  return false;}
+// el canal sin orden para las fotos: se crea igual de los dos lados (negociado), sin cambiar la invitación
+function canalFotos(pc){try{return pc.createDataChannel('fotos',{negotiated:true,id:7,ordered:false,maxRetransmits:0});}catch(_){return null;}}
+function cablearFotos(D){const c=D.pc&&D.pc._fotos;if(!c)return;D.snap=c;c.onmessage=e=>{let x;try{x=JSON.parse(e.data);}catch(_){return;}if(DUELO===D)coopMsg(x);};}
+
 /* ───────── InvasorAR · arranque ───────── */
-function pcPanel(){const R=records(),rec=R['arcade:'+CFG.dif]||0;
+// v77: las hojas (.modal) empiezan debajo de la barra de arriba, así «Juegos», 💬 y ☰ siempre se pueden tocar.
+(function(){const f=()=>{const t=document.querySelector('.app>.top');if(!t)return;const r=t.getBoundingClientRect();document.documentElement.style.setProperty('--top-h',(r.height?Math.round(r.bottom):0)+'px');};
+  const go=()=>{f();addEventListener('resize',f);addEventListener('orientationchange',()=>setTimeout(f,300));try{const t=document.querySelector('.app>.top');if(t&&window.ResizeObserver)new ResizeObserver(f).observe(t);}catch(_){}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();})();
+function pcPanel(){const R=records(),rec=R['infinito:'+CFG.dif]||0;
   $('pc-panel').innerHTML=`<h3>Controles</h3><div class="fila"><kbd>◀</kbd><kbd>▶</kbd> o <kbd>A</kbd><kbd>D</kbd> mover</div><div class="fila"><kbd>Espacio</kbd> disparar (mantené)</div>
     <div class="fila"><kbd>Shift</kbd> o <kbd>E</kbd> escudo</div><div class="fila"><kbd>P</kbd> o <kbd>Esc</kbd> pausa</div>
-    <div class="rec">Récord de Arcade (${DIFS[CFG.dif].n}): <b>${rec?fmt(rec):'—'}</b><br><small>Los botones táctiles se prenden en Ajustes › Mover.</small></div>`;}
+    <div class="rec">Récord de Infinito (${DIFS[CFG.dif].n}): <b>${rec?fmt(rec):'—'}</b><br><small>Los botones táctiles se prenden en Ajustes › Mover.</small></div>`;}
 function aceptando(){try{return !!sessionStorage.getItem('invasores-accept');}catch(_){return false;}}
 function esperarInvitacion(){sheet('Duelo con un amigo','<p><span class="busy"></span>Buscando la invitación de tu amigo…</p>');
   let n=0;const t=setInterval(()=>{if(DUELO||!aceptando()){clearInterval(t);return;}
@@ -5574,7 +6202,7 @@ function openMenu(){
     ${G&&!G.fin&&EST!=='menu'?'<button id="m-pausa">⏸ Pausa</button>':''}<button id="m-modos">👾 Modos de juego</button><button id="m-duelo">⚔️ Duelo con un amigo</button>
     <button id="m-aj">⚙️ Controles y sonido</button><button id="m-help">❓ Cómo se juega</button><button id="m-rec">🏆 Récords</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=invasores">📊 Tablas</a><button id="m-share">📲 Pasar el juego</button>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 76</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 77</p>`);
   const go=f=>()=>{closeSide();f();};$('m-x').onclick=closeSide;
   if($('m-pausa'))$('m-pausa').onclick=go(()=>pausar());
   $('m-modos').onclick=go(()=>{if(G&&!G.fin&&EST!=='menu'){if(enDuelo()){toast('Estás en un duelo: abandonalo desde la pausa del duelo.');return;}EST='jugando';pausar();return;}portada();});
@@ -5586,7 +6214,8 @@ function openMenu(){
 $('btn-menu').onclick=()=>{if(EST==='jugando'&&!enDuelo())pausar(true);openMenu();};
 window.INVASORES={get G(){return G;},set G(v){G=v;},get EST(){return EST;},get DUELO(){return DUELO;},get AJ(){return AJ;},get IN(){return IN;},
   empezar,portada,pausar,continuar,guardar,retomar,openDuelo,openTaller,openAjustes,invitar,acceptInvite,duelSalir,elegirModo,premios,records,diaHecho,
-  paso,nuevaPartida,comparar,medirCampo,set AUTO(v){window.AUTO_BOT=v;},get ESC(){return ESC;}};
+  paso,nuevaPartida,comparar,medirCampo,set AUTO(v){window.AUTO_BOT=v;},get ESC(){return ESC;},
+  openHistoria,historia,hisMax,mandarOla,mirarRival,get ESPEJO(){return ESPEJO;},get MI_P(){return MI_P;},get SNAPS(){return SNAPS;},get REM(){return REM;}};
 
 </script>
 </body>
