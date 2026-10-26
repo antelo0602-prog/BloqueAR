@@ -3804,6 +3804,8 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:79,grande:false,titulo:'Novedades',items:[
+    ['⚔️','La Gran Pampa: los cruces ahora se pelean con juegos cortos y arcade: BloqueAR, InvasorAR a dos vidas, TrucAR, UnoAR y BuscaminAR contra reloj.']]},
   {v:78,grande:false,titulo:'Novedades',items:[
     ['🌾','EstanciAR: la granja da el doble — cultivos, animales y talleres pagan mucho más que antes.']]},
   {v:77,grande:true,titulo:'Novedades',items:[
@@ -4389,9 +4391,10 @@ const evEn=(i,tipo)=>(V&&V.ev||[]).find(e=>e.activo&&e.hex!=null&&(!tipo||e.tipo
 const evGlobal=tipo=>(V&&V.ev||[]).find(e=>e.activo&&e.tipo===tipo&&e.hex==null);
 const evActivos=()=>(V&&V.ev||[]).filter(e=>e.activo);
 const JG=j=>(V&&V.juegos&&V.juegos[j])||{relampago:{n:'BloqueAR relámpago',e:'🧱'},truco:{n:'TrucAR a 15',e:'🃏'},uno:{n:'UnoAR a una mano',e:'🎴'},ajedrez:{n:'AjedrezAR blitz',e:'♟️'},malon:{n:'Malón en EstanciAR',e:'🐎'},
-  pool:{n:'PoolAR Bola 8',e:'🎱'},ludo:{n:'LudAR mano a mano',e:'🎲'},poblar:{n:'PoblAR a 8 puntos',e:'🏘️'},sudoku:{n:'SudokAR contra reloj',e:'🧩'},buscaminas:{n:'BuscaminAR contra reloj',e:'💣'},solitario:{n:'SolitARio contra reloj',e:'♠️'}}[j]||{n:'Relámpago',e:'🧱'};
+  pool:{n:'PoolAR Bola 8',e:'🎱'},ludo:{n:'LudAR mano a mano',e:'🎲'},poblar:{n:'PoblAR a 8 puntos',e:'🏘️'},sudoku:{n:'SudokAR contra reloj',e:'🧩'},buscaminas:{n:'BuscaminAR contra reloj',e:'💣'},solitario:{n:'SolitARio contra reloj',e:'♠️'},invasores:{n:'InvasorAR a dos vidas',e:'👾'}}[j]||{n:'Relámpago',e:'🧱'};
 // v72: el orden de los juegos de los cruces (para elegir con cuál defenderte y para la ayuda)
-const JUEGOS_CRUCE=['relampago','truco','uno','ajedrez','pool','ludo','poblar','sudoku','buscaminas','solitario'];
+// v79 (pedido del 26/10: «que sea todo lo más arcade»): sólo juegos cortos; los demás quedan por si un cruce viejo los tiene
+const JUEGOS_CRUCE=['relampago','invasores','truco','uno','buscaminas'];
 const R72=()=>(V&&V.reglas&&V.reglas.v72)||{guardia:48*3600e3,aliado:6*3600e3,aliadoCosto:1,aliadoPremio:2,aliadoDef:2};
 const MEDE=m=>window.MEDALLAS?MEDALLAS.html(m||{}):'';
 const puntero=()=>V&&V.jugadores.length>1&&V.jugadores[0].pts>V.jugadores[1].pts?V.jugadores[0].k:'';
@@ -4469,7 +4472,7 @@ function renderPanel(){
         else if(!ok)h+='<p class="note">Para desafiarlo tiene que estar pegado a tu tierra.</p>';
         else if(V.v69){const gq=P&&P.gu?JG(P.gu):null,abiertos=openDuels().filter(d=>d.yoDe&&!d.contra&&!d.doma).length,lleno=abiertos>=(V.reglas.abiertos||2);
           h+=`<p><b>Desafialo por este paraje:</b></p><div class="row"><button class="btn gold col" id="pn-rel"${V.yo.leg<c||lleno?' disabled':''}>⚔️ Cruce${gq?` · ${gq.e}`:''}<small>${gq?'su guardia':'🎰 juego sorteado'} · ${c} leguas</small></button><button class="btn red col" id="pn-mal"${V.yo.leg<c||lleno?' disabled':''}>🐎 Malón<small>EstanciAR · ${c} leguas</small></button></div>
-            <p class="note">${gq?`${esc(P.n)} <b>tiene la guardia puesta</b> 🛡️: el cruce se juega con <b>${gq.e} ${esc(gq.n)}</b> y, si no viene a defender, tenés que superarla`:`<b>El juego se sortea:</b> salen tres, vos tachás uno y la suerte elige entre los otros dos`}. Jugás primero, contra la compu, y después tiene 24 h para superarte${V.jugadores.length>2&&V.reglas.v72?'; podés pedir refuerzo a otro de la liga':''}. Malón: atacás su estancia y con 2 ⭐ es tuyo.${k===puntero()?' <b>Va primero:</b> desafiarlo cuesta menos.':''}${lleno?` Ya tenés ${abiertos} cruces abiertos.`:V.yo.leg<c?` Te faltan ${c-V.yo.leg} leguas.`:''}</p>`;}
+            <p class="note">${gq?`${esc(P.n)} <b>tiene la guardia puesta</b> 🛡️: el cruce se juega con <b>${gq.e} ${esc(gq.n)}</b> y, si no viene a defender, tenés que superarla`:`<b>El juego se sortea:</b> salen tres, vos tachás uno y la suerte elige entre los otros dos`}. Jugás primero y después tiene 24 h para superarte${V.jugadores.length>2&&V.reglas.v72?'; podés pedir refuerzo a otro de la liga':''}. Malón: atacás su estancia y con 2 ⭐ es tuyo.${k===puntero()?' <b>Va primero:</b> desafiarlo cuesta menos.':''}${lleno?` Ya tenés ${abiertos} cruces abiertos.`:V.yo.leg<c?` Te faltan ${c-V.yo.leg} leguas.`:''}</p>`;}
         else h+=`<p><b>Desafialo por este paraje:</b></p><div class="row"><button class="btn gold col" id="pn-rel"${V.yo.leg<c?' disabled':''}>🧱 Relámpago<small>BloqueAR · ${c} leguas</small></button><button class="btn red col" id="pn-mal"${V.yo.leg<c?' disabled':''}>🐎 Malón<small>EstanciAR · ${c} leguas</small></button></div><p class="note">Relámpago: jugás primero y ${esc(P?P.n:'tu vecino')} tiene 24 h para superarte. Malón: atacás su estancia y con 2 ⭐ es tuyo.${V.yo.leg<c?` Te faltan ${c-V.yo.leg} leguas.`:''}</p>`;}}}
   el.innerHTML=h;el.hidden=false;document.querySelectorAll('.toast').forEach(placeToast);
   if($('pn-x'))$('pn-x').onclick=()=>{SEL=-1;renderPanel();redraw();};
@@ -4621,15 +4624,15 @@ function openHelp69(){
       <div><span class="ic">🚩</span><span><b>1 · Sumate</b><p>Lunes o martes <b>hasta las 12 del mediodía</b>. Plantás tu casco y arrancás con ${ini} leguas.</p></span></div>
       <div><span class="ic">🎮</span><span><b>2 · Ganá leguas jugando</b><p>Entrando cada día y con partidas ranked de los otros juegos. <a href="#" id="h-leg2">¿Cuántas da cada uno?</a></p></span></div>
       <div><span class="ic">⭐</span><span><b>3 · Parajes de 1 a 5 estrellas</b><p>Cada paraje da por día sus ⭐. El centro vale más; el borde, menos. Reclamar cuesta <b>2 + ⭐</b> (y 1 más cada ${R.admin||5} parajes que ya tenés: crecer sale caro).</p></span></div>
-      <div><span class="ic">⚔️</span><span><b>4 · Cruces</b><p>Desafiá a un vecino por un paraje pegado. <b>El juego se sortea:</b> salen tres, el que desafía tacha uno y la suerte elige entre los otros dos. Los dos juegan lo mismo contra la compu y gana el que hace más (si empatan, defiende el dueño).</p></span></div>
+      <div><span class="ic">⚔️</span><span><b>4 · Cruces</b><p>Desafiá a un vecino por un paraje pegado. <b>El juego se sortea:</b> salen tres, el que desafía tacha uno y la suerte elige entre los otros dos. Los dos juegan lo mismo (las mismas piezas, cartas u oleadas) y gana el que hace más (si empatan, defiende el dueño).</p></span></div>
       <div><span class="ic">🏰</span><span><b>5 · Fortines</b><p>Los parajes de ${R.fuerte}⭐ o más se ganan con <b>dos cruces seguidos</b>: el primero deja una marca 🏴 por 24 h y el segundo cuesta la mitad.</p></span></div>
       <div><span class="ic">🏆</span><span><b>6 · Premios</b><p><b>Oro</b> (1.º 300, 2.º 200, 3.º 120 y 40 por terminar la semana jugando), pesos, copa y <b>medallas para tu perfil</b> que se ven en todos los juegos (🥇🥈🥉, 🤠 Gran Estanciero, 🐎 Domador), y cosas para tu estancia: molino dorado, bandera de campeón, estatua de caballo. El que gana es el <b>🏆 Caudillo de la semana</b> siguiente: lo ven todos y su estandarte flamea en el medio del mapa. Cada 4 semanas cierra una <b>temporada</b>: los tres que más sumaron se llevan su copa.</p></span></div>
     </div>
     <h4>Los juegos de los cruces</h4>
-    <table class="tjg"><tr><td>🧱 BloqueAR</td><td>relámpago de 45 s, las mismas piezas</td></tr><tr><td>🃏 TrucAR</td><td>a 15 contra la compu, las mismas cartas</td></tr><tr><td>🎴 UnoAR</td><td>una mano contra una compu, el mismo mazo</td></tr><tr><td>♟️ AjedrezAR</td><td>blitz 3+2 contra la compu (ganar rápido suma más)</td></tr>
-      <tr><td>🎱 PoolAR</td><td>Bola 8 contra la compu (ganar con menos tiros suma más)</td></tr><tr><td>🎲 LudAR</td><td>mano a mano contra la compu, los mismos dados</td></tr><tr><td>🏘️ PoblAR</td><td>a 8 puntos contra la compu, el mismo tablero (no entra en el sorteo: es más largo)</td></tr>
-      <tr><td>🧩 SudokAR</td><td>contra reloj, el mismo sudoku: cada error o pista resta</td></tr><tr><td>💣 BuscaminAR</td><td>contra reloj, el mismo potrero (Intermedio)</td></tr><tr><td>♠️ SolitARio</td><td>contra reloj, el mismo reparto (con solución)</td></tr></table>
-    <p class="note">La guardia se pone desde el menú (🛡️ Defensa y guardia). El desafiado tiene 24 horas; si no viene, el que desafió gana sólo si le ganó a la compu, terminó el solitario (o hizo ${Math.round((R.ausente.relampago||3000)/1000)} líneas en el relámpago) y superó la guardia, si había. Desafiar al que va primero cuesta ${R.puntero||3} leguas menos. El malón en EstanciAR sigue siendo otra forma de desafiar.</p>
+    <table class="tjg"><tr><td>🧱 BloqueAR</td><td>relámpago de 45 s, las mismas piezas</td></tr><tr><td>👾 InvasorAR</td><td>a dos vidas, oleadas muy duras (las mismas para los dos), hasta 3 minutos</td></tr>
+      <tr><td>🃏 TrucAR</td><td>a 15 contra la compu, las mismas cartas</td></tr><tr><td>🎴 UnoAR</td><td>una mano contra una compu, el mismo mazo</td></tr><tr><td>💣 BuscaminAR</td><td>contra reloj, el mismo potrero (Intermedio)</td></tr></table>
+    <p class="note">Sólo juegos cortos y arcade: un cruce es una pelea, no una sobremesa.</p>
+    <p class="note">La guardia se pone desde el menú (🛡️ Defensa y guardia). El desafiado tiene 24 horas; si no viene, el que desafió gana sólo si le ganó a la compu, limpió el buscaminas, hizo ${fmt(R.ausente.invasores||2500)} puntos en InvasorAR (o hizo ${Math.round((R.ausente.relampago||3000)/1000)} líneas en el relámpago) y superó la guardia, si había. Desafiar al que va primero cuesta ${R.puntero||3} leguas menos. El malón en EstanciAR sigue siendo otra forma de desafiar.</p>
     <div class="como dos">
       <div><span class="ic">🛡️</span><span><b>Guardia</b><p>Jugá tu defensa antes, cuando te quede cómodo (una por día); el juego se sortea en el momento. Dura 48 horas: si te desafían y no llegás, hay que superarla. Si venís, cuenta lo que hagas.</p></span></div>
       <div><span class="ic">🤝</span><span><b>Refuerzo</b><p>Al desafiar, pedile ayuda a otro de la liga (1 legua más). Juega lo mismo hasta 6 horas después y cuenta el mejor de los dos. Si ganan, +2 leguas para él; si el que defiende aguanta a los dos, +2 para el que defiende.</p></span></div>
@@ -4850,7 +4853,7 @@ function sorteoAnim(d){
         c.style.setProperty('--dx',Math.cos(a)*v+'px');c.style.setProperty('--dy',(Math.sin(a)*v-40)+'px');c.style.setProperty('--r',(Math.random()*720-360)+'deg');caja.appendChild(c);T(()=>c.remove(),1200);}}
     txt.innerHTML=gu?`Tu guardia se juega con <b>${J.e} ${esc(J.n)}</b>.`:`Se juega con <b>${J.e} ${esc(J.n)}</b>.`;
     const dd=gu?(st.res&&st.res.guardia&&st.res.guardia.pend?{...st.res.guardia.pend,guardia:1,yoDe:true}:{...d,j,guardia:1,yoDe:true}):((st.res&&(st.res.duelos||[]).find(x=>x.id===d.id))||{...d,j});
-    pie.innerHTML=`<button class="btn go" id="so-go">${J.e} ${gu?'Jugar la guardia':'Jugar ahora'}</button><button class="btn" id="so-luego">Después</button>${gu?'':`<p class="note">Jugás primero, contra la compu. Si no jugás en 2 horas, el cruce se cancela y te devuelven las leguas.</p>`}`;
+    pie.innerHTML=`<button class="btn go" id="so-go">${J.e} ${gu?'Jugar la guardia':'Jugar ahora'}</button><button class="btn" id="so-luego">Después</button>${gu?'':`<p class="note">Jugás primero. Si no jugás en 2 horas, el cruce se cancela y te devuelven las leguas.</p>`}`;
     if(st.res)try{apply(st.res);}catch(_){}
     ov.querySelector('#so-go').onclick=()=>{cerrar();playDuel(dd);};ov.querySelector('#so-luego').onclick=()=>{cerrar();renderAll();};
     try{ov.querySelector('#so-go').focus({preventScroll:true});}catch(_){}}
@@ -4865,7 +4868,7 @@ function playDuel(d){
   if(d.j==='malon'){location.href=`estancia.html#pampa-malon=${encodeURIComponent(d.a)}&duelo=${d.id}`;return;}
   ls.set('pampa-cruce',JSON.stringify({id:d.id,j:d.j,t:Date.now(),rival:d.guardia?'':d.yoDe?d.a:d.de,sd:d.yoDe||d.guardia?null:d.sd,guardia:!!d.guardia}));
   // v72: también PoolAR, LudAR, PoblAR y los solitarios (con el mismo «#pampa-cruce=SEMILLA&duelo=ID»)
-  const pag={truco:'truco.html',uno:'uno.html',ajedrez:'ajedrez.html',pool:'pool.html',ludo:'ludo.html',poblar:'poblar.html',sudoku:'sudoku.html',buscaminas:'buscaminas.html',solitario:'solitario.html'}[d.j];
+  const pag={truco:'truco.html',uno:'uno.html',ajedrez:'ajedrez.html',pool:'pool.html',ludo:'ludo.html',poblar:'poblar.html',sudoku:'sudoku.html',buscaminas:'buscaminas.html',solitario:'solitario.html',invasores:'invasores.html'}[d.j];
   location.href=pag?`${pag}#pampa-cruce=${d.seed}&duelo=${d.id}`:`./#pampa-relampago=${d.seed}&duelo=${d.id}`;
 }
 // El resultado del relámpago vuelve en «pampa-resultado».
@@ -4911,7 +4914,7 @@ function openMenu(){
     <button id="m-snd">${SND?'🔊 Sonidos: prendidos':'🔇 Sonidos: apagados'}</button>
     <label class="amb">🌾 Ambiente de campo<input type="range" id="m-amb" min="0" max="100" step="5" value="${Math.round(AMBV*100)}" aria-label="Volumen del ambiente"><small>${AMBV>0?Math.round(AMBV*100)+' %':'apagado'}</small></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros</button>':''}
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 78</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 79</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-pos').onclick=go(()=>openPos('pos'));$('m-cru').onclick=go(()=>openPos('cruces'));$('m-log').onclick=go(()=>openPos('log'));
   $('m-leg').onclick=go(openLeguas);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);

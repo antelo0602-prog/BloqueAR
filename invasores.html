@@ -3818,6 +3818,8 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:79,grande:false,titulo:'Novedades',items:[
+    ['⚔️','La Gran Pampa: los cruces ahora se pelean con juegos cortos y arcade: BloqueAR, InvasorAR a dos vidas, TrucAR, UnoAR y BuscaminAR contra reloj.']]},
   {v:78,grande:false,titulo:'Novedades',items:[
     ['🌾','EstanciAR: la granja da el doble — cultivos, animales y talleres pagan mucho más que antes.']]},
   {v:77,grande:true,titulo:'Novedades',items:[
@@ -4149,7 +4151,9 @@ const MODOS={
   // y En contra (uno defiende y el otro arma las oleadas; 150 s por ronda)
   infinito:{n:'Infinito',lim:0},
   historia:{n:'Historia',lim:0},
-  contra:{n:'En contra',lim:150}};
+  contra:{n:'En contra',lim:150},
+  // v79: el cruce de La Gran Pampa (Experto, 2 vidas, la semilla del cruce, muy duro desde el arranque, 3 minutos)
+  pampa:{n:'Cruce de La Gran Pampa',lim:180}};
 // Reglas que se pueden tocar en el Taller (con su valor normal y su rango). Cambiar cualquiera vuelve la partida «libre».
 const REGLAS0={vidas:0,oleadas:10,naveVel:640,fVel:1,fProy:1,fInt:1,cad:.1,refugios:3,resRef:2,poderes:true,escudo:true,recarga:12,jefes:true,reparar:3,invasion:'derrota',invul:false,lento:false};
 const RANGO_REGLAS={vidas:[1,9],oleadas:[1,30],naveVel:[360,900],fVel:[.5,2],fProy:[.5,1.6],fInt:[.6,2],cad:[.06,.4],resRef:[1,4],recarga:[6,30]};
@@ -4224,6 +4228,11 @@ function olaInfinito(G,i){const blq=Math.floor(i/10),r=i%10;
   if(r===9)return {blq,def:{jefe:blq%2?'nodriza':'centinela'}};
   if(r===4)return {blq,def:{bonus:true}};
   return {blq,def:olaGen(G.seed,i,i)};}
+// v79 · Cruce de La Gran Pampa: sin calentamiento (arranca como la oleada 8 de Infinito y sube rápido), sin bonus,
+// y un jefe cada 5 (Centinela y Nodriza alternados). Todo sale de la semilla del cruce: los dos ven las mismas oleadas.
+function olaPampa(G,i){const r=i%5,blq=1+Math.floor(i/3);
+  if(r===4)return {blq,def:{jefe:Math.floor(i/5)%2?'nodriza':'centinela'}};
+  return {blq,def:olaGen(G.seed,i,8+i*1.5)};}
 // Historia: 100 niveles fijos (la misma semilla para todos), cada uno de 1 a 3 oleadas, cada vez más difíciles; cada 10, un
 // jefe (Centinela y Nodriza alternados, cada vez más fuertes) y los terminados en 5 tienen un bonus en el medio.
 const HISTORIA_N=100;
@@ -4303,6 +4312,7 @@ function nuevaPartida(op){
 function olaDe(G,i){
   const M=MODOS[G.modo];
   if(G.modo==='infinito')return {k:-1,...olaInfinito(G,i)};
+  if(G.modo==='pampa')return {k:-1,...olaPampa(G,i)};
   if(G.modo==='historia'){const L=nivelOlas(G.nivel);return {k:-1,...(L[i]||L[L.length-1])};}
   if(G.modo==='contra')return {k:-1,blq:Math.floor((G.enviadas||0)/4),def:G.cola&&G.cola.length?G.cola.shift():OLA_CONTRA0};
   if(M.seq)return {k:M.seq[i],blq:0};
@@ -4315,7 +4325,7 @@ function olaDe(G,i){
   if(G.modo==='libre'&&!G.R.poderes&&OLEADAS[k].bonus)k=5;
   return {k,blq};
 }
-function hayMasOlas(G,i){const M=MODOS[G.modo];if(G.modo==='historia')return i<nivelOlas(G.nivel).length;if(G.modo==='infinito'||G.modo==='contra')return true;if(M.seq)return i<M.seq.length;if(G.modo==='arcade')return i<OLEADAS.length;if(G.modo==='libre')return i<G.R.oleadas;return true;}
+function hayMasOlas(G,i){const M=MODOS[G.modo];if(G.modo==='historia')return i<nivelOlas(G.nivel).length;if(G.modo==='infinito'||G.modo==='contra'||G.modo==='pampa')return true;if(M.seq)return i<M.seq.length;if(G.modo==='arcade')return i<OLEADAS.length;if(G.modo==='libre')return i<G.R.oleadas;return true;}
 function cargarOla(G,i){
   const {k,blq,def}=olaDe(G,i),O=def||OLEADAS[k];
   G.ola=i;G.def={...O,k};G.escala={vel:Math.pow(1.06,blq),int:Math.pow(1/1.06,blq),jefe:Math.pow(1.2,blq),blq,vida:Math.floor(blq/2)};
@@ -5367,19 +5377,20 @@ function empezar(modo,op={}){
   closeSheet();hideOver();closeSide();soltarTodo();
   const reglas=modo==='libre'?tallerReglas():modo==='tutorial'?{invul:true,fInt:1.6,escudo:true}:op.reglas;
   const seed=op.seed!=null?op.seed:modo==='dia'?semillaDia(hoyAR()):undefined;
-  G=nuevaPartida({modo:modo==='tutorial'?'tutorial':modo,dif:modo==='dia'||modo==='duelo'||modo==='tutorial'||modo==='contra'?'normal':(op.dif||CFG.dif),seed,reglas,nivel:op.nivel,coop:op.coop});
+  G=nuevaPartida({modo:modo==='tutorial'?'tutorial':modo,dif:modo==='pampa'?'experta':modo==='dia'||modo==='duelo'||modo==='tutorial'||modo==='contra'?'normal':(op.dif||CFG.dif),seed,reglas,nivel:op.nivel,coop:op.coop});
   if(op.online)G._online=op.online;
   G._dia=modo==='dia'?hoyAR():null;G._oficialDia=modo==='dia'&&!diaHecho();G._key='i'+G.seed.toString(36)+Date.now().toString(36);G._t0=Date.now();
   if(modo==='dia'&&G._oficialDia){const D=ls.json(DIA_K,{});D[G._dia]={empezado:Date.now()};ls.set(DIA_K,JSON.stringify(D));}
   if(modo==='tutorial'){TUT={paso:0,t:0,mov0:0};}else TUT=null;
   ESCENA=modo;document.body.classList.remove('menu');$('hud-pausa').hidden=false;
-  if(modo!=='duelo'&&!op.online)ls.set(SAVE,null);
+  if(modo!=='duelo'&&modo!=='pampa'&&!op.online)ls.set(SAVE,null);   // v79: el cruce no pisa tu partida guardada
   aplicarAj();medirCampo();cuenta(op.cuenta??2);if(modo!=='tutorial')try{ayudaDesliz();}catch(_){}
   ls.set('bloques-ultimo-juego','invasores');
 }
 function cuenta(seg){if(seg<=0||RM&&!enDuelo()){EST='jugando';ACC=0;return;}EST='cuenta';CUENTA_T=seg;const c=$('cuenta');c.hidden=false;c.textContent=String(Math.ceil(seg));}
 function pausar(silencio){
   if(!G||G.fin||EST!=='jugando')return;soltarTodo();
+  if(G.modo==='pampa'){if(!silencio)menuPampa();return;}   // v79: en el cruce tampoco hay pausa
   if(enDuelo()){if(!silencio)menuDuelo();return;}   // en el duelo no hay pausa: el combate sigue (y salir de la app no abre nada)
   EST='pausa';guardar();
   over(`<div class="ic">⏸</div><h3>Pausa</h3><p class="cap">${esc(MODOS[G.modo].n)}${G.oficial?'':' · reglas libres'} · oleada ${G.ola+1} · ${fmt(G.puntos)} puntos</p>
@@ -5401,7 +5412,7 @@ window.addEventListener('pagehide',()=>guardar());
 $('hud-pausa').onclick=()=>{actx();pausar();};
 
 /* ── Guardar y retomar (modos individuales, hasta 24 h) ── */
-function guardar(forzar){if(!G||G.fin||G.modo==='duelo'||G.modo==='tutorial'||G._oficialDia||G._online||G._espejo)return;if(!forzar&&EST==='menu')return;
+function guardar(forzar){if(!G||G.fin||G.modo==='duelo'||G.modo==='pampa'||G.modo==='tutorial'||G._oficialDia||G._online||G._espejo)return;if(!forzar&&EST==='menu')return;
   try{const c=JSON.parse(JSON.stringify(G));c.ev=[];ls.set(SAVE,JSON.stringify({t:Date.now(),G:c}));}catch(_){}}
 function guardada(){const s=ls.json(SAVE,null);if(!s||!s.G||s.G.v!==MOTOR_V||s.G.fin||Date.now()-s.t>24*3600e3)return null;return s;}
 function retomar(){const s=guardada();if(!s)return portada();G=s.G;G.ev=[];ESCENA=G.modo;document.body.classList.remove('menu');$('hud-pausa').hidden=false;hideOver();closeSheet();soltarTodo();medirCampo();
@@ -5417,9 +5428,10 @@ function anotarDia(G){const D=ls.json(DIA_K,{}),F=G.fin;D[G._dia]={hecho:true,pu
 
 /* ── Fin de la partida ── */
 function alTerminar(){
-  if(EST==='fin')return;EST='fin';soltarTodo();ls.set(SAVE,null);$('hud-pausa').hidden=true;
+  if(EST==='fin')return;EST='fin';soltarTodo();if(G.modo!=='pampa')ls.set(SAVE,null);$('hud-pausa').hidden=true;   // v79: el cruce no pisa tu partida guardada
   const F=G.fin,gano=F.res==='victoria'||F.res==='expedicion';
   if(G.modo==='duelo'){duelFin();return;}
+  if(G.modo==='pampa'){pampaFin();return;}
   if(G._online||G._espejo){onlineFin();return;}
   if(G.modo==='tutorial'){tutFin();return;}
   sfx(gano?'gano':'pierdo');
@@ -5644,6 +5656,34 @@ function tutFin(){$('tut').hidden=true;TUT=null;sfx('gano');ls.set('invasores-tu
   try{window.LOGROS&&LOGROS.evento('invasores','aprendiz',1,'inv-tut',true);}catch(_){}
   over(`<div class="ic">🎓</div><h3>¡Ya sabés jugar!</h3><p>Ahora a defender la llanura de verdad. El Arcade tiene 10 oleadas cortas, dos bonus y dos jefes.</p><button class="btn go" id="tf-go">Jugar Arcade</button><button class="btn" id="tf-x">Ver los modos</button>`);
   $('tf-go').onclick=()=>{hideOver();empezar('arcade');};$('tf-x').onclick=()=>{G=null;hideOver();portada();};}
+
+/* ── v79 · Cruce de La Gran Pampa («#pampa-cruce=SEMILLA&duelo=ID», lo abre La Gran Pampa) ──
+   Experto (2 vidas), la semilla del cruce (los dos ven las mismas oleadas), muy duro desde el arranque y a lo sumo 3 minutos.
+   No hay pausa (el combate sigue) y el reloj de 3 minutos también corre con la app en segundo plano. No da XP, oro ni leguas,
+   no va a las tablas y no pisa tu partida guardada. Al terminar deja el resultado en «pampa-resultado» y se vuelve al mapa. */
+let PAMPA=null;
+const PAMPA_SEG=MODOS.pampa.lim;
+function pampaCruce(seed,duelo){
+  PAMPA={seed:seed>>>0,duelo,fin:false};
+  over(`<div class="ic">⚔️</div><h3>Cruce de La Gran Pampa</h3><p><b>2 vidas</b>, oleadas muy duras y <b>3 minutos</b> como mucho. Tu rival juega las mismas oleadas: gana el que hace más puntos.</p>
+    <p class="cap">No hay pausa: una vez que empieza, el combate sigue.</p><button class="btn go" id="pc-go">👾 Empezar el cruce</button><a class="btn" href="pampa.html">Volver al mapa</a>`);
+  $('pc-go').onclick=()=>{actx();hideOver();empezar('pampa',{seed:PAMPA.seed,cuenta:3});PAMPA.t0=Date.now();};}
+// el reloj de verdad: aunque la app quede en segundo plano, a los 3 minutos (más la cuenta) se termina
+setInterval(()=>{if(!PAMPA||PAMPA.fin||!G||G.modo!=='pampa'||G.fin||!PAMPA.t0)return;
+  if(Date.now()-PAMPA.t0>(PAMPA_SEG+8)*1000){terminar(G,'tiempo','tiempo');alTerminar();}},1000);
+function pampaAnotar(){const F=G&&G.fin;if(!PAMPA||PAMPA.fin||!F)return;PAMPA.fin=true;
+  ls.set('pampa-resultado',JSON.stringify({j:'invasores',seed:PAMPA.seed,duelo:PAMPA.duelo,puntos:F.puntos,txt:`${fmt(F.puntos)} puntos · ${F.olas} ${F.olas===1?'oleada':'oleadas'}`,t:Date.now()}));}
+function pampaFin(){const F=G.fin;pampaAnotar();sfx(F.res==='tiempo'?'gano':'pierdo');
+  setTimeout(()=>over(`<div class="ic">${F.res==='tiempo'?'🏆':'👾'}</div><h3>${F.res==='tiempo'?'¡Aguantaste los 3 minutos!':F.res==='abandono'?'Cruce terminado':F.motivo==='invasion'?'Invadieron la llanura':'Te derribaron'}</h3>
+    <div class="rs-pts">${fmt(F.puntos)}<small>puntos para el cruce</small></div>
+    <div class="lines"><div><span>Oleadas limpias</span><b>${F.olas}</b></div><div><span>Cadena máxima</span><b>×${G.st.maxCombo}</b></div><div><span>Duración</span><b>${durTxt(F.seg)}</b></div></div>
+    <a class="btn go otra" id="pc-volver" href="pampa.html#resultado">🗺️ Volver a La Gran Pampa</a>`),F.res==='tiempo'?900:420);}
+function pampaTerminar(){if(!G||G.modo!=='pampa'||G.fin)return;G.fin={res:'abandono',motivo:'salida',puntos:G.puntos,olas:G.olaN,vidas:G.nave.vidas,danio:G.st.danio,seg:Math.round(G.seg),act:Object.keys(G.st.actT).length};alTerminar();}
+function menuPampa(){
+  openSide(`<div class="side-head"><h2>Cruce</h2><button class="side-x" id="mp-x" aria-label="Cerrar">✕</button></div><p class="note">El combate sigue mientras mirás esto.</p>
+    <div class="menu-list"><button id="mp-aj">⚙️ Controles y sonido</button><button id="mp-fin">⚔️ Terminar el cruce <small>se anota lo que hiciste</small></button></div>`);
+  $('mp-x').onclick=closeSide;$('mp-aj').onclick=()=>{closeSide();openAjustes(false);};
+  $('mp-fin').onclick=()=>{if(!confirm('¿Terminar el cruce? Se anotan los puntos que llevás.'))return;closeSide();pampaTerminar();};}
 
 /* ───────── InvasorAR · Duelo con un amigo ─────────
    Dos personas, cada una en su campo, con la misma semilla: las mismas oleadas, los mismos tiempos. Nadie le tira nada al
@@ -6180,7 +6220,9 @@ function esperarInvitacion(){sheet('Duelo con un amigo','<p><span class="busy"><
   ls.set('bloques-ultimo-juego','invasores');ls.set('bloques-hub-v1','1');
   const hash=location.hash;if(hash){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
   // pruebas: #auto juega solo (la misma compu de la portada) y #rapido sin esperas
-  if(/[#&]auto/.test(hash)){const m=(hash.match(/modo=(\w+)/)||[])[1]||'arcade';empezar(m,{cuenta:0,seed:Number((hash.match(/semilla=(\d+)/)||[])[1])||undefined});window.AUTO_BOT=true;}
+  const pcr=/[#&]pampa-cruce=(\d+)&duelo=([\w-]+)/.exec(hash);   // v79: un cruce de La Gran Pampa
+  if(pcr)pampaCruce(Number(pcr[1]),pcr[2]);
+  else if(/[#&]auto/.test(hash)){const m=(hash.match(/modo=(\w+)/)||[])[1]||'arcade';empezar(m,{cuenta:0,seed:Number((hash.match(/semilla=(\d+)/)||[])[1])||undefined});window.AUTO_BOT=true;}
   else if(aceptando())esperarInvitacion();
   else if(/^#(duelo|amigos|mesa)/.test(hash))setTimeout(openDuelo,150);
   else if(/^#invitar=/.test(hash)&&acct()){let u='';try{u=decodeURIComponent(hash.slice(9));}catch(_){u=hash.slice(9);}openDuelo();setTimeout(()=>invitar((UIQ.users||[]).find(y=>y.usuario===u)||{usuario:u,avatar:'🙂',color:'#3b5866'}),300);}
@@ -6204,7 +6246,7 @@ function openMenu(){
     ${G&&!G.fin&&EST!=='menu'?'<button id="m-pausa">⏸ Pausa</button>':''}<button id="m-modos">👾 Modos de juego</button><button id="m-duelo">⚔️ Duelo con un amigo</button>
     <button id="m-aj">⚙️ Controles y sonido</button><button id="m-help">❓ Cómo se juega</button><button id="m-rec">🏆 Récords</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=invasores">📊 Tablas</a><button id="m-share">📲 Pasar el juego</button>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 78</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 79</p>`);
   const go=f=>()=>{closeSide();f();};$('m-x').onclick=closeSide;
   if($('m-pausa'))$('m-pausa').onclick=go(()=>pausar());
   $('m-modos').onclick=go(()=>{if(G&&!G.fin&&EST!=='menu'){if(enDuelo()){toast('Estás en un duelo: abandonalo desde la pausa del duelo.');return;}EST='jugando';pausar();return;}portada();});
@@ -6213,10 +6255,11 @@ function openMenu(){
   if($('m-logros'))$('m-logros').onclick=()=>LOGROS.abrir('invasores',{side:openSide,volver:openMenu,cerrar:closeSide});
   $('m-share').onclick=go(async()=>{const url=location.href.replace(/[#?].*$/,''),data={title:'InvasorAR',text:'¿Te animás a defender la llanura? Hacemos un duelo.',url};
     try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}try{await navigator.clipboard.writeText(url);toast('Link copiado');}catch(_){toast(esc(url));}});}
-$('btn-menu').onclick=()=>{if(EST==='jugando'&&!enDuelo())pausar(true);openMenu();};
+$('btn-menu').onclick=()=>{if(G&&G.modo==='pampa'&&!G.fin&&EST!=='menu'){menuPampa();return;}if(EST==='jugando'&&!enDuelo())pausar(true);openMenu();};
 window.INVASORES={get G(){return G;},set G(v){G=v;},get EST(){return EST;},get DUELO(){return DUELO;},get AJ(){return AJ;},get IN(){return IN;},
   empezar,portada,pausar,continuar,guardar,retomar,openDuelo,openTaller,openAjustes,invitar,acceptInvite,duelSalir,elegirModo,premios,records,diaHecho,
   paso,nuevaPartida,comparar,medirCampo,set AUTO(v){window.AUTO_BOT=v;},get ESC(){return ESC;},
+  get PAMPA(){return PAMPA;},pampaCruce,pampaTerminar,
   openHistoria,historia,hisMax,mandarOla,mirarRival,get ESPEJO(){return ESPEJO;},get MI_P(){return MI_P;},get SNAPS(){return SNAPS;},get REM(){return REM;}};
 
 </script>

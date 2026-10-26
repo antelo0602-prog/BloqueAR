@@ -4224,6 +4224,8 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:79,grande:false,titulo:'Novedades',items:[
+    ['⚔️','La Gran Pampa: los cruces ahora se pelean con juegos cortos y arcade: BloqueAR, InvasorAR a dos vidas, TrucAR, UnoAR y BuscaminAR contra reloj.']]},
   {v:78,grande:false,titulo:'Novedades',items:[
     ['🌾','EstanciAR: la granja da el doble — cultivos, animales y talleres pagan mucho más que antes.']]},
   {v:77,grande:true,titulo:'Novedades',items:[
@@ -5836,7 +5838,7 @@ function openMenu(){
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
     ${ON&&ON.role==='host'&&ON.state==='on'&&G&&G.phase!=='over'?'<button id="m-pausa">⏸️ Pausar y seguir otro día <small>se guarda para todos</small></button>':''}
     ${acct()?'<button id="m-mias">📂 Partidas guardadas <small>en línea, para seguir</small></button>':''}
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>${dicePosControls()}<p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 78</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>${dicePosControls()}<p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 79</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};$('m-acct').onclick=e=>{closeSide();goGames(e);};$('m-tabla').onclick=e=>{closeSide();goGames(e);};

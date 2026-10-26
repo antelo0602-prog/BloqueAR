@@ -3827,6 +3827,8 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:79,grande:false,titulo:'Novedades',items:[
+    ['⚔️','La Gran Pampa: los cruces ahora se pelean con juegos cortos y arcade: BloqueAR, InvasorAR a dos vidas, TrucAR, UnoAR y BuscaminAR contra reloj.']]},
   {v:78,grande:false,titulo:'Novedades',items:[
     ['🌾','EstanciAR: la granja da el doble — cultivos, animales y talleres pagan mucho más que antes.']]},
   {v:77,grande:true,titulo:'Novedades',items:[
@@ -7000,7 +7002,7 @@ function openMenu(){
     <button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button>
     <label class="amb-vol">🌿 Ambiente <input type="range" id="m-amb" min="0" max="1" step="0.1" value="${AMB.vol}" aria-label="Volumen del ambiente"${SND?'':' disabled'}></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=estancia">🏆 Tabla</a>
-    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 78</p>`);
+    <a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">EstanciAR · versión 79</p>`);
   $('m-x').onclick=closeSide;$('m-help').onclick=()=>{closeSide();openHelp();};$('m-juegos').onclick=()=>{closeSide();openJuegos();};$('m-pj').onclick=()=>{closeSide();openPersonaje();};$('m-ped').onclick=()=>{closeSide();openPedidos();};$('m-moch').onclick=()=>{closeSide();openMochila();};
   if($('m-pets'))$('m-pets').onclick=()=>{closeSide();openShop('mascotas');};
   $('m-snd').onclick=()=>{SND=!SND;ls.set('estancia-sonido',SND?'1':'0');if(SND)ambStart();openMenu();};
