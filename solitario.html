@@ -324,7 +324,9 @@ const PARTES={
   invasores:['invasores-ajustes','invasores-cfg','invasores-taller','invasores-tut','invasores-partida-v1',['invasores-records','max'],['invasores-dia','claves'],['invasores-xp-hechas','union'],['invasores-historia','max']],   // v73 InvasorAR · v77 progreso de Historia
   bloquear:['bloques-resume-v1'],   // v77: la partida Solo de BloqueAR que quedó a medias (el resto de BloqueAR sincroniza aparte)
   ajedrez:['ajedrez-dif','ajedrez-color','ajedrez-tc','ajedrez-ayuda','ajedrez-sonido','ajedrez-partida-v1',['ajedrez-xp-hechas','union']],   // v77: la partida contra la compu sigue en otro dispositivo
-  pampa:['pampa-resultado','pampa-visto','pampa-resumen','pampa-cruce','pampa-copas','pampa-ayuda-9'],
+  // v81: «pampa-resultado» y «pampa-cruce» ya no viajan: son de este aparato (el resultado de un cruce lo anota el aparato
+  // donde se jugó; si viajaba, otro aparato lo volvía a mandar). Los avisos de la Pampa ya vistos sí viajan (una vez por cuenta).
+  pampa:['pampa-visto','pampa-resumen','pampa-copas','pampa-ayuda-9',['pampa-avisos-vistos','union']],
   gen:[['bloques-novedades','maxnum'],['bloques-chat-read-{me}','max'],['bloques-chat-borr-{me}','max'],'bloques-chat-frase','bloques-chat-modo',
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
     'bloques-favoritos-v1','bloques-orden-v1']   // v67: juegos fijados y orden propio del menú de juegos
@@ -488,7 +490,7 @@ function arrancar(){
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){if(SUC.dirty.size)ahora(true,true);}
     else if(Date.now()-SUC.pullT>15000)ahora(true);});
-  window.addEventListener('pagehide',()=>{if(!SUC.dirty.size)return;const a=acct();if(!a)return;   // al cerrar: se manda lo que falta, sin esperar
+  window.addEventListener('pagehide',()=>{if(!SUC.dirty.size||SUC.primero)return;const a=acct();if(!a)return;   // al cerrar: se manda lo que falta, sin esperar · v81: sólo si ya se trajo lo de la cuenta (si no, un aparato con datos viejos o vacíos podía pisar tu progreso)
     const subir=[...SUC.dirty].map(n=>{const d=datosDe(n);return d?{n,d:JSON.stringify(d),t:Date.now()}:null;}).filter(Boolean);
     for(let i=0;i<subir.length;i+=10)try{fetch(lbUrl(),{method:'POST',body:JSON.stringify({accion:'sync',usuario:a.usuario,token:a.token,subir:subir.slice(i,i+10)}),headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true});}catch(_){}});
   window.addEventListener('online',()=>{if(SUC.dirty.size)ahora(true);});
@@ -907,6 +909,7 @@ function premio(de,xp,ranked,info,extra){
     if(info.esf===undefined)info.esf=cuenta(info.j||NOM_ID[de],info).ok;}
   const j=(info&&info.j)||NOM_ID[de];
   if(info&&j&&info.rival!=='s')try{contar(j,info);}catch(_){}          // (el Maratón ranked sólo da leguas: no es una partida contra nadie)
+  if(info&&j&&info.rival!=='s')try{ganchoAnotar(j,info);}catch(_){}     // v81: rachas y «hoy» para el cartel final
   if(info&&j&&ranked&&info.rival!=='s')try{anotarPartida(j,info);}catch(_){}
   if(!n)return null;
   // v70 (dos monedas): lo que dan los juegos es ORO (ORO.premio, con su tabla y su tope del día). Para la estancia queda «un
@@ -1089,7 +1092,99 @@ function mine(g){if(!GAMES[g])return '';const r=get(g),i=info(r.v),L=levelInfo(x
   return `<div class="rk-mine" style="--rk:${i.t.c}"><div><b>Tu rango en ${GAMES[g]}</b><small>Nivel ${L.lv}${r.n?` · ${r.n} ${r.n===1?'partida ranked':'partidas ranked'}`:' · todavía sin partidas ranked'}</small>${i.next!=null?`<div class="rk-bar"><i style="width:${i.pct*100}%"></i></div>`:''}</div>${badge(r.v)}</div>`;}
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
-window.RANGOS={TIERS,GAMES,SOLOS,info,get,mine,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,pampaAct,PAMPA_ACT,PAMPA_DIA,PAMPA_COMPU,LEG_TABLA,leguasDe,leguasTxt,cuenta,partidas,resultado,enviarCola,juegosHtml,DIV};
+/* ── v81 · GANCHOS de los juegos contra alguien (lo que engancha de BloqueAR, adaptado): la racha de ganadas seguidas
+   (contra la compu en cada dificultad, y contra personas), tu mejor racha, cómo vas hoy y, si venís arrasando, el
+   empujón a subir de dificultad. RANGOS.premio lo anota solo; el cartel final lo muestra con RANGOS.ganchoHtml(juego). */
+const GK='bloques-ganchos-v81';let GANCHO=null;
+const DIFT={facil:'Fácil',normal:'Normal',dificil:'Difícil',maestro:'Maestro'};
+function ganchoAnotar(j,i){
+  const res=i.res==='g'||i.res==='gana'?'g':i.res==='e'||i.res==='empate'?'e':'p',pers=i.rival==='p'||i.rival==='personas',dif=pers?'':String(i.dif||'normal');
+  const o=ls.json(GK,{}),k=j+':'+(pers?'p':'c-'+dif),r=o[k]=o[k]||{c:0,b:0},hoy=new Date(Date.now()-3*3600e3).toISOString().slice(0,10);
+  const d=o['h:'+j]&&o['h:'+j].d===hoy?o['h:'+j]:(o['h:'+j]={d:hoy,g:0,p:0,e:0});
+  const antes=r.c;if(res==='g'){r.c++;if(r.c>r.b)r.b=r.c;}else if(res==='p')r.c=0;d[res]++;
+  ls.set(GK,JSON.stringify(o));
+  const contra=pers?'contra personas':`contra la compu en ${DIFT[dif]||dif}`,hoyT=`Hoy: ${d.g} ${d.g===1?'ganada':'ganadas'}${d.p?` · ${d.p} ${d.p===1?'perdida':'perdidas'}`:''}${d.e?` · ${d.e} ${d.e===1?'empate':'empates'}`:''}`;
+  let t='';
+  if(res==='g'&&r.c>=2)t=`🔥 <b>${r.c} ganadas seguidas</b> ${contra}${r.c>=r.b&&r.c>=3?' · ¡tu mejor racha!':r.b>r.c?` · tu mejor: ${r.b}`:''}`;
+  else if(res==='g')t=`${hoyT} · ganá la próxima y arrancás una racha 🔥`;
+  else if(res==='p'&&antes>=2)t=`Se cortó tu racha de ${antes} 🔥 · tu mejor: ${r.b} · ${hoyT}`;
+  else t=hoyT+(res==='p'?' · la revancha está a un toque':'');
+  const sube=!pers&&res==='g'&&r.c>=3&&(dif==='facil'||dif==='normal')?`<br><small>Vas arrasando en ${DIFT[dif]}: ¿probás en ${dif==='facil'?'Normal':'Difícil'}?</small>`:'';
+  GANCHO={j,t:Date.now(),html:`<p class="cap gancho">${t}${sube}</p>`};
+}
+function ganchoHtml(j){try{podioCss();}catch(_){}return GANCHO&&GANCHO.j===j&&Date.now()-GANCHO.t<120000?GANCHO.html:'';}
+/* ── v81 · LA TABLA EN EL CARTEL FINAL (pedido del 31/10: «leaderboards en todos los juegos… como en Tetris») ──
+   RANGOS.podio(host, {juego, tabla, per, titulo, esperar, dif}) llena host con una tablita: tu puesto, el podio, los que
+   tenés cerca, tus amigos y «te faltan N para pasar a X». Una sola consulta (rankings del juego, que la planilla ya guarda
+   60 s); si le pasás «esperar» (la promesa del resultado que acabás de mandar), espera a que se anote.
+   · Arcade (InvasorAR, LaberintAR): al terminar cualquier partida. · Los demás: sólo la partida del día.
+   RANGOS.record(juego, clave, valor, mayor) → {prev, nuevo, falta}: tu récord personal en este aparato.
+   RANGOS.diaHecho(juego, fecha) y RANGOS.rachaDia(juego): días seguidos haciendo el del día (en este aparato). */
+const PODIO_C={};
+function lbUrl(){return ls.get('bloques-lb-url-v1')||'https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';}
+async function rankingsDe(juego,fresco){
+  const c=PODIO_C[juego];if(c&&!fresco&&Date.now()-c.t<20000)return c.j;
+  const u=new URL(lbUrl());u.searchParams.set('accion','rankings');u.searchParams.set('juego',juego);u.searchParams.set('_',Date.now());
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),15000);
+  try{const r=await fetch(u.toString(),{cache:'no-store',signal:ctl.signal,redirect:'follow'}),j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'error');PODIO_C[juego]={j,t:Date.now()};return j;}
+  finally{clearTimeout(to);}
+}
+const escP=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+function amigosSetP(){try{if(window.CHAT&&typeof CHAT.amigos==='function')return new Set((CHAT.amigos()||[]).map(x=>String(x&&x.usuario||x).toLowerCase()));}catch(_){}return new Set();}
+async function podio(host,o){
+  if(!host)return null;o=o||{};podioCss();const a=ls.json('bloques-acct-v1',null),me=a&&a.usuario?String(a.usuario).toLowerCase():'';
+  const link=`./#tablas=${o.juego}${o.tabla?':'+o.tabla:''}`;
+  host.classList.add('pd-box');host.innerHTML=`<div class="pd-h">🏆 ${escP(o.titulo||'Tabla')}</div><p class="pd-msg">Cargando la tabla…</p>`;
+  if(o.esperar){try{await o.esperar;}catch(_){}}
+  let j=null;try{j=await rankingsDe(o.juego,!!o.esperar);}catch(_){}
+  if(!host.isConnected)return null;
+  const T=j&&(j.tablas||[]).find(t=>t.id===o.tabla);
+  if(!T){host.innerHTML=`<div class="pd-h">🏆 ${escP(o.titulo||'Tabla')}</div><p class="pd-msg">${navigator.onLine===false?'Sin internet: la tabla se ve cuando vuelva la conexión.':'No se pudo traer la tabla.'} <a href="${link}">Ver tabla</a></p>`;return null;}
+  const per=o.per&&T.filas[o.per]?o.per:T.per[0],L=T.filas[per]||[],pn=(T.perN&&T.perN[per])||per,am=amigosSetP();
+  const yo=me?L.findIndex(r=>String(r.u).toLowerCase()===me):-1;
+  const show=new Set([0,1,2]);if(yo>=0){show.add(yo-1);show.add(yo);show.add(yo+1);}
+  const idx=[...show].filter(i=>i>=0&&i<L.length).sort((x,y)=>x-y);
+  let rows='',prev=-1;
+  for(const i of idx){if(prev>=0&&i>prev+1)rows+='<li class="pd-gap">⋯</li>';prev=i;const r=L[i],k=String(r.u).toLowerCase();
+    rows+=`<li class="${i===yo?'me':''}${am.has(k)?' am':''}"><i>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'°'}</i><span class="pd-av" style="background:${escP(r.col||'#7ce9e5')}">${escP(r.av||'🙂')}</span><b>${escP(r.u)}${am.has(k)&&i!==yo?' <small>🤝</small>':''}</b><em>${escP(r.vd)}</em></li>`;}
+  const fuera=L.map((r,i)=>({r,i})).filter(x=>!show.has(x.i)&&am.has(String(x.r.u).toLowerCase())).slice(0,4);
+  let msg='';
+  if(!me)msg=`Con una cuenta entrás en esta tabla. <a href="./#cuenta">Crear cuenta</a>`;
+  else if(yo<0)msg=o.sinMi||`Todavía no estás en la tabla de ${escP(String(pn).toLowerCase())}.`;
+  else if(yo===0)msg=`<b>¡Vas primero${L.length>1?` de ${L.length}`:''}!</b>`;
+  else{let f='';try{if(o.dif){const d=o.dif(L[yo-1],L[yo]);if(d)f=` · ${d} para pasar a <b>${escP(L[yo-1].u)}</b>`;}}catch(_){}
+    msg=`Vas <b>${yo+1}°</b> de ${L.length}${f}`;}
+  host.innerHTML=`<div class="pd-h">🏆 ${escP(o.titulo||T.n)} <span>· ${escP(pn)}</span></div><p class="pd-msg">${msg}</p>${L.length?`<ol class="pd-list">${rows}</ol>`:'<p class="pd-msg">Todavía no hay nadie. ¡Sé el primero!</p>'}
+    ${fuera.length?`<p class="pd-am">🤝 ${fuera.map(x=>`${escP(x.r.u)} <b>${x.i+1}°</b>`).join(' · ')}</p>`:''}<a class="pd-link" href="${link}">Ver tabla completa</a>`;
+  return {T,per,puesto:yo+1,de:L.length};
+}
+// Para «te faltan N»: la diferencia del primer criterio de orden (puntos en las de máximo, segundos en las de tiempo…).
+// (la planilla no manda el orden interno: se lee del valor que muestra, «9.000 pts» o «4:05»)
+const numDe=r=>{const v=String(r&&r.vd||'').replace(/\./g,'').match(/-?\d+/);return v?Number(v[0]):NaN;};
+const segDe=r=>{const m=String(r&&r.vd||'').match(/(\d+):(\d{2})(?::(\d{2}))?/);if(!m)return NaN;return m[3]!=null?Number(m[1])*3600+Number(m[2])*60+Number(m[3]):Number(m[1])*60+Number(m[2]);};
+function difPts(a,b){const d=Math.abs(numDe(a)-numDe(b));return d>0&&isFinite(d)?`te faltan ${Math.round(d).toLocaleString('es-AR')} puntos`:'';}
+function difSeg(a,b){const d=Math.abs(segDe(a)-segDe(b));if(!(d>0)||!isFinite(d))return '';const s=Math.round(d);return `te faltan ${s>=60?Math.floor(s/60)+' min '+(s%60)+' s':s+' s'}`;}
+const PODIO_CSS=`.pd-box{margin:10px 0 4px;padding:10px 12px;border-radius:14px;border:1px solid color-mix(in srgb,currentColor 22%,transparent);background:color-mix(in srgb,currentColor 6%,transparent);color:inherit;text-align:left;font:500 13px/1.35 system-ui,-apple-system,sans-serif}
+.pd-h{font-weight:800;font-size:13.5px}.pd-h span{font-weight:600;opacity:.65}.pd-msg{margin:4px 0 6px;font-size:13px}.pd-msg a,.pd-link{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.pd-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.pd-list li{display:grid;grid-template-columns:30px 24px 1fr auto;align-items:center;gap:6px;padding:4px 6px;border-radius:8px}
+.pd-list li i{font-style:normal;text-align:center;font-weight:800;font-size:12.5px;opacity:.7}.pd-list li b{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pd-list li em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums}
+.pd-list li.me{background:color-mix(in srgb,#2fb9b3 22%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,#2fb9b3 70%,transparent)}
+.pd-list .pd-gap{display:block;text-align:center;opacity:.6;padding:0;line-height:1}
+.pd-av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px}
+.pd-am{margin:6px 0 0;font-size:12.5px}.pd-link{display:inline-block;margin-top:6px;font-size:12.5px}
+.gancho{margin:6px auto;font-size:13.5px;line-height:1.35;text-align:center}.gancho b{font-weight:800}.gancho small{opacity:.8}`;
+function podioCss(){if(document.getElementById('pd-css'))return;const s=document.createElement('style');s.id='pd-css';s.textContent=PODIO_CSS;(document.head||document.documentElement).appendChild(s);}
+const RECK='bloques-records-v81',DIASK='bloques-dias-v81';
+function record(juego,clave,valor,mayor=true){const o=ls.json(RECK,{}),k=juego+':'+clave,prev=o[k]==null?null:Number(o[k]),v=Number(valor);
+  const nuevo=prev==null?v>0:(mayor?v>prev:v<prev);if(nuevo){o[k]=v;ls.set(RECK,JSON.stringify(o));}
+  return {prev,nuevo,falta:prev!=null&&!nuevo?Math.abs(prev-v):0};}
+function verRecord(juego,clave){const o=ls.json(RECK,{}),v=o[juego+':'+clave];return v==null?null:Number(v);}
+function diaHecho(juego,fecha){if(!fecha)return rachaDia(juego);const o=ls.json(DIASK,{}),L=Array.isArray(o[juego])?o[juego]:[];if(!L.includes(fecha)){L.push(fecha);L.sort();o[juego]=L.slice(-400);ls.set(DIASK,JSON.stringify(o));}return rachaDia(juego,fecha);}
+function rachaDia(juego,hasta){const o=ls.json(DIASK,{}),S=new Set(Array.isArray(o[juego])?o[juego]:[]);
+  const f=d=>d.toISOString().slice(0,10);let d=new Date((hasta||new Date(Date.now()-3*3600e3).toISOString().slice(0,10))+'T12:00:00Z');
+  if(!S.has(f(d)))d=new Date(d.getTime()-864e5);let n=0;while(S.has(f(d))&&n<999){n++;d=new Date(d.getTime()-864e5);}return n;}
+window.RANGOS={TIERS,GAMES,SOLOS,info,get,mine,generalFrom,isRanked,setRanked,apply,soloTarget,xp,addXp,general,exportData,importData,badge,resultHtml,css,levelInfo,premio,pampaAct,PAMPA_ACT,PAMPA_DIA,PAMPA_COMPU,LEG_TABLA,leguasDe,leguasTxt,cuenta,partidas,resultado,enviarCola,juegosHtml,DIV,podio,rankingsDe,difPts,difSeg,record,verRecord,diaHecho,rachaDia,ganchoHtml};
 })();
 /* v69: MEDALLAS de La Gran Pampa, para mostrar al lado del nombre en todos los juegos.
    La planilla las manda en «usuarios» (med: {o, p, b, g, d}) y en «perfil» (perfil.pampa.med); el mapa de la Pampa
@@ -1200,13 +1295,20 @@ function comprar(id,n,que){id=String(id);n=Math.max(0,Math.round(Number(n)||0));
 // Gastar suelto (lo que se usa, como el cambio en la pulpería).
 function gastar(n,que){n=Math.max(0,Math.round(Number(n)||0));const o=load();if(saldoDe(o)<n)return false;mio(o).s+=n;hist(o,-n,que);save(o);return true;}
 // Pulpería: oro → pesos (1 → 8), hasta 50 de oro por día en cada dispositivo. Devuelve los pesos (0 si no se pudo).
-function cambioHoy(){const o=load(),c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;return Math.max(0,CAMBIO.dia-c);}
+// v81 · Administración: multiplicadores globales que pone el admin (bloques-cfg-v1, lo trae chat/admin.js). Por defecto 1.
+function admMul(k){try{const c=JSON.parse(localStorage.getItem('bloques-cfg-v1')||'null'),v=Number(c&&c.eco&&c.eco[k]);return v>=.1&&v<=10?v:1;}catch(_){return 1;}}
+function cambioDia(){return Math.max(0,Math.round(CAMBIO.dia*admMul('cambio')));}
+function cambioHoy(){const o=load(),c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;return Math.max(0,cambioDia()-c);}
+// v81 · Un ajuste del admin: suma (o resta) oro una sola vez aunque se aplique en dos dispositivos (va como premio o compra con nombre).
+function ajustar(key,delta,de){key=String(key);delta=Math.round(Number(delta)||0);const o=load();if(o.k[key]||o.p[key])return 0;
+  if(delta>0)o.k[key]=[delta,Date.now()];else if(delta<0)o.p[key]=[-delta,Date.now()];else o.k[key]=[0,Date.now()];
+  if(delta)hist(o,delta,de||'Ajuste de la administración');save(o);return delta;}
 function cambiar(n){n=Math.floor(Number(n)||0);if(n<=0||n>cambioHoy())return 0;const o=load();if(saldoDe(o)<n)return 0;
   mio(o).s+=n;const c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;o.cam={d:diaAR(),n:c+n};hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
 
 /* ── Lo que da una partida (lo llama RANGOS.premio): con el tope del día ── */
 function premio(de,info,extra){
-  let v=calc(de,info,extra);if(v<=0)return 0;
+  let v=calc(de,info,extra);if(v<=0)return 0;v=Math.max(1,Math.round(v*admMul('oro')));   // v81: multiplicador del admin
   const o=load(),hoy=diaAR(),ya=o.dia&&o.dia.d===hoy?o.dia.n|0:0;
   v=Math.max(1,Math.round(v*(ya<TOPE[0]?1:ya<TOPE[1]?.5:.25)));
   o.dia={d:hoy,n:ya+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
@@ -1364,7 +1466,7 @@ function hojaHtml(){css();const o=load(),h=o.h.slice(0,8),y=hoy();
   <h4>Cuánto da cada juego</h4><p class="note">Por partida ganada contra la compu. Contra personas, el doble. Empatar da algo y perder peleando, un poco; abandonar no da nada.</p>
   <div class="oro-tabla">${filas.map(f=>`<div><i>${f[0]}</i><span>${f[1]}</span><b>${f[2]}</b></div>`).join('')}</div>
   <p class="note">Hoy juntaste ${fmt(y)} jugando. Los primeros 150 del día van enteros; hasta 300, a la mitad; después, un cuarto.</p>
-  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${CAMBIO.dia} de oro por día). Al revés no se puede.</p>
+  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${cambioDia()} de oro por día). Al revés no se puede.</p>
   ${h.length?`<h4>Últimos movimientos</h4><div class="oro-tabla">${h.map(x=>`<div><i>${x.n>0?'＋':'－'}</i><span>${esc(x.de||'')}</span><b>${x.n>0?'+':''}${fmt(x.n)}</b></div>`).join('')}</div>`:''}</div>`;}
 const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:left}.oro-hoja p{margin:0}.oro-hoja h4{margin:8px 0 0;font-size:14px}
 .oro-saldo{display:flex;align-items:center;gap:8px;font-size:15px}.oro-saldo .oro-i{width:30px;height:30px}.oro-saldo b{font-size:28px;color:#f5c94c}
@@ -1373,7 +1475,7 @@ const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:
 .oro-tabla i{font-style:normal;text-align:center}.oro-tabla b{color:#f5c94c;text-align:right}`;
 function hojaCss(){css();if(document.getElementById('oro-hoja-css'))return;const s=document.createElement('style');s.id='oro-hoja-css';s.textContent=HOJA_CSS;(document.head||document.documentElement).appendChild(s);}
 
-return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,hoy,exportData,importData,
+return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
   MARCOS,GESTOS_ORO,marco,ponerMarco,gestos,subirPerfil,
   ico,txt,premioTxt,anim,css,niveles,cartel,titulos,titulo,ponerTitulo,TIT_GEN,TIT_J,ADORNO_GEN,ROPA_GEN,cofreGen,cofreEst,PAMPA_ORO,pampaPuesto,hojaHtml,hojaCss,
   sub(f){SUB.add(f);},_load:load,_K:K};
@@ -2028,7 +2130,8 @@ const COLA=[];let MOSTRANDO=false;
 function avisar(j,r){for(const L of r.nuevos)COLA.push({e:L.e,t:'Logro: '+L.n,s:L.d});for(const x of r.cumplidos)COLA.push({e:'🎯',t:'Reto cumplido',s:`${x.txt} · +${x.xp} XP`});if(!MOSTRANDO)siguiente();}
 // Si el juego está mostrando su propio cartel (.toast), espera a que se vaya; y si aparece uno mientras se ve éste,
 // se corre y vuelve después, para que nunca queden uno encima del otro.
-const hayToast=()=>!!document.querySelector('.toast');
+// v81: con la zona de avisos (chat.js) también espera a que se vaya el aviso del chat, porque comparten el lugar.
+const hayToast=()=>!!document.querySelector('.toast')||(document.documentElement.classList.contains('zn-on')&&!!document.querySelector('.cx-toasts .cx-toast:not(.out)'));
 function siguiente(espera=0){if(!COLA.length){MOSTRANDO=false;return;}MOSTRANDO=true;
   if(!document.body){MOSTRANDO=false;return;}
   if(hayToast()&&espera<25){setTimeout(()=>siguiente(espera+1),400);return;}
@@ -2576,12 +2679,49 @@ function sysNotify(m){
    Mientras jugás se guardan; cuando la partida termina (H.busy() pasa a falso) sale un solo aviso con todo junto. */
 const FP={ms:[],cola:[],busy:false,k:'bloques-am-on-v77'};
 function avisoAmigosOn(){return ls.get('bloques-aviso-amigos')!=='0';}
+/* v81 · ZONA DE AVISOS (pedido del 31/10: «que los mensajes y notificaciones no tapen elementos importantes de la partida»).
+   Todos los avisos pasajeros (mensajes del chat, píldoras, logros, globito del chat de la mesa y los carteles .toast de los
+   juegos de mesa y cartas) van a UN solo lugar: la barra de arriba de cada juego, entre el botón «Juegos» y los botones de
+   la derecha (tapan el título, nunca el tablero ni los botones). Si en un celular angosto no entra (menos de 180 px), van
+   justo debajo de la barra, que en todos los juegos es la franja de los jugadores. Uno por vez: el nuevo reemplaza al anterior
+   y los del chat esperan a que se vaya el cartel del juego. */
+const ZN={on:false,modo:'',w:0};
+const ZN_JUEGO=/(truco|uno|ludo|ajedrez|pool|poblar|sudoku|solitario|buscaminas)\.html$/.test(location.pathname)||/\/(truco|uno|ludo|ajedrez|pool|poblar|solos)\//.test(location.pathname);
+function zonaCalc(){
+  const root=document.documentElement,off=()=>{if(ZN.on){ZN.on=false;root.classList.remove('zn-on','zn-bajo','zn-juego');}};
+  try{
+    const bs=[...document.querySelectorAll('[data-chat-btn]')].filter(b=>{const r=b.getBoundingClientRect();return r.width>0&&r.height>0&&r.top<140;});
+    if(!bs.length)return off();
+    let hd=bs[0];while(hd.parentElement&&hd.parentElement!==document.body&&hd.getBoundingClientRect().width<innerWidth*0.8)hd=hd.parentElement;
+    const R=hd.getBoundingClientRect();if(R.height<30||R.height>110||R.top>60)return off();
+    // el hueco más ancho entre los botones de la barra (el título se puede tapar un ratito; los botones no)
+    const iv=[...hd.querySelectorAll('button,a[href],[role=button],select,input')].map(e=>e.getBoundingClientRect()).filter(q=>q.width&&q.height&&q.bottom>R.top&&q.top<R.bottom).map(q=>[q.left,q.right]).sort((a,b)=>a[0]-b[0]);
+    let x=R.left+4,l=x,r=x;for(const [a,b] of iv.concat([[R.right-4,R.right-4]])){if(a-6-(x+6)>r-l){l=x+6;r=a-6;}x=Math.max(x,b);}
+    const w=r-l,barra=w>=180,s=root.style;
+    s.setProperty('--zn-top',Math.round(barra?R.top+Math.max(3,(R.height-42)/2):R.bottom+6)+'px');
+    s.setProperty('--zn-c',Math.round(barra?(l+r)/2:innerWidth/2)+'px');
+    s.setProperty('--zn-w',Math.round(barra?Math.min(w,520):Math.min(420,innerWidth-20))+'px');
+    ZN.on=true;ZN.modo=barra?'barra':'bajo';ZN.w=w;root.classList.add('zn-on');root.classList.toggle('zn-bajo',!barra);root.classList.toggle('zn-juego',ZN_JUEGO);
+  }catch(_){off();}
+}
+addEventListener('resize',()=>setTimeout(zonaCalc,60));addEventListener('orientationchange',()=>setTimeout(zonaCalc,300));
+setInterval(()=>{if(!document.hidden)zonaCalc();},2000);setTimeout(zonaCalc,400);
+const znCartel=()=>[...document.querySelectorAll('.toast')].some(t=>t.offsetParent!==null&&getComputedStyle(t).opacity!=='0'&&t.textContent.trim());
+const znLogro=()=>!!document.querySelector('.lg-aviso.on');
+// En la zona: espera (hasta ~5 s) si hay un cartel del juego o un logro, y saca el aviso anterior (uno por vez).
+function znPoner(box,el,ms,n=0){
+  zonaCalc();
+  if(ZN.on&&n<12&&(znCartel()||znLogro())){setTimeout(()=>znPoner(box,el,ms,n+1),420);return;}
+  if(ZN.on)box.querySelectorAll('.cx-toast').forEach(x=>x.remove());
+  box.appendChild(el);while(box.children.length>3)box.firstChild.remove();
+  // el tiempo corre desde que se ve (no desde que llegó), y en la zona se va un poco antes
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},ZN.on?Math.min(ms,4800):ms);}
+window.ZONA_AVISOS={calc:zonaCalc,get on(){return ZN.on;},get modo(){return ZN.modo;}};
 function mini(txt,sub,onTap,cls){
   const box=$('.cx-toasts');if(!box)return null;const el=document.createElement('button');el.type='button';el.className='cx-toast cx-mini'+(cls?' '+cls:'');
   el.innerHTML=`<span><b>${esc(txt)}</b>${sub?`<small>${esc(sub)}</small>`:''}</span>`;
   el.onclick=()=>{el.remove();try{onTap&&onTap();}catch(_){}};
-  box.appendChild(el);while(box.children.length>3)box.firstChild.remove();
-  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},5200);return el;}
+  znPoner(box,el,5200);return el;}
 function finPartida(){
   const L=FP.ms.splice(0).filter(m=>m.t>(S.read[conv(m)]||0)&&!(S.open&&S.view==='conv'&&lc(S.con)===conv(m)));
   if(!L.length||ST.m==='dnd')return;
@@ -2612,8 +2752,7 @@ function toast(who,txt,openWho=who){
   const el=document.createElement('button');el.type='button';el.className='cx-toast';
   el.innerHTML=`${u?avatar(u):'<span class="cx-av">💬</span>'}<span><b>${esc(who)}</b><small>${esc(txt).slice(0,140)}</small></span>`;
   el.onclick=()=>{el.remove();open(openWho||undefined);};
-  box.appendChild(el);while(box.children.length>3)box.firstChild.remove();
-  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},6500);
+  znPoner(box,el,6500);
 }
 function badges(){
   const n=unreadTotal();
@@ -3219,6 +3358,28 @@ const CSS=`
 .cx-toast.out{opacity:0;transform:translateY(-10px);transition:.35s}
 .cx-ondot{position:absolute;left:3px;bottom:3px;width:9px;height:9px;border-radius:50%;background:#57d49b;box-shadow:0 0 0 2px #0c131e;pointer-events:none}
 .cx-toast.cx-mini{width:auto;max-width:100%;align-self:center;padding:7px 14px;border-radius:999px;gap:8px;font-size:13px;box-shadow:0 8px 24px #0008}.cx-mini b{font-size:13px!important}.cx-mini small{font-size:12px!important}.cx-mini span{align-items:center;text-align:center}
+/* v81: en TrucAR, UnoAR, LudAR e InvasorAR los botones 💬 y ☰ quedaban pegados al título (el que los empujaba a la derecha era el
+   botón de la mesa, que está oculto fuera de línea): el título empuja y los botones van siempre al borde derecho, como en los demás */
+.top>.brand{margin-right:auto}
+/* v81: los botones de la barra de arriba (40 px) se pueden tocar un poco más afuera (46 px, sin cambiar cómo se ven) y con teclado se ve el foco */
+.top .icon-btn{position:relative}.top .icon-btn::before{content:"";position:absolute;inset:-3px;border-radius:15px}
+.top .icon-btn:focus-visible,.top a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+/* v81 · zona de avisos: en la barra de arriba del juego (o justo debajo en celulares angostos), de a uno, en una línea */
+html.zn-on .cx-toasts{top:var(--zn-top);left:var(--zn-c);width:var(--zn-w);max-width:calc(100vw - 16px);gap:0}
+html.zn-on .cx-toast{min-height:42px;padding:5px 12px 5px 6px;gap:8px;border-radius:14px;box-shadow:0 6px 18px #0009;font-size:13px}
+html.zn-on .cx-toast .cx-av{width:28px;height:28px;font-size:15px;border-width:1.5px}
+html.zn-on .cx-toast span{flex-direction:row;align-items:baseline;gap:6px;min-width:0;overflow:hidden;white-space:nowrap}
+html.zn-on .cx-toast b{font-size:13px;flex:none}html.zn-on .cx-toast small{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+html.zn-on .cx-toast.cx-mini{padding:5px 14px;align-self:center;max-width:100%}html.zn-on .cx-mini span{flex-direction:row;justify-content:center}
+html.zn-on .lg-aviso{top:var(--zn-top)!important;left:var(--zn-c)!important;max-width:var(--zn-w)!important;min-height:42px;padding:4px 12px 4px 8px!important;gap:8px!important;z-index:91!important;box-sizing:border-box}
+html.zn-on .lg-aviso>i{font-size:18px!important}html.zn-on .lg-aviso span{flex-direction:row!important;align-items:baseline;gap:6px;white-space:nowrap;overflow:hidden}
+html.zn-on .lg-aviso b{flex:none;font-size:13px!important}html.zn-on .lg-aviso small{overflow:hidden;text-overflow:ellipsis;min-width:0}
+html.zn-on .mc-burb.mc-zona{top:var(--zn-top)!important;right:auto!important;left:var(--zn-c)!important;max-width:var(--zn-w)!important;transform:translate(-50%,-6px)!important;border-radius:14px!important;overflow:hidden;box-sizing:border-box;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;padding:6px 14px!important;line-height:1.3!important;z-index:89!important}
+html.zn-on .mc-burb.mc-zona.on{transform:translate(-50%,0)!important}
+html.zn-on.zn-juego .toast{top:var(--zn-top)!important;bottom:auto!important;left:var(--zn-c)!important;transform:translateX(-50%)!important;max-width:var(--zn-w)!important;width:max-content;min-height:42px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:7px 14px!important;font-size:13.5px!important;line-height:1.25!important;border-radius:14px!important;z-index:92!important;pointer-events:none!important;box-shadow:0 6px 18px rgba(0,0,0,.5)!important}
+html.zn-on.zn-bajo .cx-toast,html.zn-on.zn-bajo .lg-aviso,html.zn-on.zn-bajo.zn-juego .toast{opacity:.97}
+@media (prefers-reduced-motion:no-preference){html.zn-on .cx-toast{animation:znIn .22s ease-out}}
+@keyframes znIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes cxDrop{from{transform:translateY(-16px);opacity:0}}
 .cx-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;background:#ff5d73;color:#fff;font:900 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #0b1019;pointer-events:none}
 [data-chat-btn]{position:relative}
@@ -3275,10 +3436,68 @@ function init(opts={}){
   if(conLatido())LATIDO.registrar('chat',PARTE);   // v76: arranca el latido (pregunta en 1,2 s)
   else if(acct())setTimeout(poll,1200);
 }
+/* ── v81 · INVITAR CON UN LINK (pedido del 31/10: «poder mandar invitaciones como links para copiar y compartir por WhatsApp»)
+   El juego invita a CHAT.LINK (un lugar «por link») y la planilla guarda la invitación sin destinatario (acción invitar con
+   abierta: 1). CHAT.linkCompartir(id, juego) muestra el link para copiar, mandar por WhatsApp o compartir. El que lo abre:
+   con cuenta, entra solo a la mesa (es la misma invitación de siempre, la acepta como si tocara «Entrar» en el chat);
+   sin cuenta, la crea (o entra) y después lo lleva a la mesa. Vale mientras el que invita espera, como cualquier invitación. */
+const LINK_U=Object.freeze({usuario:'Alguien con el link',avatar:'🔗',color:'#25d366',link:true});
+const PAG_J={bloquear:'',truco:'truco.html',uno:'uno.html',poblar:'poblar.html',ajedrez:'ajedrez.html',ludo:'ludo.html',pool:'pool.html',invasores:'invasores.html'};
+function paginaJ(){const f=(location.pathname.split('/').pop()||'').toLowerCase();for(const k in PAG_J)if(PAG_J[k]&&PAG_J[k]===f)return k;return /^(|index\.html|bloques\.html)$/.test(f)?'bloquear':'';}
+function linkDe(id,j){const a=acct(),base=location.href.replace(/[#?].*$/,'').replace(/[^/]*$/,''),pg=PAG_J[j]||(location.protocol==='file:'?'index.html':'');
+  return `${base}${pg}#unirse=${id}${a?'&de='+encodeURIComponent(a.usuario):''}`;}
+function linkBoton(txt){linkCss();return `<button type="button" class="cx-linkb" data-link-inv><span>🔗</span><b>${esc(txt||'Invitar con un link')}<small>Para mandar por WhatsApp o donde quieras</small></b></button>`;}
+function linkCerrar(){const e=document.getElementById('cx-lk');if(e)e.remove();}
+function linkCompartir(id,j,det){
+  linkCss();linkCerrar();const url=linkDe(id,j),nom=GAMES[j]||'BloqueAR',txt=`¡Vení a jugar ${nom} conmigo${det?' ('+det+')':''}! Entrá con este link: ${url}`;
+  const el=document.createElement('div');el.id='cx-lk';el.className='cx-lk';el.setAttribute('role','dialog');el.setAttribute('aria-label','Invitar con un link');
+  el.innerHTML=`<div class="cx-lk-c"><h3>🔗 Invitá con un link</h3><p>Mandale este link a quien quieras: entra el primero que lo abra con su cuenta (si no tiene, se la crea en un toque). Vale mientras esperás.</p>
+    <input class="cx-lk-u" readonly value="${esc(url)}" aria-label="Link de la invitación">
+    <a class="cx-lk-wa" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">WhatsApp</a>
+    <div class="cx-lk-r"><button type="button" data-lk="copiar">📋 Copiar link</button>${navigator.share?'<button type="button" data-lk="share">📤 Compartir…</button>':''}</div>
+    <button type="button" class="cx-lk-x" data-lk="x">Listo, espero acá</button></div>`;
+  document.body.appendChild(el);
+  el.addEventListener('click',async e=>{const b=e.target.closest('[data-lk]');if(e.target===el){linkCerrar();return;}if(!b)return;const k=b.dataset.lk;
+    if(k==='x')linkCerrar();
+    else if(k==='copiar'){let ok=false;try{await navigator.clipboard.writeText(url);ok=true;}catch(_){try{const i=el.querySelector('.cx-lk-u');i.select();ok=document.execCommand('copy');}catch(_){}}b.textContent=ok?'✓ Copiado':'Copialo de arriba';setTimeout(()=>{b.textContent='📋 Copiar link';},2200);}
+    else if(k==='share'){try{await navigator.share({title:'Jugá '+nom+' conmigo',text:txt.replace(url,'').trim(),url});}catch(_){}}});
+  return url;}
+// Para el juego: con quién quedó (la planilla dice quién entró por el link) → {usuario, avatar, color} o null.
+function linkQuien(r){return r&&r.quien&&r.quien.usuario?{usuario:String(r.quien.usuario),avatar:r.quien.avatar||'🙂',color:r.quien.color||'#7ce9e5'}:null;}
+const LK_K='bloques-unirse';
+function linkLlegada(){
+  let P=null;const m=/[#&]unirse=([A-Za-z0-9]{6,16})(?:&de=([^&#]*))?/.exec(location.hash);
+  if(m){let de='';try{de=decodeURIComponent(m[2]||'').slice(0,20);}catch(_){}P={id:m[1],de,j:paginaJ()||'bloquear',t:Date.now()};
+    try{history.replaceState(null,'',location.href.replace(/#.*$/,''));}catch(_){}ls.set(LK_K,JSON.stringify(P));}
+  else{P=ls.json(LK_K,null);if(P&&(!P.id||Date.now()-P.t>20*60e3)){ls.set(LK_K,null);P=null;}}
+  if(!P)return;
+  const ir=()=>{const a=acct();if(!a)return false;ls.set(LK_K,null);linkCerrar();
+    try{sessionStorage.setItem(INV_KEY[P.j]||'blq-accept',P.id);}catch(_){}
+    if(paginaJ()!==P.j){location.href=(PAG_J[P.j]||'./');}return true;};
+  if(ir())return;
+  // sin cuenta: lo invitamos a crearla y, apenas la tenga, lo llevamos a la mesa
+  const mostrar=()=>{if(acct()||document.getElementById('cx-lk'))return;linkCss();const el=document.createElement('div');el.id='cx-lk';el.className='cx-lk';el.setAttribute('role','dialog');
+    el.innerHTML=`<div class="cx-lk-c"><h3>🎮 ${esc(P.de||'Un amigo')} te invitó a jugar ${esc(GAMES[P.j]||'BloqueAR')}</h3><p>Para entrar a la mesa necesitás una cuenta de BloqueAR: es gratis, con un usuario y un PIN. Apenas la tengas, te llevamos a la mesa.</p>
+      <a class="cx-lk-wa" href="./#cuenta" data-lk="cuenta">Crear cuenta o entrar</a><button type="button" class="cx-lk-x" data-lk="x">Ahora no</button></div>`;
+    document.body.appendChild(el);el.addEventListener('click',e=>{const b=e.target.closest('[data-lk]');if(b&&b.dataset.lk==='x'){ls.set(LK_K,null);linkCerrar();}});};
+  if(!/#cuenta/.test(location.hash)){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mostrar,400));else setTimeout(mostrar,400);}
+  const t=setInterval(()=>{if(!ls.json(LK_K,null)){clearInterval(t);return;}if(ir())clearInterval(t);},1500);
+}
+const LK_CSS=`.cx-linkb{display:flex;align-items:center;gap:10px;width:100%;margin:8px 0;padding:10px 12px;border-radius:14px;border:1px dashed #25d366;background:rgba(37,211,102,.1);color:inherit;font:600 14px/1.25 system-ui,-apple-system,sans-serif;text-align:left;cursor:pointer;min-height:48px}
+.cx-linkb>span{font-size:20px}.cx-linkb b{display:flex;flex-direction:column}.cx-linkb small{font-weight:500;opacity:.75;font-size:12px}
+.cx-lk{position:fixed;inset:0;z-index:2147482000;background:rgba(5,8,14,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.cx-lk-c{width:min(400px,100%);background:#141e2c;color:#f4f7fe;border:1px solid #283345;border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;gap:10px;font:500 14.5px/1.4 system-ui,-apple-system,sans-serif;box-shadow:0 20px 60px #0009}
+.cx-lk-c h3{margin:0;font-size:19px}.cx-lk-c p{margin:0;color:#c6d1e0;font-size:13.5px}
+.cx-lk-u{width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid #3b5170;background:#0c131e;color:#7ce9e5;font:600 13px ui-monospace,monospace}
+.cx-lk-wa{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:14px;background:#25d366;color:#05210f;font-weight:800;font-size:16px;text-decoration:none}
+.cx-lk-r{display:flex;gap:8px}.cx-lk-r button{flex:1;min-height:46px;border-radius:12px;border:1px solid #3b5170;background:#1f3047;color:#f4f7fe;font-weight:700;font-size:14px}
+.cx-lk-x{min-height:44px;border-radius:12px;border:0;background:none;color:#9fb0c6;font-weight:700;font-size:14px}`;
+function linkCss(){if(document.getElementById('cx-lk-css'))return;const s=document.createElement('style');s.id='cx-lk-css';s.textContent=LK_CSS;(document.head||document.documentElement).appendChild(s);}
+try{linkLlegada();}catch(_){}
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
   usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
-  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons};
+  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons,LINK:LINK_U,linkBoton,linkCompartir,linkQuien,linkCerrar,linkDe};
 })();
 
 </script>
@@ -3594,6 +3813,8 @@ setInterval(()=>{for(const j in REG){const R=REG[j];if(!R.min){if(R.mini&&!R.min
 addEventListener('resize',()=>{for(const j in REG){miniPoner(j);if(REG[j].mb&&REG[j].mb.classList.contains('on'))miniBurbLugar(j);}});
 // Dónde sale el globito con el chat cerrado (no minimizado): del lado y a la altura donde dejaste el chat.
 function burbLugar(){if(!S.burb)return;const o=posLeer(S.op&&S.op.juego,'pos');const b=S.burb.style;
+  // v81: sin lugar elegido para el chat, el globito va a la zona de avisos (la barra de arriba); si moviste el chat, sale a su lado
+  S.burb.classList.toggle('mc-zona',!o&&!!(window.ZONA_AVISOS&&ZONA_AVISOS.on));
   if(!o){b.left=b.right=b.top=b.bottom='';S.burb.style.borderRadius='';return;}
   const y=Math.max(topSeguro(),Math.min(innerHeight-120,o.cy*innerHeight-60));b.top=y+'px';b.bottom='auto';
   if(o.cx<.5){b.left=`max(${MARG}px, env(safe-area-inset-left))`;b.right='auto';S.burb.style.borderRadius='14px 14px 14px 4px';}else{b.right=`max(${MARG}px, env(safe-area-inset-right))`;b.left='auto';S.burb.style.borderRadius='';}}
@@ -3712,6 +3933,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:81,grande:true,titulo:'Novedades',items:[
+    ['👥','Jugá con amigos en el mismo aparato: Ajedrez, Pool, LudAR, UnoAR, PoblAR y TrucAR de a dos.'],
+    ['🤖','La compu ahora juega según el nivel que elegís: Normal es un rival parejo, no un campeón.'],
+    ['🔗','Invitá con un link por WhatsApp, y al terminar ves el ranking: tu puesto, tus amigos y cuánto te falta.'],
+    ['🔥','Rachas de días seguidos y de partidas ganadas, y sudokus del día más accesibles.'],
+    ['🏡','EstanciAR: «Tu camino» de Granjero o Caudillo con rangos, maestrías y premios; defensas nuevas, revancha, piano para tocar, asientos para varios y la plata más segura.'],
+    ['🗺️','La Gran Pampa: te avisa cuando te desafían y cuando hay eventos, la ruleta abre al toque y varía más.'],
+    ['💬','Los avisos ya no tapan la partida.']]},
   {v:80,grande:false,titulo:'Novedades',items:[
     ['👾','InvasorAR ocupa toda la pantalla del celular: el marcador arriba y abajo una franja para el dedo.'],
     ['🗺️','La Gran Pampa: la inscripción ahora cierra el martes a las 20, y cuando termina una semana te avisa quién ganó.']]},
@@ -4006,6 +4235,63 @@ function abrir(r,sem){
   setTimeout(()=>{try{w.querySelector('#pa-go').focus({preventScroll:true});}catch(_){}},60);
   return true;
 }
+/* v81 (pedido del 31/10): avisos personales, una sola vez cada uno («pampa-avisos-vistos» viaja con la cuenta):
+   · «te atacaron» al que defiende, la primera vez que abre la app después del ataque (en el inicio o en cualquier juego);
+   · los eventos (remate, feria, tropilla, tormenta) sólo a los que juegan esta semana, y sólo en el inicio.
+   Uno a la vez: espera a Novedades, al aviso semanal y a que no haya partida en curso. Le pregunta a la planilla
+   («pampaNotis», en caché hasta que cambie algo) como mucho cada 2 minutos y sólo si te sumaste a esta semana. */
+const KV='pampa-avisos-vistos',KT='pampa-notis-t';
+function vistos(){try{const L=JSON.parse(localStorage.getItem(KV)||'[]');return Array.isArray(L)?L:[];}catch(_){return [];}}
+function marcar(ids){const L=vistos(),S=new Set(L);ids.forEach(i=>S.add(i));ls.set(KV,JSON.stringify([...S].slice(-80)));}
+function enInicio(){return /(^|\/)(index\.html)?$/.test(location.pathname)||/bloques\.html$/.test(location.pathname);}
+function unido(){try{const r=JSON.parse(localStorage.getItem('pampa-resumen')||'null');return !!(r&&r.unido&&r.semana===lunesHoy());}catch(_){return false;}}
+const fmtHasta=t=>{try{return new Date(t).toLocaleString('es-AR',{weekday:'long',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Argentina/Buenos_Aires'}).replace(/\.$/,'')+' h';}catch(_){return '';}};
+const CSS2=`.pa-chico .pa-caja{padding-top:26px}.pa-ic{font-size:40px;line-height:1;margin:2px 0 6px}.pa-lista{list-style:none;margin:6px 0 12px;padding:0;display:flex;flex-direction:column;gap:8px;text-align:left}
+.pa-lista li{background:#2e2216;border:1px solid #5a4630;border-radius:12px;padding:9px 11px;font-size:14px;line-height:1.35;color:#eadcbe}.pa-lista b{color:#fff3d6}
+.pa-lista small{display:block;color:#cdbb98;font-size:12.5px;margin-top:2px}`;
+function abrirNoti(n){
+  css();if(!document.getElementById('pa-css2')){const st=document.createElement('style');st.id='pa-css2';st.textContent=CSS2;document.head.appendChild(st);}
+  const w=document.createElement('div');w.className='pa-scrim pa-chico';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','pa-t');
+  w.innerHTML=`<div class="pa-caja"><div class="pa-luces" aria-hidden="true">${'<i></i>'.repeat(12)}</div><div class="pa-ic" aria-hidden="true">${n.ic}</div>
+    <h2 id="pa-t">${esc(n.tit)}</h2>${n.sub?`<p class="pa-sem">${esc(n.sub)}</p>`:''}<ul class="pa-lista">${n.items.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <button type="button" class="pa-go" id="pa-go">${esc(n.go)}</button><button type="button" class="pa-no" id="pa-no">Ahora no</button></div>`;
+  const cerrar=()=>{w.remove();document.removeEventListener('keydown',tecla,true);};
+  const tecla=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cerrar();}};
+  w.addEventListener('click',e=>{if(e.target===w)cerrar();});document.body.appendChild(w);document.addEventListener('keydown',tecla,true);
+  w.querySelector('#pa-no').onclick=cerrar;w.querySelector('#pa-go').onclick=()=>{cerrar();location.href=n.url;};
+  setTimeout(()=>{try{w.querySelector('#pa-go').focus({preventScroll:true});}catch(_){}},60);
+}
+function armarNotis(r){
+  const V=new Set(vistos()),out=[];
+  const at=(r.ataques||[]).filter(a=>!V.has('a:'+a.id));
+  if(at.length){const turno=at.filter(a=>a.turno),L=at.slice(0,4);
+    out.push({ids:at.map(a=>'a:'+a.id),ic:turno.length?'⚔️':at.some(a=>a.fin==='a')?'🛡️':'🏴',tit:turno.length?(turno.length>1?'¡Te atacaron!':'¡Te desafiaron!'):'Pasó algo en tu tierra',sub:'La Gran Pampa',
+      items:L.map(a=>{const quien=`<b>${esc(a.de)}</b>${a.al?` (con <b>${esc(a.al)}</b>)`:''}`,lugar=a.lugar?` por tu paraje de ${esc(a.lugar)}`:'';
+        if(a.malon)return `🐎 ${quien} te hizo un malón${lugar}. ${a.fin==='a'?'<b>Te defendiste</b>: el paraje sigue siendo tuyo.':a.fin==='marca'?'Era un fortín: te dejó su marca.':'<b>Se llevó el paraje.</b>'}`;
+        if(a.turno)return `⚔️ ${quien} te desafió${lugar}. Defendelo con <b>${esc(a.jn||'su juego')}</b>.${a.hasta?`<small>Tenés hasta el ${esc(fmtHasta(a.hasta))}.</small>`:''}`;
+        return `${a.fin==='a'?'🛡️':'⚔️'} ${quien} te desafió${lugar}: ${a.fin==='a'?'<b>tu paraje aguantó</b> (tu guardia o el mínimo).':a.fin==='marca'?'era un fortín: te dejó su marca.':'<b>no llegaste a defenderlo</b> y se lo llevó.'}`;}),
+      go:turno.length?'🛡️ Defender':'🗺️ Ver el mapa',url:'./pampa.html'+(turno.length===1?'#duelo='+encodeURIComponent(turno[0].id):'')});}
+  if(enInicio()){const ev=(r.eventos||[]).filter(e=>!V.has('e:'+r.semana+':'+e.id));
+    if(ev.length)out.push({ids:ev.map(e=>'e:'+r.semana+':'+e.id),ic:ev[0].e,tit:ev.length>1?'Hay eventos en La Gran Pampa':ev[0].n+' en La Gran Pampa',sub:'',
+      items:ev.slice(0,3).map(e=>`${e.e} <b>${esc(e.n)}</b>: ${esc(e.txt||'')}${e.hasta?`<small>Hasta el ${esc(fmtHasta(e.hasta))}.</small>`:''}`),go:'🗺️ Ir a La Gran Pampa',url:'./pampa.html'});}
+  return out;
+}
+let notiCorre=false;
+async function notis(){
+  if(notiCorre||!unido())return;if(!window.CHAT||typeof CHAT.api!=='function')return;
+  try{const a=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');if(!(a&&a.usuario&&a.token))return;}catch(_){return;}
+  if(Date.now()-Number(ls.get(KT)||0)<120000&&!ls.get('bloques-pa-force'))return;
+  notiCorre=true;ls.set(KT,String(Date.now()));let r=null;
+  try{r=await CHAT.api({accion:'pampaNotis'});}catch(_){notiCorre=false;return;}
+  if(!r||!r.ok||!r.unido){notiCorre=false;return;}
+  const cola=armarNotis(r);
+  const listo=()=>!document.querySelector('.nv-scrim,.nv-toast,.pa-scrim')&&document.visibilityState==='visible'&&!(window.CHAT&&CHAT.ocupado&&CHAT.ocupado())&&!corriendo;
+  const sig=()=>{const n=cola.shift();if(!n){notiCorre=false;return;}
+    const V=new Set(vistos());if(n.ids.every(i=>V.has(i))){sig();return;}   // ya lo vio en otro aparato o en el mapa
+    const prob=()=>{if(!listo()){setTimeout(prob,1500);return;}marcar(n.ids);abrirNoti(n);esperar();};prob();};
+  const esperar=()=>{if(document.querySelector('.pa-scrim')){setTimeout(esperar,800);return;}setTimeout(sig,600);};
+  sig();
+}
 let corriendo=false;
 async function mirar(){
   if(corriendo)return;const sem=lunesHoy();if(ls.get(K)===sem)return;
@@ -4023,11 +4309,206 @@ function arrancar(){
   if(window.top!==window)return;                                     // dentro de la ventanita de la estancia
   if(/pampa\.html$/.test(location.pathname)){ls.set(K,lunesHoy());return;}   // en La Gran Pampa ya se ve todo
   if(navigator.webdriver&&ls.get('bloques-pa-force')!=='1')return;    // las pruebas automáticas no lo ven (salvo que lo pidan)
-  setTimeout(mirar,2600);
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(mirar,1500);});
+  setTimeout(mirar,2600);setTimeout(notis,3400);   // v81: después del semanal, los avisos personales
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){setTimeout(mirar,1500);setTimeout(notis,2400);}});
 }
 if(document.readyState==='complete')arrancar();else window.addEventListener('load',arrancar,{once:true});
-window.PAMPA_AVISO={mirar,abrir,lunesHoy};
+window.PAMPA_AVISO={mirar,abrir,lunesHoy,notis,armarNotis,abrirNoti};
+})();
+
+</script>
+<script>
+/* ───────── v81 · Administración, ajustes y anuncios ─────────
+   Va en todas las páginas (después de rangos.js y novedades.js).
+   · Lo que pone el admin para todos (multiplicadores de la economía y un anuncio) queda en «bloques-cfg-v1»; el latido
+     trae el número de versión (cf) y, si cambió, se pide la configuración nueva. EstanciAR y el oro leen los
+     multiplicadores de ahí (por defecto, 1: no cambia nada).
+   · Ajustes para vos (pesos, oro, Historia de InvasorAR): el latido avisa (adj) y se traen una sola vez. El oro va como
+     premio o compra con nombre (no se duplica entre aparatos); los pesos se aplican en la estancia (en otra página
+     quedan esperando); la Historia sube el nivel (nunca baja).
+   · Recuperar: en InvasorAR, una vez por día, se pregunta a la planilla lo más alto que sabe de tu Historia; si es más
+     que lo que hay acá, se te devuelve (para el que perdió su progreso).
+   · El panel «🛠️ Administración» (desde Mi cuenta, sólo para el admin; la planilla lo valida con la sesión).
+   API: window.ADMIN = {es(), abrir(), tomar(), cfg()} */
+(function(){
+'use strict';
+if(window.ADMIN)return;
+const LB_DEF='https://script.google.com/macros/s/AKfycbxSxfHSE3gMATJnPGXKEfyC3h2votf8IJBqdVsHfnllm_7Igsoh1lFqlfUJoW7s0lqy/exec';
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(_){}},json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')??d;}catch(_){return d;}}};
+const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.token?a:null;};
+const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const fmt=n=>Math.round(Number(n)||0).toLocaleString('es-AR');
+const enMarco=(()=>{try{return window.top!==window;}catch(_){return true;}})();   // dentro de la ventanita de la estancia: lo hace la página de afuera
+const CFG_K='bloques-cfg-v1',ADM_K='bloques-admin',AN_K='bloques-anuncio-visto',REC_K='bloques-recupero-dia',HIS_K='invasores-historia';
+async function call(p,ms=20000){
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
+  try{const r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
+    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');return j;}
+  catch(e){if(e.name==='AbortError')throw new Error('La planilla tardó demasiado.');if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');throw e;}
+  finally{clearTimeout(to);}
+}
+const auth=o=>{const a=acct();return Object.assign({usuario:a&&a.usuario,token:a&&a.token},o);};
+const diaAR=()=>new Date(Date.now()-3*3600e3).toISOString().slice(0,10);
+
+/* ── Avisito propio (chico, arriba; no tapa nada importante) ── */
+function css(){if(document.getElementById('adm-css'))return;const s=document.createElement('style');s.id='adm-css';s.textContent=CSS;document.head.appendChild(s);}
+function aviso(txt,ms=5200){css();const d=document.createElement('button');d.type='button';d.className='adm-toast';d.textContent=txt;d.onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),400);},ms);}
+
+/* ── Configuración para todos ── */
+let pidiendoCfg=false;
+async function traerCfg(){if(pidiendoCfg)return;pidiendoCfg=true;
+  try{const j=await call({accion:'config'});const o={g:Number(j.g)||0,eco:j.eco||{},an:j.an||null,t:Date.now()};ls.set(CFG_K,JSON.stringify(o));anuncio();}catch(_){}
+  finally{pidiendoCfg=false;}}
+function cfg(){return ls.json(CFG_K,{g:0,eco:{},an:null});}
+
+/* ── Anuncio: una sola vez por anuncio, cuando no hay partida ni otro cartel ── */
+function anuncio(){if(enMarco)return;const c=cfg(),an=c.an;if(!an||!an.id||!an.txt)return;const vistos=ls.json(AN_K,[]);if(vistos.includes(an.id))return;
+  const ocupado=()=>{try{if(document.querySelector('.nv-scrim,.nv-toast,.pa-aviso,.adm-an,#adm-p'))return true;if(window.CHAT&&CHAT.ocupado&&CHAT.ocupado())return true;}catch(_){}return false;};
+  const mostrar=()=>{if(ocupado()){setTimeout(mostrar,2500);return;}if(ls.json(AN_K,[]).includes(an.id))return;css();
+    const d=document.createElement('div');d.className='adm-an';d.setAttribute('role','dialog');d.setAttribute('aria-label','Anuncio');
+    d.innerHTML=`<div class="adm-an-c"><b>📣 Anuncio</b><p>${esc(an.txt)}</p><button type="button" class="adm-ok">Entendido</button></div>`;
+    const fin=()=>{d.remove();const v=ls.json(AN_K,[]);v.push(an.id);ls.set(AN_K,JSON.stringify(v.slice(-30)));};
+    d.querySelector('.adm-ok').onclick=fin;d.onclick=e=>{if(e.target===d)fin();};document.body.appendChild(d);};
+  setTimeout(mostrar,1800);}
+
+/* ── Ajustes que hizo el admin para vos ── */
+function hisSubir(n,porque){n=Math.max(0,Math.min(100,Math.floor(Number(n)||0)));if(!n)return false;
+  let H=ls.json(HIS_K,{});if(!H||typeof H!=='object')H={};const antes=Number(H.max)||0;if(antes>=n)return false;
+  for(let i=1;i<=n;i++)if(!(Number(H[i])>0))H[i]=1;H.max=n;ls.set(HIS_K,JSON.stringify(H));
+  try{window.dispatchEvent(new CustomEvent('invasores-historia',{detail:{max:n,de:porque}}));}catch(_){}return true;}
+let tomando=false;
+async function tomar(){if(tomando||!acct()||enMarco)return;tomando=true;
+  try{const E=window.ESTANCIA,conPesos=!!(E&&E.ajustarPesos&&E.E&&!E.VISIT&&E.SYNC&&E.SYNC.pulled&&!E.SYNC.eligiendo);   // los pesos, recién cuando la estancia ya se juntó con la cuenta (si no, el primer «juntar» los pisa)
+    const j=await call(auth({accion:'admTomar',tipos:conPesos?['oro','his','pesos']:['oro','his']}));
+    for(const a of j.ajustes||[]){const m=a.motivo?' · '+a.motivo:'';
+      try{
+        if(a.tipo==='oro'&&window.ORO&&ORO.ajustar){const d=a.modo==='poner'?a.n-ORO.saldo():a.n;const r=ORO.ajustar('adm:'+a.id,d,'Admin'+(a.motivo?': '+a.motivo:''));if(r)aviso(`🛠️ Ajuste de la administración: ${r>0?'+':'−'}${fmt(Math.abs(r))} de oro${m}`);}
+        else if(a.tipo==='his'){if(hisSubir(a.n,'admin'))aviso(`🛠️ Tu Historia de InvasorAR quedó en el nivel ${a.n}${m}`);}
+        else if(a.tipo==='pesos'&&conPesos){E.ajustarPesos(a.n,a.modo,a.motivo);}
+      }catch(_){}}
+  }catch(_){}finally{tomando=false;}}
+
+/* ── Recuperar la Historia de InvasorAR (una vez por día, sólo en InvasorAR) ── */
+async function recuperar(){if(!acct()||enMarco||!/invasores/i.test(location.pathname))return;
+  const k=REC_K,hoy=diaAR()+':'+String(acct().usuario).toLowerCase();if(ls.get(k)===hoy)return;
+  try{const j=await call(auth({accion:'recuperar'}));ls.set(k,hoy);const H=ls.json(HIS_K,{})||{},mio=Number(H.max)||0;
+    if(Number(j.his)>mio&&hisSubir(j.his,'recuperar'))aviso(`☁️ Recuperamos tu progreso de la Historia: nivel ${j.his} superado`,7000);}catch(_){}}
+
+/* ── El latido reparte: cf (configuración), adj (ajustes pendientes), ad (sos admin) ── */
+window.addEventListener('bloques-latido',e=>{const j=e&&e.detail;if(!j||!j.latido)return;
+  if(j.cf!==undefined&&Number(j.cf)!==Number(cfg().g||0))traerCfg();
+  if(j.ad)ls.set(ADM_K,'1');else if(ls.get(ADM_K))ls.set(ADM_K,null);
+  if(j.adj)tomar();});
+function arrancar(){if(enMarco)return;anuncio();setTimeout(recuperar,2500);
+  // en la estancia, si quedaron ajustes de pesos esperando, se traen cuando la estancia ya cargó
+  if(/estancia/i.test(location.pathname)){let n=0;const t=setInterval(()=>{const E=window.ESTANCIA;if(++n>20||!acct()){clearInterval(t);return;}if(E&&E.SYNC&&E.SYNC.pulled){clearInterval(t);tomar();}},3000);}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrancar);else arrancar();
+
+/* ───────── El panel ───────── */
+const ECO_DEF=[
+  ['granja','🌾 Granja','Lo que dan cultivos, animales y talleres en EstanciAR.'],
+  ['oro','🪙 Oro de los juegos','Lo que da cada partida (antes del tope del día).'],
+  ['precios','🏷️ Precios de la tienda','Lo que cuesta todo en la tienda de EstanciAR (también ampliar el campo).'],
+  ['leguas','🗺️ Leguas','Las leguas que da jugar cada día para La Gran Pampa.'],
+  ['cambio','🔁 Tope de la pulpería','Cuánto oro se puede cambiar por pesos por día (hoy 50).']];
+const P={tab:'eco',d:null,q:'',lista:null,ver:null,log:null,msg:'',busy:false};
+function el(){return document.getElementById('adm-p');}
+function cerrar(){const d=el();if(d)d.remove();document.removeEventListener('keydown',tecla);}
+function tecla(e){if(e.key==='Escape')cerrar();}
+async function abrir(){css();cerrar();const d=document.createElement('div');d.id='adm-p';d.className='adm-p';d.setAttribute('role','dialog');d.setAttribute('aria-label','Administración');
+  document.body.appendChild(d);document.addEventListener('keydown',tecla);P.msg='Cargando…';pintar();
+  try{P.d=await call(auth({accion:'admin',op:'yo'}));P.msg='';}catch(e){P.d=null;P.msg=e.message;}pintar();}
+async function op(o,ok){P.busy=true;P.msg='';pintar();try{const j=await call(auth(Object.assign({accion:'admin'},o)));P.busy=false;if(ok)await ok(j);}catch(e){P.busy=false;P.msg=e.message;}pintar();}
+function pintar(){const d=el();if(!d)return;
+  const T=[['eco','Economía'],['gente','Jugadores'],['log','Registro']];
+  let cuerpo='';
+  if(!P.d)cuerpo=`<p class="adm-msg">${esc(P.msg||'')}</p>`;
+  else if(P.tab==='eco'){const e=P.d.eco||{};
+    cuerpo=`<p class="adm-lead">Multiplicadores para todos: 1 es como viene el juego. Van de 0,1 a 10 y se aplican en cada aparato la próxima vez que abre el juego.</p>
+      ${ECO_DEF.map(([k,n,t])=>`<label class="adm-row"><span><b>${n}</b><small>${t}</small></span><input type="number" inputmode="decimal" min="0.1" max="10" step="0.1" data-eco="${k}" value="${Number(e[k]||1)}"></label>`).join('')}
+      <button type="button" class="adm-go" id="adm-eco-ok"${P.busy?' disabled':''}>Guardar la economía</button>
+      <h3>📣 Anuncio para todos</h3>
+      ${P.d.an?`<p class="adm-cur">Publicado: «${esc(P.d.an.txt)}»</p>`:'<p class="adm-cur">No hay ningún anuncio.</p>'}
+      <textarea id="adm-an" maxlength="280" rows="3" placeholder="Lo ve cada uno una sola vez, la próxima vez que abre la app."></textarea>
+      <div class="adm-2"><button type="button" class="adm-go" id="adm-an-ok"${P.busy?' disabled':''}>Publicar anuncio</button>${P.d.an?`<button type="button" class="adm-b" id="adm-an-x"${P.busy?' disabled':''}>Borrar el anuncio</button>`:''}</div>`;}
+  else if(P.tab==='gente'){
+    if(P.ver){const v=P.ver,h=v.his||{};
+      cuerpo=`<button type="button" class="adm-b adm-back" id="adm-back">‹ Volver a la lista</button>
+        <div class="adm-who"><span class="adm-av">${esc(v.av)}</span><div><b>${esc(v.u)}</b><small>${v.ban?'⛔ Suspendido del ranking':'En el ranking'}</small></div></div>
+        <div class="adm-kpi"><span><b>${v.oro==null?'—':fmt(v.oro)}</b>oro</span><span><b>${v.pesos==null?'—':'$'+fmt(v.pesos)}</b>pesos (última vez guardada)</span><span><b>${h.max||0}</b>Historia InvasorAR</span></div>
+        <p class="adm-note">Historia según las tablas: nivel ${h.tablas||0} · según lo sincronizado: nivel ${h.sinc||0}.${(h.tablas||0)>(h.sinc||0)?' Se le va a recuperar sola la próxima vez que abra InvasorAR.':''}</p>
+        <h3>Hacer un ajuste</h3>
+        <div class="adm-form"><select id="adm-tipo"><option value="pesos">Pesos de la estancia</option><option value="oro">Oro</option><option value="his">Historia de InvasorAR (nivel)</option></select>
+          <select id="adm-modo"><option value="sumar">Sumar (o restar con −)</option><option value="poner">Dejarlo en</option></select>
+          <input id="adm-n" type="number" inputmode="numeric" placeholder="Cantidad">
+          <input id="adm-mot" type="text" maxlength="120" placeholder="Motivo (lo ve el jugador)">
+          <button type="button" class="adm-go" id="adm-aj"${P.busy?' disabled':''}>Aplicar el ajuste</button></div>
+        <p class="adm-note">Se le aplica la próxima vez que abra la app (los pesos, cuando abra su estancia). Queda en el registro.</p>
+        ${v.ajustes&&v.ajustes.length?`<h3>Ajustes</h3>${v.ajustes.map(a=>`<div class="adm-li"><span>${a.tipo==='his'?'📖 Historia':a.tipo==='oro'?'🪙 Oro':'💵 Pesos'} · ${a.modo==='poner'?'dejar en ':''}${fmt(a.n)}${a.motivo?' · '+esc(a.motivo):''}</span><small>${a.tomado?'✓ Aplicado':'⏳ Pendiente'}</small></div>`).join('')}`:''}
+        <h3>Ranking</h3><button type="button" class="adm-b" id="adm-ban"${P.busy?' disabled':''}>${v.ban?'Volver a mostrarlo en los rankings':'⛔ Suspenderlo de los rankings'}</button>
+        <h3>Últimos puntajes</h3>
+        ${(v.resultados||[]).length?v.resultados.map(r=>`<div class="adm-li"><span>${esc(r.j)} · ${esc(r.tipo)} · ${esc(r.x&&r.x.pts!=null?fmt(r.x.pts)+' pts':r.x&&r.x.niv?'nivel '+r.x.niv:fmt(r.v))}<small>${r.t?new Date(r.t).toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'}):''}</small></span><button type="button" class="adm-x" data-borrar="${r.fila}" data-hoja="${esc(r.hoja)}" aria-label="Borrar este puntaje">🗑️</button></div>`).join(''):'<p class="adm-note">No tiene puntajes guardados.</p>'}`;}
+    else cuerpo=`<div class="adm-2"><input id="adm-q" type="search" placeholder="Buscar un usuario" value="${esc(P.q)}" autocomplete="off"><button type="button" class="adm-go" id="adm-qb">Buscar</button></div>
+      ${P.lista?P.lista.length?P.lista.map(x=>`<button type="button" class="adm-li adm-u" data-u="${esc(x.u)}"><span><span class="adm-av s">${esc(x.av)}</span> ${esc(x.u)}</span><small>›</small></button>`).join(''):'<p class="adm-note">No hay nadie con ese nombre.</p>':''}`;}
+  else if(P.tab==='log')cuerpo=P.log?P.log.length?P.log.map(l=>`<div class="adm-li"><span><b>${esc(l.acc)}</b>${l.u?' · '+esc(l.u):''}<small>${esc(l.d)}</small></span><small>${l.t?new Date(l.t).toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'}):''} · ${esc(l.a)}</small></div>`).join(''):'<p class="adm-note">Todavía no hay nada.</p>':'<p class="adm-note">Cargando…</p>';
+  d.innerHTML=`<div class="adm-c"><header><b>🛠️ Administración</b><button type="button" class="adm-xx" id="adm-cerrar" aria-label="Cerrar">✕</button></header>
+    ${P.d?`<nav role="tablist">${T.map(([k,n])=>`<button type="button" role="tab" aria-selected="${P.tab===k}" data-tab="${k}">${n}</button>`).join('')}</nav>`:''}
+    <div class="adm-body">${P.d&&P.msg?`<p class="adm-msg" role="status">${esc(P.msg)}</p>`:''}${cuerpo}</div></div>`;
+  const $=id=>document.getElementById(id);
+  $('adm-cerrar').onclick=cerrar;d.onclick=e=>{if(e.target===d)cerrar();};
+  d.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{P.tab=b.dataset.tab;P.msg='';if(P.tab==='log')op({op:'log'},j=>{P.log=j.log;});pintar();});
+  if($('adm-eco-ok'))$('adm-eco-ok').onclick=()=>{const eco={};d.querySelectorAll('[data-eco]').forEach(i=>{eco[i.dataset.eco]=Number(String(i.value).replace(',','.'));});
+    op({op:'eco',eco},j=>{P.d.eco=j.eco;P.msg='Listo: la economía quedó guardada.';ls.set(CFG_K,JSON.stringify({g:j.g,eco:j.eco,an:j.an,t:Date.now()}));});};
+  if($('adm-an-ok'))$('adm-an-ok').onclick=()=>{const t=$('adm-an').value.trim();if(!t){P.msg='Escribí el anuncio.';pintar();return;}op({op:'eco',an:{txt:t}},j=>{P.d.an=j.an;P.msg='Listo: el anuncio quedó publicado.';try{if(j.an&&j.an.id){const v=ls.json(AN_K,[]);v.push(j.an.id);ls.set(AN_K,JSON.stringify(v.slice(-30)));}ls.set(CFG_K,JSON.stringify({g:j.g,eco:j.eco,an:j.an,t:Date.now()}));}catch(_){}});};
+  if($('adm-an-x'))$('adm-an-x').onclick=()=>op({op:'eco',an:null},j=>{P.d.an=null;P.msg='El anuncio se borró.';});
+  const buscar=()=>{P.q=$('adm-q').value.trim();op({op:'buscar',q:P.q},j=>{P.lista=j.lista;});};
+  if($('adm-qb')){$('adm-qb').onclick=buscar;$('adm-q').onkeydown=e=>{if(e.key==='Enter')buscar();};if(!P.lista)setTimeout(buscar,0);}
+  d.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>op({op:'ver',quien:b.dataset.u},j=>{P.ver=j;}));
+  if($('adm-back'))$('adm-back').onclick=()=>{P.ver=null;P.msg='';pintar();};
+  const recargar=()=>op({op:'ver',quien:P.ver.u},j=>{P.ver=j;});
+  if($('adm-aj'))$('adm-aj').onclick=()=>{const tipo=$('adm-tipo').value,modo=tipo==='his'?'poner':$('adm-modo').value,n=Number($('adm-n').value),mot=$('adm-mot').value.trim();
+    if(!Number.isFinite(n)||$('adm-n').value===''){P.msg='Poné una cantidad.';pintar();return;}
+    const que=tipo==='his'?`dejar su Historia de InvasorAR en el nivel ${n}`:`${modo==='poner'?'dejar':'sumarle'} ${fmt(n)} ${tipo==='oro'?'de oro':'pesos'}${modo==='poner'?' de saldo':''}`;
+    if(!confirm(`¿${que[0].toUpperCase()+que.slice(1)} a ${P.ver.u}?`))return;
+    op({op:'ajustar',quien:P.ver.u,tipo,modo,n,motivo:mot},()=>{P.msg='Listo: se le aplica la próxima vez que abra la app.';return recargar();});};
+  if($('adm-tipo'))$('adm-tipo').onchange=()=>{$('adm-modo').disabled=$('adm-tipo').value==='his';};
+  if($('adm-ban'))$('adm-ban').onclick=()=>{const on=!P.ver.ban;if(on&&!confirm(`¿Suspender a ${P.ver.u} de los rankings? Sus puntajes no se muestran hasta que lo vuelvas a habilitar.`))return;
+    op({op:'ban',quien:P.ver.u,on},()=>recargar());};
+  d.querySelectorAll('[data-borrar]').forEach(b=>b.onclick=()=>{if(!confirm('¿Borrar este puntaje? No se puede deshacer.'))return;op({op:'borrar',quien:P.ver.u,fila:Number(b.dataset.borrar),hoja:b.dataset.hoja},()=>{P.msg='Puntaje borrado.';return recargar();});});
+}
+const CSS=`.adm-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:2147482000;max-width:min(92vw,440px);padding:10px 14px;border-radius:14px;border:1px solid #2c3a50;background:#141e2cf2;color:#f4f7fe;font:600 13.5px/1.35 system-ui,-apple-system,sans-serif;box-shadow:0 10px 30px #0008;cursor:pointer;text-align:left;transition:opacity .35s}
+.adm-toast.out{opacity:0}
+.adm-an{position:fixed;inset:0;z-index:2147482500;background:#05080ecc;display:flex;align-items:center;justify-content:center;padding:16px;font:500 15px/1.45 system-ui,-apple-system,sans-serif;color:#f4f7fe}
+.adm-an-c{width:min(400px,100%);background:#141e2c;border:1px solid #283345;border-radius:20px;padding:20px 18px 16px;box-shadow:0 20px 60px #0009}
+.adm-an-c b{font-size:18px}.adm-an-c p{margin:10px 0 0;white-space:pre-wrap}
+.adm-ok,.adm-go{margin-top:16px;width:100%;min-height:48px;border:0;border-radius:14px;background:#7ce9e5;color:#06221f;font:800 15px system-ui,-apple-system,sans-serif;cursor:pointer}
+.adm-go[disabled],.adm-b[disabled]{opacity:.5}
+.adm-p{position:fixed;inset:0;z-index:2147482400;background:#05080ee0;display:flex;justify-content:center;align-items:stretch;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));font:500 14.5px/1.4 system-ui,-apple-system,sans-serif;color:#f4f7fe}
+.adm-c{width:min(560px,100%);display:flex;flex-direction:column;background:#0f1724;border:1px solid #243046;border-radius:20px;overflow:hidden}
+.adm-c header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px 18px}.adm-c header b{font-size:18px}
+.adm-xx{width:40px;height:40px;border-radius:12px;border:1px solid #2c3a50;background:#141e2c;color:#cfd8e6;font-size:16px;cursor:pointer}
+.adm-c nav{display:flex;gap:6px;padding:0 14px 10px}.adm-c nav button{flex:1;min-height:40px;border-radius:12px;border:1px solid #2c3a50;background:#141e2c;color:#cfd8e6;font:700 14px system-ui,sans-serif;cursor:pointer}
+.adm-c nav button[aria-selected=true]{background:#7ce9e5;color:#06221f;border-color:#7ce9e5}
+.adm-body{flex:1;overflow:auto;padding:4px 16px 18px;-webkit-overflow-scrolling:touch}
+.adm-body h3{margin:20px 0 8px;font-size:15px;color:#cfe}
+.adm-lead,.adm-note,.adm-cur{color:#93a1b6;font-size:13px;margin:6px 0}.adm-msg{background:#1d2a3d;border-radius:12px;padding:10px 12px;margin:6px 0 10px}
+.adm-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #1e293b}
+.adm-row small{display:block;color:#93a1b6;font-size:12.5px;font-weight:500}
+.adm-row input{width:84px;min-height:42px;border-radius:10px;border:1px solid #2c3a50;background:#0b121d;color:#fff;font:700 16px system-ui,sans-serif;text-align:center}
+.adm-p textarea,.adm-p input[type=search],.adm-p input[type=text],.adm-p input[type=number]:not([data-eco]),.adm-p select{width:100%;box-sizing:border-box;min-height:44px;border-radius:12px;border:1px solid #2c3a50;background:#0b121d;color:#fff;font:500 16px system-ui,sans-serif;padding:8px 12px}
+.adm-2{display:flex;gap:8px;align-items:center}.adm-2>*{flex:1}.adm-2 .adm-go{margin-top:8px}
+.adm-b{min-height:44px;border-radius:12px;border:1px solid #2c3a50;background:#141e2c;color:#e7eef8;font:700 14px system-ui,sans-serif;padding:0 14px;cursor:pointer;margin-top:8px}
+.adm-back{margin:0 0 10px}
+.adm-li{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 0;border:0;border-bottom:1px solid #1e293b;background:none;color:inherit;font:inherit;text-align:left}
+.adm-li small{display:block;color:#93a1b6;font-size:12.5px}.adm-u{cursor:pointer;min-height:48px}
+.adm-x{width:40px;height:40px;border-radius:10px;border:1px solid #3a2a33;background:#21151b;cursor:pointer;flex:none}
+.adm-who{display:flex;gap:12px;align-items:center;margin:4px 0 10px}.adm-who small{display:block;color:#93a1b6}
+.adm-av{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#1d2a3d;font-size:24px}.adm-av.s{width:30px;height:30px;font-size:17px;vertical-align:middle}
+.adm-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.adm-kpi span{background:#141e2c;border:1px solid #243046;border-radius:14px;padding:10px;font-size:12px;color:#93a1b6}.adm-kpi b{display:block;font-size:18px;color:#fff}
+.adm-form{display:grid;gap:8px}
+.adm-p button:focus-visible,.adm-p input:focus-visible,.adm-p select:focus-visible,.adm-p textarea:focus-visible,.adm-ok:focus-visible{outline:3px solid #fff;outline-offset:2px}`;
+window.ADMIN={es:()=>!!acct()&&ls.get(ADM_K)==='1',abrir,tomar,cfg,_hisSubir:hisSubir};
 })();
 
 </script>
@@ -4267,11 +4748,20 @@ async function delDiaEnviar(fecha,valor,extra){
   if(!acct()){const e=el();if(e)e.innerHTML='Con una cuenta, el del día entra en la tabla de todos y da leguas para La Gran Pampa.';return null;}
   let leg=0;try{leg=R.pampaAct(LEG_DIA[JUEGO.id]||'s',1);}catch(_){}
   const pon=j=>{const e=el();if(!e)return;const p=[];if(j&&j.puesto)p.push(`🏆 Hoy vas <b>${j.puesto}°</b> de ${j.de}${j.ya?' (cuenta la primera vez)':''}`);else if(j&&j.ya)p.push('🏆 En la tabla cuenta la primera vez del día');
-    if(leg)p.push('🚩 +1 legua en La Gran Pampa');e.innerHTML=(p.join(' · ')||'🏆 Va a la tabla del día cuando haya internet')+` · <a href="./#tablas=${JUEGO.id}">Ver tabla</a>`;};
+    if(leg)p.push('🚩 +1 legua en La Gran Pampa');e.innerHTML=(p.join(' · ')||'🏆 Va a la tabla del día cuando haya internet')+(R.podio?'':` · <a href="./#tablas=${JUEGO.id}">Ver tabla</a>`);};
   pon(null);
-  let j=null;try{j=await R.resultado(JUEGO.id,'dia',valor,{fecha,...(extra||{})},JUEGO.id+':dia:'+fecha);}catch(_){}
+  let racha=0;try{racha=R.diaHecho?R.diaHecho(JUEGO.id,fecha):0;}catch(_){}
+  const pr=R.resultado(JUEGO.id,'dia',valor,{fecha,...(extra||{})},JUEGO.id+':dia:'+fecha);
+  // v81: la tabla del día en el mismo cartel (puesto, podio, los que tenés cerca y tus amigos), como en BloqueAR
+  podioDia(pr,racha);
+  let j=null;try{j=await pr;}catch(_){}
   pon(j&&j.ok?j:null);return j;
 }
+const PODIO_DIF={solitario:'seg',buscaminas:'seg',laberinto:'pts'};
+function podioDia(espera,racha){const R=window.RANGOS,e=$('f-dia');if(!R||!R.podio||!e)return;
+  let h=$('f-podio');if(!h){h=document.createElement('div');h.id='f-podio';e.after(h);}
+  if(racha>1){let r=$('f-racha');if(!r){r=document.createElement('p');r.className='cap';r.id='f-racha';e.after(r);}r.innerHTML=`🔥 <b>${racha} días seguidos</b> haciendo el del día`;}
+  const d=PODIO_DIF[JUEGO.id];R.podio(h,{juego:JUEGO.id,tabla:'dia',per:'hoy',titulo:'Del día',esperar:espera,dif:d==='seg'?R.difSeg:d==='pts'?R.difPts:null});}
 function premiosHtml(p){if(!p||!p.lv)return '';return `<p class="cap">${JUEGO.n} nivel ${p.lv.lv}${p.xp?` · +${p.xp} XP`:''}${window.ORO?(ORO.premioTxt(p)?' · '+ORO.premioTxt(p):''):p.pesos?` · 🎁 +${fmt(p.pesos)} 🪙 para tu estancia`:''}</p>`;}
 
 /* v72: cruce de La Gran Pampa contra reloj («#pampa-cruce=SEMILLA&duelo=ID»). Los dos juegan el mismo tablero, cada uno
@@ -4554,7 +5044,7 @@ function openMenu(){
     <button id="m-new">🂠 Partida nueva</button><button id="m-dia">📅 Partida del día</button><button id="m-recs">⏱️ Tus récords</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     <a id="m-salir" href="./#juegos">🚪 Salir de la partida</a>
-    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 80</p>`);
+    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SolitARio · versión 81</p>`);
   const go=f=>()=>{$('side').hidden=true;f();};
   $('m-x').onclick=closeSide;$('m-new').onclick=go(openNew);$('m-dia').onclick=go(()=>nuevo({fecha:fechaSol()}));$('m-recs').onclick=go(openRecs);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-snd').onclick=()=>{SND=!SND;ls.set('solitario-sonido',SND?'1':'0');openMenu();};
