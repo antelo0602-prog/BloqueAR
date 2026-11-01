@@ -92,6 +92,18 @@ body:not(.tactil) .tactil-ctrl,body:not(.jugando) .tactil-ctrl{display:none}
 .tb.chico{width:46px;height:46px}
 .tb.fuego-btn{width:78px;height:78px;border-radius:50%;background:rgba(150,40,20,.55);border:2px solid #ff8a5a99;font-size:11px}.tb.fuego-btn b{font-size:26px}.tb.fuego-btn.on{background:rgba(255,90,40,.6);border-color:#ffb08a}
 .stick.umbral::after{content:'';position:absolute;left:50%;top:50%;width:var(--um,78px);height:var(--um,78px);margin:calc(var(--um,78px)/-2) 0 0 calc(var(--um,78px)/-2);border-radius:50%;border:2px dashed #ff8a5a88;pointer-events:none}
+/* v85: umbral de disparo bien marcado: zona de apuntar (adentro, clara) y aro de fuego (afuera); el aro está en 0,74 del radio (83 px)
+   y se ilumina al acercarte; al pasarlo todo se pone rojo. El centro de la bolita tiene un puntito para ver dónde está. */
+.stick.umbral{--um:83px;background:radial-gradient(circle,#ffffff14 0 41px,#ff5a3a12 42px 63px)}
+.stick.umbral::after{border:3px solid #ffb35a66;transition:border-color .08s,box-shadow .08s}
+.stick.umbral.cerca::after{border-color:#ffc070dd;box-shadow:0 0 10px #ffb35a66}
+.stick.umbral.tira{border-color:#ff5030ee;background:radial-gradient(circle,#ffffff10 0 41px,#ff3a2038 42px 63px)}
+.stick.umbral.tira::after{border-color:#ff4a2a;box-shadow:0 0 14px #ff3a20aa,inset 0 0 8px #ff3a2066}
+.stick.umbral i{width:44px;height:44px;margin:-22px 0 0 -22px}
+.stick.umbral i::after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff}
+.stick.umbral.tira i{background:#ff4a2acc;border-color:#ffd0c0}
+.stick.umbral b.um-t{position:absolute;left:50%;top:-20px;transform:translateX(-50%);font:800 10px system-ui;color:#ffc9a8;opacity:.0;transition:opacity .1s;white-space:nowrap;text-shadow:0 1px 2px #000}
+.stick.umbral.tira b.um-t{opacity:1}
 /* Carteles, hojas y menú (papel, como en los otros juegos) */
 .over{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:rgba(6,7,10,.6);z-index:15}
 .over[hidden]{display:none}
@@ -222,6 +234,51 @@ body.vertical .marcador{top:calc(max(6px,env(safe-area-inset-top)) + 48px)}body.
 .armabox img,.carrera-hud img{filter:brightness(1.5) drop-shadow(0 1px 0 #000)}
 .pt-modo b{padding-right:86px}
 @media (max-width:520px){.pt-titulo{font-size:30px;left:12px;bottom:10px}.pt-titulo small{font-size:10px;letter-spacing:.08em}.pt-modo small{font-size:11.5px}.pt-modo b{font-size:17px;padding-right:0;margin-top:16px}.pt-modo .tag{right:8px;top:8px}.pt-go .btn.sec small{display:none}}
+/* v85: portada y sala ordenadas (sist85) */
+.portada>*{flex-shrink:0}
+.pt-paso{width:min(680px,100%);margin:14px 0 -4px;font:800 11px/1 system-ui;letter-spacing:.14em;color:#9d917c;text-transform:uppercase}
+.pt-modos{grid-template-columns:repeat(5,1fr);gap:8px}
+.pt-modo{min-height:0;padding:12px 10px 10px;align-items:flex-start;gap:3px}
+.pt-modo .ico{font-style:normal;font-size:26px;line-height:1;margin-bottom:4px}
+.pt-modo b{font:800 15px/1.12 system-ui;padding-right:0!important;margin:0!important}
+.pt-modo small{font-size:11.5px;line-height:1.25}
+.pt-modo .tag{font-size:9px;padding:3px 6px;right:8px;top:8px}
+.pt-modo.on{background:linear-gradient(180deg,#3a2a1d,#241a12);border-color:#e6cb84;box-shadow:0 0 0 2px #e6cb84aa inset,0 6px 20px #0008}
+.pt-elegido{width:min(680px,100%);margin-top:10px;padding:10px 12px;border-radius:12px;background:#1a1511;border:1px solid #3a2e24;color:#efe7d6}
+.pt-elegido b{font:800 15px/1.2 system-ui}.pt-elegido small{display:block;color:#b8ab95;font-size:12.5px;line-height:1.35;margin-top:3px}
+.pt-go{width:min(680px,100%);margin-top:10px}
+.pt-go .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.pt-go .btn small{font:700 11px/1 system-ui;letter-spacing:.04em;opacity:.8}
+.pt-ajd{width:min(680px,100%);margin-top:10px;border-radius:12px;border:1px solid #33291f;background:#15110e;color:#efe7d6}
+.pt-ajd>summary{list-style:none;cursor:pointer;padding:11px 36px 11px 12px;position:relative;display:flex;flex-direction:column;gap:3px;min-height:44px;justify-content:center}
+.pt-ajd>summary::-webkit-details-marker{display:none}
+.pt-ajd>summary span{font:800 14px/1.2 system-ui}.pt-ajd>summary small{color:#c9b98f;font:600 12px/1.3 system-ui}
+.pt-ajd>summary::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#e6cb84;font-size:16px;transition:transform .15s}
+.pt-ajd[open]>summary::after{transform:translateY(-50%) rotate(180deg)}
+.pt-ajd .pt-op{margin:0;padding:0 12px 12px;gap:9px}
+.pt-fila{display:flex;flex-direction:column;gap:6px}.pt-fila .pt-lbl{margin:0}
+.pt-rec .h85{color:#e6cb84}
+@media (max-width:620px){.pt-modos{grid-template-columns:1fr 1fr}.pt-modo.m85-bomba{grid-column:1/3}.pt-modo .ico{font-size:22px}}
+@media (max-height:480px) and (orientation:landscape){.pt-hero{aspect-ratio:6/1}.pt-titulo{font-size:28px}.pt-titulo small{display:none}.pt-modo small{display:none}.pt-paso{margin-top:8px}.pt-elegido small{display:none}.pt-go .btn{min-height:50px}}
+#mini85{position:absolute;z-index:7;left:calc(max(8px,env(safe-area-inset-left)) + 96px);top:max(8px,env(safe-area-inset-top));border-radius:6px;box-shadow:0 4px 14px #0009;opacity:.92;touch-action:none;cursor:pointer;image-rendering:auto}
+#mini85.grande{opacity:.97;z-index:9}#mini85[hidden]{display:none}
+body.vertical #mini85{top:calc(max(6px,env(safe-area-inset-top)) + 98px);left:max(8px,env(safe-area-inset-left))}
+/* sala por bandos */
+.bandos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 8px}
+.bando{border-radius:12px;padding:8px;border:1.5px solid #c9b48c;background:#fbf7ee;min-height:70px;display:flex;flex-direction:column;gap:6px}
+.bando h5{margin:0;font:800 13px/1.2 system-ui;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.bando.bT{border-color:#d08a4e;background:#fff3e6}.bando.bP{border-color:#6f93c4;background:#eef4fc}
+.bando .lugar{margin:0}
+.bando .pasar{margin-top:auto;min-height:38px;font-size:13px}
+.sala-ajd{margin:4px 0 8px;border:1px solid #c9b48c;border-radius:12px;background:#fbf7ee}
+.sala-ajd>summary{cursor:pointer;padding:10px 12px;font:800 14px/1.2 system-ui;list-style:none;display:flex;flex-direction:column;gap:2px}
+.sala-ajd>summary::-webkit-details-marker{display:none}.sala-ajd>summary small{font:600 12px/1.3 system-ui;color:#7a6548}
+.sala-ajd>div{padding:0 10px 10px;display:flex;flex-direction:column;gap:8px}
+.sala-modos{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+.sala-modos .btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;min-height:56px;font-size:12px;line-height:1.15}
+.sala-modos .btn i{font-style:normal;font-size:20px}
+@media (max-width:520px){.sala-modos{grid-template-columns:repeat(3,1fr)}}
+.est-res{color:#8a6a2a}
 @media (prefers-reduced-motion:reduce){.sheet,.side-panel,.toast,.feed div{animation:none}}
 </style>
 <script>
@@ -428,7 +485,7 @@ const PARTES={
   pampa:['pampa-visto','pampa-resumen','pampa-copas','pampa-ayuda-9',['pampa-avisos-vistos','union']],
   gen:[['bloques-novedades','maxnum'],['bloques-chat-read-{me}','max'],['bloques-chat-borr-{me}','max'],'bloques-chat-frase','bloques-chat-modo',
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
-    'bloques-favoritos-v1','bloques-orden-v1',   // v67: juegos fijados y orden propio del menú de juegos
+    'bloques-favoritos-v1','bloques-orden-v1','bloques-efectos',   // v67: juegos fijados y orden propio del menú de juegos
     ['bloques-dias-v81','dias'],['bloques-ganchos-v81','ganchos'],['bloques-citas-vistas','union'],['bloques-records-v81','recs']]   // v82: rachas (días seguidos del del día y ganadas seguidas) con la cuenta
 };
 // v75: también el oro. Antes, el oro que ganabas sin que cambiara otra cosa de «rk» (el cofre al subir de nivel la estancia,
@@ -832,7 +889,7 @@ function buscarVuelta(o){
    · Abandonar → avisa a la planilla (accion «abandonar»): la invitación de vuelta (la que está y las que vengan) se rechaza
      sola, la mesa deja de esperarte enseguida y la compu ocupa tu lugar. En la página del juego, el cartel «Volviendo a la
      partida…» también trae «Abandonar». */
-const JUEGOS={uno:['uno.html','UnoAR'],truco:['truco.html','TrucAR'],'truco-eq':['truco.html','TrucAR'],ludo:['ludo.html','LudoAR'],pool:['pool.html','PoolAR'],poblar:['poblar.html','PoblAR'],'invasores-co':['invasores.html','InvasorAR']};   // (InvasorAR: sólo De a dos y En contra — v82; el duelo Versus no: cada uno juega su campo en su aparato)
+const JUEGOS={uno:['uno.html','UnoAR'],truco:['truco.html','TrucAR'],'truco-eq':['truco.html','TrucAR'],ludo:['ludo.html','LudoAR'],pool:['pool.html','PoolAR'],poblar:['poblar.html','PoblAR'],'invasores-co':['invasores.html','InvasorAR'],'invasores-du':['invasores.html','InvasorAR']};   // v85: también el Versus (cada uno su campo: al volver, el tuyo sigue como estaba)   // (InvasorAR: sólo De a dos y En contra — v82; el duelo Versus no: cada uno juega su campo en su aparato)
 const pagina=()=>{try{return (location.pathname.split('/').pop()||'index.html').toLowerCase();}catch(_){return '';}};
 function enCurso(){const out=[];for(const j of Object.keys(JUEGOS)){const rc=recuerdo(j);if(rc&&rc.rol!=='host'&&rc.mesa&&rc.host)out.push([j,rc]);}return out;}
 async function abandonar(juego){const o=ls.json('recon-'+juego,null);olvidar(juego);if(!o||!o.mesa)return false;
@@ -885,7 +942,7 @@ window.RECON={get GRACIA(){return fondoOtro()?Math.max(GRACIA_BASE,GRACIA_FONDO)
    opacity; will-change sólo mientras dura. */
 (function(){
 'use strict';
-const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}};
+const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||localStorage.getItem('bloques-efectos')==='0';}catch(_){return false;}};   // v85: también con «Animaciones» apagadas
 const visible=el=>el&&!el.hidden&&el.isConnected&&getComputedStyle(el).display!=='none';
 function salida(el,op={}){
   try{
@@ -1429,10 +1486,17 @@ function cambiar(n){n=Math.floor(Number(n)||0);if(n<=0||n>cambioHoy())return 0;c
   mio(o).s+=n;const c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;o.cam={d:diaAR(),n:c+n};hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
 
 /* ── Lo que da una partida (lo llama RANGOS.premio): con el tope del día ── */
+// v85: tope propio de algunos juegos (MarcAR: 50 de oro por día y 200 por semana, biblia de MarcAR cap. 25), además del tope general
+const TOPE_J={marcar:[50,200]};
+const semAR=(t=Date.now())=>{const d=new Date(t-3*3600e3);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10);};
+function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load(),h=o.tj&&o.tj.d===diaAR()?o.tj.n||{}:{},w=o.tw&&o.tw.s===semAR()?o.tw.n||{}:{};
+  return {dia:T[0],semana:T[1],hoy:h[j]|0,sem:w[j]|0,queda:Math.max(0,Math.min(T[0]-(h[j]|0),T[1]-(w[j]|0)))};}
 function premio(de,info,extra){
   let v=calc(de,info,extra);if(v<=0)return 0;v=Math.max(1,Math.round(v*admMul('oro')));   // v81: multiplicador del admin
   const o=load(),hoy=diaAR(),ya=o.dia&&o.dia.d===hoy?o.dia.n|0:0;
   v=Math.max(1,Math.round(v*(ya<TOPE[0]?1:ya<TOPE[1]?.5:.25)));
+  {const j=(norm(info||{},de)||{}).j||NOM_ID[de]||'',tj=topeJuego(j);if(tj){v=Math.min(v,tj.queda);if(v<=0)return 0;
+    const sw=semAR();o.tj=o.tj&&o.tj.d===hoy?o.tj:{d:hoy,n:{}};o.tw=o.tw&&o.tw.s===sw?o.tw:{s:sw,n:{}};o.tj.n[j]=(o.tj.n[j]|0)+v;o.tw.n[j]=(o.tw.n[j]|0)+v;}}
   o.dia={d:hoy,n:ya+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
   anim(v);
   try{setTimeout(()=>niveles(true),1600);}catch(_){}
@@ -1622,7 +1686,7 @@ const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:
 .oro-tabla i{font-style:normal;text-align:center}.oro-tabla b{color:#f5c94c;text-align:right}`;
 function hojaCss(){css();if(document.getElementById('oro-hoja-css'))return;const s=document.createElement('style');s.id='oro-hoja-css';s.textContent=HOJA_CSS;(document.head||document.documentElement).appendChild(s);}
 
-return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
+return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
   MARCOS,GESTOS_ORO,marco,ponerMarco,gestos,subirPerfil,
   ico,txt,premioTxt,anim,css,niveles,cartel,titulos,titulo,ponerTitulo,TIT_GEN,TIT_J,ADORNO_GEN,ROPA_GEN,cofreGen,cofreEst,PAMPA_ORO,pampaPuesto,hojaHtml,hojaCss,
   sub(f){SUB.add(f);},_load:load,_K:K};
@@ -2517,7 +2581,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null,inbox:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR'};
+const GAMES={fortinar:'FortinAR',bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -3047,7 +3111,7 @@ function renderProfile(p){
     const g=R?R.generalFrom(d):null,fmt=n=>Number(n||0).toLocaleString('es-AR'),sp=ms=>ms?`${Math.floor(ms/60000)}:${String(Math.floor(ms/1000)%60).padStart(2,'0')}.${Math.floor(ms%1000/100)}`:'—';
     body=`<div class="cx-prof">${avatar(d,true)}<b class="cx-pn">${esc(d.usuario)}</b>${(()=>{if(!window.TITULOS)return '';if(d.titulo!==undefined)TITULOS.poner(d.usuario,d.titulo);const h=TITULOS.html(d.usuario);return h?`<p class="cx-pf" style="margin-top:2px">${h}</p>`:'';})()}${d.frase?`<p class="cx-pf">“${esc(d.frase)}”</p>`:''}<p class="cx-ps">${esc(estTxt({...u,...d}))}</p></div>
       ${g?`<div class="cx-pcard"><div class="cx-prow"><b class="cx-pnm">Nivel general ${g.level.lv}</b>${R.badge(g.rank.v)}</div>${g.games.map(x=>`<div class="cx-prow"><span class="cx-pnm">${x.name}</span><small>Nivel ${x.level.lv}</small>${R.badge(x.rank.v,true)}</div>`).join('')}</div>`:''}
-      ${d.camino&&(d.camino.g||d.camino.c)?`<div class="cx-pcard"><div class="cx-prow"><b class="cx-pnm">🏡 Su camino en EstanciAR</b></div>${d.camino.g?`<div class="cx-prow"><span class="cx-pnm">🌾 ${esc(d.camino.tg||'Granjero')}</span><small>Granjero · rango ${d.camino.g|0}</small></div>`:''}${d.camino.c?`<div class="cx-prow"><span class="cx-pnm">⚔️ ${esc(d.camino.tc||'Caudillo')}</span><small>Caudillo · rango ${d.camino.c|0}</small></div>`:''}</div>`:''}
+      ${d.camino&&(d.camino.g||d.camino.c||d.camino.v)?`<div class="cx-pcard"><div class="cx-prow"><b class="cx-pnm">🏡 ${d.camino.g||d.camino.c?'Su camino en EstanciAR':'Su estancia'}</b></div>${d.camino.v?`<div class="cx-prow"><span class="cx-pnm">💰 Valor de su estancia</span><small>$${fmt(d.camino.v)}</small></div>`:''}${d.camino.g?`<div class="cx-prow"><span class="cx-pnm">🌾 ${esc(d.camino.tg||'Granjero')}</span><small>Granjero · rango ${d.camino.g|0}</small></div>`:''}${d.camino.c?`<div class="cx-prow"><span class="cx-pnm">⚔️ ${esc(d.camino.tc||'Caudillo')}</span><small>Caudillo · rango ${d.camino.c|0}</small></div>`:''}</div>`:''}
       ${R&&R.juegosHtml?R.juegosHtml(d):''}
       <div class="cx-stats"><div><b>${fmt(d.partidas)}</b><small>partidas</small></div><div><b>${fmt(d.medallas)}</b><small>medallas</small></div><div><b>${fmt(d.mejores&&d.mejores.maraton)}</b><small>mejor Maratón</small></div><div><b>${sp(d.mejores&&d.mejores.sprint)}</b><small>mejor Sprint 40</small></div></div>`;
   }
@@ -3740,7 +3804,8 @@ try{citaLlegada();}catch(_){}
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
   usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
-  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons,LINK:LINK_U,linkBoton,linkCompartir,linkQuien,linkCerrar,linkDe};
+  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons,LINK:LINK_U,linkBoton,linkCompartir,linkQuien,linkCerrar,linkDe,
+  invitarJuego:(g,u)=>{if(!H.invite)return false;H.invite(g,u);return true;}};   // v85: la mesa de la estancia invita sola a los que están sentados
 })();
 
 </script>
@@ -4176,6 +4241,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:85,grande:true,titulo:'Novedades',items:[
+    ['🏰','Juego nuevo: FortinAR. Armá tu fortín, juntá recursos, entrená tu gente y tomá los puestos en el modo Asalto contra la compu.'],
+    ['🎨','EstanciAR con dibujos nuevos: muebles, ropa, jardín, Navidad, premios y juegos. Tienda nueva donde también podés vender, gestos de verdad y el muro de logros en tu casa.'],
+    ['🪑','Las mesas de la estancia arman la partida solas con todos los que están sentados, hasta de a 6 y por equipos.'],
+    ['🎯','MarcAR: vuelve el disparo deslizando la palanca, el personaje camina de verdad, minimapa, armas en el piso, elegís bando con amigos y bots más justos.'],
+    ['🧹','Menús más simples en todos los juegos (lo avanzado va en «Más reglas») y un botón para apagar las animaciones.']]},
   {v:84,grande:true,titulo:'Novedades',items:[
     ['🎯','MarcAR: llegaron Muerte por equipos, Todos contra todos y Captura la bandera, con 15 mapas. Y se juega mejor: palanca para mirar y botón para disparar, mira clara, humo que tapa, armas que se levantan y más sangre.'],
     ['🏘️','PoblAR renovado: el mapa ocupa toda la pantalla y se mueve con los dedos; en la compu, panel fijo a la derecha.'],
@@ -4503,6 +4574,11 @@ function abrir(r,sem){
 const KV='pampa-avisos-vistos',KT='pampa-notis-t';
 function vistos(){try{const L=JSON.parse(localStorage.getItem(KV)||'[]');return Array.isArray(L)?L:[];}catch(_){return [];}}
 function marcar(ids){const L=vistos(),S=new Set(L);ids.forEach(i=>S.add(i));ls.set(KV,JSON.stringify([...S].slice(-80)));}
+/* v85 (pedido del 1/11: «el aviso de ataque sale repetido: buscá la causa»). La causa: la marca de «ya lo viste» vivía
+   en este aparato y viajaba con la sincronización a los pocos segundos; otro aparato (o esta misma app recién abierta,
+   antes de traer lo de la cuenta) le preguntaba a la planilla, que lo volvía a mandar, y salía de nuevo. Ahora, al
+   mostrarlo, se le avisa a la planilla (pampaVisto) y pampaNotis ya no lo manda a ningún aparato. */
+function avisarVisto(ids){try{if(ids&&ids.length&&window.CHAT&&typeof CHAT.api==='function')CHAT.api({accion:'pampaVisto',ids}).catch(()=>{});}catch(_){}}
 function enInicio(){return /(^|\/)(index\.html)?$/.test(location.pathname)||/bloques\.html$/.test(location.pathname);}
 function unido(){try{const r=JSON.parse(localStorage.getItem('pampa-resumen')||'null');return !!(r&&r.unido&&r.semana===lunesHoy());}catch(_){return false;}}
 const fmtHasta=t=>{try{return new Date(t).toLocaleString('es-AR',{weekday:'long',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Argentina/Buenos_Aires'}).replace(/\.$/,'')+' h';}catch(_){return '';}};
@@ -4546,7 +4622,7 @@ function pildoraEventos(sem,ev){
   const e=ev[0],b=document.createElement('button');b.type='button';b.className='pa-pil';
   b.innerHTML=`<span aria-hidden="true">${e.e}</span><span><b>${esc(ev.length>1?ev.length+' eventos':e.n)}</b> en La Gran Pampa</span>`;
   b.setAttribute('aria-label',(ev.length>1?ev.length+' eventos':e.n)+' en La Gran Pampa. Tocá para ir.');
-  marcar(ev.map(x=>'e:'+sem+':'+x.id));
+  marcar(ev.map(x=>'e:'+sem+':'+x.id));avisarVisto(ev.map(x=>'e:'+sem+':'+x.id));
   const fuera=()=>{b.classList.remove('in');setTimeout(()=>b.remove(),300);};b._t=setTimeout(fuera,6000);
   b.onclick=()=>{fuera();location.href='./pampa.html';};
   document.body.appendChild(b);requestAnimationFrame(()=>b.classList.add('in'));return true;
@@ -4567,11 +4643,12 @@ async function notis(ya){
   if(!r||!r.ok){notiCorre=false;return;}
   if(!r.unido){try{localStorage.removeItem(KU);}catch(_){}notiCorre=false;return;}
   ls.set(KU,r.semana||lunesHoy());
+  if(Array.isArray(r.vistos)&&r.vistos.length)marcar(r.vistos.map(String));   // v85: lo que ya viste en otro aparato (lo guarda la planilla)
   const cola=armarNotis(r),evs=enInicio()?eventosNuevos(r):[];
   const listo=()=>!document.querySelector('.nv-scrim,.nv-toast,.pa-scrim')&&document.visibilityState==='visible'&&!(window.CHAT&&CHAT.ocupado&&CHAT.ocupado())&&!corriendo;
   const sig=()=>{const n=cola.shift();if(!n){if(evs.length){const pil=()=>{if(!listo()||document.querySelector('.pa-pil')){setTimeout(pil,1500);return;}if(enInicio())pildoraEventos(r.semana,eventosNuevos(r));notiCorre=false;};pil();}else notiCorre=false;return;}
     const V=new Set(vistos());if(n.ids.every(i=>V.has(i))){sig();return;}   // ya lo vio en otro aparato o en el mapa
-    const prob=()=>{if(!listo()){setTimeout(prob,1500);return;}marcar(n.ids);abrirNoti(n);esperar();};prob();};
+    const prob=()=>{if(!listo()){setTimeout(prob,1500);return;}if(n.ids.every(i=>new Set(vistos()).has(i))){sig();return;}marcar(n.ids);avisarVisto(n.ids);abrirNoti(n);esperar();};prob();};
   const esperar=()=>{if(document.querySelector('.pa-scrim')){setTimeout(esperar,800);return;}setTimeout(sig,600);};
   sig();
 }
@@ -4907,7 +4984,52 @@ const PAG=((location.pathname.split('/').pop()||'').replace(/\.html$/,'')||'inde
 const FUERA=/^(estancia|invasores|marcar|estancia-armado|invasores-armado)/.test(PAG);
 const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||localStorage.getItem('bloques-efectos')==='0';}catch(_){return false;}};
 const noop=()=>{};
-if(FUERA){window.JUGO={ev:noop,burst:noop,confeti:noop,temblor:noop,pop:noop,texto:noop,contar:noop,combo:()=>0,quieto};return;}
+
+/* ── v85 · «Animaciones» en ☰ › Ajustes › Gráficos (pedido del 1/11). Apagadas = 'bloques-efectos' '0' (viaja con la
+   cuenta). En TODAS las páginas: sin partículas, temblores ni rebotes (quieto()), y las animaciones y transiciones de
+   CSS quedan instantáneas (duran 1 ms, así los eventos de fin siguen llegando y nada se queda esperando). Las cartas que
+   viajan (VUELO) pasan a la versión corta. No toca lo que se dibuja en los lienzos de los juegos (es el juego mismo). */
+const EK='bloques-efectos';
+const efectos=()=>{try{return localStorage.getItem(EK)!=='0';}catch(_){return true;}};
+function aplicarEfectos(){const off=!efectos(),r=document.documentElement;if(!r)return;r.classList.toggle('sin-anim',off);
+  if(off&&!document.getElementById('sin-anim-css')){const s=document.createElement('style');s.id='sin-anim-css';
+    s.textContent='html.sin-anim *,html.sin-anim *::before,html.sin-anim *::after{animation-duration:1ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:1ms!important;transition-delay:0s!important;scroll-behavior:auto!important}';
+    (document.head||r).appendChild(s);}}
+function setEfectos(on){try{localStorage.setItem(EK,on?'1':'0');}catch(_){}aplicarEfectos();}
+aplicarEfectos();
+addEventListener('storage',e=>{if(e.key===EK)aplicarEfectos();});
+addEventListener('bloques-sync',aplicarEfectos);
+addEventListener('pageshow',aplicarEfectos);
+
+/* ── v85 · «Más reglas» plegado en las hojas de «Partida nueva» (pedido del 1/11: «la selección de reglas y los menús
+   están muy sobrecargados en TODOS los juegos»). Arriba quedan pocas decisiones (contra quién, cuántos, nivel); el resto
+   va adentro de un renglón que dice lo elegido («A 30 · Sin flor · Ranked») y se abre al tocarlo. Recuerda si lo dejaste
+   abierto (por juego, en este aparato: '<juego>-mas-reglas').
+   MASREGLAS.html(juego, resumen, cuerpo) → HTML · MASREGLAS.cablear() → engancha los que haya en la página. */
+const MR_CSS=`.mreg{margin:16px 0 4px;border-radius:12px;border:1px solid rgba(128,128,128,.32);border:1px solid color-mix(in srgb,currentColor 20%,transparent);background:rgba(128,128,128,.05)}
+.mreg>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 14px;min-height:48px;box-sizing:border-box;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.mreg>summary::-webkit-details-marker{display:none}
+.mreg-t{flex:none}
+.mreg-r{flex:1;min-width:0;text-align:right;font-weight:500;opacity:.68;font-size:.86em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mreg>summary::after{content:'';flex:none;width:7px;height:7px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);margin:-4px 2px 0 0;opacity:.55;transition:transform .2s}
+.mreg[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.mreg[open]>summary .mreg-r{visibility:hidden}
+.mreg>summary:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:12px}
+.mreg-b{padding:0 12px 12px}
+.mreg-b>h4:first-child,.mreg-b>h3:first-child{margin-top:2px}`;
+function mrCss(){if(document.getElementById('mreg-css'))return;const s=document.createElement('style');s.id='mreg-css';s.textContent=MR_CSS;(document.head||document.documentElement).appendChild(s);}
+const mrK=j=>String(j||'juego')+'-mas-reglas';
+function mrAbierto(j){try{return localStorage.getItem(mrK(j))==='1';}catch(_){return false;}}
+function mrHtml(j,resumen,cuerpo){mrCss();const r=(Array.isArray(resumen)?resumen.filter(Boolean).join(' · '):resumen)||'';
+  return `<details class="mreg" data-mreg="${String(j).replace(/"/g,'')}"${mrAbierto(j)?' open':''}><summary><span class="mreg-t">Más reglas</span><span class="mreg-r">${r}</span></summary><div class="mreg-b">${cuerpo}</div></details>`;}
+// «toggle» no burbujea, pero se escucha en captura: un solo oyente para todas las hojas (los juegos rehacen el HTML en cada toque).
+// Sólo cuenta lo que hizo la persona: al dibujarse ya abierto también llega un «toggle», que no cambia nada.
+document.addEventListener('toggle',e=>{const d=e.target;if(!d||!d.matches||!d.matches('details.mreg[data-mreg]'))return;
+  try{localStorage.setItem(mrK(d.dataset.mreg),d.open?'1':'0');}catch(_){}},true);
+function mrCablear(){}
+window.MASREGLAS={html:mrHtml,cablear:mrCablear,abierto:mrAbierto};
+
+if(FUERA){window.JUGO={ev:noop,burst:noop,confeti:noop,temblor:noop,pop:noop,texto:noop,contar:noop,combo:()=>0,quieto,efectos,setEfectos};return;}
 
 /* ── Estilos comunes (variables de movimiento: los juegos y la app pueden usarlas) ── */
 const css=`:root{--j-ease:cubic-bezier(.2,.8,.2,1);--j-ease-in:cubic-bezier(.4,0,1,1);--j-rebote:cubic-bezier(.34,1.56,.64,1);--j-rapido:120ms;--j-medio:220ms;--j-lento:360ms}
@@ -5070,7 +5192,7 @@ const H={
 };
 function ev(g,k,x){try{if(document.hidden)return;const f=H[g];if(f)f(k,x);}catch(_){}}
 
-window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto};
+window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto,efectos,setEfectos};
 })();
 
 </script>
@@ -5100,7 +5222,7 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto};
       <div class="ciego" id="ciego"></div>
     </div>
     <div class="tactil-ctrl" id="tctrl">
-      <div class="stick" id="stick-l"><i></i></div><div class="stick fuego" id="stick-r"><i></i></div>
+      <div class="stick" id="stick-l"><i></i></div><div class="stick fuego" id="stick-r"><i></i><b class="um-t">FUEGO</b></div>
     </div>
     <div class="flot izq"><button id="f-menu" aria-label="Menú">☰</button><button id="f-tabla" aria-label="Tabla de posiciones">📋</button></div>
     <div class="flot der"><button id="f-chat" aria-label="Chat" data-chat-btn>💬</button><button id="f-mesa" aria-label="Chat de la partida" hidden>💭<span class="badge" id="f-mesa-badge"></span></button></div>
@@ -5153,13 +5275,19 @@ const VEL=4.6,VEL_SIG=2.7,RADIO=.30,VISION=12,TICK=30,DT=1/30;
 const CUCHILLO={dmg:65,dmgEspalda:100,alc:.9,cad:550};
 const CUCHILLO_FINAL={dmg:100,alc:.9,cad:650};
 // Bomba (cap. 11 y 16)
-const BOMBA={inicio:800,tope:16000,compra:20,accion:90,mecha:35,resultado:4,ganar:7,cambio:6,plantar:3,desactivar:8,desactivarKit:4,radioDes:1.25,
+const BOMBA={inicio:800,tope:16000,compra:20,accion:105,mecha:35,resultado:4,ganar:8,cambio:6,plantar:3,desactivar:8,desactivarKit:4,radioDes:1.25,
   victoria:3250,victoriaObj:3500,derrota:[1400,1900,2400,2900,3400],plantarPremio:300,plantadaPerdida:800,desactivarPremio:300,asist:100};
 // Carrera de armas (cap. 17)
 const ESCALERA=['S1','S2','S3','R1','R2','R3','R4','E1','E2','M1','M2','M3','P1','P2','P3','P4','CF'];
-const CARRERA={limite:8*60,reaparecer:1.5,proteccion:2,extra:45};
+// v85: la Carrera no tiene límite de tiempo (se define por niveles); «limite» queda como tope de seguridad oculto (45 min)
+const CARRERA={limite:0,tope:45*60,porArma:2,reaparecer:1.5,proteccion:2,extra:45};
 // Bots: lo que cambia por nivel es la reacción, la puntería, la decisión. No ven a través de paredes ni del humo.
-const BOT_NIV={facil:{reac:.62,err:9.5,rafaga:.35,mueve:.55,precision:.6},normal:{reac:.38,err:5.2,rafaga:.6,mueve:.8,precision:.82},dificil:{reac:.24,err:2.6,rafaga:.85,mueve:1,precision:.95}};
+// v85: puntería de la compu más humana. err = error inicial (grados) al ver a alguien, piso = error que nunca se va,
+// giro = rad/s que puede girar la mira, retraso = cuánto tarda en seguir a quien se mueve (apunta a dónde estabas hace un ratito),
+// asienta = segundos para pasar del error inicial al piso.
+const BOT_NIV={facil:{reac:.72,err:13,piso:4.2,giro:4.2,retraso:.30,asienta:1.6,rafaga:.3,mueve:.55,precision:.6},
+  normal:{reac:.48,err:8,piso:2.2,giro:7,retraso:.17,asienta:1,rafaga:.55,mueve:.8,precision:.82},
+  dificil:{reac:.32,err:5,piso:1.2,giro:11,retraso:.095,asienta:.7,rafaga:.8,mueve:1,precision:.95}};
 const NOMBRES_BOT={P:['Faro','Bruma','Vigía','Ronda','Garita','Sereno','Patrulla','Faro II'],T:['Cobre','Rastro','Óxido','Hollín','Chispa','Brasa','Zorro','Cobre II']};
 
 /* ── Mapas ──
@@ -5278,7 +5406,7 @@ function crearPartida(cfg){
   const M=MAPAS[cfg.mapa]();const G={v:1,modo:cfg.modo,M,sol:M.sol,solM:M.agua?M.sol.concat(M.agua):null,t:0,tick:0,rng:rngNuevo(cfg.semilla||1),semilla:cfg.semilla||1,J:[],ev:[],humos:[],gran:[],suelo:[],
     recibos:{},fase:'espera',faseFin:0,ronda:0,puntos:{A:0,B:0},ladoA:cfg.ladoA==='P'?'P':'T',nivelRec:{A:0,B:0},bomba:null,fin:null,inst:1,rapida:!!cfg.rapida,pubs:[],
     log:[],nombre:cfg.nombre||''};
-  G.reglas=M84(G)?M84(G).reglas(cfg):cfg.modo==='bomba'?{...BOMBA,...(cfg.rapida?{compra:12,accion:75,mecha:30,ganar:4,cambio:3}:{})}:{...CARRERA,...(cfg.rapida?{limite:5*60}:{})};
+  G.reglas=M84(G)?M84(G).reglas(cfg):cfg.modo==='bomba'?{...BOMBA,...(cfg.rapida?{compra:12,accion:85,mecha:30,ganar:5,cambio:3}:{})}:{...CARRERA,...(cfg.rapida?{porArma:1}:{})};
   for(const j of cfg.jugadores)G.J.push(nuevoJugador(G,j));
   G.grid=navGrid(G);
   if(M84(G))M84(G).empezar(G);else if(cfg.modo==='bomba')empezarRonda(G,true);else empezarCarrera(G);
@@ -5346,7 +5474,7 @@ function revisarRonda(G){if(G.fase!=='accion'&&G.fase!=='plantada')return;const 
   if(G.t>=G.faseFin){finRonda(G,'P','tiempo');}}
 
 /* ── Carrera ── */
-function empezarCarrera(G){G.fase='accion';G.faseFin=G.t+G.reglas.limite;G.ronda=1;
+function empezarCarrera(G){G.fase='accion';G.faseFin=G.t+(G.reglas.limite||G.reglas.tope||2700);G.ronda=1;
   for(const p of G.J){p.nivel=1;p.prog=0;reaparecer(G,p,true);}ev(G,{k:'aviso',txt:'¡Carrera de armas! Todos contra todos',pub:1});}
 function armaDeNivel(n){return ESCALERA[n-1];}
 function equiparCarrera(G,p){const id=armaDeNivel(p.nivel);p.pri=null;p.sec=null;
@@ -5367,12 +5495,12 @@ function avanceCarrera(G,autor,vict,arma){if(!autor||autor===vict)return;
     return;}
   if(arma!==armaDeNivel(autor.nivel))return;// sólo cuentan las bajas con el arma del nivel
   if(autor._nivTick===G.tick)return;// varias bajas del mismo disparo: un solo avance
-  autor.prog++;if(autor.prog>=2){autor._nivTick=G.tick;subirNivel(G,autor);}}
+  autor.prog++;if(autor.prog>=(G.reglas.porArma||2)){autor._nivTick=G.tick;subirNivel(G,autor);}}
 function subirNivel(G,p){p.nivel=Math.min(17,p.nivel+1);p.prog=0;if(p.vivo){equiparCarrera(G,p);}ev(G,{k:'nivel',id:p.id,niv:p.nivel,arma:armaDeNivel(p.nivel)});
   if(p.nivel===17)ev(G,{k:'aviso',txt:`${p.nom} llegó al cuchillo final`,pub:1,final:p.id});}
 function revisarCarrera(G){if(G.fase!=='accion')return;
   for(const p of G.J)if(!p.vivo&&G.t>=p.muerteT+G.reglas.reaparecer)reaparecer(G,p,false);
-  if(G.t>=G.faseFin){const orden=[...G.J].sort((a,b)=>b.nivel-a.nivel||b.prog-a.prog);const top=orden[0];
+  if(G.t>=G.faseFin){const orden=[...G.J].sort((a,b)=>b.nivel-a.nivel||b.prog-a.prog);const top=orden[0];if(!G.reglas.limite)G.extra=1;
     const emp=orden.filter(p=>p.nivel===top.nivel&&p.prog===top.prog);
     if(emp.length>1&&!G.extra){G.extra=1;G.faseFin=G.t+G.reglas.extra;ev(G,{k:'aviso',txt:'Empate: 45 segundos más',pub:1});return;}
     G.fin={gana:top.id,t:G.t,ganadores:emp.map(p=>p.id)};G.fase='fin';ev(G,{k:'finPartida',gana:top.id,nom:top.nom,pub:1});}}
@@ -5430,11 +5558,13 @@ function disparar(G,p){const s=p.sel==='pri'?p.pri:p.sel==='sec'?p.sec:null;if(!
 function acuchillar(G,p){const fin=G.modo==='carrera'&&armaDeNivel(p.nivel)==='CF',C=fin?CUCHILLO_FINAL:CUCHILLO;
   p.cucFin=G.t+C.cad/1000;p.prot=0;if(p.curFin){p.curFin=0;p.curEspera=G.t+1;}
   ev(G,{k:'cuchillazo',id:p.id,x:p.x,y:p.y,ang:p.ang});
+  // v85: hitbox del tajo = arco frontal de ±60° más el ancho del cuerpo del rival (a corta distancia el arco se abre solo);
+  // alcance justo: borde a borde 0,9 m (centro a centro 0,9 + 2 radios). Pegado (cuerpos tocándose) vale casi todo el frente.
   let mejor=null,md=9;for(const q of G.J){if(!q.vivo||!enemigos(G,p,q))continue;const d=dist(p.x,p.y,q.x,q.y);if(d>C.alc+RADIO*2)continue;
-    const da=Math.abs(difAng(ang(q.x-p.x,q.y-p.y),p.ang));if(da>Math.PI/2.6)continue;if(corta(G,p.x,p.y,q.x,q.y))continue;if(d<md){md=d;mejor=q;}}
+    const da=Math.abs(difAng(ang(q.x-p.x,q.y-p.y),p.ang)),tol=d<RADIO*2.4?Math.PI*.62:Math.PI/3+Math.atan2(RADIO,Math.max(.01,d));if(da>tol)continue;if(corta(G,p.x,p.y,q.x,q.y))continue;const pd=d*(1+da);if(pd<md){md=pd;mejor=q;}}
   if(!mejor)return;const q=mejor;
   if(fin){dano(G,q,p,C.dmg,{arma:'cfinal',pen:1,sinArmadura:1,dir:p.ang});return;}
-  const espalda=Math.abs(difAng(ang(p.x-q.x,p.y-q.y),q.ang))>Math.PI-Math.PI/6;// arco trasero de 60°
+  const espalda=Math.abs(difAng(ang(p.x-q.x,p.y-q.y),q.ang))>Math.PI-Math.PI/4;// v85: arco trasero de 90° (por la espalda es letal)
   dano(G,q,p,espalda?C.dmgEspalda:C.dmg,{arma:'cuchillo',pen:1,sinArmadura:1,dir:p.ang,esp:espalda});}
 function empezarRecarga(G,p){const s=p.sel==='pri'?p.pri:p.sel==='sec'?p.sec:null;if(!s||p.recFin)return;const A=ARMA(s.a);if(s.c>=A.carg||s.r<=0)return;
   p.recFin=G.t+A.rec;if(p.curFin){p.curFin=0;p.curEspera=G.t+1;}ev(G,{k:'recarga',id:p.id,arma:s.a,d:A.rec});}
@@ -5514,8 +5644,8 @@ function pasoObjetivo(G,p){const o=objetivo(G,p),b=G.bomba;
   if(o.k==='plantar'&&G.t>=p.objFin){// tiene que terminar antes de que venza el reloj
     if(G.t>=G.faseFin){p.objT=0;return;}
     b.est='plantada';b.x=p.x;b.y=p.y;b.por=null;b.plantT=G.t;b.expl=G.t+G.reglas.mecha;b.sitio=o.sitio;b.des=null;b.desFin=0;
-    p.cred=Math.min(G.reglas.tope,p.cred+BOMBA.plantarPremio);p.objT=0;G.fase='plantada';ev(G,{k:'plantada',id:p.id,sitio:o.sitio,x:r2(b.x),y:r2(b.y),pub:1});}}
-function recoger(G,p){if(!p.vivo||G.modo!=='bomba')return;
+    p.cred=Math.min(G.reglas.tope,p.cred+BOMBA.plantarPremio);p.objT=0;G.fase='plantada';ev(G,{k:'plantada',id:p.id,sitio:o.sitio,x:r2(b.x),y:r2(b.y),pub:0});ev(G,{k:'plantada',pub:1});}}
+function recoger(G,p){if(!p.vivo||G.modo==='carrera')return;// v85: en todos los modos menos Carrera
   const b=G.bomba;if(b&&b.est==='suelo'&&p.lado==='T'&&dist(p.x,p.y,b.x,b.y)<.9){b.est='portada';b.por=p.id;ev(G,{k:'bombaToma',id:p.id});}
   let w=null,md=1.1;for(const s of G.suelo){const d=dist(p.x,p.y,s.x,s.y);if(d<md){md=d;w=s;}}if(!w)return;
   if(!p.inp.rec2){// v84: pasando por encima, si esa ranura está vacía, la levantás sola (cambiar la tuya pide «Agarrar»)
@@ -5644,8 +5774,14 @@ function irA(G,p,x,y,N){const B=p.bot,I=p.inp;
   if(p.vel<.3&&Math.hypot(I.mx,I.my)>.3){B.atasco=(B.atasco||0)+DT;if(B.atasco>.6){const s=G.rng()<.5?1:-1;I.mx=Math.cos(a+s*1.4);I.my=Math.sin(a+s*1.4);if(B.atasco>1.2){B.atasco=0;B.ruta=null;}}}else B.atasco=0;}
 function botCombate(G,p,q,N){const B=p.bot,I=p.inp,d=dist(p.x,p.y,q.x,q.y);
   // apuntar con error que se va corrigiendo
-  const real=ang(q.x-p.x,q.y-p.y);if(B.err==null||G.t-B.errT>.5){B.err=(G.rng()*2-1)*N.err*Math.PI/180*(1+d/14);B.errT=G.t;}
-  B.err*=.9;const obj=real+B.err;I.ang=p.ang+difAng(obj,p.ang)*Math.min(1,.35+N.precision*.5);
+  // v85: sigue un punto «atrasado» (si te movés de costado, tira a donde estabas), con un error que arranca grande y baja
+  // hasta un piso que nunca desaparece, y la mira gira a velocidad limitada (no se pega al blanco de un cuadro al otro).
+  const real=ang(q.x-p.x,q.y-p.y);
+  if(!B.ap||B.apId!==q.id){B.ap={x:q.x,y:q.y};B.apId=q.id;B.vioT=G.t;B.err=null;}
+  const ret=N.retraso??.2;B.ap.x+=(q.x-B.ap.x)*Math.min(1,DT/ret);B.ap.y+=(q.y-B.ap.y)*Math.min(1,DT/ret);
+  if(B.err==null||G.t-B.errT>.4){const ent=Math.exp(-(G.t-(B.vioT||G.t))/(N.asienta??1)),piso=N.piso??2,mag=(piso+(N.err-piso)*ent)*(1+d/16)*(.4+G.rng()*.6);
+    const nuevo=(G.rng()<.5?-1:1)*mag*Math.PI/180;B.err=B.err==null?nuevo:B.err*.5+nuevo*.5;B.errT=G.t;}
+  const obj=ang(B.ap.x-p.x,B.ap.y-p.y)+B.err,giro=(N.giro??6)*DT,dg=difAng(obj,p.ang);I.ang=p.ang+Math.max(-giro,Math.min(giro,dg*.6));
   const s=p.sel==='pri'?p.pri:p.sel==='sec'?p.sec:null,A=s?ARMA(s.a):null;
   I.mira=A&&A.fam==='precision'&&d>4?1:0;   // v84: la compu también usa la mira (y camina lento)
   // moverse: los fusiles y la precisión frenan para tirar; subfusiles y escopetas se acercan o se mueven de costado
@@ -5657,7 +5793,7 @@ function botCombate(G,p,q,N){const B=p.bot,I=p.inp,d=dist(p.x,p.y,q.x,q.y);
   if(p.sel==='cuc'){if(d<CUCHILLO.alc+RADIO*1.6)I.f=1;return;}
   if(!s)return;if(s.c===0){I.rec=1;return;}
   if(d>A.alc*1.05)return;
-  const apuntado=Math.abs(difAng(p.ang,real))<(A.fam==='escopeta'?.22:.12)+.25/Math.max(d,1);
+  const apuntado=Math.abs(difAng(p.ang,ang(B.ap.x-p.x,B.ap.y-p.y)))<(A.fam==='escopeta'?.22:.12)+.25/Math.max(d,1);
   if(apuntado){if(A.fam==='pistola'||A.fam==='precision'||A.fam==='escopeta'){I.f=G.t>=p.cadFin?1:0;}
     else{if(!B.rafaga||G.t>B.rafagaFin){if(G.t>(B.pausa||0)){B.rafaga=1;B.rafagaFin=G.t+.25+N.rafaga*.5;}}
       if(B.rafaga&&G.t<=B.rafagaFin)I.f=1;else if(B.rafaga){B.rafaga=0;B.pausa=G.t+.15+(1-N.rafaga)*.35;}}}
@@ -5730,10 +5866,12 @@ function vista(G,id,o){o=o||{};const yo=G.J.find(p=>p.id===id);
   // humos, granadas y suelo: todos visibles (son objetos del mundo); el arma del suelo sólo si se ve el lugar
   const S={t:r2(G.t),tick:G.tick,modo:G.modo,mapa:G.M.id,fase:G.fase,resta:r2(Math.max(0,G.faseFin-G.t)),ronda:G.ronda,puntos:G.puntos,ladoA:G.ladoA,yo:id,ojo:ojo?ojo.id:null,
     J,ev:E,humos:G.humos.map(h=>({x:r2(h.x),y:r2(h.y),rad:h.rad,act:r2(h.act-G.t),hasta:r2(h.hasta-G.t),id:h.id})),gran:G.gran.map(g=>({x:r2(g.x),y:r2(g.y),tipo:g.tipo,id:g.id})),
-    suelo:G.suelo.filter(s=>ojo&&dist(ojo.x,ojo.y,s.x,s.y)<VISION&&!corta(G,ojo.x,ojo.y,s.x,s.y)).map(s=>({a:s.a,x:r2(s.x),y:r2(s.y),id:s.id})),fin:G.fin,reglas:{ganar:G.reglas.ganar,cambio:G.reglas.cambio},ult:G.ultRonda||null,extra:G.extra||0};
+    suelo:G.suelo.filter(s=>ojo&&dist(ojo.x,ojo.y,s.x,s.y)<VISION&&!corta(G,ojo.x,ojo.y,s.x,s.y)).map(s=>({a:s.a,x:r2(s.x),y:r2(s.y),id:s.id})),fin:G.fin,reglas:{ganar:G.reglas.ganar,cambio:G.reglas.cambio,porArma:G.reglas.porArma},ult:G.ultRonda||null,extra:G.extra||0};
   if(M84(G))M84(G).vista(G,yo,ojo,S);
   if(G.bomba){const b=G.bomba,pub=b.est==='plantada'||b.est==='explotó'||b.est==='desactivada';const mia=yo&&G.modo==='bomba'&&(lado(G,yo)==='T');
-    if(pub)S.bomba={est:b.est,x:b.x,y:b.y,sitio:b.sitio,expl:r2(b.expl-G.t),des:b.des?1:0,desResta:b.desFin?r2(b.desFin-G.t):0};
+    // v85: plantada, la ubicación solo la saben los T y quien la ve o la oye (14 m); los demás saben que está plantada y el tiempo
+    if(pub){S.bomba={est:b.est,x:b.x,y:b.y,sitio:b.sitio,expl:r2(b.expl-G.t),des:b.des?1:0,desResta:b.desFin?r2(b.desFin-G.t):0};
+      if(b.est==='plantada'&&!mia&&!(ojo&&((dist(ojo.x,ojo.y,b.x,b.y)<VISION&&!corta(G,ojo.x,ojo.y,b.x,b.y))||dist(ojo.x,ojo.y,b.x,b.y)<14))){delete S.bomba.x;delete S.bomba.y;delete S.bomba.sitio;}}
     else if(mia||(ojo&&b.est==='suelo'&&dist(ojo.x,ojo.y,b.x,b.y)<VISION&&!corta(G,ojo.x,ojo.y,b.x,b.y)))S.bomba={est:b.est,x:r2(b.x),y:r2(b.y),por:b.por};}
   return S;}
 function armaCerca(G,p){if(!p.vivo)return null;let w=null,md=1.1;for(const s of G.suelo){const d=dist(p.x,p.y,s.x,s.y);if(d<md){md=d;w=s;}}return w?w.a:null;}
@@ -5749,11 +5887,12 @@ const MOTOR={__rayo:rayoRect,crearPartida,paso,vista,resumen,comprar,ruta,libre,
    Todo con el azar con semilla del motor (G.rng) y sin funciones guardadas en G (G se puede copiar). */
 (function(){
 const R84={
-  equipos:{limite:420,bajas:50,extra:60,reaparecer:3,proteccion:2,ventana:8,compraIni:15,inicio:4500,baja:300,asist:100,tope:8000,piso:1600,sube:600},
-  ffa:{limite:360,bajas:25,extra:60,reaparecer:3,proteccion:2,ventana:8,compraIni:15,inicio:4500,baja:300,asist:100,tope:8000,piso:1600,sube:600},
-  bandera:{limite:420,capturas:3,extra:60,ola:5,proteccion:2,ventana:8,compraIni:15,inicio:3000,baja:150,asist:75,tope:8000,piso:2000,sube:500,
+  equipos:{limite:540,bajas:60,extra:60,reaparecer:3,proteccion:2,ventana:8,compraIni:15,inicio:4500,baja:300,asist:100,tope:8000,piso:1600,sube:600},
+  ffa:{limite:480,bajas:30,extra:60,reaparecer:3,proteccion:2,ventana:8,compraIni:15,inicio:4500,baja:300,asist:100,tope:8000,piso:1600,sube:600},
+  bandera:{limite:540,capturas:3,extra:60,ola:5,proteccion:2,ventana:8,compraIni:15,inicio:3000,baja:150,asist:75,tope:8000,piso:2000,sube:500,
     devolver:150,captura:750,escolta:200,radioBase:1.25,toque:.9,vuelve:15,velPortador:.9,zonaCada:3}};
-const RAPIDA={equipos:{limite:180,bajas:20,compraIni:8},ffa:{limite:180,bajas:12,compraIni:8},bandera:{limite:240,capturas:2,compraIni:8}};
+// v85: partidas un poco más largas (antes 420/50, 360/25, 420; rápidas 180/20, 180/12, 240)
+const RAPIDA={equipos:{limite:240,bajas:25,compraIni:8},ffa:{limite:240,bajas:15,compraIni:8},bandera:{limite:300,capturas:2,compraIni:8}};
 const otro=l=>l==='P'?'T':'P';
 const eqDeLado=(G,l)=>G.ladoA===l?'A':'B';
 
@@ -5805,20 +5944,28 @@ function baja(G,v,a,arma){const R=G.reglas;
   if(a&&a!==v&&enemigos(G,a,v)){a.cred=Math.min(R.tope,a.cred+R.baja);
     if(G.modo==='equipos'&&G.fase!=='fin'){G.puntos[a.eq]++;}}
   else if(G.modo==='ffa'&&(a===v||!a)){v.bajas=Math.max(0,v.bajas-1);}// en FFA la muerte propia resta una baja (mín. 0)
+  // v85: lo que deja (como en Bomba): la principal, o la pistola si la había comprado; desaparece a los 30 s
+  {const w=v.pri||(v.sec&&(v.sec.a!=='P1'||v.compradas&&v.compradas[v.sec.inst])?v.sec:null);
+    if(w){G.suelo.push({...w,x:v.x+(G.rng()-.5)*.4,y:v.y+(G.rng()-.5)*.4,id:w.inst,t:G.t});if(v.pri===w)v.pri=null;else v.sec=null;if(G.suelo.length>14)G.suelo.shift();}}
   v.arm=0;v.util=null;v.frag=0;v.botiq=0;v.kit=0;
   if(G.modo==='bandera'){const f=banderaDe(G,v);if(f){f.est='suelo';f.x=v.x;f.y=v.y;f.por=null;f.t=G.t;ev(G,{k:'aviso',txt:`Cayó la bandera ${f.l==='P'?'azul':'naranja'}`,pub:1,ban:f.l});}}}
+// v85: el que lleva la bandera y se desconecta la suelta ahí (biblia 15.3); la compu que toma su lugar no la sigue llevando
+function soltar(G,p){if(G.modo!=='bandera'||!p)return false;const f=banderaDe(G,p);if(!f)return false;
+  f.est='suelo';f.x=p.x;f.y=p.y;f.por=null;f.t=G.t;p._noTomarHasta=G.t+3;
+  ev(G,{k:'aviso',txt:`${p.nom} se desconectó: cayó la bandera ${f.l==='P'?'azul':'naranja'}`,pub:1,ban:f.l});return true;}
 function asist(G,q){q.cred=Math.min(G.reglas.tope,q.cred+G.reglas.asist);}
 function banderaDe(G,p){if(!G.ban)return null;for(const l of ['P','T']){const f=G.ban[l];if(f.est==='portada'&&f.por===p.id){f.l=l;return f;}}return null;}
 
 /* ── por jugador y tick ── */
 function vel(G,p){if(G.modo==='bandera'&&banderaDe(G,p))return G.reglas.velPortador;return 1;}
 function pasoJ(G,p){const R=G.reglas;
+  recoger(G,p);// v85: armas del piso también en Equipos, Todos contra todos y Bandera
   if(G.fase==='compra'&&p.zonaS){const z=p.zonaS,d=dist(p.x,p.y,z[0],z[1]);if(d>3.2){p.x=z[0]+(p.x-z[0])/d*3.2;p.y=z[1]+(p.y-z[1])/d*3.2;}}
   if(p.prot>G.t&&G.fase!=='compra'&&p.inp.f)p.prot=0;// disparar corta la protección
   if(G.modo!=='bandera'||G.fase!=='accion'&&G.fase!=='extra')return;
   const mio=G.ban[p.lado],suyo=G.ban[otro(p.lado)],baseMia=G.M.banderas[p.lado];
   // tocar la bandera rival (vivo y sin protección)
-  if(p.prot<=G.t&&(suyo.est==='base'||suyo.est==='suelo')&&dist(p.x,p.y,suyo.x,suyo.y)<R.toque){
+  if(p.prot<=G.t&&!(p._noTomarHasta>G.t)&&(suyo.est==='base'||suyo.est==='suelo')&&dist(p.x,p.y,suyo.x,suyo.y)<R.toque){
     if(suyo.est==='base')suyo.salio=G.t;suyo.est='portada';suyo.por=p.id;suyo.portT=G.t;
     for(const q of G.J)q.escT=0;
     ev(G,{k:'aviso',txt:`${p.nom} lleva la bandera ${suyo===G.ban.P?'azul':'naranja'}`,pub:1,ban:otro(p.lado)});}
@@ -5842,6 +5989,7 @@ function terminar(G,gana,ganadores){if(G.fase==='fin')return;G.fase='fin';
   for(const id of G.fin.ganadores){const p=G.J.find(q=>q.id===id);if(p)p.gano=1;}
   ev(G,{k:'finPartida',gana,nom:(G.J.find(p=>p.id===gana)||{}).nom,pub:1});}
 function revisar(G){const R=G.reglas;if(G.fase==='fin')return;
+  if(G.suelo.length&&G.tick%15===0){for(const s of G.suelo)if(s.t==null)s.t=G.t;G.suelo=G.suelo.filter(s=>G.t-s.t<30);}
   if(G.fase==='compra'){if(G.t>=G.faseFin){G.fase='accion';G.faseFin=G.t+R.limite;ev(G,{k:'accion',pub:1});}return;}
   // reaparecer: por persona a los 3 s; en Bandera, en oleadas cada 5 s
   if(G.modo==='bandera'){if(G.t>=G.ola){G.ola=G.t+R.ola;for(const p of G.J)if(!p.vivo&&G.t-p.muerteT>=1)aparecer(G,p,false);}
@@ -5890,10 +6038,10 @@ function metaBot(G,p){const B=p.bot;
   if(suyo.por===p.id){// la llevo: a casa; si la mía no está, espero cerca de la base
     if(mio.est==='base')return base;if(!B.puesto)B.puesto=puestoCerca(G,base,2.5);return B.puesto;}
   if(mio.est==='suelo')return [mio.x,mio.y];// devolver la nuestra
-  if(mio.est==='portada'&&(rol===2||rol===3||dist(p.x,p.y,mio.x,mio.y)<12)){const z=mio.zona||[mio.x,mio.y];return [z[0],z[1]];}// cazar al que la lleva (zona aproximada)
+  if(mio.est==='portada'&&(rol===2||rol===3||suyo.est==='portada'||dist(p.x,p.y,mio.x,mio.y)<12)){/* v85: si las dos están afuera, todos a recuperar la nuestra (si no, nadie captura) */const z=mio.zona||[mio.x,mio.y];return [z[0],z[1]];}// cazar al que la lleva (zona aproximada)
   const port=suyo.est==='portada'?G.J.find(q=>q.id===suyo.por):null;
   if(port&&rol!==2){if(dist(p.x,p.y,port.x,port.y)>2.5)return [port.x,port.y];return {accion:'mirar',mirar:p.ang+.05};}// escoltar
-  if(rol===2){const r=recuerdo(G,p);if(r&&dist(r[0],r[1],base[0],base[1])<10)return r;if(!B.puesto||G.t-(B.puestoT||0)>12){B.puesto=puestoCerca(G,base,2+G.rng()*3);B.puestoT=G.t;}
+  if(rol===2){const r=recuerdo(G,p);if(r&&dist(r[0],r[1],base[0],base[1])<10)return r;if(!B.puesto||G.t-(B.puestoT||0)>12){B.puesto=puestoCerca(G,base,5+G.rng()*4);B.puestoT=G.t;}/* v85: el defensor se para más lejos (no encima de la bandera) */
     if(dist(p.x,p.y,B.puesto[0],B.puesto[1])<.6)return {accion:'mirar',mirar:ang(G.M.w/2-p.x,G.M.h/2-p.y)+(G.rng()-.5)*.6};return B.puesto;}
   // atacar por un carril (arriba, medio o abajo) para no chocar todos en el mismo puente
   if(suyo.est==='base'&&!B.carrilOk){if(!B.carril){const k=(Math.floor(eq.indexOf(p)/2)+Math.floor(G.t/40))%3,y=G.M.h*[.2,.5,.8][k];B.carril=libreCerca(G,G.M.w/2+(suyo.x<G.M.w/2?-6:6),y);}
@@ -5901,7 +6049,9 @@ function metaBot(G,p){const B=p.bot;
     if(yo>c+1&&dist(p.x,p.y,B.carril[0],B.carril[1])>1.5)return B.carril;
     // juntarse: esperar en el carril a otro atacante (o 7 s) y entrar de a dos
     if(!B.esperaT)B.esperaT=G.t;const junto=G.J.some(q=>q!==p&&q.vivo&&q.eq===p.eq&&dist(q.x,q.y,p.x,p.y)<6);
-    if(!junto&&G.t-B.esperaT<7)return {accion:'mirar',mirar:ang(suyo.x-p.x,suyo.y-p.y)};B.carrilOk=1;B.esperaT=0;}
+    if((!junto&&G.t-B.esperaT<3.5)||(G.ola-G.t<2.2&&G.t-B.esperaT<6))return {accion:'mirar',mirar:ang(suyo.x-p.x,suyo.y-p.y)};B.carrilOk=1;B.esperaT=0;}
+  /* v85: entrar a tocarla justo después de la oleada rival (aparecen a 4–5 m de su bandera): si falta poco para la próxima, esperar afuera */
+  if(suyo.est==='base'){const d=dist(p.x,p.y,suyo.x,suyo.y),w=G.ola-G.t;if(d>5&&d<13&&w<3.6&&w>.15)return {accion:'mirar',mirar:ang(suyo.x-p.x,suyo.y-p.y)};}
   return [suyo.x,suyo.y];}
 function libreCerca(G,x,y){for(let r=0;r<12;r+=.5)for(let a=0;a<8;a++){const xx=x+Math.cos(a*Math.PI/4)*r,yy=y+Math.sin(a*Math.PI/4)*r;if(libre(G,xx,yy,RADIO+.3))return [xx,yy];}return [x,y];}
 
@@ -5924,7 +6074,7 @@ function vista(G,yo,ojo,S){
       const z=f.zona||[f.x,f.y];x=z[0];y=z[1];aprox=1;}
     S.ban[l]={est:f.est,x:Math.round(x*100)/100,y:Math.round(y*100)/100,por:f.por,aprox,base:G.M.banderas[l],vuelve:f.est==='suelo'?Math.max(0,Math.round(G.reglas.vuelve-(G.t-f.t))):0};}}
 
-const H=modo=>({reglas:reglas(modo),empezar,baja,asist,noCompra,vel,pasoJ,revisar,metaBot,vista,empuje});
+const H=modo=>({reglas:reglas(modo),empezar,baja,asist,noCompra,vel,pasoJ,revisar,metaBot,vista,empuje,soltar});
 globalThis.MODOS84={equipos:H('equipos'),ffa:H('ffa'),bandera:H('bandera')};
 globalThis.REGLAS84=R84;
 })();
@@ -5961,8 +6111,10 @@ const armaImg=id=>id==='cuc'||id==='CF'?ARTE.eq_cuchillo:(ARTE['arma_'+id]||'');
 
 /* ── Ajustes (de este dispositivo) ── */
 const AJ_K='marcar-ajustes';
-const AJ={sonido:true,vol:.8,ambiente:true,sangre:'alta',temblor:!RM,vib:true,zurdo:false,sens:1,mira:true,vertical:false,esquema:'boton',asist:true,numeros:true,...ls.json(AJ_K,{})};
-if(!['boton','umbral'].includes(AJ.esquema))AJ.esquema='boton';
+const AJ={sonido:true,vol:.8,ambiente:true,sangre:'alta',temblor:!RM,vib:true,zurdo:false,sens:1,mira:true,vertical:false,esquema:'umbral',asist:true,numeros:true,...ls.json(AJ_K,{})};
+// v85: vuelve el disparo por umbral como el de siempre (el botón 🔥 queda como alternativa en ☰); a quien ya tenía guardado «botón» se le pasa una vez
+if(!AJ.v85){AJ.esquema='umbral';AJ.v85=1;try{ls.set(AJ_K,JSON.stringify(AJ));}catch(_){}}
+if(!['boton','umbral'].includes(AJ.esquema))AJ.esquema='umbral';
 if(!['alta','media','baja'].includes(AJ.sangre))AJ.sangre='alta';
 function guardarAj(){ls.set(AJ_K,JSON.stringify(AJ));aplicarAj();}
 function aplicarAj(){const b=document.body.classList;b.toggle('tactil',TACTIL);b.toggle('zurdo',!!AJ.zurdo);if(MASTER)MASTER.gain.value=AJ.vol;}
@@ -6099,8 +6251,9 @@ CV.addEventListener('wheel',e=>{if(!enCampo())return;IN.sel='sig';},{passive:tru
 // Esquema «botón» (el de siempre ahora): apuntar no dispara; dispara el botón 🔥 (y si lo arrastrás, también apunta).
 // Esquema «umbral»: la palanca de apuntar dispara cuando la empujás más allá del aro rojo dibujado.
 function zonaTactil(e){const r=CV.getBoundingClientRect(),x=e.clientX-r.left;const izq=x<r.width*.45;return AJ.zurdo?!izq:izq;}
-const UMBRAL=.62;
-function palanca(el,p,e){const dx=e.clientX-p.cx,dy=e.clientY-p.cy,R=56,L=Math.hypot(dx,dy),k=L>R?R/L:1;el.querySelector('i').style.transform=`translate(${dx*k}px,${dy*k}px)`;return {x:dx/R,y:dy/R,L:Math.min(1.4,L/R)};}
+// v85: umbral con histéresis (entra a tirar a .74 del radio, deja de tirar por debajo de .62) para que no titile ni tire sin querer
+const UMBRAL=.74,UMBRAL_SALE=.62,R_PAL=56;
+function palanca(el,p,e){const dx=e.clientX-p.cx,dy=e.clientY-p.cy,R=R_PAL,L=Math.hypot(dx,dy),k=L>R?R/L:1;el.querySelector('i').style.transform=`translate(${dx*k}px,${dy*k}px)`;return {x:dx/R,y:dy/R,L:Math.min(1.4,L/R)};}
 CV.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;actx();if(!enCampo())return;e.preventDefault();
   const r=CV.getBoundingClientRect();const p={id:e.pointerId,cx:e.clientX,cy:e.clientY,x:0,y:0,L:0};
   if(zonaTactil(e)){if(IN.palancaL)return;IN.palancaL=p;const s=$('stick-l');s.style.left=(e.clientX-r.left)+'px';s.style.top=(e.clientY-r.top)+'px';s.classList.add('on');s.querySelector('i').style.transform='';}
@@ -6108,9 +6261,12 @@ CV.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;actx();i
   try{CV.setPointerCapture(e.pointerId);}catch(_){}},{passive:false});
 CV.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')return;
   if(IN.palancaL&&IN.palancaL.id===e.pointerId){const v=palanca($('stick-l'),IN.palancaL,e);Object.assign(IN.palancaL,v);}
-  if(IN.palancaR&&IN.palancaR.id===e.pointerId){const v=palanca($('stick-r'),IN.palancaR,e);Object.assign(IN.palancaR,v);$('stick-r').classList.toggle('tira',AJ.esquema==='umbral'&&v.L>UMBRAL);}});
+  if(IN.palancaR&&IN.palancaR.id===e.pointerId){const v=palanca($('stick-r'),IN.palancaR,e);Object.assign(IN.palancaR,v);umbralR(v.L);}});
+// el aro del umbral: se ilumina al acercarte, se pone rojo (y vibra cortito donde se puede) al pasar; para dejar de tirar hay que volver un poco
+function umbralR(L){const s=$('stick-r'),u=AJ.esquema==='umbral',P=IN.palancaR;if(!u||!P){s.classList.remove('tira','cerca');return;}
+  const antes=!!P.tira;P.tira=antes?L>UMBRAL_SALE:L>UMBRAL;if(P.tira&&!antes)vibrar(12);s.classList.toggle('tira',P.tira);s.classList.toggle('cerca',!P.tira&&L>UMBRAL*.7);}
 function soltar(e){if(IN.palancaL&&IN.palancaL.id===e.pointerId){IN.palancaL=null;$('stick-l').classList.remove('on');}
-  if(IN.palancaR&&IN.palancaR.id===e.pointerId){IN.palancaR=null;$('stick-r').classList.remove('on','tira');}}
+  if(IN.palancaR&&IN.palancaR.id===e.pointerId){IN.palancaR=null;$('stick-r').classList.remove('on','tira','cerca');}}
 ['pointerup','pointercancel','lostpointercapture'].forEach(t=>CV.addEventListener(t,e=>{if(e.pointerType!=='mouse')soltar(e);}));
 // El botón 🔥: mantenerlo dispara; arrastrarlo desde donde lo apretaste también apunta (como en los shooters de celular).
 function botonFuego(el){el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();actx();el.classList.add('on');IN.fuegoBtn={id:e.pointerId,cx:e.clientX,cy:e.clientY,L:0};IN.fuego=true;try{el.setPointerCapture(e.pointerId);}catch(_){}},{passive:false});
@@ -6125,7 +6281,7 @@ function leerEntrada(yoX,yoY,escala,camX,camY){
   if(IN.palancaL&&IN.palancaL.L>.12){mx=IN.palancaL.x;my=IN.palancaL.y;const L=Math.hypot(mx,my);if(L>1){mx/=L;my/=L;}}
   let f=IN.fuego?1:0;
   if(IN.mouse&&!IN.palancaR){const wx=camX+IN.mouse.x/escala,wy=camY+IN.mouse.y/escala;IN.ang=Math.atan2(wy-yoY,wx-yoX);}
-  if(IN.palancaR&&IN.palancaR.L>.2){IN.ang=Math.atan2(IN.palancaR.y,IN.palancaR.x);IN.ultApunto=Date.now();if(AJ.esquema==='umbral'&&IN.palancaR.L>UMBRAL)f=1;}
+  if(IN.palancaR&&IN.palancaR.L>.2){IN.ang=Math.atan2(IN.palancaR.y,IN.palancaR.x);IN.ultApunto=Date.now();if(AJ.esquema==='umbral'&&IN.palancaR.tira)f=1;}
   // sin apuntar un rato (y sin disparar): mirás hacia donde caminás; si apuntaste hace poco, seguís mirando ahí aunque camines para otro lado
   else if(TACTIL&&IN.palancaL&&IN.palancaL.L>.3&&!IN.palancaR&&!IN.fuegoBtn&&!IN.mira&&Date.now()-IN.ultApunto>1600)IN.ang=Math.atan2(IN.palancaL.y,IN.palancaL.x);
   const o={mx:Math.round(mx*100)/100,my:Math.round(my*100)/100,ang:Math.round(IN.ang*1000)/1000,f,sig:IN.sig||IN.sigFijo?1:0,obj:IN.obj,cura:IN.cura,rec:IN.rec,rec2:IN.rec2,mira:IN.mira?1:0};
@@ -6242,31 +6398,60 @@ const CAM={x:30,y:22,ox:0,oy:0};
 const EST_FR={caminar:0,disparar:1,recargar:2,curar:3,herido:4,caer:5};
 function cuadro(pj,est,f){const i=img(pj);const r=EST_FR[est]*6+(f%6);return [i,(r%6)*160,Math.floor(r/6)*160];}
 const MUNDO=2.8/160;   // metros por pixel del atlas (el cuerpo mide ~0,9 m)
-function dibujarPj(c,p,t,yo){const pj=(p.lado==='P')?'pj_faro':'pj_cobre';let est='caminar',f=0;
+// v85: caminata de verdad. La vista se rearma en cada cuadro, así que el paso de cada uno se guarda acá (por id):
+// velocidad y rumbo medidos por el desplazamiento real, fase del paso, piernas y botas que van y vienen hacia donde camina,
+// torso que se hamaca, arma que se balancea y los 6 cuadros de «caminar» del atlas pasando al ritmo del paso.
+const ANDA={};const PIERNA={P:'#27304a',T:'#4b5030'};
+function pasoDe(p,t){let A=ANDA[p.id];if(!A||t-A.t>1){A=ANDA[p.id]={x:p.x,y:p.y,t,fase:0,v:0,amp:0,dir:p.ang};}
+  const dt=Math.min(.1,Math.max(0,t-A.t));if(dt>0){const dx=p.x-A.x,dy=p.y-A.y,dd=Math.hypot(dx,dy),vi=dd>1.2?0:dd/dt;
+    A.v+=(Math.min(7,vi)-A.v)*Math.min(1,dt*10);if(dd>.004&&dd<1.2)A.dir=lerpAng(A.dir,Math.atan2(dy,dx),Math.min(1,dt*12));
+    const anda=A.v>.45;A.amp+=((anda?Math.min(1,.35+A.v/5):0)-A.amp)*Math.min(1,dt*9);
+    if(anda)A.fase+=dt*A.v*4.3;else{const obj=Math.round(A.fase/Math.PI)*Math.PI;A.fase+=(obj-A.fase)*Math.min(1,dt*8);}
+    A.x=p.x;A.y=p.y;A.t=t;}
+  return A;}
+function piernas(c,p,A,agach){if(A.amp<.04&&!agach)return;const md=A.dir,cx=Math.cos(md),cy=Math.sin(md),px=-cy,py=cx,col=PIERNA[p.lado==='P'?'P':'T'];
+  c.save();c.lineCap='round';c.globalAlpha=1;
+  for(const s of [-1,1]){const k=Math.sin(A.fase)*s,st=.52*A.amp*k,hx=px*s*.16,hy=py*s*.16,fx=hx+cx*st,fy=hy+cy*st,alza=Math.max(0,Math.cos(A.fase)*s)*A.amp;
+    c.strokeStyle=col;c.lineWidth=.15;c.beginPath();c.moveTo(hx,hy);c.lineTo(fx,fy);c.stroke();
+    c.save();c.translate(fx,fy);c.rotate(md);const e=1+alza*.18;c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.ellipse(.03,.03,.12,.075,0,0,7);c.fill();
+    c.fillStyle='#1d1b1f';c.strokeStyle='#0a0a0c';c.lineWidth=.025;c.beginPath();c.ellipse(0,0,.13*e,.08*e,0,0,7);c.fill();c.stroke();c.fillStyle='#4a4642';c.beginPath();c.ellipse(.04*e,-.015,.05*e,.03*e,0,0,7);c.fill();c.restore();}
+  c.restore();}
+// el cuchillo en la mano: quieto apenas abierto; en el tajo barre de un lado al otro (con estela corta del filo)
+function cuchilloMano(c,tajo,prog,fase){const k=img('eq_cuchillo');if(!k.naturalWidth)return;
+  const a=tajo?(-1.15+prog*2.1):(-.42+Math.sin(fase)*.05),hx=.36+(tajo?Math.sin(prog*Math.PI)*.12:0),hy=-.06;
+  c.save();c.translate(hx,hy);c.rotate(a);c.scale(-1,1);c.drawImage(k,-.6,-.15,.72,.36);c.restore();
+  if(tajo){c.save();c.translate(hx,hy);c.strokeStyle=`rgba(235,240,245,${.55*tajo})`;c.lineWidth=.05;c.beginPath();c.arc(0,0,.5,-1.15,a);c.stroke();c.restore();}}
+function dibujarPj(c,p,t,yo){const pj=(p.lado==='P')?'pj_faro':'pj_cobre';let est='caminar',f=0,rotX=0;
+  const A=pasoDe(p,t),anda=A.amp>.08;const conCuc=p.arma==='cuc'||p.arma==='CF';
   if(p.rec>0){est='recargar';f=Math.min(5,Math.floor((1-p.rec/(p._recD||2))*6));}
   else if(p.cura>0){est='curar';f=Math.min(5,Math.floor((1-p.cura/2.5)*6));}
+  else if(conCuc){est='curar';f=3;rotX=-Math.PI/2;}
   else if(t-(p._tiroT||0)<.11){est='disparar';f=2;}
   else if(t-(p._heridoT||0)<.18){est='herido';f=1+Math.floor((t-p._heridoT)/.06);}
-  else if(p.vel>.4){p._paso=(p._paso||0)+p.vel*(1/Math.max(30,FPS.v||60));f=Math.floor(p._paso*3.2)%6;}
+  else if(anda){f=((Math.floor(A.fase/(Math.PI*2)*6)%6)+6)%6;}
   const [i,sx,sy]=cuadro(pj,est,f);if(!i.naturalWidth)return;
-  const anda=p.vel>.4&&est==='caminar',fase=(p._paso||0)*3.2*Math.PI/3,bob=anda?Math.sin(fase*2)*.035:0;
-  const cuc=t-(p._cucT||-9),tajo=cuc<.22?Math.sin(cuc/.22*Math.PI):0,agach=p.obj>0;
+  const fase=A.fase,bob=anda?Math.abs(Math.sin(fase))*.03*A.amp:0,sway=anda?Math.sin(fase)*.085*A.amp:0;
+  const cuc=t-(p._cucT||-9),tajo=cuc<.24?Math.sin(cuc/.24*Math.PI):0,prog=Math.min(1,cuc/.24),agach=p.obj>0;
   c.save();c.translate(p.x,p.y);
-  // polvito al pisar
-  if(anda&&p.vel>2.5&&Math.floor(fase/Math.PI)!==p._pisada){p._pisada=Math.floor(fase/Math.PI);if(FX.part.length<400)FX.part.push({x:p.x-Math.cos(p.ang)*.25,y:p.y-Math.sin(p.ang)*.25,vx:rnd(-.3,.3),vy:rnd(-.3,.3),t:0,vida:.4,r:.09,c:'rgba(150,140,120,.22)',humo:1});}
   // sombra y aro de equipo
   c.fillStyle='rgba(0,0,0,.35)';c.beginPath();c.ellipse(.08,.1,.42,.36,0,0,7);c.fill();
   const col=p._col;c.strokeStyle=col;c.lineWidth=.05;c.globalAlpha=p.prot&&Math.floor(t*8)%2?.35:.85;c.beginPath();c.arc(0,0,.44,0,7);c.stroke();c.globalAlpha=p.sig?.82:1;
+  piernas(c,p,A,agach);c.globalAlpha=p.sig?.82:1;
   c.rotate(p.ang);
   // v84: mirando a la izquierda no queda patas arriba (espejo vertical en el eje del arma)
   if(Math.cos(p.ang)<0)c.scale(1,-1);
-  if(tajo)c.translate(tajo*.22,0);
-  const esc=(agach?.88:1)*(1+bob);c.scale(esc,esc*(anda?1-bob*.6:1));
+  // torso que se hamaca con el paso; el arma se adelanta y se atrasa un poquito (en el tajo el cuerpo gira con el brazo)
+  c.rotate(sway+(tajo?(prog-.5)*.5:0));if(anda)c.translate(Math.sin(fase*2)*.025*A.amp,Math.cos(fase)*.02*A.amp);
+  if(tajo)c.translate(tajo*.16,0);
+  const esc=(agach?.88:1)*(1+bob);c.scale(esc,esc);
+  if(rotX){c.save();c.rotate(rotX);}
   c.imageSmoothingEnabled=true;c.drawImage(i,sx,sy,160,160,-80*MUNDO,-80*MUNDO,160*MUNDO,160*MUNDO);
   // golpe: destello rojo sobre la víctima
   const hd=t-(p._heridoT||-9);if(hd<.14){const tc=tinte(i,sx,sy);c.globalAlpha=(1-hd/.14)*.6;c.drawImage(tc,-80*MUNDO,-80*MUNDO,160*MUNDO,160*MUNDO);
     c.globalAlpha=(1-hd/.14)*.7;c.strokeStyle='#ff3b2a';c.lineWidth=.06;c.beginPath();c.arc(0,0,.4,0,7);c.stroke();}
   c.globalAlpha=1;
+  if(rotX)c.restore();
+  if(conCuc&&est==='curar'&&!p.cura)cuchilloMano(c,tajo,prog,fase);
   // plantando/desactivando: agachado, la bomba o las pinzas adelante y una barrita
   if(agach){c.drawImage(BOMBA_SP,.32,-.16,.42,.32);if(p.lado==='P'){c.strokeStyle='#d8dde2';c.lineWidth=.04;c.beginPath();c.moveTo(.3,.12);c.lineTo(.62,.02);c.moveTo(.3,.18);c.lineTo(.62,.24);c.stroke();}}
   c.restore();
@@ -6285,7 +6470,8 @@ function dibujar(V,now){// V: lo que hay que mostrar (snapshot interpolado), lo 
   const vw=W/ESC,vh=H/ESC;
   // cámara: sigue a quien mirás, un poco adelantada hacia donde apuntás
   let tx=ojo?ojo.x:V.M.w/2,ty=ojo?ojo.y:V.M.h/2;
-  if(ojo&&V.esYo){let la=TACTIL?1.6:Math.min(3.2,IN.mouse?Math.hypot(IN.mouse.x/ESC-vw/2,IN.mouse.y/ESC-vh/2)*.35:1.5);if(mirando)la=Math.min(Math.min(vw,vh)*.42,7.5);tx+=Math.cos(ojo.ang)*la;ty+=Math.sin(ojo.ang)*la;}
+  // v85: el adelanto de la cámara es el mismo en la compu y en el celular (antes la compu se adelantaba hasta 3,2 m con el mouse)
+  if(ojo&&V.esYo){let la=TACTIL?(IN.palancaR||Date.now()-(IN.ultApunto||0)<1600?2.2:1.6):Math.min(2.2,IN.mouse?Math.hypot(IN.mouse.x/ESC-vw/2,IN.mouse.y/ESC-vh/2)*.35:1.5);if(mirando)la=Math.min(Math.min(vw,vh)*.42,7.5);tx+=Math.cos(ojo.ang)*la;ty+=Math.sin(ojo.ang)*la;}
   CAM.x+=(tx-CAM.x)*Math.min(1,.18*60/Math.max(30,FPS.v||60));CAM.y+=(ty-CAM.y)*Math.min(1,.18*60/Math.max(30,FPS.v||60));
   if(Math.abs(tx-CAM.x)>8||Math.abs(ty-CAM.y)>8){CAM.x=tx;CAM.y=ty;}
   let cx=vw>=V.M.w?(V.M.w-vw)/2:Math.max(Math.min(CAM.x-vw/2,V.M.w-vw),0),cy=vh>=V.M.h?(V.M.h-vh)/2:Math.max(Math.min(CAM.y-vh/2,V.M.h-vh),0);
@@ -6351,6 +6537,7 @@ function dibujar(V,now){// V: lo que hay que mostrar (snapshot interpolado), lo 
   // niebla: lo que no ves queda en penumbra (adentro del humo, todo gris)
   if(ojo)V._enHumo=humosActivos(V).some(h=>Math.hypot(ojo.x-h[0],ojo.y-h[1])<h[2]);
   if(V.ojoVivo&&ojo)niebla(c,V,ojo,cx,cy,vw,vh);
+  if(V.ojoVivo&&ojo)bandasVista(c,vw,vh);
   // humo: tapa la vista (y las balas) — 2,7 m; v84: se dibuja encima de la niebla, así se ve la pared gris
   for(const h of V.humos||[]){if(h.act>0)continue;const vida=-h.act,resta=h.hasta;const k=Math.min(1,vida/.6)*Math.min(1,resta/.8);if(k<=0)continue;const r=h.rad*k*1.25;
     c.globalAlpha=Math.min(1,k*1.2);for(let j=0;j<5;j++){const a=t*.15*(j%2?1:-1)+j*1.3,rr=r*(.8+.15*Math.sin(t*.7+j));c.save();c.translate(h.x+Math.cos(a)*r*.2,h.y+Math.sin(a)*r*.2);c.rotate(a);c.drawImage(HUMO,-rr,-rr,rr*2,rr*2);c.restore();}
@@ -6405,23 +6592,31 @@ function niebla(c,V,o,cx,cy,vw,vh){if(!NIEBLA)NIEBLA=document.createElement('can
   // lo sólido que está al lado se ve (no queda tapado por la niebla el borde de la pared)
   n.globalCompositeOperation='source-over';
   c.save();c.setTransform(1,0,0,1,0,0);c.imageSmoothingEnabled=true;c.drawImage(NIEBLA,0,0,CV.width,CV.height);c.restore();}
+// v85: mismo campo de visión en la compu y en el celular. El lado largo de la pantalla muestra hasta 24 m y el corto hasta
+// CORTO_VISTA (lo que entra en un celular acostado 19,5:9). Si la pantalla muestra más en el lado corto (compu 16:9, tablet),
+// lo de más queda tapado por dos franjas oscuras con borde suave (como la niebla, pero tapa del todo).
+const CORTO_VISTA=11.2;
+function bandasVista(c,vw,vh){const largoW=W>=H,corto=largoW?vh:vw,lim=CORTO_VISTA/ZOOM;if(corto<=lim+.05)return;
+  const sobra=(corto-lim)/2*ESC*DPR,tot=largoW?CV.height:CV.width,suave=Math.min(28*DPR,sobra);
+  c.save();c.setTransform(1,0,0,1,0,0);
+  for(const lado of [0,1]){const g=largoW?c.createLinearGradient(0,lado?tot-sobra:sobra,0,lado?tot-sobra+suave:sobra-suave):c.createLinearGradient(lado?tot-sobra:sobra,0,lado?tot-sobra+suave:sobra-suave,0);
+    g.addColorStop(0,'rgba(5,6,9,0)');g.addColorStop(1,'rgba(5,6,9,.94)');c.fillStyle=g;
+    if(largoW)c.fillRect(0,lado?tot-sobra:sobra-suave,CV.width,suave);else c.fillRect(lado?tot-sobra:sobra-suave,0,suave,CV.height);
+    c.fillStyle='rgba(5,6,9,.94)';
+    if(largoW)c.fillRect(0,lado?tot-sobra+suave:0,CV.width,sobra-suave);else c.fillRect(lado?tot-sobra+suave:0,0,sobra-suave,CV.height);}
+  c.restore();}
 function mira(c,V,now,cx,cy){const p=V.yo,d=(V.disp||0)*Math.PI/180;
-  const A=p.arma&&p.arma!=='cuc'?ARMA(p.arma):null;
-  // v84: láser tenue desde la boca del arma y el cono de dispersión (lo que puede abrirse la bala)
-  if(A){const [bx,by]=boca(p.x,p.y,p.ang),L=p.mira?16:Math.min(10,A.alc*.65),a=p.ang;
-    c.fillStyle=p.mira?'rgba(255,90,70,.10)':'rgba(255,255,255,.07)';c.beginPath();c.moveTo(bx,by);c.lineTo(bx+Math.cos(a-d)*L,by+Math.sin(a-d)*L);c.lineTo(bx+Math.cos(a+d)*L,by+Math.sin(a+d)*L);c.closePath();c.fill();
-    const g=c.createLinearGradient(bx,by,bx+Math.cos(a)*L,by+Math.sin(a)*L);g.addColorStop(0,p.mira?'rgba(255,70,50,.75)':'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');
-    c.strokeStyle=g;c.lineWidth=p.mira?.03:.035;c.beginPath();c.moveTo(bx,by);c.lineTo(bx+Math.cos(a)*L,by+Math.sin(a)*L);c.stroke();
-    if(d>.002){c.strokeStyle='rgba(255,255,255,.28)';c.lineWidth=.025;c.beginPath();c.moveTo(bx+Math.cos(a-d)*.8,by+Math.sin(a-d)*.8);c.lineTo(bx+Math.cos(a-d)*L*.8,by+Math.sin(a-d)*L*.8);c.moveTo(bx+Math.cos(a+d)*.8,by+Math.sin(a+d)*.8);c.lineTo(bx+Math.cos(a+d)*L*.8,by+Math.sin(a+d)*L*.8);c.stroke();}}
+  // v85: vuelve la mira de la v83 (discreta): en la compu la cruz en el puntero; en el celular una línea tenue de puntería
   if(!TACTIL&&IN.mouse){const mx=cx+IN.mouse.x/ESC,my=cy+IN.mouse.y/ESC,dd=Math.hypot(mx-p.x,my-p.y),gap=Math.max(.12,Math.tan(d)*dd);
-    c.strokeStyle='rgba(255,255,255,.92)';c.lineWidth=.045;c.shadowColor='#000';c.shadowBlur=3;c.beginPath();
+    c.strokeStyle=p.mira?'rgba(255,120,100,.95)':'rgba(255,255,255,.92)';c.lineWidth=.045;c.shadowColor='#000';c.shadowBlur=3;c.beginPath();
     for(const [ax,ay] of [[1,0],[-1,0],[0,1],[0,-1]]){c.moveTo(mx+ax*gap,my+ay*gap);c.lineTo(mx+ax*(gap+.26),my+ay*(gap+.26));}c.stroke();c.shadowBlur=0;
     if(V.recarga>0){c.strokeStyle='#e6cb84';c.lineWidth=.06;c.beginPath();c.arc(mx,my,.5,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-V.recarga/(V.recD||2)));c.stroke();}
     marcas(c,mx,my,now);return;}
-  // celular: el láser de arriba más una cruz chiquita a la distancia de tiro cómoda
-  const a=p.ang,Dm=p.arma==='cuc'?1:Math.min(p.mira?9:5.5,(A||{alc:8}).alc*.4),mx=p.x+Math.cos(a)*Dm,my=p.y+Math.sin(a)*Dm,gap=Math.max(.1,Math.tan(d)*Dm);
-  c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=.04;c.shadowColor='#000';c.shadowBlur=3;c.beginPath();for(const [ax,ay] of [[1,0],[-1,0],[0,1],[0,-1]]){c.moveTo(mx+ax*gap,my+ay*gap);c.lineTo(mx+ax*(gap+.2),my+ay*(gap+.2));}c.stroke();c.shadowBlur=0;
-  marcas(c,mx,my,now);}
+  const L=p.arma==='cuc'?1:Math.min(p.mira?14:9,(ARMA(p.arma)||{alc:8}).alc*.6),a=p.ang;const g=c.createLinearGradient(p.x,p.y,p.x+Math.cos(a)*L,p.y+Math.sin(a)*L);
+  const col=p.mira?'255,110,90':'255,255,255';g.addColorStop(0,`rgba(${col},0)`);g.addColorStop(.2,`rgba(${col},.35)`);g.addColorStop(1,`rgba(${col},0)`);
+  c.strokeStyle=g;c.lineWidth=.04;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(a)*L,p.y+Math.sin(a)*L);c.stroke();
+  if(d>0){c.strokeStyle='rgba(255,255,255,.18)';c.beginPath();c.moveTo(p.x+Math.cos(a-d)*1,p.y+Math.sin(a-d)*1);c.lineTo(p.x+Math.cos(a-d)*L*.7,p.y+Math.sin(a-d)*L*.7);c.moveTo(p.x+Math.cos(a+d)*1,p.y+Math.sin(a+d)*1);c.lineTo(p.x+Math.cos(a+d)*L*.7,p.y+Math.sin(a+d)*L*.7);c.stroke();}
+  marcas(c,p.x+Math.cos(a)*3,p.y+Math.sin(a)*3,now);}
 function marcas(c,x,y,now){// marcas de impacto: una X blanca (roja si fue la baja)
   for(let k=FX.marcas.length-1;k>=0;k--){const m=FX.marcas[k],e=now-m.t0;if(e>(m.baja?380:170)){FX.marcas.splice(k,1);continue;}const a=1-e/(m.baja?380:170),r=m.baja?.34:.24;
     c.strokeStyle=m.baja?`rgba(255,70,50,${a})`:m.arm?`rgba(140,200,255,${a})`:`rgba(255,255,255,${a})`;c.lineWidth=m.baja?.08:.055;c.beginPath();
@@ -6445,15 +6640,15 @@ let SN=[];             // vistas recibidas [{S,at}]
 let ULT=0,ACU=0,EST='menu';
 const FPS={v:60,n:0,t:0};
 const MODOS={bomba:{n:'Bomba',mapa:'estacion',d:'Policías contra Terroristas. Los Terroristas plantan la bomba en A o B; los Policías defienden o la desactivan. Sin reaparecer: cada ronda cuenta.'},
-  carrera:{n:'Carrera de armas',mapa:'mercado',d:'Todos contra todos. Dos bajas con cada arma y pasás a la siguiente; la última es el cuchillo. Reaparecés al toque.'},
+  carrera:{n:'Carrera de armas',mapa:'mercado',d:'Todos contra todos. Dos bajas con cada arma y pasás a la siguiente; la última es el cuchillo. Sin límite de tiempo: gana el que llega. Reaparecés al toque.'},
   // v84 (modos84.js): los tres modos que faltaban de la biblia
-  equipos:{n:'Muerte por equipos',mapa:'galpon',d:'Policías contra Terroristas, 4 contra 4. Gana el primero en 50 bajas o el que más tenga a los 7 minutos. Reaparecés a los 3 s y tenés 8 s para comprar.'},
-  ffa:{n:'Todos contra todos',mapa:'chapas',d:'Cada uno por su cuenta. Gana el primero en 25 bajas o el que más tenga a los 6 minutos. Morir por tu culpa te resta una baja.'},
-  bandera:{n:'Captura la bandera',mapa:'arroyo',d:'Traé la bandera rival a tu base con la tuya en casa. Gana el primero en 3 capturas o el que va ganando a los 7 minutos. Reaparecés en oleadas cada 5 s.'}};
+  equipos:{n:'Muerte por equipos',mapa:'galpon',d:'Policías contra Terroristas, 4 contra 4. Gana el primero en 60 bajas o el que más tenga a los 9 minutos. Reaparecés a los 3 s y tenés 8 s para comprar.'},
+  ffa:{n:'Todos contra todos',mapa:'chapas',d:'Cada uno por su cuenta. Gana el primero en 30 bajas o el que más tenga a los 8 minutos. Morir por tu culpa te resta una baja.'},
+  bandera:{n:'Captura la bandera',mapa:'arroyo',d:'Traé la bandera rival a tu base con la tuya en casa. Gana el primero en 3 capturas o el que va ganando a los 9 minutos. Reaparecés en oleadas cada 5 s.'}};
 MODOS.bomba.mapas=['estacion','curtiembre','taller'];MODOS.carrera.mapas=['mercado','pasaje','maniobras'];MODOS.equipos.mapas=['galpon','flete','molino'];MODOS.ffa.mapas=['chapas','corralon','silos'];MODOS.bandera.mapas=['arroyo','quintas','feria'];
 const eqModo=m=>m==='bomba'||m==='equipos'||m==='bandera';
 const ICO84={bomba:'💣',carrera:'🔫',equipos:'⚔️',ffa:'🎯',bandera:'🏁'},TAG84={carrera:['FRENÉTICO','#3f7a5a'],equipos:['EQUIPOS','#3d5f8a'],ffa:['CADA UNO','#7a5a3a'],bandera:['OBJETIVO','#8a3d3d']};
-const RAP84={bomba:['Rápida · a 4','Completa · a 7'],carrera:['5 minutos','8 minutos'],equipos:['Rápida · a 20','Completa · a 50'],ffa:['Rápida · a 12','Completa · a 25'],bandera:['Rápida · a 2','Completa · a 3']};
+const RAP84={bomba:['Rápida · a 5','Completa · a 8'],carrera:['Rápida · 1 baja por arma','Completa · 2 por arma'],equipos:['Rápida · a 25','Completa · a 60'],ffa:['Rápida · a 15','Completa · a 30'],bandera:['Rápida · a 2','Completa · a 3']};
 // rotación de mapas (biblia 18): si no elegiste uno, cada partida va al siguiente del modo
 function mapaDe(modo,elegido){const L=MODOS[modo].mapas||[MODOS[modo].mapa];if(elegido&&L.includes(elegido))return elegido;
   const k='marcar-rota-'+modo;let i=+(ls.get(k)||0);if(!(i>=0))i=0;const m=L[i%L.length];try{ls.set(k,String((i+1)%L.length));}catch(_){}return m;}
@@ -6546,7 +6741,7 @@ function corregirPred(S){const yo=S.J.find(p=>p.id===P.yoId);if(!yo||!yo.vivo||y
   const ox=PRED.x,oy=PRED.y;PRED.x=yo.x;PRED.y=yo.y;for(const i of PRED.pend)moverPred(i,S,yo);
   if(!PRED.ok||Math.hypot(PRED.x-ox,PRED.y-oy)>2){PRED.ex=0;PRED.ey=0;}else{PRED.ex+=ox-PRED.x;PRED.ey+=oy-PRED.y;}PRED.ok=true;}
 function tickRender(){const rt=performance.now()-retardo();let t=SN.length?SN[0].S.tick:0;for(const s of SN)if(s.at<=rt)t=s.S.tick;return t;}
-const retardo=()=>P&&P.rol==='guest'?110:DTMS*1.1;
+const retardo=()=>P&&P.rol==='guest'?(window.NET85?NET85.retardo():110):DTMS*1.1;// v85: se adapta a la red (red85.js)
 
 /* ── Recibir una vista: efectos, sonido y el búfer para interpolar ── */
 function recibir(S){const now=performance.now();
@@ -6591,7 +6786,7 @@ function evento(e,S,now){const yo=P.yoId,pos=e.x!=null?{x:e.x,y:e.y}:null;
     mancha(e.x,e.y,.6);{const o=V_ULT&&V_ULT.ojo;const d=o?Math.hypot(o.x-e.x,o.y-e.y):99;if(d<10)temblor(2.2*(1-d/10)+.4);}break;
   case 'plantando':if(e.id===yo)sfx('plantando');break;
   case 'desactivando':sfx('desactivando',null);aviso('Desactivando…','Los Policías están en la bomba',1400);break;
-  case 'plantada':sfx('bip',null,true);aviso(`Bomba plantada en ${e.sitio}`,'35 segundos',2200);BIP.t=0;break;
+  case 'plantada':if(e.id!=null)break;sfx('bip',null,true);aviso('Bomba plantada',S&&S.bomba&&S.bomba.sitio?`en ${S.bomba.sitio} · 35 segundos`:'35 segundos para encontrarla',2200);BIP.t=0;break;
   case 'explosion':sfx('explosion');FX.ondas.push({x:e.x,y:e.y,r:9,d:1.2,t0:now,fuego:1});for(let i=0;i<60;i++){const a=rnd(0,6.28),v=rnd(3,16);FX.part.push({x:e.x,y:e.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:0,vida:rnd(.3,.9),r:rnd(.08,.2),c:i%3?'#ffb14a':'#2a1d12',fuego:i%3?1:0});}temblor(3);vibrar(200);break;
   case 'desactivada':sfx('desactivada');aviso('Bomba desactivada','',1800);break;
   case 'ronda':aviso(`Ronda ${e.n}`,S.modo==='bomba'?'Tiempo de compra · tocá «Comprar» o B':'',2200);sfx('ronda');FX.cuerpos.length=0;FX.casq.length=0;FX.manchas.length=0;FX.charcos.length=0;
@@ -6613,7 +6808,7 @@ function evento(e,S,now){const yo=P.yoId,pos=e.x!=null?{x:e.x,y:e.y}:null;
   case 'bombaToma':if(e.id===yo)aviso('Tenés la bomba','Llevala a A o B',1500);break;}}
 const MARCA_TIRO={},HERIDO_T={},REC_D={},CUC_T={};
 const BIP={t:0};
-function bipBomba(V,now){if(!V||!V.bomba||V.bomba.est!=='plantada')return;const r=V.bomba.expl;const iv=r>10?1:r>5?.5:.25;if(now/1000-BIP.t>=iv){BIP.t=now/1000;sfx('bip',{x:V.bomba.x,y:V.bomba.y},r<5,40);}}
+function bipBomba(V,now){if(!V||!V.bomba||V.bomba.est!=='plantada'||V.bomba.x==null)return;const r=V.bomba.expl;const iv=r>10?1:r>5?.5:.25;if(now/1000-BIP.t>=iv){BIP.t=now/1000;sfx('bip',{x:V.bomba.x,y:V.bomba.y},r<5,40);}}
 
 /* ── Armar lo que se dibuja (interpolado) ── */
 function armarVista(now){if(!SN.length)return null;const rt=now-retardo();
@@ -6652,9 +6847,9 @@ function hud(V,now){if(!V||now-HUD_T<66)return;HUD_T=now;const S=V.S;const yo=S.
     $('marcador').innerHTML=`<div class="mc-${izq[0]}"><span class="mc-lbl">${izq[1]} <small style="opacity:.7">${vivosL(ladoMio)}♟</small></span><span class="mc-n">${izq[2]}</span></div><div class="mc-reloj${S.fase==='plantada'?' rojo':''}">${mmss(reloj)}<small>${fase}</small></div><div class="mc-${der[0]}"><span class="mc-n">${der[2]}</span><span class="mc-lbl"><small style="opacity:.7">${vivosL(ladoMio==='P'?'T':'P')}♟</small> ${der[1]}</span></div>`;
     $('carrera-hud').hidden=true;}
   else{const orden=[...S.J].sort((a,b)=>b.nivel-a.nivel||b.prog-a.prog);const lider=orden[0];const pos=orden.findIndex(q=>q.id===P.yoId)+1;
-    $('marcador').innerHTML=`<div class="mc-ter"><span class="mc-lbl">PUESTO</span><span class="mc-n">${pos}º</span></div><div class="mc-reloj">${mmss(S.resta)}<small>${S.extra?'TIEMPO EXTRA':'CARRERA'}</small></div><div class="mc-pol"><span class="mc-n">${lider.nivel}</span><span class="mc-lbl">${esc(lider.nom.slice(0,10))}</span></div>`;
+    $('marcador').innerHTML=`<div class="mc-ter"><span class="mc-lbl">PUESTO</span><span class="mc-n">${pos}º</span></div><div class="mc-reloj">${S.resta>600?mmss(Math.max(0,2700-S.resta)):mmss(S.resta)}<small>${S.resta>600?'SIN LÍMITE':S.extra?'TIEMPO EXTRA':'CARRERA'}</small></div><div class="mc-pol"><span class="mc-n">${lider.nivel}</span><span class="mc-lbl">${esc(lider.nom.slice(0,10))}</span></div>`;
     const id=ESCALERA[yo.nivel-1],sig=ESCALERA[yo.nivel];
-    $('carrera-hud').hidden=false;$('carrera-hud').innerHTML=`Nivel ${yo.nivel}/17 <img src="${armaImg(id)}" alt=""> <span class="marcas">${id==='CF'?'<i></i>':'<i class="'+(yo.prog>=1?'on':'')+'"></i><i></i>'}</span>${sig?`<span style="opacity:.6">→</span><img src="${armaImg(sig)}" alt="" style="opacity:.55">`:''}`;}
+    $('carrera-hud').hidden=false;$('carrera-hud').innerHTML=`Nivel ${yo.nivel}/17 <img src="${armaImg(id)}" alt=""> <span class="marcas">${id==='CF'||(S.reglas&&S.reglas.porArma===1)?'<i></i>':'<i class="'+(yo.prog>=1?'on':'')+'"></i><i></i>'}</span>${sig?`<span style="opacity:.6">→</span><img src="${armaImg(sig)}" alt="" style="opacity:.55">`:''}`;}
   // vida y armadura
   const vida=Math.max(0,Math.ceil(yo.vida||0)),arm=Math.ceil(yo.arm||0);
   $('vidabox').innerHTML=`<div class="vb${vida<35?' baja':''}"><small>VIDA</small><b><i>✚</i>${vida}</b><div class="bar"><i style="width:${vida}%"></i></div></div><div class="vb"><small>ARMADURA</small><b><i>🛡</i>${arm}</b><div class="bar arm"><i style="width:${arm}%"></i></div></div>`;
@@ -6671,7 +6866,7 @@ function hud(V,now){if(!V||now-HUD_T<66)return;HUD_T=now;const S=V.S;const yo=S.
   $('prog').classList.toggle('on',!!pr);if(pr){$('prog-t').textContent=pr[0];$('prog-i').style.width=(Math.max(0,Math.min(1,pr[1]))*100)+'%';}
   // ayuda del objetivo
   let ay='';if(yo.vivo){if(yo.objDisp==='plantar')ay=TACTIL?'Mantené 🎯 para plantar':'Mantené E para plantar';else if(yo.objDisp==='desactivar')ay=TACTIL?'Mantené 🎯 para desactivar':'Mantené E para desactivar';
-    else if(yo.cerca&&S.modo==='bomba')ay=`${TACTIL?'✋ Agarrar':'E'}: ${ARMA(yo.cerca).n}${(ARMA(yo.cerca).sec?yo.sec:yo.pri)?' (dejás la tuya)':''}`;
+    else if(yo.cerca&&S.modo!=='carrera')ay=`${TACTIL?'✋ Agarrar':'E'}: ${ARMA(yo.cerca).n}${(ARMA(yo.cerca).sec?yo.sec:yo.pri)?' (dejás la tuya)':''}`;
     else if(IN._famActual==='precision'&&!IN.mira&&yo.vivo)ay=TACTIL?'🔭 Mira: ves más lejos':'Clic derecho o Z: mira';else if(yo.compra&&$('tienda').className.indexOf('on')<0&&(S.fase==='compra'||S.compraResta>0))ay=TACTIL?'Tocá 🛒 para comprar':'B: comprar';}
   $('ayuda-obj').textContent=ay;$('ayuda-obj').classList.toggle('on',!!ay&&!pr);
   // muerto
@@ -6680,7 +6875,7 @@ function hud(V,now){if(!V||now-HUD_T<66)return;HUD_T=now;const S=V.S;const yo=S.
   // flash
   $('ciego').style.opacity=yo.ciego>0?Math.min(1,yo.ciego/Math.max(.3,(yo.ciegoMax||1.2))*1.1):0;
   // botones táctiles que dependen del momento
-  if(TACTIL){const b=$('tb-obj');if(b){b.hidden=!(yo.objDisp||yo.cerca&&S.modo==='bomba');const lb=yo.objDisp==='plantar'?'<b>💣</b>Plantar':yo.objDisp==='desactivar'?'<b>✂️</b>Desactivar':'<b>✋</b>Agarrar';if(b._lb!==lb){b._lb=lb;b.innerHTML=lb;}}
+  if(TACTIL){const b=$('tb-obj');if(b){b.hidden=!(yo.objDisp||yo.cerca&&S.modo!=='carrera');const lb=yo.objDisp==='plantar'?'<b>💣</b>Plantar':yo.objDisp==='desactivar'?'<b>✂️</b>Desactivar':'<b>✋</b>Agarrar';if(b._lb!==lb){b._lb=lb;b.innerHTML=lb;}}
     const m=$('tb-mira');if(m){m.hidden=IN._famActual!=='precision';m.classList.toggle('on',!!IN.mira);}const t=$('tb-tienda');if(t)t.hidden=!((S.modo==='bomba'&&S.fase==='compra'||yo.compra)&&yo.vivo);
     const u=$('tb-util');if(u){u.hidden=!yo.util;if(yo.util)u.querySelector('img').src=ARTE['eq_'+yo.util];}const g=$('tb-frag');if(g)g.hidden=!yo.frag;const c=$('tb-cura');if(c)c.hidden=!yo.botiq;
     const k=$('tb-sig');if(k)k.classList.toggle('on',!!IN.sigFijo);}
@@ -6774,7 +6969,9 @@ function resultados(S,e){if(!P)return;cerrarTienda();tabla(false);const yo=S.J.f
     <table><tr><th>Jugador</th><th>${S.modo==='carrera'?'Nivel':''}</th><th>Bajas</th><th>Asist.</th><th>Muertes</th></tr>${filas}</table>${pr}</div>
     <div class="row">${P.rol==='solo'?'<button class="btn go" id="rs-otra">Otra</button>':P.rol==='host'?'<button class="btn go" id="rs-sala">Volver a la sala</button>':'<button class="btn go" id="rs-sala">Volver a la sala</button>'}<button class="btn" id="rs-salir">Salir</button></div>`);
   if($('rs-otra'))$('rs-otra').onclick=()=>{hideOver();empezarSolo();};
-  if($('rs-sala'))$('rs-sala').onclick=()=>{hideOver();P=null;SN=[];EST='menu';document.body.classList.remove('jugando');ambiente(false);if(window.abrirSala)abrirSala();else portada();};
+  if($('rs-sala'))$('rs-sala').onclick=()=>{hideOver();P=null;SN=[];EST='menu';document.body.classList.remove('jugando');ambiente(false);
+    try{if(ONL&&ONL.rol==='guest')enviar(ONL.ch,{t:'ensala'});else if(ONL&&ONL.rol==='host')salaCambio();}catch(_){}// v85: los demás ven que volviste
+    portada();if(window.abrirSala)abrirSala();};
   $('rs-salir').onclick=()=>{hideOver();salirPartida();};}
 function premios(S,gano,yo){const R=window.RANGOS;if(P.premiado)return '';P.premiado=true;
   const dur=(S.t||0);const humanos=S.J.filter(p=>p.hum).length;const esf=dur>=90&&(yo.bajas>0||yo.asist>0||dur>=180);
@@ -6786,7 +6983,10 @@ function premios(S,gano,yo){const R=window.RANGOS;if(P.premiado)return '';P.prem
   if(x84!=null)xp84(S,yo,gano,true);// v84: anota el tope diario del cap. 25 sólo si la partida da premio
   let pr=null;try{R.addXp('marcar',xp);}catch(_){}
   try{pr=R.premio('MarcAR',xp,true,{j:'marcar',rival:humanos>1?'p':'c',res:gano?'g':(S.fin&&S.fin.gana==='empate'?'e':'p'),dif:P.cfg.jugadores.find(j=>j.bot)?(P.cfg.jugadores.find(j=>j.bot).bot):'normal',esf:true,key:P.key,x:{modo:S.modo,bajas:yo.bajas,gano:gano?1:0,cap:(S.yo84||{}).cap|0,mapa:S.mapa}});}catch(e){console.warn('premio',e);}
-  const f=[`+${xp} XP`];if(pr&&pr.oro)f.push(`🟡 +${fmt(pr.oro)} de oro`);if(pr&&pr.pesos)f.push(`🎁 +${fmt(pr.pesos)} 🪙 para tu estancia`);if(pr&&pr.leguas)f.push(`🚩 +${pr.leguas} ${pr.leguas===1?'legua':'leguas'} en La Gran Pampa`);
+  let h85=[];try{if(window.HITOS85)h85=HITOS85.partida(S,gano);}catch(_){}// v85: hitos de MarcAR → objetos para la estancia
+  const f=[`+${xp} XP`];if(pr&&pr.oro)f.push(`🟡 +${fmt(pr.oro)} de oro`);
+  else{try{const tj=window.ORO&&ORO.topeJuego&&ORO.topeJuego('marcar');if(tj&&tj.queda<=0)f.push(`🟡 Llegaste al tope de oro de MarcAR (${tj.hoy>=tj.dia?tj.dia+' por día':tj.semana+' por semana'})`);}catch(_){}}
+  for(const n of h85)f.push(`🏅 ¡Premio para tu estancia: ${esc(n)}! (Tienda › Guardados)`);if(pr&&pr.pesos)f.push(`🎁 +${fmt(pr.pesos)} 🪙 para tu estancia`);if(pr&&pr.leguas)f.push(`🚩 +${pr.leguas} ${pr.leguas===1?'legua':'leguas'} en La Gran Pampa`);
   return `<div class="premios">${f.map(x=>`<span>${x}</span>`).join('')}</div>`;}
 
 /* ───────── MarcAR · en línea (2 a 8, en vivo) ─────────
@@ -6842,17 +7042,27 @@ function lugaresVista(){// los que se ven en la sala: yo primero
   if(ONL.rol==='host')return [{usuario:ONL.yo.usuario,avatar:ONL.yo.avatar,color:ONL.yo.color,eq:ONL.eqYo,estado:'yo'},...ONL.lugares.map(L=>({usuario:L.usuario,avatar:L.avatar,color:L.color,eq:L.eq,estado:L.estado,link:L.link}))];
   return ONL.sala||[];}
 function drawSala(){if(!ONL)return;const host=ONL.rol==='host';const LV=lugaresVista();const enf=document.activeElement&&document.activeElement.id==='lb-t',borr=$('lb-t')?$('lb-t').value:'';
-  const est={yo:host?'Armás la sala':'',conectado:'✓ En la sala',invitando:'Invitado…',conectando:'Conectando…',cortado:'Se cortó',jugando:'Jugando'};
-  const fila=L=>`<div class="lugar ${eqModo(ONL.modo)?'eq'+L.eq:''}">${avHtml(L.avatar,L.color)}<div><b>${esc(L.estado==='yo'||L.usuario===ONL.yo.usuario?'Vos':L.usuario)}</b><small>${L.estado==='invitando'||L.estado==='conectando'?'<span class="busy"></span>':''}${esc(L.usuario===ONL.yo.usuario&&!host?'Vos':est[L.estado]||'')}</small></div>
-    ${host&&eqModo(ONL.modo)?`<button class="qx" data-eq=""${esc(L.usuario)}" title="Cambiar de equipo">⇄</button>`:''}${host&&L.estado!=='yo'?`<button class="qx" data-x="${esc(L.usuario)}" title="Sacar">✕</button>`:''}</div>`;
-  const modos=host?`<div class="seg">${Object.entries(MODOS).map(([k,m])=>`<button class="btn${ONL.modo===k?' on':''}" data-m="${k}">${ICO84[k]} ${m.n}</button>`).join('')}</div>
+  // v85: sala ordenada: el modo arriba, los bandos en dos columnas (cada uno elige el suyo con «Pasarme»), lo demás plegado
+  const est={yo:host?'Armás la sala':'',conectado:'✓ En la sala',invitando:'Invitado…',conectando:'Conectando…',cortado:'Se cortó',jugando:'Jugando',resultado:'Viendo el resultado'};
+  const yoU=ONL.yo.usuario,eqM=eqModo(ONL.modo);
+  const fila=L=>{const soy=L.estado==='yo'||L.usuario===yoU;return `<div class="lugar ${eqM?'eq'+L.eq:''}">${avHtml(L.avatar,L.color)}<div><b>${esc(soy?'Vos':L.usuario)}</b><small class="${L.estado==='resultado'?'est-res':''}">${L.estado==='invitando'||L.estado==='conectando'?'<span class="busy"></span>':''}${esc(est[L.estado==='yo'?'yo':L.estado]||'')}</small></div>
+    ${host&&eqM&&!soy?`<button class="qx" data-eq="${esc(L.usuario)}" title="Pasarlo al otro bando" aria-label="Pasar a ${esc(L.usuario)} al otro bando">⇄</button>`:''}${host&&!soy?`<button class="qx" data-x="${esc(L.usuario)}" title="Sacar" aria-label="Sacar a ${esc(L.usuario)}">✕</button>`:''}</div>`;};
+  const miEq=host?ONL.eqYo:(LV.find(L=>L.usuario===yoU)||{}).eq||ONL.miEq||'A';
+  const ladoDe=eq=>eq==='A'?'T':'P';
+  const nomB=eq=>{const l=ladoDe(eq);return ONL.modo==='bomba'?(l==='T'?'🧨 Empiezan atacando':'👮 Empiezan defendiendo'):(l==='T'?'🧨 Terroristas':'👮 Policías');};
+  const gente=eqM?`<div class="bandos">${['A','B'].map(eq=>{const Ls=LV.filter(L=>(L.eq||'A')===eq);return `<div class="bando b${ladoDe(eq)}"><h5><span>${nomB(eq)}</span><small>${Ls.length}</small></h5>${Ls.map(fila).join('')||'<p class="note" style="margin:0">Nadie todavía</p>'}
+      ${miEq!==eq?`<button class="btn chico pasar" data-pasar="${eq}">Pasarme acá</button>`:''}</div>`;}).join('')}</div>`
+    :`<div class="mesa">${LV.map(fila).join('')}</div>`;
+  const resumen=[`Compu ${DIFS[ONL.dif]||'Normal'}`,ONL.bots?'completa con la compu':'sólo personas',(RAP84[ONL.modo][ONL.rapida?0:1]||'').split(' · ')[0],ONL.mapa?MAPAS[ONL.mapa]().n:'🔁 rotación'].join(' · ');
+  const modos=host?`<div class="sala-modos">${Object.entries(MODOS).map(([k,m])=>`<button class="btn${ONL.modo===k?' on':''}" data-m="${k}"><i>${ICO84[k]}</i>${m.n}</button>`).join('')}</div>`
+    :`<p class="note">${esc(ONL.hostNom||'')} elige el modo: <b>${ICO84[ONL.modo]||''} ${esc((MODOS[ONL.modo]||MODOS.bomba).n)}</b>.${eqM?' Elegí tu bando abajo.':''}</p>`;
+  const ajd=host?`<details class="sala-ajd"${ONL.ajd?' open':''} id="sa-ajd"><summary>⚙️ Ajustes de la partida<small>${esc(resumen)}</small></summary><div>
     <div class="seg">${Object.entries(DIFS).map(([k,n])=>`<button class="btn chico${ONL.dif===k?' on':''}" data-d="${k}">Compu ${n}</button>`).join('')}</div>
     <div class="seg"><button class="btn chico${ONL.bots?' on':''}" data-b="1">Completar con la compu</button><button class="btn chico${!ONL.bots?' on':''}" data-b="0">Sólo personas</button></div>
     <div class="seg"><button class="btn chico${ONL.rapida?' on':''}" data-r="1">${RAP84[ONL.modo][0]}</button><button class="btn chico${!ONL.rapida?' on':''}" data-r="0">${RAP84[ONL.modo][1]}</button></div>
-    <div class="seg"><button class="btn chico${!ONL.mapa?' on':''}" data-mp="">🔁 Rotación</button>${(MODOS[ONL.modo].mapas||[]).map(id=>`<button class="btn chico${ONL.mapa===id?' on':''}" data-mp="${id}">${MAPAS[id]().n}</button>`).join('')}</div>`
-    :`<p class="note">${esc(ONL.hostNom||'')} elige el modo: <b>${esc((MODOS[ONL.modo]||MODOS.bomba).n)}</b>${eqModo(ONL.modo)?` · equipo ${ONL.miEq==='A'?'1':'2'}`:''}.</p>`;
-  const conectados=ONL.rol==='host'?ONL.lugares.filter(L=>L.estado==='conectado').length:0;
-  sheet(host?'Sala de MarcAR':'Sala de '+esc(ONL.hostNom||''),`<div class="mesa">${LV.map(fila).join('')}</div>${modos}
+    <div class="seg"><button class="btn chico${!ONL.mapa?' on':''}" data-mp="">🔁 Rotación</button>${(MODOS[ONL.modo].mapas||[]).map(id=>`<button class="btn chico${ONL.mapa===id?' on':''}" data-mp="${id}">${MAPAS[id]().n}</button>`).join('')}</div></div></details>`:'';
+  const conectados=host?ONL.lugares.filter(L=>L.estado==='conectado'||L.estado==='resultado').length:0;
+  sheet(host?'Sala de MarcAR':'Sala de '+esc(ONL.hostNom||''),`${modos}${gente}${ajd}
     ${host?`<button class="btn go" id="sa-go" ${conectados?'':'disabled'}>Empezar · ${esc(MODOS[ONL.modo].n)}</button><p class="note">${conectados?'Los que todavía no entraron se pierden esta partida.':'Invitá al menos a una persona (de 2 a 8). Los lugares vacíos los juega la compu.'}</p>`:'<p class="note"><span class="busy"></span>Esperando que empiece…</p>'}
     <h4>Charla</h4><div class="charla"><div class="msgs" id="lb-msgs"></div><form id="lb-f"><input id="lb-t" maxlength="120" placeholder="Escribiles" autocomplete="off" enterkeyhint="send"><button type="submit">Mandar</button></form></div>
     ${host?`<h4>Invitar</h4><input class="buscar" id="sa-q" type="search" placeholder="Buscar por nombre" value="${esc(UIQ.q)}" autocomplete="off"><ul class="ulist chica" id="sa-ul">${listaHtml()}</ul>${window.CHAT&&CHAT.linkBoton?CHAT.linkBoton():''}`:''}
@@ -6862,7 +7072,10 @@ function drawSala(){if(!ONL)return;const host=ONL.rol==='host';const LV=lugaresV
   $('sheet').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{ONL.dif=b.dataset.d;salaCambio();});
   $('sheet').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{ONL.bots=b.dataset.b==='1';salaCambio();});
   $('sheet').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{ONL.rapida=b.dataset.r==='1';salaCambio();});
-  $('sheet').querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{const u=b.dataset.eq;if(u===ONL.yo.usuario)ONL.eqYo=ONL.eqYo==='A'?'B':'A';else{const L=ONL.lugares.find(x=>x.usuario===u);if(L)L.eq=L.eq==='A'?'B':'A';}salaCambio();});
+  if($('sa-ajd'))$('sa-ajd').addEventListener('toggle',()=>{ONL.ajd=$('sa-ajd').open;});
+  $('sheet').querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{const L=ONL.lugares.find(x=>x.usuario===b.dataset.eq);if(L)L.eq=L.eq==='A'?'B':'A';salaCambio();});
+  $('sheet').querySelectorAll('[data-pasar]').forEach(b=>b.onclick=()=>{const eq=b.dataset.pasar;sfx('menu');
+    if(host){ONL.eqYo=eq;salaCambio();}else{ONL.miEq=eq;const yo=(ONL.sala||[]).find(L=>L.usuario===yoU);if(yo)yo.eq=eq;enviar(ONL.ch,{t:'eq',eq});drawSala();}});
   $('sheet').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const L=ONL.lugares.find(x=>x.usuario===b.dataset.x);if(L)sacar(L,true);salaCambio();});
   const cab=()=>{document.querySelectorAll('#sa-ul button[data-u]').forEach(b=>b.onclick=()=>{const u=(UIQ.users||[]).find(x=>x.usuario===b.dataset.u);if(u)invitarA(u);});const t=$('sa-todos');if(t)t.onclick=()=>{UIQ.todos=true;$('sa-ul').innerHTML=listaHtml();cab();};};
   if(host){cab();$('sa-q').oninput=e=>{UIQ.q=e.target.value;$('sa-ul').innerHTML=listaHtml();cab();};const lb=document.querySelector('#sheet [data-link-inv]');if(lb)lb.onclick=()=>invitarA({...CHAT.LINK});}
@@ -6870,7 +7083,7 @@ function drawSala(){if(!ONL)return;const host=ONL.rol==='host';const LV=lugaresV
   $('sa-x').onclick=()=>{salirOnline(true);closeSheet();portada();};
   cablearCharla();if(borr)$('lb-t').value=borr;if(enf)$('lb-t').focus({preventScroll:true});}
 function salaCambio(){if(!ONL||ONL.rol!=='host')return;// el reparto de equipos para Bomba: parejos
-  difundir({t:'sala',sala:lugaresVista().map(L=>({usuario:L.usuario,avatar:L.avatar,color:L.color,eq:L.eq,estado:L.estado==='yo'?'conectado':L.estado})),modo:ONL.modo,hostNom:ONL.yo.usuario});
+  difundir({t:'sala',sala:lugaresVista().map(L=>({usuario:L.usuario,avatar:L.avatar,color:L.color,eq:L.eq,estado:L.estado==='yo'?(P?(P.fin||P.G&&P.G.fase==='fin'?'resultado':'jugando'):'conectado'):L.estado})),modo:ONL.modo,hostNom:ONL.yo.usuario});
   for(const L of ONL.lugares)enviar(L.ch,{t:'tueq',eq:L.eq});if(!$('modal').hidden)drawSala();}
 function eqLibre(){const n={A:ONL.eqYo==='A'?1:0,B:ONL.eqYo==='B'?1:0};for(const L of ONL.lugares)n[L.eq]++;return n.A<=n.B?'A':'B';}
 
@@ -6896,21 +7109,26 @@ function drawSalaSi(){if(ONL&&!$('modal').hidden&&$('sa-x'))drawSala();}
 function sacar(L,cancelar){if(!ONL)return;const i=ONL.lugares.indexOf(L);if(i>=0)ONL.lugares.splice(i,1);try{enviar(L.ch,{t:'bye'});L.ch&&L.ch.close();L.pc&&L.pc.close();}catch(_){}
   const a=acct();if(cancelar&&a&&L.id&&L.estado==='invitando')lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:L.id}).catch(()=>{});}
 function cablearHost(L,ch){L.ch=ch;
-  ch.onopen=()=>{L.estado=L.jugador?'jugando':'conectado';try{RECON.quitar('mc-'+L.usuario);}catch(_){}enviar(ch,{t:'hola',host:ONL.yo,mesa:ONL.mesa});salaCambio();sfx('menu');
+  ch.onopen=()=>{L.estado=L.jugador&&P&&P.G&&P.G.fase!=='fin'?'jugando':'conectado';try{RECON.quitar('mc-'+L.usuario);}catch(_){}enviar(ch,{t:'hola',host:ONL.yo,mesa:ONL.mesa});salaCambio();sfx('menu');
     if(L.jugador&&P&&P.G){// volvió en medio de la partida: recupera su lugar
       const p=P.G.J.find(q=>q.id===L.jugador);if(p){p.bot=null;p.hum=true;}enviar(ch,{t:'go',cfg:P.cfg,yo:L.jugador,vuelta:1});toast(`🔗 ${esc(L.usuario)} volvió`);}};
   ch.onclose=()=>corteHost(L);
-  ch.onmessage=e=>{let x;try{x=JSON.parse(e.data);}catch(_){return;}msgHost(L,x);};}
+  ch.onmessage=e=>{let x;try{x=JSON.parse(e.data);}catch(_){return;}msgHost(L,x);};NET85.pingHost(L);}
 function msgHost(L,x){
-  if(x.t==='i'){// entrada del invitado: lo continuo se pisa; lo de una vez se encola
-    const once={};if(x.sel)once.sel=x.sel;if(x.tira)once.tira=x.tira;delete x.t;delete x.sel;delete x.tira;Object.assign(L.inp,x);if(Object.keys(once).length)L.cola.push(once);return;}
+  if(x.t==='i'){// entrada del invitado: lo de una vez se encola; v85: lo continuo también (uno por paso, en orden, sin repetidos)
+    const once={};if(x.sel)once.sel=x.sel;if(x.tira)once.tira=x.tira;delete x.t;delete x.sel;delete x.tira;if(Object.keys(once).length)L.cola.push(once);
+    if(x.seq==null){Object.assign(L.inp,x);return;}if(x.seq<=(L.seqMax|0))return;L.seqMax=x.seq;(L.q=L.q||[]).push(x);if(L.q.length>8)L.q.splice(0,L.q.length-8);return;}
+  if(NET85.msgHost(L,x))return;
   if(x.t==='c'&&P&&P.G&&L.jugador){const p=P.G.J.find(q=>q.id===L.jugador);if(p)MOTOR.comprar(P.G,p,x.orden);return;}
   if(x.t==='sigo'){L.sigo=x.id;return;}
+  if(x.t==='eq'){if(!P&&(x.eq==='A'||x.eq==='B')){L.eq=x.eq;salaCambio();}return;}// v85: cada uno elige su bando
+  if(x.t==='ensala'){if(L.estado==='jugando'||L.estado==='resultado'){L.estado='conectado';salaCambio();drawSalaSi();}return;}// v85: volvió a la sala (antes seguía «Jugando»)
   if(x.t==='chat'){const t=limpiarChat(x.txt);if(!t)return;addChat(L.usuario,t);difundir({t:'chat',de:L.usuario,txt:t});return;}
   if(x.t==='bye'){L.seFue=true;try{L.ch.close();}catch(_){}corteHost(L,true);}}
 function corteHost(L,seFue){if(!ONL||L.estado==='cortado')return;const enJuego=!!(P&&P.G&&L.jugador&&!P.fin);L.estado='cortado';L.ch=null;
   if(!enJuego){sacar(L,false);salaCambio();drawSalaSi();return;}
   const p=P.G.J.find(q=>q.id===L.jugador);if(p&&!p.bot){p.bot={niv:'normal',mem:{},plan:null,ruta:null,rutaI:0,rutaT:0,reac:0,obj:null,ult:0,tiro:0,mira:0,mov:0,rafaga:0,pensar:0};}
+  try{if(p&&P.G.modo==='bandera')MODOS84.bandera.soltar(P.G,p);}catch(_){}// v85: si llevaba la bandera, la suelta ahí
   if(seFue){toast(`${esc(L.usuario)} dejó la partida: lo sigue la compu.`);return;}
   // RECON: se lo vuelve a invitar solo mientras dure la gracia
   const hasta=Date.now()+(window.RECON?RECON.GRACIA:60000);
@@ -6919,23 +7137,28 @@ function corteHost(L,seFue){if(!ONL||L.estado==='cortado')return;const enJuego=!
       await pc.setLocalDescription(await pc.createOffer());await gathered(pc);
       if(window.RECON)RECON.reinvitar({prefijo:PREF,para:L.usuario,oferta:{sdp:pc.localDescription.sdp,mesa:ONL.mesa,modo:ONL.modo},hasta,vivo:()=>!!(ONL&&P&&!P.fin&&L.estado==='cortado'),
         onRespuesta:async sdp=>{try{L.estado='conectando';await pc.setRemoteDescription({type:'answer',sdp});}catch(_){}}});}catch(_){}})();}
-function empezarOnline(){if(!ONL||ONL.rol!=='host')return;const listos=ONL.lugares.filter(L=>L.estado==='conectado');if(!listos.length)return;
-  for(const L of ONL.lugares.filter(L=>L.estado!=='conectado'))sacar(L,true);
+function empezarOnline(){if(!ONL||ONL.rol!=='host')return;const listos=ONL.lugares.filter(L=>(L.estado==='conectado'||L.estado==='resultado')&&L.ch);if(!listos.length)return;
+  for(const L of ONL.lugares.filter(L=>!listos.includes(L)))sacar(L,true);
   const hum=[{id:'h0',nom:ONL.yo.usuario,eq:ONL.eqYo}];listos.forEach((L,i)=>{L.jugador='h'+(i+1);hum.push({id:L.jugador,nom:L.usuario,eq:L.eq});});
   const modo=ONL.modo;let tam;
   if(eqModo(modo)){const n={A:0,B:0};hum.forEach(h=>n[h.eq]++);tam=ONL.bots?Math.max(n.A,n.B,ONL.tam||4):Math.max(n.A,n.B);
     if(!ONL.bots&&(n.A===0||n.B===0)){// sólo personas y todos de un lado: se reparten
       hum.forEach((h,i)=>h.eq=i%2?'B':'A');}}
   else tam=ONL.bots?Math.max(hum.length,6):hum.length;
+  ONL.finMarcado=0;for(const L of ONL.lugares)L.q=[],L.seqMax=0;
   const cfg={modo,mapa:mapaDe(modo,ONL.mapa||''),semilla:(Math.random()*4294967296)>>>0,rapida:!!ONL.rapida,ladoA:'T',jugadores:eqModo(modo)&&!ONL.bots?hum.map((h,i)=>({id:h.id,nom:h.nom,hum:1,eq:h.eq,ap:i%2?'faro':'cobre'})):jugadoresCfg(modo,hum,tam,ONL.dif)};
   for(const L of listos){L.estado='jugando';enviar(L.ch,{t:'go',cfg,yo:L.jugador});}
   try{window.RECON&&RECON.recordar('marcar',{mesa:ONL.mesa,host:ONL.yo.usuario,seat:'h0'});}catch(_){}
   closeSheet();arrancar({rol:'host',cfg,yoId:'h0'});renderOnline();}
 // llamado por juego.js en cada paso
-function inputsRemotos(){const o={};if(!ONL||ONL.rol!=='host')return o;for(const L of ONL.lugares){if(!L.jugador||L.estado!=='jugando')continue;const x={...L.inp};const c=L.cola.shift();if(c)Object.assign(x,c);o[L.jugador]=x;}return o;}
+function inputsRemotos(){const o={};if(!ONL||ONL.rol!=='host')return o;for(const L of ONL.lugares){if(!L.jugador||L.estado!=='jugando')continue;
+    if(L.q&&L.q.length){if(L.q.length>3)L.q.splice(0,L.q.length-2);Object.assign(L.inp,L.q.shift());}// v85: una entrada por paso (si se juntan por la red, se alcanza)
+    const x={...L.inp};const c=L.cola.shift();if(c)Object.assign(x,c);o[L.jugador]=x;}return o;}
 function hostDespues(G){if(!ONL||ONL.rol!=='host')return;const par=G.tick%2===0;
   for(const L of ONL.lugares){if(!L.jugador||L.estado!=='jugando'||!L.ch)continue;const S=MOTOR.vista(G,L.jugador,{sigo:L.sigo});if(!L.ini){L.ini=1;L.ev.push(...(P.evIni||[]));}L.ev.push(...S.ev);
-    if(par||G.fase==='fin'){S.ev=L.ev;L.ev=[];if(L.ch.bufferedAmount<256*1024)enviar(L.ch,{t:'s',S});else L.ev=S.ev.filter(e=>e.pub).slice(-40);}}
+    if(par||G.fase==='fin'){S.ev=L.ev;L.ev=[];if(L.ch.bufferedAmount<256*1024)NET85.mandarVista(L,S);else L.ev=S.ev.filter(e=>e.pub).slice(-40);}}
+  // v85: terminada la partida (y mandado el final un rato), los que siguen ahí quedan «viendo el resultado» hasta que vuelven a la sala
+  if(G.fase==='fin'&&G.fin&&G.t-G.fin.t>1.5&&!ONL.finMarcado){ONL.finMarcado=1;for(const L of ONL.lugares)if(L.estado==='jugando')L.estado='resultado';salaCambio();}
   if(window.relevoHost84)relevoHost84(G);}// v84: relevo del anfitrión (relevo84.js)
 
 /* ── El invitado ── */
@@ -6949,22 +7172,23 @@ async function aceptarInv(inv,vuelta){const a=acct();if(!a)return;UIQ.dismissed.
   ONL={rol:'guest',mesa:off.mesa,yo:yoPerfil(),hostNom:inv.de,modo:off.modo||'bomba',sala:[],chat:ONL&&vuelta?ONL.chat:[],id:inv.id,miEq:'A'};const me=ONL;renderOnline();
   if(!vuelta){sheet('Sala de '+esc(inv.de),`<p><span class="busy"></span>Conectando con ${esc(inv.de)}…</p><div class="row"><button class="btn" id="gw-x">Cancelar</button></div>`);$('gw-x').onclick=()=>{salirOnline(true);closeSheet();portada();};}
   try{const pc=new RTCPeerConnection({iceServers:await iceServers()});me.pc=pc;
-    pc.ondatachannel=e=>{if(ONL===me)cablearGuest(e.channel);};pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))corteGuest();};
+    pc.ondatachannel=e=>{if(ONL!==me)return;if(e.channel.label==='mr'){NET85.cablearRapido(me,e.channel);return;}cablearGuest(e.channel);};pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState))corteGuest();};
     await pc.setRemoteDescription({type:'offer',sdp:off.sdp});await pc.setLocalDescription(await pc.createAnswer());await gathered(pc);
     await lbCall({accion:'responder',usuario:a.usuario,token:a.token,id:inv.id,respuesta:JSON.stringify({sdp:pc.localDescription.sdp})});
     setTimeout(()=>{if(ONL===me&&!me.ch){salirOnline(false);sheet('Sala','<p>No se pudieron conectar. Prueben con datos móviles en uno de los dos.</p><button class="btn go" id="fw-x">Cerrar</button>');$('fw-x').onclick=()=>{closeSheet();portada();};}},45000);
   }catch(e){if(ONL===me){salirOnline(false);toast(esc(e.message||'No se pudo conectar.'));}}}
 function cablearGuest(ch){ONL.ch=ch;const me=ONL;
-  ch.onopen=()=>{if(ONL!==me)return;try{RECON.quitar('mc-vuelta');}catch(_){}renderOnline();if(!P)drawSala();};
+  ch.onopen=()=>{if(ONL!==me)return;try{RECON.quitar('mc-vuelta');}catch(_){}renderOnline();if(!P)drawSala();enviar(ch,{t:'cap',u:1});};
   ch.onclose=()=>{if(ONL===me)corteGuest();};
   ch.onmessage=e=>{let x;try{x=JSON.parse(e.data);}catch(_){return;}if(ONL===me)msgGuest(x);};}
 function msgGuest(x){
   if(window.relevoMsg84&&relevoMsg84(x))return;
-  if(x.t==='s'){if(P&&P.rol==='guest')recibir(x.S);return;}
+  if(NET85.msgGuest(x))return;
+  if(x.t==='s'){if(P&&P.rol==='guest'&&NET85.vistaNueva(x.S))recibir(x.S);return;}
   if(x.t==='hola'){ONL.hostNom=x.host.usuario;return;}
   if(x.t==='sala'){ONL.sala=x.sala;ONL.modo=x.modo;ONL.hostNom=x.hostNom;if(!P&&!$('modal').hidden&&$('sa-x'))drawSala();return;}
   if(x.t==='tueq'){ONL.miEq=x.eq;return;}
-  if(x.t==='go'){try{sessionStorage.removeItem('marcar-accept');}catch(_){}try{window.RECON&&RECON.recordar('marcar',{mesa:ONL.mesa,host:ONL.hostNom,seat:x.yo});}catch(_){}
+  if(x.t==='go'){if(!x.vuelta)NET85.reiniciar();try{sessionStorage.removeItem('marcar-accept');}catch(_){}try{window.RECON&&RECON.recordar('marcar',{mesa:ONL.mesa,host:ONL.hostNom,seat:x.yo});}catch(_){}
     if(P&&P.rol==='guest'&&x.vuelta){toast('🔗 Volviste a la partida');return;}closeSheet();arrancar({rol:'guest',cfg:x.cfg,yoId:x.yo});renderOnline();return;}
   if(x.t==='chat'){if(x.de!==ONL.yo.usuario)addChat(x.de,x.txt);return;}
   if(x.t==='bye'){if(window.relevoBye84&&relevoBye84())return;toast(`${esc(ONL.hostNom)} cerró la sala.`);try{RECON.olvidar('marcar');}catch(_){}ONL.seFue=true;salirOnline(false);if(P&&!P.fin){P=null;SN=[];EST='menu';document.body.classList.remove('jugando');ambiente(false);}portada();}}
@@ -6977,7 +7201,7 @@ function corteGuest(){if(!ONL||ONL.rol!=='guest'||ONL.cortado||ONL.seFue)return;
 function volverOnline(){const rc=window.RECON&&acct()&&!ONL&&RECON.recuerdo('marcar');if(!rc||!rc.mesa||!rc.host||rc.host===(acct()||{}).usuario)return;
   const hasta=Date.now()+RECON.GRACIA;RECON.cartel('mc-vuelta',`Volviendo a la partida de ${rc.host}…`,hasta,()=>{if(!ONL){RECON.olvidar('marcar');}});
   RECON.buscarVuelta({prefijo:PREF,mesa:rc.mesa,de:rc.host,hasta,vivo:()=>!ONL,onInv:inv=>{UIQ.dismissed.add(inv.id);RECON.quitar('mc-vuelta');aceptarInv(inv,true);}});}
-function mandarEntrada(o){if(ONL&&ONL.ch)enviar(ONL.ch,{t:'i',...o});}
+function mandarEntrada(o){if(!ONL||!ONL.ch)return;if(ONL.chR&&ONL.chR.readyState==='open'&&!o.sel&&!o.tira){NET85.enviarR(ONL.chR,{t:'i',...o});return;}enviar(ONL.ch,{t:'i',...o});}
 function mandarCompra(orden){if(ONL&&ONL.ch)enviar(ONL.ch,{t:'c',orden});}
 function mandarSigo(id){if(ONL&&ONL.ch)enviar(ONL.ch,{t:'sigo',id});}
 function salirOnline(avisar){if(!ONL)return;const o=ONL;ONL=null;
@@ -7022,35 +7246,95 @@ function showInvite(inv){UIQ.dismissed.add(inv.id);const of=String(inv.oferta||'
   $('iv-no').onclick=()=>{closeSheet();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
   $('iv-yes').onclick=()=>{closeSheet();if(Q&&Q[1]==='marcar'){aceptarInv(inv);return;}const pg=Q?Q[1]:'';try{sessionStorage.setItem(pg?pg+'-accept':'blq-accept',inv.id);}catch(_){}location.href=pg?pg+'.html':'./';};}
 
+/* ───────── MarcAR v85 · conexión en línea más firme (pedido 1/11: «mejorar la conexión online») ─────────
+   · Canal RÁPIDO aparte (WebRTC sin orden y sin reenvíos, «mr»): las vistas (15 por segundo) y lo que tocás (30 por segundo)
+     viajan por ahí. Si se pierde un paquete no frena a los siguientes (antes, por el canal fiable, un paquete perdido
+     trababa todo lo que venía atrás hasta que se reenviaba: los tirones). Lo que no se puede perder (bajas, tiros,
+     sonidos, compras, cambios de arma, granadas, chat) sigue por el canal fiable.
+   · Se abre sólo si los dos tienen esta versión: el invitado avisa «cap» al conectarse y recién ahí el anfitrión abre el
+     canal rápido (con versiones mezcladas sigue todo como antes).
+   · Vistas viejas que llegan tarde se descartan (número de paso); lo que tocás se aplica una por paso y en orden.
+   · Demora de interpolación que se adapta a cómo llegan las vistas (antes fija en 110 ms): con buena red se ve antes.
+   · Ping cada segundo: el invitado ve su ping y avisa si se queda sin señal.
+   · Para pruebas: NET85.sim={perdida:.1,lat:60,jit:30} simula red mala en el anfitrión (pérdida y demora). */
+const NET85=(()=>{
+  const sim={perdida:0,lat:0,jit:0};const est={vistas:0,descartadas:0,eventos:0,gap:66,dev:8,ult:0,rtt:0,sinSenal:false,rapido:false};
+  function demorar(fn,fiable){if(!sim.lat&&!sim.perdida&&!sim.jit)return fn();
+    const extra=fiable&&Math.random()<sim.perdida?sim.lat*2+40:0;// el fiable no pierde: reenvía (y frena lo de atrás)
+    if(!fiable&&Math.random()<sim.perdida)return;let d=sim.lat+Math.random()*sim.jit+extra;
+    if(fiable){sim._t=Math.max(sim._t||0,performance.now()+d);d=sim._t-performance.now();}
+    setTimeout(fn,Math.max(0,d));}
+  function enviarR(ch,m){try{if(ch&&ch.readyState==='open'&&ch.bufferedAmount<64*1024){ch.send(JSON.stringify(m));return true;}}catch(_){}return false;}
+  // ── anfitrión ──
+  function abrirRapido(L){if(L.chR||!L.pc)return;try{const c=L.pc.createDataChannel('mr',{ordered:false,maxRetransmits:0});L.chR=c;
+      c.onmessage=e=>{let x;try{x=JSON.parse(e.data);}catch(_){return;}msgHost(L,x);};c.onclose=()=>{if(L.chR===c)L.chR=null;};}catch(_){L.chR=null;}}
+  function mandarVista(L,S){const ev=S.ev||[];const rap=L.chR&&L.chR.readyState==='open';
+    if(!rap){demorar(()=>enviar(L.ch,{t:'s',S}),true);return;}
+    if(ev.length)demorar(()=>enviar(L.ch,{t:'e',ev,k:S.tick}),true);
+    const S2={...S,ev:[]};demorar(()=>enviarR(L.chR,{t:'s',S:S2}),false);}
+  function pingHost(L){if(L._png)return;L._png=setInterval(()=>{if(!ONL||!ONL.lugares.includes(L)||!L.ch){clearInterval(L._png);L._png=0;return;}
+      enviar(L.ch,{t:'png',k:performance.now(),rtt:Math.round(L.rtt||0),r:L.chR&&L.chR.readyState==='open'?1:0});},1000);}
+  function msgHostNet(L,x){
+    if(x.t==='cap'){if(x.u)abrirRapido(L);return true;}
+    if(x.t==='pong'){const r=performance.now()-x.k;if(r>=0&&r<10000)L.rtt=L.rtt?L.rtt*.7+r*.3:r;return true;}
+    return false;}
+  // ── invitado ──
+  function cablearRapido(me,ch){me.chR=ch;ch.onmessage=e=>{let x;try{x=JSON.parse(e.data);}catch(_){return;}if(ONL===me)msgGuest_(x);};ch.onclose=()=>{if(me.chR===ch)me.chR=null;};}
+  function msgGuest_(x){if(msgGuestNet(x))return;if(x.t==='s'&&P&&P.rol==='guest'&&vistaNueva(x.S))recibir(x.S);}
+  function vistaNueva(S){if(!S)return false;const t=S.tick|0;if(est.ultTick!=null&&t<=est.ultTick&&!(t<est.ultTick-300)){est.descartadas++;return false;}
+    est.ultTick=t;est.vistas++;const now=performance.now();if(est.ult){const g=now-est.ult;if(g<1000){est.gap=est.gap*.9+g*.1;est.dev=est.dev*.9+Math.abs(g-est.gap)*.1;}}est.ult=now;est.sinSenal=false;if(est.pend&&est.pend.length){S.ev=(S.ev||[]).concat(est.pend);est.pend=[];}return true;}
+  function msgGuestNet(x){
+    if(x.t==='png'){enviar(ONL.ch,{t:'pong',k:x.k});if(x.rtt)est.rtt=x.rtt;est.rapido=!!x.r;return true;}
+    if(x.t==='e'){if(!P||P.rol!=='guest')return true;const S=SN.length?SN[SN.length-1].S:null;if(!S){est.pend=(est.pend||[]).concat(x.ev||[]).slice(-60);return true;}const now=performance.now();
+      for(const e of x.ev||[]){est.eventos++;try{evento(e,S,now);}catch(_){}}return true;}
+    return false;}
+  // demora de interpolación: lo que tardan en llegar las vistas, con margen para la variación (85 a 220 ms)
+  function retardo(){return Math.max(85,Math.min(220,est.gap+est.dev*2.5+12));}
+  function reiniciar(){est.pend=[];est.ultTick=null;est.ult=0;est.gap=66;est.dev=8;est.vistas=0;est.descartadas=0;est.eventos=0;}
+  // aviso de señal (lo dibuja el minimapa, sist85.js)
+  function senal(){if(!P||P.rol!=='guest')return null;const sin=est.ult&&performance.now()-est.ult>2500;est.sinSenal=sin;return {rtt:est.rtt,sin,rapido:est.rapido};}
+  return {sim,est,enviarR,mandarVista,pingHost,msgHost:msgHostNet,cablearRapido,vistaNueva,msgGuest:msgGuestNet,retardo,reiniciar,senal};
+})();
+window.NET85=NET85;
+
 /* ───────── MarcAR · portada, menú y arranque ───────── */
 let HERO=null;
+/* v85: portada ordenada (pedido 1/11: «entre los modos y las configuraciones, el menú está EXPLOTADO»): 1) elegís el modo en una
+   tarjeta grande, 2) JUGAR (o Con amigos), 3) lo demás (compu, tamaño, lado, duración, mapa) queda plegado en «Ajustes de la
+   partida», con un resumen de una línea de cómo está. */
+const CORTO85={bomba:'Plantar o desactivar. Rondas sin reaparecer.',carrera:'Cada 2 bajas, otra arma. Gana el cuchillo.',equipos:'Policías contra Terroristas. Reaparecés.',ffa:'Cada uno por su cuenta.',bandera:'Robá la bandera y traela a tu base.'};
+function resumen85(c,modo){const eq=eqModo(modo),L=MODOS[modo].mapas||[];
+  return [`Compu ${DIFS[c.dif]||'Normal'}`,eq?`${c.tam} vs ${c.tam}`:`${c.tam*2-1} rivales`,eq?(c.lado==='P'?'👮 Policía':'🧨 Terrorista'):'',(RAP84[modo][c.rapida?0:1]||'').split(' · ')[0],c.mapa&&L.includes(c.mapa)?MAPAS[c.mapa]().n:'🔁 Mapas en rotación'].filter(Boolean).join(' · ');}
 async function portada(){EST='menu';document.body.classList.remove('jugando');document.body.classList.add('menu');medir();
-  const el=$('portada');el.hidden=false;const R=ls.json('marcar-rec',{});
+  const el=$('portada');el.hidden=false;const R=ls.json('marcar-rec',{});const eq=eqModo(CFG.modo),abierto=ls.get('marcar-ajd')==='1';
+  const fila=(t,h)=>`<div class="pt-fila"><span class="pt-lbl">${t}</span>${h}</div>`;
   el.innerHTML=`<div class="pt-hero"><canvas id="hero"></canvas><div class="pt-titulo">MARC<span>AR</span><small>POLICÍAS Y TERRORISTAS · CENITAL · EN VIVO</small></div></div>
-    <div class="pt-modos">${Object.entries(MODOS).map(([k,m])=>`<button class="pt-modo${CFG.modo===k?' on':''}" data-m="${k}">${k==='bomba'?'<span class="tag">CLÁSICO</span>':`<span class="tag" style="background:${TAG84[k][1]}">${TAG84[k][0]}</span>`}<b>${ICO84[k]} ${m.n}</b><small>${m.d}</small><span class="mp">Mapas: ${(m.mapas||[m.mapa]).map(id=>MAPAS[id]().n).join(' · ')}</span></button>`).join('')}</div>
-    <div class="pt-op">
-      <div class="pt-lbl">CONTRA LA COMPU</div>
-      <div class="seg" id="pt-dif">${Object.entries(DIFS).map(([k,n])=>`<button class="btn${CFG.dif===k?' on':''}" data-d="${k}">${n}</button>`).join('')}</div>
-      ${eqModo(CFG.modo)?`<div class="seg" id="pt-tam">${[2,3,4,5].map(n=>`<button class="btn${CFG.tam===n?' on':''}" data-t="${n}">${n} vs ${n}</button>`).join('')}</div>
-      <div class="seg" id="pt-lado"><button class="btn${CFG.lado==='T'?' on':''}" data-l="T">🧨 ${CFG.modo==='bomba'?'Empiezo atacando':'Soy Terrorista'}</button><button class="btn${CFG.lado==='P'?' on':''}" data-l="P">👮 ${CFG.modo==='bomba'?'Empiezo defendiendo':'Soy Policía'}</button></div>
-      <div class="seg" id="pt-rap"><button class="btn${CFG.rapida?' on':''}" data-r="1">${RAP84[CFG.modo][0]}</button><button class="btn${!CFG.rapida?' on':''}" data-r="0">${RAP84[CFG.modo][1]}</button></div>`
-      :`<div class="seg" id="pt-tam">${[2,3,4,5].map(n=>`<button class="btn${CFG.tam===n?' on':''}" data-t="${n}">${n*2-1+0} rivales</button>`).join('')}</div>
-      <div class="seg" id="pt-rap"><button class="btn${CFG.rapida?' on':''}" data-r="1">${RAP84[CFG.modo][0]}</button><button class="btn${!CFG.rapida?' on':''}" data-r="0">${RAP84[CFG.modo][1]}</button></div>`}
-      <div class="seg" id="pt-mapa"><button class="btn chico${!CFG.mapa||!(MODOS[CFG.modo].mapas||[]).includes(CFG.mapa)?' on':''}" data-mapa="">🔁 Rotación</button>${(MODOS[CFG.modo].mapas||[]).map(id=>`<button class="btn chico${CFG.mapa===id?' on':''}" data-mapa="${id}">${MAPAS[id]().n}</button>`).join('')}</div>
-      <div class="pt-go"><button class="btn go" id="pt-jugar">JUGAR</button><button class="btn sec" id="pt-amigos">👥 Con amigos<small>en vivo, 2 a 8</small></button></div>
-    </div>
-    <div class="pt-pie"><button class="btn" id="pt-como">❓ Cómo se juega</button><button class="btn" id="pt-aj">⚙️ Sonido y controles</button><a class="btn" href="./#juegos">🎮 Otros juegos</a></div>
-    <div class="pt-rec"><span>Partidas: <b>${R.n||0}</b></span><span>Ganadas: <b>${R.g||0}</b></span><span>Bajas: <b>${fmt(R.b||0)}</b></span><span>Mejor Carrera: <b>${R.niv?'nivel '+R.niv:'—'}</b></span></div>`;
-  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{CFG.modo=b.dataset.m;guardarCfg();sfx('menu');portada();});
-  el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{CFG.dif=b.dataset.d;guardarCfg();portada();});
-  el.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{CFG.tam=+b.dataset.t;guardarCfg();portada();});
-  el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{CFG.lado=b.dataset.l;guardarCfg();portada();});
-  el.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{CFG.rapida=b.dataset.r==='1';guardarCfg();portada();});
-  el.querySelectorAll('[data-mapa]').forEach(b=>b.onclick=()=>{CFG.mapa=b.dataset.mapa;guardarCfg();sfx('menu');portada();});
+    <div class="pt-paso">1 · Elegí el modo</div>
+    <div class="pt-modos">${Object.entries(MODOS).map(([k,m])=>`<button class="pt-modo m85-${k}${CFG.modo===k?' on':''}" data-m="${k}" aria-pressed="${CFG.modo===k}"><i class="ico">${ICO84[k]}</i><b>${m.n}</b><small>${CORTO85[k]}</small>${k==='bomba'?'<span class="tag">CLÁSICO</span>':''}</button>`).join('')}</div>
+    <div class="pt-elegido"><b>${ICO84[CFG.modo]} ${MODOS[CFG.modo].n}</b><small>${esc(MODOS[CFG.modo].d)}</small></div>
+    <div class="pt-go"><button class="btn go" id="pt-jugar">JUGAR<small>contra la compu</small></button><button class="btn sec" id="pt-amigos">👥 Con amigos<small>en vivo, 2 a 8</small></button></div>
+    <details class="pt-ajd" id="pt-ajd"${abierto?' open':''}><summary><span>⚙️ Ajustes de la partida</span><small id="pt-res">${esc(resumen85(CFG,CFG.modo))}</small></summary>
+      <div class="pt-op">
+      ${fila('Compu',`<div class="seg" id="pt-dif">${Object.entries(DIFS).map(([k,n])=>`<button class="btn${CFG.dif===k?' on':''}" data-d="${k}">${n}</button>`).join('')}</div>`)}
+      ${fila(eq?'Equipos':'Rivales',`<div class="seg" id="pt-tam">${[2,3,4,5].map(n=>`<button class="btn${CFG.tam===n?' on':''}" data-t="${n}">${eq?n+' vs '+n:(n*2-1)}</button>`).join('')}</div>`)}
+      ${eq?fila('Tu lado',`<div class="seg" id="pt-lado"><button class="btn${CFG.lado==='T'?' on':''}" data-l="T">🧨 ${CFG.modo==='bomba'?'Atacás':'Terrorista'}</button><button class="btn${CFG.lado==='P'?' on':''}" data-l="P">👮 ${CFG.modo==='bomba'?'Defendés':'Policía'}</button></div>`):''}
+      ${fila('Duración',`<div class="seg" id="pt-rap"><button class="btn${CFG.rapida?' on':''}" data-r="1">${RAP84[CFG.modo][0]}</button><button class="btn${!CFG.rapida?' on':''}" data-r="0">${RAP84[CFG.modo][1]}</button></div>`)}
+      ${fila('Mapa',`<div class="seg" id="pt-mapa"><button class="btn chico${!CFG.mapa||!(MODOS[CFG.modo].mapas||[]).includes(CFG.mapa)?' on':''}" data-mapa="">🔁 Rotación</button>${(MODOS[CFG.modo].mapas||[]).map(id=>`<button class="btn chico${CFG.mapa===id?' on':''}" data-mapa="${id}">${MAPAS[id]().n}</button>`).join('')}</div>`)}
+      </div></details>
+    <div class="pt-pie"><button class="btn" id="pt-como">❓ Cómo se juega</button><button class="btn" id="pt-aj">🔊 Sonido y controles</button><a class="btn" href="./#juegos">🎮 Otros juegos</a></div>
+    <div class="pt-rec"><span>Partidas: <b>${R.n||0}</b></span><span>Ganadas: <b>${R.g||0}</b></span><span>Bajas: <b>${fmt(R.b||0)}</b></span><span>Mejor Carrera: <b>${R.niv?'nivel '+R.niv:'—'}</b></span>${window.HITOS85?HITOS85.resumen():''}</div>`;
+  const re=f=>b=>()=>{f(b);guardarCfg();sfx('menu');portada();};
+  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=re(b=>{CFG.modo=b.dataset.m;})(b));
+  el.querySelectorAll('[data-d]').forEach(b=>b.onclick=re(b=>{CFG.dif=b.dataset.d;})(b));
+  el.querySelectorAll('[data-t]').forEach(b=>b.onclick=re(b=>{CFG.tam=+b.dataset.t;})(b));
+  el.querySelectorAll('[data-l]').forEach(b=>b.onclick=re(b=>{CFG.lado=b.dataset.l;})(b));
+  el.querySelectorAll('[data-r]').forEach(b=>b.onclick=re(b=>{CFG.rapida=b.dataset.r==='1';})(b));
+  el.querySelectorAll('[data-mapa]').forEach(b=>b.onclick=re(b=>{CFG.mapa=b.dataset.mapa;})(b));
+  $('pt-ajd').addEventListener('toggle',()=>{try{ls.set('marcar-ajd',$('pt-ajd').open?'1':'0');}catch(_){}});
   $('pt-jugar').onclick=()=>{if(!ls.get('marcar-visto')){ls.set('marcar-visto','1');ayuda(()=>empezarSolo());return;}empezarSolo();};
   $('pt-amigos').onclick=()=>{if(window.abrirSala)abrirSala();};
   $('pt-como').onclick=()=>ayuda();$('pt-aj').onclick=ajustes;
-  HERO=null;try{const M=MAPAS.estacion();await hornear(M);HERO={M};}catch(_){}}
+  if(!HERO||!MAPA||HERO.mapa!==MAPA){HERO=null;try{const M=MAPAS.estacion();await hornear(M);HERO={M,mapa:MAPA};}catch(_){}}}
 function portadaAnim(now){const cv=$('hero');if(!cv||!HERO||!MAPA)return;const r=cv.getBoundingClientRect();if(!r.width)return;const d=Math.min(2,devicePixelRatio||1);
   if(cv.width!==Math.round(r.width*d)){cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d);}
   const c=cv.getContext('2d');const t=now/1000;const vw=16,vh=vw*cv.height/cv.width,cx=21+Math.sin(t*.05)*3,cy=12+Math.cos(t*.04)*2;const k=cv.width/vw;
@@ -7063,7 +7347,7 @@ function ayuda(alCerrar){sheet('Cómo se juega',`<p><b>MarcAR</b> es un tirador 
   <h4>💣 Bomba</h4><ul><li>Los <b>Terroristas</b> llevan la bomba a A o B y la plantan (3 s). Explota en 35 s.</li><li>Los <b>Policías</b> defienden o la desactivan (8 s, 4 con kit).</li><li>Cada ronda empieza con 20 s de compra. Plata por ganar, por perder (cada vez más si perdés seguido) y por cada baja.</li><li>Sin reaparecer: si te dan, mirás a un compañero hasta la próxima ronda.</li></ul>
   <h4>🔫 Carrera de armas</h4><ul><li>Todos contra todos. Dos bajas con cada arma y pasás a la siguiente (17 niveles).</li><li>Una baja con cuchillo te sube un nivel y le baja uno al otro. El último nivel es el cuchillo: el primero que lo logra, gana.</li></ul>
   <h4>Controles</h4><ul><li><b>Compu:</b> WASD mover · mouse apuntar · clic tirar (clic derecho: cuchillo) · Shift sigilo · R recargar · E objetivo/levantar · H curar · Q humo o flash · F granada · 1/2/3 armas · B tienda · Tab tabla.</li>
-  <li><b>Celular (acostado):</b> palanca izquierda para moverte; la derecha apunta <b>sin tirar</b> y disparás con el botón 🔥 (en ☰ podés cambiar a «disparo por umbral»: empujar la palanca más allá del aro). Podés caminar para un lado y mirar para otro. Los botones: recargar, arma, cuchillo, mira 🔭 (francotirador), sigilo, curar, granada, objetivo/agarrar y comprar.</li>
+  <li><b>Celular (acostado):</b> palanca izquierda para moverte; la derecha apunta y, si la deslizás un poco más allá del aro, <b>dispara</b> (el aro se pone rojo; volvé adentro para dejar de tirar). En ☰ podés cambiar al botón 🔥. Podés caminar para un lado y mirar para otro. Los botones: recargar, arma, cuchillo, mira 🔭 (francotirador), sigilo, curar, granada, objetivo/agarrar y comprar.</li>
   <li><b>Compu:</b> 1 primaria, 2 pistola, 3 cuchillo, 4 granada, Q la anterior, rueda o X la siguiente. Clic derecho o Z: mira del francotirador (con otra arma, cuchillazo rápido). E: plantar, desactivar o agarrar un arma del piso.</li></ul>
   <p class="note">El sigilo te hace más lento pero casi no hacés ruido. Curarte tarda 2,5 s: si te movés o te pegan, se corta.</p><button class="btn go" id="ay-ok">${alCerrar?'¡A jugar!':'Entendido'}</button>`);
   $('ay-ok').onclick=()=>{closeSheet();alCerrar&&alCerrar();};}
@@ -7071,8 +7355,8 @@ function ajustes(){const seg=(id,ops,v)=>`<div class="seg" id="${id}">${ops.map(
   sheet('Sonido y controles',`<h4>Sonido</h4>${seg('aj-son',[[1,'Con sonido'],[0,'Sin sonido']],AJ.sonido?1:0)}${seg('aj-vol',[[.4,'Bajo'],[.8,'Medio'],[1.2,'Alto']],AJ.vol)}${seg('aj-amb',[[1,'Ambiente'],[0,'Sin ambiente']],AJ.ambiente?1:0)}
     <h4>Pantalla</h4>${seg('aj-san',[['alta','Sangre: mucha'],['media','Normal'],['baja','Poca']],AJ.sangre)}${seg('aj-tem',[[1,'Temblor de cámara'],[0,'Sin temblor']],AJ.temblor?1:0)}${seg('aj-vib',[[1,'Vibrar'],[0,'Sin vibrar']],AJ.vib?1:0)}${seg('aj-num',[[1,'Números de daño'],[0,'Sin números']],AJ.numeros?1:0)}
     ${TACTIL?`<h4>Celular</h4>${seg('aj-zur',[[0,'Diestro'],[1,'Zurdo (palancas al revés)']],AJ.zurdo?1:0)}${seg('aj-ver',[[0,'Pedir girar'],[1,'Dejar jugar en vertical']],AJ.vertical?1:0)}
-      <p class="note">Cómo se dispara: con <b>botón</b>, la palanca derecha solo apunta y tirás con el botón 🔥 (mantenelo; si lo arrastrás también apunta). Con <b>umbral</b>, la palanca derecha apunta y tira cuando la empujás más allá del aro.</p>
-      ${seg('aj-esq',[['boton','Disparo con botón'],['umbral','Disparo por umbral']],AJ.esquema)}${seg('aj-asi',[[1,'Ayuda de puntería (suave)'],[0,'Sin ayuda']],AJ.asist?1:0)}`:''}`);
+      <p class="note">Cómo se dispara: con <b>umbral</b> (el de siempre), la palanca derecha apunta adentro del aro y tira cuando la deslizás más allá (se pone roja). Con <b>botón</b>, la palanca solo apunta y tirás con el botón 🔥.</p>
+      ${seg('aj-esq',[['umbral','Disparo por umbral'],['boton','Disparo con botón 🔥']],AJ.esquema)}${seg('aj-asi',[[1,'Ayuda de puntería (suave)'],[0,'Sin ayuda']],AJ.asist?1:0)}`:''}`);
   const on=(id,f)=>$(id).querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{f(b.dataset.v);guardarAj();ambiente(!!P);ajustes();try{armarBotones();}catch(_){}medir();});
   on('aj-son',v=>AJ.sonido=v==='1');on('aj-vol',v=>AJ.vol=+v);on('aj-amb',v=>AJ.ambiente=v==='1');on('aj-san',v=>AJ.sangre=v);on('aj-tem',v=>AJ.temblor=v==='1');on('aj-vib',v=>AJ.vib=v==='1');
   on('aj-num',v=>AJ.numeros=v==='1');
@@ -7085,7 +7369,7 @@ function openMenu(){const jugando=!!P;
     <button id="m-amigos">👥 Jugar con amigos</button><button id="m-aj">⚙️ Sonido y controles</button><button id="m-help">❓ Cómo se juega</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<button id="m-share">📲 Pasar el juego</button>
     <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div>
-    <p class="note" style="margin-top:auto;text-align:center">${jugando&&P.rol==='solo'?'La partida contra la compu no se pausa del todo: los bots siguen.<br>':''}MarcAR · versión 84</p>`);
+    <p class="note" style="margin-top:auto;text-align:center">${jugando&&P.rol==='solo'?'La partida contra la compu no se pausa del todo: los bots siguen.<br>':''}MarcAR · versión 85</p>`);
   const go=f=>()=>{closeSide();f();};$('m-x').onclick=closeSide;
   if($('m-volver'))$('m-volver').onclick=closeSide;
   if($('m-rein'))$('m-rein').onclick=go(()=>empezarSolo());
@@ -7179,6 +7463,85 @@ function DIB84(c,V,t){const S=V.S;if(!S||!S.ban)return;
     c.restore();}}
 /* para las pruebas: una baja directa con el motor (como si a le hubiera disparado a v; sin a = muerte propia) */
 if(typeof MOTOR!=='undefined'&&!MOTOR.matarTest)MOTOR.matarTest=(G,v,a)=>matar(G,v,a||v,a?'R1':'granada',{});
+
+/* ───────── MarcAR v85 · minimapa y premios para la estancia ─────────
+   Minimapa (pedido 1/11, punto 9): una esquina discreta con el mapa en chiquito, vos (con hacia dónde mirás), tus
+   compañeros y los rivales QUE YA VES (sale de la misma vista que manda el anfitrión: no muestra a nadie escondido),
+   los objetivos (sitios A y B, bases y banderas — la rival que se llevan, en su zona aproximada) y la bomba si la conocés.
+   Se dibuja aparte, 8 veces por segundo, sin tocar el dibujo del juego. Tocalo para agrandarlo o achicarlo.
+   Premios (punto 11): hitos de la biblia (cap. 25) que mandan objetos a la estancia una sola vez (la clave queda en la
+   cuenta, así no llegan dos veces aunque juegues en dos aparatos). El tope de oro de MarcAR está en chat/rangos.js. */
+(function(){
+/* ── minimapa ── */
+const MM={cv:null,base:null,baseDe:null,grande:false,t:0};
+try{MM.grande=localStorage.getItem('marcar-mini')==='g';}catch(_){}
+function crear(){if(MM.cv)return MM.cv;const cv=document.createElement('canvas');cv.id='mini85';cv.setAttribute('aria-label','Minimapa (tocalo para agrandarlo)');cv.setAttribute('role','img');
+  cv.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();MM.grande=!MM.grande;try{localStorage.setItem('marcar-mini',MM.grande?'g':'c');}catch(_){}MM.t=0;},{passive:false});
+  ($('juego')||document.body).appendChild(cv);MM.cv=cv;return cv;}
+function fondo(M,w,h){const k=M.id+':'+w+'x'+h;if(MM.baseDe===k&&MM.base)return MM.base;if(typeof MAPA==='undefined'||!MAPA||MAPA_ID!==M.id)return null;
+  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.imageSmoothingEnabled=true;g.drawImage(MAPA,0,0,w,h);
+  g.fillStyle='rgba(10,8,6,.35)';g.fillRect(0,0,w,h);
+  // paredes y sólidos más marcados, para leerlo de un vistazo
+  g.fillStyle='rgba(230,220,200,.32)';const sx=w/M.w,sy=h/M.h;for(const r of M.sol||[])g.fillRect(r[0]*sx,r[1]*sy,(r[2]-r[0])*sx,(r[3]-r[1])*sy);
+  if(M.agua){g.fillStyle='rgba(70,140,170,.55)';for(const r of M.agua)g.fillRect(r[0]*sx,r[1]*sy,(r[2]-r[0])*sx,(r[3]-r[1])*sy);}
+  MM.base=c;MM.baseDe=k;return c;}
+const COL={P:'#6fa3ff',T:'#ff9a4a'};
+function dibujar(now){const V=window.MARCAR&&MARCAR.V,cv=MM.cv;
+  const ver=!!(V&&P&&P.M&&document.body.classList.contains('jugando')&&!(V.fase==='fin'));
+  if(!ver){if(cv)cv.hidden=true;return;}crear();const c=MM.cv;c.hidden=false;
+  const M=P.M,peq=Math.min(innerWidth,innerHeight)<500,ancho=MM.grande?(peq?Math.min(innerWidth*.55,300):360):(peq?104:168);
+  const w=Math.round(ancho),h=Math.round(ancho*M.h/M.w),d=Math.min(2,devicePixelRatio||1);
+  if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d);c.style.width=w+'px';c.style.height=h+'px';}
+  c.classList.toggle('grande',MM.grande);
+  const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);
+  const F=fondo(M,w,h);if(F)g.drawImage(F,0,0,w,h);else{g.fillStyle='#1a1511';g.fillRect(0,0,w,h);}
+  const sx=w/M.w,sy=h/M.h,X=x=>x*sx,Y=y=>y*sy,S=V.S,yoS=S.J.find(q=>q.id===P.yoId)||{};
+  // objetivos
+  g.font=`800 ${Math.max(9,Math.round(w/14))}px system-ui,sans-serif`;g.textAlign='center';g.textBaseline='middle';
+  if(S.modo==='bomba'&&M.sitios)for(const [n,r] of Object.entries(M.sitios)){g.fillStyle='rgba(224,90,58,.22)';g.strokeStyle='rgba(224,90,58,.8)';g.lineWidth=1;g.fillRect(X(r[0]),Y(r[1]),X(r[2])-X(r[0]),Y(r[3])-Y(r[1]));g.strokeRect(X(r[0])+.5,Y(r[1])+.5,X(r[2])-X(r[0])-1,Y(r[3])-Y(r[1])-1);
+    g.fillStyle='#ffd7c8';g.fillText(n,X((r[0]+r[2])/2),Y((r[1]+r[3])/2));}
+  if(S.modo==='bandera'&&M.banderas)for(const l of ['P','T']){const b=M.banderas[l];g.strokeStyle=COL[l];g.lineWidth=1.5;g.beginPath();g.arc(X(b[0]),Y(b[1]),Math.max(4,w/30),0,7);g.stroke();}
+  if(S.ban)for(const l of ['P','T']){const f=S.ban[l];if(!f||f.x==null)continue;const x=X(f.x),y=Y(f.y);
+    if(f.aprox){g.fillStyle=COL[l]+'44';g.strokeStyle=COL[l];g.setLineDash([3,2]);g.beginPath();g.arc(x,y,Math.max(7,4*sx),0,7);g.fill();g.stroke();g.setLineDash([]);continue;}
+    g.fillStyle=COL[l];g.strokeStyle='#000';g.lineWidth=1;g.beginPath();g.moveTo(x-1,y+5);g.lineTo(x-1,y-6);g.lineTo(x+6,y-3.5);g.lineTo(x,y-1);g.closePath();g.fill();g.stroke();}
+  if(V.bomba&&V.bomba.x!=null&&V.bomba.est!=='explotó'){const p=V.bomba,bl=(now/300|0)%2;g.fillStyle=p.est==='plantada'?(bl?'#ff3b2f':'#ffb000'):'#ffb000';g.beginPath();g.arc(X(p.x),Y(p.y),3.4,0,7);g.fill();g.strokeStyle='#000';g.lineWidth=1;g.stroke();}
+  // gente: sólo lo que la vista ya trae (los rivales que no ves vienen sin posición)
+  for(const q of V.J){if(!q.vivo||q.x==null||q.id===P.yoId)continue;const al=q._aliado;const col=al?'#9be59f':'#ff4a3a';
+    g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=1;g.beginPath();g.arc(X(q.x),Y(q.y),al?2.6:3,0,7);g.fill();g.stroke();}
+  const yo=V.yo;if(yo&&yo.vivo&&yo.x!=null){const x=X(yo.x),y=Y(yo.y),a=yo.ang||0;
+    g.strokeStyle='rgba(255,255,255,.18)';g.lineWidth=1;g.beginPath();g.arc(x,y,VISION*sx,0,7);g.stroke();// hasta dónde ves
+    g.save();g.translate(x,y);g.rotate(a);g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=1.2;g.beginPath();g.moveTo(6,0);g.lineTo(-4,4);g.lineTo(-2,0);g.lineTo(-4,-4);g.closePath();g.fill();g.stroke();g.restore();}
+  g.strokeStyle='rgba(230,203,132,.55)';g.lineWidth=1;g.strokeRect(.5,.5,w-1,h-1);
+  // señal (sólo el invitado): ping y aviso si no llegan vistas
+  const sn=window.NET85&&NET85.senal();if(sn){const txt=sn.sin?'⚠ sin señal':sn.rtt?`📶 ${sn.rtt} ms`:'';if(txt){g.font='700 9px system-ui,sans-serif';g.textAlign='right';g.textBaseline='bottom';
+    const tw=g.measureText(txt).width+6;g.fillStyle='rgba(0,0,0,.6)';g.fillRect(w-tw-2,h-13,tw,12);g.fillStyle=sn.sin?'#ff6a5a':sn.rtt>180?'#ffc04a':'#9be59f';g.fillText(txt,w-5,h-2.5);}}}
+function bucle(now){requestAnimationFrame(bucle);if(now-MM.t<120)return;MM.t=now;try{dibujar(now);}catch(e){if(!MM.err){MM.err=1;console.warn('minimapa',e);}}}
+requestAnimationFrame(bucle);
+window.MINI85=MM;
+
+/* ── hitos para la estancia (biblia cap. 25) ── */
+const HK='marcar-hitos';
+const LISTA=[
+  {id:'blanco',obj:'marcar_blanco',n:'Blanco de práctica',txt:'5 partidas que cuenten',de:c=>[c.n|0,5]},
+  {id:'banco',obj:'marcar_banco',n:'Banco del escuadrón',txt:'15 partidas que cuenten',de:c=>[c.n|0,15]},
+  {id:'placa',obj:'marcar_placa',n:'Placa de la escalera',txt:'ganar una Carrera de armas',de:c=>[c.cg|0,1]},
+  {id:'vitrina',obj:'marcar_vitrina',n:'Vitrina del arsenal',txt:'25 Carreras de armas terminadas',de:c=>[c.c|0,25]}];
+const cnt=()=>{try{return JSON.parse(localStorage.getItem(HK)||'{}')||{};}catch(_){return {};}};
+const clave=h=>'mc85-'+h.id;
+const ya=h=>{try{return !!(window.ORO&&ORO.cobrado(clave(h)));}catch(_){return false;}};
+function entregar(h){// a la cola de regalos de la estancia (la misma de La Gran Pampa), una sola vez por cuenta
+  if(!window.ORO||ya(h))return false;try{ORO.cobrar(clave(h),0,'MarcAR · '+h.n,true);}catch(_){return false;}
+  try{const Q=JSON.parse(localStorage.getItem('estancia-premios')||'[]');Q.push({de:'MarcAR · '+h.n,trigo:0,pesos:0,obj:[h.obj],t:Date.now()});localStorage.setItem('estancia-premios',JSON.stringify(Q.slice(-40)));}catch(_){}
+  return true;}
+// una partida que da premio (la llama juego.js › premios)
+function partida(S,gano){const c=cnt();c.n=(c.n|0)+1;if(S.modo==='carrera'){c.c=(c.c|0)+1;if(gano)c.cg=(c.cg|0)+1;}
+  try{localStorage.setItem(HK,JSON.stringify(c));}catch(_){}
+  const nuevos=[];for(const h of LISTA){const [v,m]=h.de(c);if(v>=m&&entregar(h))nuevos.push(h.n);}return nuevos;}
+// el próximo, para la portada
+function resumen(){const c=cnt();const h=LISTA.find(h=>!ya(h));if(!h)return '<span class="h85">🏅 Ya tenés todos los premios de MarcAR para tu estancia</span>';const [v,m]=h.de(c);
+  return `<span class="h85">🏅 Próximo premio para tu estancia: <b>${esc(h.n)}</b> (${esc(h.txt)}: ${Math.min(v,m)}/${m})</span>`;}
+window.HITOS85={LISTA,partida,resumen,cnt};
+})();
 
 /* ───────── MarcAR v84 · RELEVO del anfitrión (como uno, truco, ludo y pool, con chat/recon.js) ─────────
    · El anfitrión elige un suplente (el invitado con mejor conexión: RECON.elegirSuplente) y le manda cada 2 s el estado

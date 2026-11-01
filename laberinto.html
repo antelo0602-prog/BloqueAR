@@ -137,6 +137,7 @@ body.zurdo .ctrl{flex-direction:row-reverse}
 .ini .logo{align-self:center;max-width:100%}
 .ini .elenco{align-self:center;max-width:100%}
 .ini .bajada{font-size:13px;color:#9aa6d6;margin-top:-2px}
+.ini .extras{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 6px;margin-top:-2px}.ini .extras button{background:none;border:0;color:#9aa6d6;font:600 13px/1.1 inherit;padding:10px 8px;min-height:40px;cursor:pointer;text-decoration:underline;text-underline-offset:4px;text-decoration-color:#9aa6d666}.ini .extras button:hover{color:#dbe2ff}.ini .extras button:focus-visible{outline:2px solid #ffe23f;border-radius:6px}
 .btn.tall{min-height:56px;flex-direction:column;gap:0;line-height:1.15;font-size:18px}
 .btn.tall small{font-size:12px;font-weight:700}
 .difs{display:flex;gap:6px}.difs .btn{flex:1;min-height:40px;font-size:13.5px}
@@ -379,7 +380,7 @@ const PARTES={
   pampa:['pampa-visto','pampa-resumen','pampa-copas','pampa-ayuda-9',['pampa-avisos-vistos','union']],
   gen:[['bloques-novedades','maxnum'],['bloques-chat-read-{me}','max'],['bloques-chat-borr-{me}','max'],'bloques-chat-frase','bloques-chat-modo',
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
-    'bloques-favoritos-v1','bloques-orden-v1',   // v67: juegos fijados y orden propio del menú de juegos
+    'bloques-favoritos-v1','bloques-orden-v1','bloques-efectos',   // v67: juegos fijados y orden propio del menú de juegos
     ['bloques-dias-v81','dias'],['bloques-ganchos-v81','ganchos'],['bloques-citas-vistas','union'],['bloques-records-v81','recs']]   // v82: rachas (días seguidos del del día y ganadas seguidas) con la cuenta
 };
 // v75: también el oro. Antes, el oro que ganabas sin que cambiara otra cosa de «rk» (el cofre al subir de nivel la estancia,
@@ -783,7 +784,7 @@ function buscarVuelta(o){
    · Abandonar → avisa a la planilla (accion «abandonar»): la invitación de vuelta (la que está y las que vengan) se rechaza
      sola, la mesa deja de esperarte enseguida y la compu ocupa tu lugar. En la página del juego, el cartel «Volviendo a la
      partida…» también trae «Abandonar». */
-const JUEGOS={uno:['uno.html','UnoAR'],truco:['truco.html','TrucAR'],'truco-eq':['truco.html','TrucAR'],ludo:['ludo.html','LudoAR'],pool:['pool.html','PoolAR'],poblar:['poblar.html','PoblAR'],'invasores-co':['invasores.html','InvasorAR']};   // (InvasorAR: sólo De a dos y En contra — v82; el duelo Versus no: cada uno juega su campo en su aparato)
+const JUEGOS={uno:['uno.html','UnoAR'],truco:['truco.html','TrucAR'],'truco-eq':['truco.html','TrucAR'],ludo:['ludo.html','LudoAR'],pool:['pool.html','PoolAR'],poblar:['poblar.html','PoblAR'],'invasores-co':['invasores.html','InvasorAR'],'invasores-du':['invasores.html','InvasorAR']};   // v85: también el Versus (cada uno su campo: al volver, el tuyo sigue como estaba)   // (InvasorAR: sólo De a dos y En contra — v82; el duelo Versus no: cada uno juega su campo en su aparato)
 const pagina=()=>{try{return (location.pathname.split('/').pop()||'index.html').toLowerCase();}catch(_){return '';}};
 function enCurso(){const out=[];for(const j of Object.keys(JUEGOS)){const rc=recuerdo(j);if(rc&&rc.rol!=='host'&&rc.mesa&&rc.host)out.push([j,rc]);}return out;}
 async function abandonar(juego){const o=ls.json('recon-'+juego,null);olvidar(juego);if(!o||!o.mesa)return false;
@@ -836,7 +837,7 @@ window.RECON={get GRACIA(){return fondoOtro()?Math.max(GRACIA_BASE,GRACIA_FONDO)
    opacity; will-change sólo mientras dura. */
 (function(){
 'use strict';
-const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}};
+const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||localStorage.getItem('bloques-efectos')==='0';}catch(_){return false;}};   // v85: también con «Animaciones» apagadas
 const visible=el=>el&&!el.hidden&&el.isConnected&&getComputedStyle(el).display!=='none';
 function salida(el,op={}){
   try{
@@ -1380,10 +1381,17 @@ function cambiar(n){n=Math.floor(Number(n)||0);if(n<=0||n>cambioHoy())return 0;c
   mio(o).s+=n;const c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;o.cam={d:diaAR(),n:c+n};hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
 
 /* ── Lo que da una partida (lo llama RANGOS.premio): con el tope del día ── */
+// v85: tope propio de algunos juegos (MarcAR: 50 de oro por día y 200 por semana, biblia de MarcAR cap. 25), además del tope general
+const TOPE_J={marcar:[50,200]};
+const semAR=(t=Date.now())=>{const d=new Date(t-3*3600e3);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10);};
+function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load(),h=o.tj&&o.tj.d===diaAR()?o.tj.n||{}:{},w=o.tw&&o.tw.s===semAR()?o.tw.n||{}:{};
+  return {dia:T[0],semana:T[1],hoy:h[j]|0,sem:w[j]|0,queda:Math.max(0,Math.min(T[0]-(h[j]|0),T[1]-(w[j]|0)))};}
 function premio(de,info,extra){
   let v=calc(de,info,extra);if(v<=0)return 0;v=Math.max(1,Math.round(v*admMul('oro')));   // v81: multiplicador del admin
   const o=load(),hoy=diaAR(),ya=o.dia&&o.dia.d===hoy?o.dia.n|0:0;
   v=Math.max(1,Math.round(v*(ya<TOPE[0]?1:ya<TOPE[1]?.5:.25)));
+  {const j=(norm(info||{},de)||{}).j||NOM_ID[de]||'',tj=topeJuego(j);if(tj){v=Math.min(v,tj.queda);if(v<=0)return 0;
+    const sw=semAR();o.tj=o.tj&&o.tj.d===hoy?o.tj:{d:hoy,n:{}};o.tw=o.tw&&o.tw.s===sw?o.tw:{s:sw,n:{}};o.tj.n[j]=(o.tj.n[j]|0)+v;o.tw.n[j]=(o.tw.n[j]|0)+v;}}
   o.dia={d:hoy,n:ya+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
   anim(v);
   try{setTimeout(()=>niveles(true),1600);}catch(_){}
@@ -1573,7 +1581,7 @@ const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:
 .oro-tabla i{font-style:normal;text-align:center}.oro-tabla b{color:#f5c94c;text-align:right}`;
 function hojaCss(){css();if(document.getElementById('oro-hoja-css'))return;const s=document.createElement('style');s.id='oro-hoja-css';s.textContent=HOJA_CSS;(document.head||document.documentElement).appendChild(s);}
 
-return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
+return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
   MARCOS,GESTOS_ORO,marco,ponerMarco,gestos,subirPerfil,
   ico,txt,premioTxt,anim,css,niveles,cartel,titulos,titulo,ponerTitulo,TIT_GEN,TIT_J,ADORNO_GEN,ROPA_GEN,cofreGen,cofreEst,PAMPA_ORO,pampaPuesto,hojaHtml,hojaCss,
   sub(f){SUB.add(f);},_load:load,_K:K};
@@ -2468,7 +2476,7 @@ const acct=()=>{const a=ls.json('bloques-acct-v1',null);return a&&a.usuario&&a.t
 const lbUrl=()=>ls.get('bloques-lb-url-v1')||LB_DEF;
 const lc=s=>String(s||'').toLowerCase();
 const H={busy:()=>false,account:()=>{location.href='./';},onOpen:()=>{},onClose:()=>{},game:()=>'',invite:null,play:null,inbox:null};
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR'};
+const GAMES={fortinar:'FortinAR',bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR'};
 // Mi estado, como en el MSN: conectado, ausente o no molestar (y «ausente» solo si no tocás nada por 5 minutos).
 const ST={m:ls.get('bloques-chat-modo')||'on',lastInput:Date.now()};
 function effMode(){if(ST.m==='dnd')return 'dnd';if(ST.m==='aus'||Date.now()-ST.lastInput>5*60e3)return 'aus';return 'on';}
@@ -2998,7 +3006,7 @@ function renderProfile(p){
     const g=R?R.generalFrom(d):null,fmt=n=>Number(n||0).toLocaleString('es-AR'),sp=ms=>ms?`${Math.floor(ms/60000)}:${String(Math.floor(ms/1000)%60).padStart(2,'0')}.${Math.floor(ms%1000/100)}`:'—';
     body=`<div class="cx-prof">${avatar(d,true)}<b class="cx-pn">${esc(d.usuario)}</b>${(()=>{if(!window.TITULOS)return '';if(d.titulo!==undefined)TITULOS.poner(d.usuario,d.titulo);const h=TITULOS.html(d.usuario);return h?`<p class="cx-pf" style="margin-top:2px">${h}</p>`:'';})()}${d.frase?`<p class="cx-pf">“${esc(d.frase)}”</p>`:''}<p class="cx-ps">${esc(estTxt({...u,...d}))}</p></div>
       ${g?`<div class="cx-pcard"><div class="cx-prow"><b class="cx-pnm">Nivel general ${g.level.lv}</b>${R.badge(g.rank.v)}</div>${g.games.map(x=>`<div class="cx-prow"><span class="cx-pnm">${x.name}</span><small>Nivel ${x.level.lv}</small>${R.badge(x.rank.v,true)}</div>`).join('')}</div>`:''}
-      ${d.camino&&(d.camino.g||d.camino.c)?`<div class="cx-pcard"><div class="cx-prow"><b class="cx-pnm">🏡 Su camino en EstanciAR</b></div>${d.camino.g?`<div class="cx-prow"><span class="cx-pnm">🌾 ${esc(d.camino.tg||'Granjero')}</span><small>Granjero · rango ${d.camino.g|0}</small></div>`:''}${d.camino.c?`<div class="cx-prow"><span class="cx-pnm">⚔️ ${esc(d.camino.tc||'Caudillo')}</span><small>Caudillo · rango ${d.camino.c|0}</small></div>`:''}</div>`:''}
+      ${d.camino&&(d.camino.g||d.camino.c||d.camino.v)?`<div class="cx-pcard"><div class="cx-prow"><b class="cx-pnm">🏡 ${d.camino.g||d.camino.c?'Su camino en EstanciAR':'Su estancia'}</b></div>${d.camino.v?`<div class="cx-prow"><span class="cx-pnm">💰 Valor de su estancia</span><small>$${fmt(d.camino.v)}</small></div>`:''}${d.camino.g?`<div class="cx-prow"><span class="cx-pnm">🌾 ${esc(d.camino.tg||'Granjero')}</span><small>Granjero · rango ${d.camino.g|0}</small></div>`:''}${d.camino.c?`<div class="cx-prow"><span class="cx-pnm">⚔️ ${esc(d.camino.tc||'Caudillo')}</span><small>Caudillo · rango ${d.camino.c|0}</small></div>`:''}</div>`:''}
       ${R&&R.juegosHtml?R.juegosHtml(d):''}
       <div class="cx-stats"><div><b>${fmt(d.partidas)}</b><small>partidas</small></div><div><b>${fmt(d.medallas)}</b><small>medallas</small></div><div><b>${fmt(d.mejores&&d.mejores.maraton)}</b><small>mejor Maratón</small></div><div><b>${sp(d.mejores&&d.mejores.sprint)}</b><small>mejor Sprint 40</small></div></div>`;
   }
@@ -3691,7 +3699,8 @@ try{citaLlegada();}catch(_){}
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
   usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
-  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons,LINK:LINK_U,linkBoton,linkCompartir,linkQuien,linkCerrar,linkDe};
+  grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons,LINK:LINK_U,linkBoton,linkCompartir,linkQuien,linkCerrar,linkDe,
+  invitarJuego:(g,u)=>{if(!H.invite)return false;H.invite(g,u);return true;}};   // v85: la mesa de la estancia invita sola a los que están sentados
 })();
 
 </script>
@@ -4127,6 +4136,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:85,grande:true,titulo:'Novedades',items:[
+    ['🏰','Juego nuevo: FortinAR. Armá tu fortín, juntá recursos, entrená tu gente y tomá los puestos en el modo Asalto contra la compu.'],
+    ['🎨','EstanciAR con dibujos nuevos: muebles, ropa, jardín, Navidad, premios y juegos. Tienda nueva donde también podés vender, gestos de verdad y el muro de logros en tu casa.'],
+    ['🪑','Las mesas de la estancia arman la partida solas con todos los que están sentados, hasta de a 6 y por equipos.'],
+    ['🎯','MarcAR: vuelve el disparo deslizando la palanca, el personaje camina de verdad, minimapa, armas en el piso, elegís bando con amigos y bots más justos.'],
+    ['🧹','Menús más simples en todos los juegos (lo avanzado va en «Más reglas») y un botón para apagar las animaciones.']]},
   {v:84,grande:true,titulo:'Novedades',items:[
     ['🎯','MarcAR: llegaron Muerte por equipos, Todos contra todos y Captura la bandera, con 15 mapas. Y se juega mejor: palanca para mirar y botón para disparar, mira clara, humo que tapa, armas que se levantan y más sangre.'],
     ['🏘️','PoblAR renovado: el mapa ocupa toda la pantalla y se mueve con los dedos; en la compu, panel fijo a la derecha.'],
@@ -4454,6 +4469,11 @@ function abrir(r,sem){
 const KV='pampa-avisos-vistos',KT='pampa-notis-t';
 function vistos(){try{const L=JSON.parse(localStorage.getItem(KV)||'[]');return Array.isArray(L)?L:[];}catch(_){return [];}}
 function marcar(ids){const L=vistos(),S=new Set(L);ids.forEach(i=>S.add(i));ls.set(KV,JSON.stringify([...S].slice(-80)));}
+/* v85 (pedido del 1/11: «el aviso de ataque sale repetido: buscá la causa»). La causa: la marca de «ya lo viste» vivía
+   en este aparato y viajaba con la sincronización a los pocos segundos; otro aparato (o esta misma app recién abierta,
+   antes de traer lo de la cuenta) le preguntaba a la planilla, que lo volvía a mandar, y salía de nuevo. Ahora, al
+   mostrarlo, se le avisa a la planilla (pampaVisto) y pampaNotis ya no lo manda a ningún aparato. */
+function avisarVisto(ids){try{if(ids&&ids.length&&window.CHAT&&typeof CHAT.api==='function')CHAT.api({accion:'pampaVisto',ids}).catch(()=>{});}catch(_){}}
 function enInicio(){return /(^|\/)(index\.html)?$/.test(location.pathname)||/bloques\.html$/.test(location.pathname);}
 function unido(){try{const r=JSON.parse(localStorage.getItem('pampa-resumen')||'null');return !!(r&&r.unido&&r.semana===lunesHoy());}catch(_){return false;}}
 const fmtHasta=t=>{try{return new Date(t).toLocaleString('es-AR',{weekday:'long',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Argentina/Buenos_Aires'}).replace(/\.$/,'')+' h';}catch(_){return '';}};
@@ -4497,7 +4517,7 @@ function pildoraEventos(sem,ev){
   const e=ev[0],b=document.createElement('button');b.type='button';b.className='pa-pil';
   b.innerHTML=`<span aria-hidden="true">${e.e}</span><span><b>${esc(ev.length>1?ev.length+' eventos':e.n)}</b> en La Gran Pampa</span>`;
   b.setAttribute('aria-label',(ev.length>1?ev.length+' eventos':e.n)+' en La Gran Pampa. Tocá para ir.');
-  marcar(ev.map(x=>'e:'+sem+':'+x.id));
+  marcar(ev.map(x=>'e:'+sem+':'+x.id));avisarVisto(ev.map(x=>'e:'+sem+':'+x.id));
   const fuera=()=>{b.classList.remove('in');setTimeout(()=>b.remove(),300);};b._t=setTimeout(fuera,6000);
   b.onclick=()=>{fuera();location.href='./pampa.html';};
   document.body.appendChild(b);requestAnimationFrame(()=>b.classList.add('in'));return true;
@@ -4518,11 +4538,12 @@ async function notis(ya){
   if(!r||!r.ok){notiCorre=false;return;}
   if(!r.unido){try{localStorage.removeItem(KU);}catch(_){}notiCorre=false;return;}
   ls.set(KU,r.semana||lunesHoy());
+  if(Array.isArray(r.vistos)&&r.vistos.length)marcar(r.vistos.map(String));   // v85: lo que ya viste en otro aparato (lo guarda la planilla)
   const cola=armarNotis(r),evs=enInicio()?eventosNuevos(r):[];
   const listo=()=>!document.querySelector('.nv-scrim,.nv-toast,.pa-scrim')&&document.visibilityState==='visible'&&!(window.CHAT&&CHAT.ocupado&&CHAT.ocupado())&&!corriendo;
   const sig=()=>{const n=cola.shift();if(!n){if(evs.length){const pil=()=>{if(!listo()||document.querySelector('.pa-pil')){setTimeout(pil,1500);return;}if(enInicio())pildoraEventos(r.semana,eventosNuevos(r));notiCorre=false;};pil();}else notiCorre=false;return;}
     const V=new Set(vistos());if(n.ids.every(i=>V.has(i))){sig();return;}   // ya lo vio en otro aparato o en el mapa
-    const prob=()=>{if(!listo()){setTimeout(prob,1500);return;}marcar(n.ids);abrirNoti(n);esperar();};prob();};
+    const prob=()=>{if(!listo()){setTimeout(prob,1500);return;}if(n.ids.every(i=>new Set(vistos()).has(i))){sig();return;}marcar(n.ids);avisarVisto(n.ids);abrirNoti(n);esperar();};prob();};
   const esperar=()=>{if(document.querySelector('.pa-scrim')){setTimeout(esperar,800);return;}setTimeout(sig,600);};
   sig();
 }
@@ -4858,7 +4879,52 @@ const PAG=((location.pathname.split('/').pop()||'').replace(/\.html$/,'')||'inde
 const FUERA=/^(estancia|invasores|marcar|estancia-armado|invasores-armado)/.test(PAG);
 const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||localStorage.getItem('bloques-efectos')==='0';}catch(_){return false;}};
 const noop=()=>{};
-if(FUERA){window.JUGO={ev:noop,burst:noop,confeti:noop,temblor:noop,pop:noop,texto:noop,contar:noop,combo:()=>0,quieto};return;}
+
+/* ── v85 · «Animaciones» en ☰ › Ajustes › Gráficos (pedido del 1/11). Apagadas = 'bloques-efectos' '0' (viaja con la
+   cuenta). En TODAS las páginas: sin partículas, temblores ni rebotes (quieto()), y las animaciones y transiciones de
+   CSS quedan instantáneas (duran 1 ms, así los eventos de fin siguen llegando y nada se queda esperando). Las cartas que
+   viajan (VUELO) pasan a la versión corta. No toca lo que se dibuja en los lienzos de los juegos (es el juego mismo). */
+const EK='bloques-efectos';
+const efectos=()=>{try{return localStorage.getItem(EK)!=='0';}catch(_){return true;}};
+function aplicarEfectos(){const off=!efectos(),r=document.documentElement;if(!r)return;r.classList.toggle('sin-anim',off);
+  if(off&&!document.getElementById('sin-anim-css')){const s=document.createElement('style');s.id='sin-anim-css';
+    s.textContent='html.sin-anim *,html.sin-anim *::before,html.sin-anim *::after{animation-duration:1ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:1ms!important;transition-delay:0s!important;scroll-behavior:auto!important}';
+    (document.head||r).appendChild(s);}}
+function setEfectos(on){try{localStorage.setItem(EK,on?'1':'0');}catch(_){}aplicarEfectos();}
+aplicarEfectos();
+addEventListener('storage',e=>{if(e.key===EK)aplicarEfectos();});
+addEventListener('bloques-sync',aplicarEfectos);
+addEventListener('pageshow',aplicarEfectos);
+
+/* ── v85 · «Más reglas» plegado en las hojas de «Partida nueva» (pedido del 1/11: «la selección de reglas y los menús
+   están muy sobrecargados en TODOS los juegos»). Arriba quedan pocas decisiones (contra quién, cuántos, nivel); el resto
+   va adentro de un renglón que dice lo elegido («A 30 · Sin flor · Ranked») y se abre al tocarlo. Recuerda si lo dejaste
+   abierto (por juego, en este aparato: '<juego>-mas-reglas').
+   MASREGLAS.html(juego, resumen, cuerpo) → HTML · MASREGLAS.cablear() → engancha los que haya en la página. */
+const MR_CSS=`.mreg{margin:16px 0 4px;border-radius:12px;border:1px solid rgba(128,128,128,.32);border:1px solid color-mix(in srgb,currentColor 20%,transparent);background:rgba(128,128,128,.05)}
+.mreg>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 14px;min-height:48px;box-sizing:border-box;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.mreg>summary::-webkit-details-marker{display:none}
+.mreg-t{flex:none}
+.mreg-r{flex:1;min-width:0;text-align:right;font-weight:500;opacity:.68;font-size:.86em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mreg>summary::after{content:'';flex:none;width:7px;height:7px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);margin:-4px 2px 0 0;opacity:.55;transition:transform .2s}
+.mreg[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.mreg[open]>summary .mreg-r{visibility:hidden}
+.mreg>summary:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:12px}
+.mreg-b{padding:0 12px 12px}
+.mreg-b>h4:first-child,.mreg-b>h3:first-child{margin-top:2px}`;
+function mrCss(){if(document.getElementById('mreg-css'))return;const s=document.createElement('style');s.id='mreg-css';s.textContent=MR_CSS;(document.head||document.documentElement).appendChild(s);}
+const mrK=j=>String(j||'juego')+'-mas-reglas';
+function mrAbierto(j){try{return localStorage.getItem(mrK(j))==='1';}catch(_){return false;}}
+function mrHtml(j,resumen,cuerpo){mrCss();const r=(Array.isArray(resumen)?resumen.filter(Boolean).join(' · '):resumen)||'';
+  return `<details class="mreg" data-mreg="${String(j).replace(/"/g,'')}"${mrAbierto(j)?' open':''}><summary><span class="mreg-t">Más reglas</span><span class="mreg-r">${r}</span></summary><div class="mreg-b">${cuerpo}</div></details>`;}
+// «toggle» no burbujea, pero se escucha en captura: un solo oyente para todas las hojas (los juegos rehacen el HTML en cada toque).
+// Sólo cuenta lo que hizo la persona: al dibujarse ya abierto también llega un «toggle», que no cambia nada.
+document.addEventListener('toggle',e=>{const d=e.target;if(!d||!d.matches||!d.matches('details.mreg[data-mreg]'))return;
+  try{localStorage.setItem(mrK(d.dataset.mreg),d.open?'1':'0');}catch(_){}},true);
+function mrCablear(){}
+window.MASREGLAS={html:mrHtml,cablear:mrCablear,abierto:mrAbierto};
+
+if(FUERA){window.JUGO={ev:noop,burst:noop,confeti:noop,temblor:noop,pop:noop,texto:noop,contar:noop,combo:()=>0,quieto,efectos,setEfectos};return;}
 
 /* ── Estilos comunes (variables de movimiento: los juegos y la app pueden usarlas) ── */
 const css=`:root{--j-ease:cubic-bezier(.2,.8,.2,1);--j-ease-in:cubic-bezier(.4,0,1,1);--j-rebote:cubic-bezier(.34,1.56,.64,1);--j-rapido:120ms;--j-medio:220ms;--j-lento:360ms}
@@ -5021,7 +5087,7 @@ const H={
 };
 function ev(g,k,x){try{if(document.hidden)return;const f=H[g];if(f)f(k,x);}catch(_){}}
 
-window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto};
+window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto,efectos,setEfectos};
 })();
 
 </script>
@@ -6149,11 +6215,9 @@ function inicio(){G.S=null;G.fin=true;if(!G.D)nuevaDemo();hud();
     <div class="modos">
       <button class="btn" id="i-dia">🗓️ Del día<small>${esc(MAPAS[dd.mapa].n)} · 1 vida${hoy in D?' · hecho':''}</small></button>
       <button class="btn" id="i-camp">🏆 Campaña<small>${et}/15 etapas · ★ ${st}/45</small></button>
-      <button class="btn" id="i-prac">🎯 Práctica<small>sin premios</small></button>
-      <button class="btn" id="i-libre">🛠️ Reglas libres<small>sin premios</small></button>
     </div>
     ${nivelHtml()}
-    <div class="row"><button class="btn" id="i-como">Cómo se juega</button><button class="btn" id="i-ctrl">Controles</button></div>
+    <div class="extras" aria-label="Más"><button id="i-prac">🎯 Práctica</button><button id="i-libre">🛠️ Reglas libres</button><button id="i-como">Cómo se juega</button><button id="i-ctrl">Controles</button></div>
   </div>`);
   logo($('i-logo'),'LABERINTAR',4,'#ffe23f');elenco($('i-elenco'));
   document.querySelectorAll('[data-dif]').forEach(b=>b.onclick=()=>{ls.set('laberinto-dif',b.dataset.dif);inicio();});
