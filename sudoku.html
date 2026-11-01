@@ -129,6 +129,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .nb small{font:700 10px/1 system-ui;color:#8fa0ad}
 .nb.lleno{opacity:.32}
 .nb.notas-on{color:#a9d5ee;font-style:italic}
+/* v84 · modo notas bien distinto: teclado de lápiz (número chico arriba a la izquierda, borde punteado celeste), tablero
+   enmarcado y una franja «✏️ Notas» sobre el teclado; el botón queda lleno. */
+body.sd-notas .tab{border-color:#5fb4e6;box-shadow:0 0 0 3px rgba(95,180,230,.35),0 14px 34px rgba(0,0,0,.45)}
+body.sd-notas .nb{border:1.5px dashed #5fb4e6;background:#14283a;color:#cfeaff;font:600 17px/1 system-ui;align-items:flex-start;justify-content:flex-start;padding:7px 9px;position:relative}
+body.sd-notas .nb::after{content:'✏️';position:absolute;right:6px;bottom:5px;font-size:12px;opacity:.75}
+body.sd-notas .nb small{display:none}
+body.sd-notas .nums{position:relative;padding-top:22px}
+body.sd-notas .nums::before{content:'✏️ Modo notas';position:absolute;top:0;left:0;right:0;text-align:center;font:800 12px/18px system-ui;color:#0e2433;background:#7cc6ef;border-radius:7px;letter-spacing:.02em}
+.hb.hb-notas.on{background:#5fb4e6;border-color:#9fd6f5;color:#06202f}
+.hb.hb-notas.on b{font-weight:800}
 .nb:active{transform:translateY(1px);background:#24303c}
 html[data-lg-tema] .tab{transition:background .3s}
 @media (max-height:700px){.nb{min-height:50px;font-size:23px}.hb{min-height:48px}.hb i{font-size:17px}}
@@ -3562,7 +3572,9 @@ const LK_CSS=`.cx-linkb{display:flex;align-items:center;gap:10px;width:100%;marg
 .cx-lk-r{display:flex;gap:8px}.cx-lk-r button{flex:1;min-height:46px;border-radius:12px;border:1px solid #3b5170;background:#1f3047;color:#f4f7fe;font-weight:700;font-size:14px}
 .cx-lk-x{min-height:44px;border-radius:12px;border:0;background:none;color:#9fb0c6;font-weight:700;font-size:14px}
 .cx-lk button.cx-lk-wa{border:0;width:100%;cursor:pointer;font-family:inherit}.cx-lk-esp{display:flex;align-items:center;gap:8px;color:#7ce9e5!important;font-weight:700}
-.cx-citab small{display:block;font-weight:500;opacity:.7;font-size:12px;margin-top:1px}.cx-citas small{display:block;margin:2px 0 6px;font-size:12.5px}`;
+.cx-citab small{display:block;font-weight:500;opacity:.7;font-size:12px;margin-top:1px}
+/* v84: «Invitar con un link» y «Armar un grupo» más bajos y en un renglón cada uno (antes, dos renglones grandes) */
+.cx-citab,.cx-gnew{min-height:40px;margin:6px 16px 2px;padding:4px 10px}.cx-citab small{display:none}.cx-citas small{display:block;margin:2px 0 6px;font-size:12.5px}`;
 function linkCss(){if(document.getElementById('cx-lk-css'))return;const s=document.createElement('style');s.id='cx-lk-css';s.textContent=LK_CSS;(document.head||document.documentElement).appendChild(s);}
 try{linkLlegada();}catch(_){}
 /* ── v82 · LINK DESDE EL CHAT («cita»; pedido: «invitar por link directo desde el chat, sin abrir un juego»)
@@ -4090,6 +4102,11 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:84,grande:true,titulo:'Novedades',items:[
+    ['🎯','MarcAR: llegaron Muerte por equipos, Todos contra todos y Captura la bandera, con 15 mapas. Y se juega mejor: palanca para mirar y botón para disparar, mira clara, humo que tapa, armas que se levantan y más sangre.'],
+    ['🏘️','PoblAR renovado: el mapa ocupa toda la pantalla y se mueve con los dedos; en la compu, panel fijo a la derecha.'],
+    ['🎁','EstanciAR: 139 objetos nuevos, de temporada (¡Navidad!) y con oro; editor de tu gaucho estilo Mii y el Pomberito que roba y hay que atraparlo.'],
+    ['📱','Todo más ordenado en el celular, el Sudoku con un modo notas inconfundible y el Truco que reparte boca arriba.']]},
   {v:83,grande:true,titulo:'Novedades',items:[
     ['🎯','¡Juego nuevo! MarcAR: policías contra terroristas desde arriba. Bomba en Estación Vieja y Carrera de armas, contra la compu o en línea con amigos.'],
     ['👾','InvasorAR con más tensión (música que se acelera, alarma y latidos) y un Versus donde le mandás ataques al otro.'],
@@ -4963,15 +4980,17 @@ const H={
   pool(k){if(k==='gano')confeti(['#1f7a4d','#f2c14e','#ffffff','#e5574a']);},
   solos(k){
     const juego=PAG;
+    if((k==='palo'||k==='linea')&&juego==='sudoku')return;   // v84: el sudoku va sobrio, sin festejos por línea
     if(k==='palo'||k==='linea'){const n=combo(juego+':ok',k==='palo'?5000:9000),p=punto(juego==='sudoku'?'#tab':'#mesa');
       burst(p.x,p.y,{n:k==='linea'?18:10,col:k==='linea'?C.verde:C.oro,tipo:'estrella',tam:k==='linea'?4:3.2,vel:k==='linea'?3:2.3,grav:.02});
       if(n>=2)texto('×'+n,p.x,p.y-24,{col:n>=4?'#ffd36e':'#fff1c2',tam:Math.min(30,18+n*2)});}
     else if(k==='pum'){const p=punto('#tab');burst(p.x,p.y,{n:20,col:C.humo,tipo:'polvo',tam:4,vel:3,grav:-.01,vida:800});temblor('#tab|#vp',5,320);}
     else if(k==='gano')confeti(juego==='solitario'?['#e5574a','#2b2b2b','#ffffff','#f2c14e']:C.verde.concat(['#74b9e8']));},
-  poblar(k){
-    if(k==='town'){const p=punto('#board|svg');burst(p.x,p.y,{n:18,col:C.oro,tipo:'estrella',tam:4,vel:2.8,grav:.02});}
-    else if(k==='ranch'){const p=punto('#board|svg');burst(p.x,p.y,{n:10,col:C.oro,vel:2.2});}
-    else if(k==='road'){const p=punto('#board|svg');burst(p.x,p.y,{n:6,col:C.polvo,tipo:'polvo',tam:2.4,vel:1.5,grav:0,vida:420});}
+  poblar(k,x){   // v84: x = {x,y} de la pieza recién construida (PoblAR la calcula); si no viene, como antes
+    const aca=()=>x&&isFinite(x.x)&&isFinite(x.y)?x:punto('#board|svg');
+    if(k==='town'){const p=aca();burst(p.x,p.y,{n:18,col:C.oro,tipo:'estrella',tam:4,vel:2.8,grav:.02});}
+    else if(k==='ranch'){const p=aca();burst(p.x,p.y,{n:10,col:C.oro,vel:2.2});}
+    else if(k==='road'){const p=aca();burst(p.x,p.y,{n:6,col:C.polvo,tipo:'polvo',tam:2.4,vel:1.5,grav:0,vida:420});}
     else if(k==='robber')temblor('#board|svg',2);
     else if(k==='win')confeti(['#f2c14e','#b5512e','#57a35d','#3f86d6','#fff']);}
 };
@@ -5376,13 +5395,17 @@ function render(){
   const pl=PISTAS-P.pis.length;
   $('herr').innerHTML=`<button class="hb" id="h-undo" ${P.undo.length&&!P.hecho?'':'disabled'}><i>↶</i>Deshacer</button>
     <button class="hb" id="h-borrar" ${SEL>=0&&!esDado(SEL)&&(P.cur[SEL]||P.notas[SEL])&&!P.hecho?'':'disabled'}><i>⌫</i>Borrar</button>
-    <button class="hb${NOTAS?' on':''}" id="h-notas" aria-pressed="${NOTAS}"><i>✏️</i>Notas: ${NOTAS?"sí":"no"}</button>
+    <button class="hb hb-notas${NOTAS?' on':''}" id="h-notas" aria-pressed="${NOTAS}"><i>✏️</i>${NOTAS?'<b>Notas: SÍ</b>':'Notas: no'}</button>
     <button class="hb" id="h-pista" ${pl>0&&!P.hecho?'':'disabled'}><i>💡</i>Pista<span class="cnt">${pl}</span></button>`;
-  $('h-undo').onclick=deshacer;$('h-borrar').onclick=borrar;$('h-notas').onclick=()=>{NOTAS=!NOTAS;render();};$('h-pista').onclick=pista;
+  $('h-undo').onclick=deshacer;$('h-borrar').onclick=borrar;$('h-notas').onclick=()=>alternarNotas();$('h-pista').onclick=pista;
   let nh='';for(let d=1;d<=9;d++){const f=faltan(d);nh+=CFG.faltan?`<button class="nb${f<=0?' lleno':''}${NOTAS?' notas-on':''}" data-d="${d}" aria-label="${d}${f>0?`, faltan ${f}`:', completo'}">${d}<small>${f>0?f:'✓'}</small></button>`:`<button class="nb${NOTAS?' notas-on':''}" data-d="${d}" aria-label="${d}">${d}</button>`;}
   $('nums').innerHTML=nh;
+  document.body.classList.toggle('sd-notas',!!NOTAS);   // v84: el modo notas se nota en todo (tablero, teclado y botón)
   hud();
 }
+/* v84 (pedido del 31/10: «a veces se colocan números en vez de notas porque no se dieron cuenta»): al cambiar de modo,
+   aviso breve; en modo notas el teclado pasa a lápiz (números chicos, borde punteado) y el tablero se enmarca en celeste. */
+function alternarNotas(){NOTAS=!NOTAS;render();try{toast(NOTAS?'✏️ Modo notas: anotás chiquito los que podrían ir':'Modo normal: ponés el número',1400);}catch(_){}}
 function hud(){if(!P)return;$('hud').innerHTML=`<span class="dif">${P.fecha?'<span class="dia">Del día</span>':''}<b>${DIFN[P.dif]}</b>${CFG.errores?` · ${P.errores} ${P.errores===1?'error':'errores'}`:''}</span><span class="t" id="reloj">${reloj(P.t)}</span>`;}
 
 /* ───────── Jugar ───────── */
@@ -5402,7 +5425,8 @@ function poner(d){
   else{sfx('poner');if(CFG.errores)festejarUnidades(i);}
   guardar();render();revisarFin();
 }
-function festejarUnidades(i){const L=[];for(const u of UNITS)if(u.includes(i)&&u.every(j=>P.cur[j]===P.sol[j]))L.push(...u);
+function festejarUnidades(i){return;   // v84 (pedido del 31/10): sin festejos al completar filas, columnas o cajas
+  const L=[];for(const u of UNITS)if(u.includes(i)&&u.every(j=>P.cur[j]===P.sol[j]))L.push(...u);
   if(!L.length||RM)return;sfx('linea');const tab=$('tab');
   setTimeout(()=>{for(const j of new Set(L)){const el=tab.children[j];el.classList.remove('ok');void el.offsetWidth;el.classList.add('ok');setTimeout(()=>el.classList.remove('ok'),500);}},10);}
 function borrar(){if(!P||P.hecho||SEL<0||esDado(SEL))return;const ch=[];apuntar(SEL,ch);P.cur[SEL]=0;P.notas[SEL]=0;P.undo.push(ch);guardar();render();}
@@ -5458,7 +5482,7 @@ document.addEventListener('keydown',e=>{
   const k=e.key;
   if(/^[1-9]$/.test(k)){poner(Number(k));e.preventDefault();return;}
   if(k==='Backspace'||k==='Delete'||k==='0'){borrar();e.preventDefault();return;}
-  if(k==='n'||k==='N'){NOTAS=!NOTAS;render();return;}
+  if(k==='n'||k==='N'){alternarNotas();return;}
   if((e.ctrlKey||e.metaKey)&&(k==='z'||k==='Z')){deshacer();e.preventDefault();return;}
   const mv={ArrowUp:-9,ArrowDown:9,ArrowLeft:-1,ArrowRight:1}[k];
   if(mv){e.preventDefault();let i=SEL<0?40:SEL;if(mv===-1&&COL(i)===0)i+=8;else if(mv===1&&COL(i)===8)i-=8;else i=(i+mv+81)%81;elegir(i);}
@@ -5502,7 +5526,7 @@ function openMenu(){
     <button id="m-aj">⚙️ Ajustes: ayudas y marcas</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-share">📲 Pasar el juego</button>
     <a class="salir" id="m-salir" href="./#juegos">🚪 Salir de la partida</a>
-    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SudokAR · versión 83</p>`);
+    ${menuPie()}</div><p class="note" style="margin-top:auto;text-align:center">SudokAR · versión 84</p>`);
   const go=f=>()=>{$('side').hidden=true;f();};
   $('m-x').onclick=closeSide;$('m-new').onclick=go(openNew);$('m-dia').onclick=go(()=>nuevo(null,null,fechaAR()));$('m-recs').onclick=go(openRecs);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
   $('m-aj').onclick=go(openAjustes);

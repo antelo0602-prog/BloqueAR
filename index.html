@@ -707,6 +707,16 @@ details.sect[open]>summary::after{content:"▴"}details.sect[open]>summary{borde
 .hb-chip{flex:1;min-width:0}.hb-chip .hb-t{display:flex;flex-direction:column;min-width:0;line-height:1.2}
 .hb-chip b{font-size:14px}.hb-chip small{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hb-chip{position:relative}.hb-num{position:absolute;top:-6px;left:34px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#e5383b;color:#fff;font:800 12px/20px system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--bg)}
+/* v84 (pedido del 31/10: «la info se amontona en el celu»): menos cosas a la vez en pantallas angostas.
+   · los subtítulos de sección se esconden (el título alcanza); · en «Tu campo» el «Nuevo» va sobre el dibujo, no en un renglón
+   aparte, y la descripción se corta a dos renglones; · en la barra de abajo el texto chico puede ir en dos renglones en vez de «Nadie…». */
+@media (max-width:400px){
+  .hub-campo-h small,.hub-sec-h small,.hub-solo-h small{display:none}
+  .hub-game.campo .hub-badge{position:absolute;left:6px;top:6px;margin:0;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+  .hub-game.campo .hub-txt small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .hb-chip small{white-space:normal;line-height:1.15;font-size:11.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .hb-chip{padding:6px 10px;gap:7px}
+}
 .gp .gp-ic.gp-am{width:auto;min-width:40px;padding:0 6px;font-size:14px;white-space:nowrap;letter-spacing:-1px;background:#14202f;color:var(--dim)}.gp-ic.gp-am.si{color:#57d49b;font-weight:800;font-size:18px}.gp-ic.gp-am.conf{font-size:12px;color:#f2c14e}
 .hg-sol{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:14px;border:1px solid #57d49b55;background:#57d49b12}.hg-sol>b{font-size:14px}.hg-solb{min-height:40px;padding:0 12px}
 .hc-am.conf{border-color:#f2c14e;color:#f2c14e}.hc-noest{align-self:center}
@@ -4291,7 +4301,9 @@ const LK_CSS=`.cx-linkb{display:flex;align-items:center;gap:10px;width:100%;marg
 .cx-lk-r{display:flex;gap:8px}.cx-lk-r button{flex:1;min-height:46px;border-radius:12px;border:1px solid #3b5170;background:#1f3047;color:#f4f7fe;font-weight:700;font-size:14px}
 .cx-lk-x{min-height:44px;border-radius:12px;border:0;background:none;color:#9fb0c6;font-weight:700;font-size:14px}
 .cx-lk button.cx-lk-wa{border:0;width:100%;cursor:pointer;font-family:inherit}.cx-lk-esp{display:flex;align-items:center;gap:8px;color:#7ce9e5!important;font-weight:700}
-.cx-citab small{display:block;font-weight:500;opacity:.7;font-size:12px;margin-top:1px}.cx-citas small{display:block;margin:2px 0 6px;font-size:12.5px}`;
+.cx-citab small{display:block;font-weight:500;opacity:.7;font-size:12px;margin-top:1px}
+/* v84: «Invitar con un link» y «Armar un grupo» más bajos y en un renglón cada uno (antes, dos renglones grandes) */
+.cx-citab,.cx-gnew{min-height:40px;margin:6px 16px 2px;padding:4px 10px}.cx-citab small{display:none}.cx-citas small{display:block;margin:2px 0 6px;font-size:12.5px}`;
 function linkCss(){if(document.getElementById('cx-lk-css'))return;const s=document.createElement('style');s.id='cx-lk-css';s.textContent=LK_CSS;(document.head||document.documentElement).appendChild(s);}
 try{linkLlegada();}catch(_){}
 /* ── v82 · LINK DESDE EL CHAT («cita»; pedido: «invitar por link directo desde el chat, sin abrir un juego»)
@@ -4819,6 +4831,11 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:84,grande:true,titulo:'Novedades',items:[
+    ['🎯','MarcAR: llegaron Muerte por equipos, Todos contra todos y Captura la bandera, con 15 mapas. Y se juega mejor: palanca para mirar y botón para disparar, mira clara, humo que tapa, armas que se levantan y más sangre.'],
+    ['🏘️','PoblAR renovado: el mapa ocupa toda la pantalla y se mueve con los dedos; en la compu, panel fijo a la derecha.'],
+    ['🎁','EstanciAR: 139 objetos nuevos, de temporada (¡Navidad!) y con oro; editor de tu gaucho estilo Mii y el Pomberito que roba y hay que atraparlo.'],
+    ['📱','Todo más ordenado en el celular, el Sudoku con un modo notas inconfundible y el Truco que reparte boca arriba.']]},
   {v:83,grande:true,titulo:'Novedades',items:[
     ['🎯','¡Juego nuevo! MarcAR: policías contra terroristas desde arriba. Bomba en Estación Vieja y Carrera de armas, contra la compu o en línea con amigos.'],
     ['👾','InvasorAR con más tensión (música que se acelera, alarma y latidos) y un Versus donde le mandás ataques al otro.'],
@@ -5692,15 +5709,17 @@ const H={
   pool(k){if(k==='gano')confeti(['#1f7a4d','#f2c14e','#ffffff','#e5574a']);},
   solos(k){
     const juego=PAG;
+    if((k==='palo'||k==='linea')&&juego==='sudoku')return;   // v84: el sudoku va sobrio, sin festejos por línea
     if(k==='palo'||k==='linea'){const n=combo(juego+':ok',k==='palo'?5000:9000),p=punto(juego==='sudoku'?'#tab':'#mesa');
       burst(p.x,p.y,{n:k==='linea'?18:10,col:k==='linea'?C.verde:C.oro,tipo:'estrella',tam:k==='linea'?4:3.2,vel:k==='linea'?3:2.3,grav:.02});
       if(n>=2)texto('×'+n,p.x,p.y-24,{col:n>=4?'#ffd36e':'#fff1c2',tam:Math.min(30,18+n*2)});}
     else if(k==='pum'){const p=punto('#tab');burst(p.x,p.y,{n:20,col:C.humo,tipo:'polvo',tam:4,vel:3,grav:-.01,vida:800});temblor('#tab|#vp',5,320);}
     else if(k==='gano')confeti(juego==='solitario'?['#e5574a','#2b2b2b','#ffffff','#f2c14e']:C.verde.concat(['#74b9e8']));},
-  poblar(k){
-    if(k==='town'){const p=punto('#board|svg');burst(p.x,p.y,{n:18,col:C.oro,tipo:'estrella',tam:4,vel:2.8,grav:.02});}
-    else if(k==='ranch'){const p=punto('#board|svg');burst(p.x,p.y,{n:10,col:C.oro,vel:2.2});}
-    else if(k==='road'){const p=punto('#board|svg');burst(p.x,p.y,{n:6,col:C.polvo,tipo:'polvo',tam:2.4,vel:1.5,grav:0,vida:420});}
+  poblar(k,x){   // v84: x = {x,y} de la pieza recién construida (PoblAR la calcula); si no viene, como antes
+    const aca=()=>x&&isFinite(x.x)&&isFinite(x.y)?x:punto('#board|svg');
+    if(k==='town'){const p=aca();burst(p.x,p.y,{n:18,col:C.oro,tipo:'estrella',tam:4,vel:2.8,grav:.02});}
+    else if(k==='ranch'){const p=aca();burst(p.x,p.y,{n:10,col:C.oro,vel:2.2});}
+    else if(k==='road'){const p=aca();burst(p.x,p.y,{n:6,col:C.polvo,tipo:'polvo',tam:2.4,vel:1.5,grav:0,vida:420});}
     else if(k==='robber')temblor('#board|svg',2);
     else if(k==='win')confeti(['#f2c14e','#b5512e','#57a35d','#3f86d6','#fff']);}
 };
@@ -6068,7 +6087,7 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto};
     <div class="block about">
       <p class="about-sign"><b>Bloque<span>AR</span></b> · creado por <b>Antelo Rigali</b></p>
       <p class="hint">BloqueAR es un proyecto independiente y gratuito, sin anuncios ni registro. No está afiliado, asociado ni respaldado por ninguna otra marca o empresa de videojuegos. Las músicas son composiciones propias, salvo Korobéiniki, canción popular rusa del siglo XIX de dominio público.</p>
-      <p class="hint">Versión <span class="app-ver">83</span></p>
+      <p class="hint">Versión <span class="app-ver">84</span></p>
     </div>
     </div></details>
     </div>
@@ -6103,7 +6122,7 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto};
             <p class="overlay-tip" id="overlay-tip" hidden></p>
             <button type="button" class="overlay-level" id="overlay-level" aria-label="Tu perfil y progreso"></button>
             <div class="overlay-links"><button type="button" class="linkish overlay-share" id="overlay-share">📲 Pasar el juego</button><button type="button" class="linkish overlay-share" id="overlay-look" data-ap-hoja="bloquear">🎨 Apariencia</button><button type="button" class="linkish overlay-share" id="overlay-install">⬇ Instalar</button><button type="button" class="linkish overlay-share" id="overlay-lb" hidden>🏆 Tabla</button></div>
-            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v83</span></div>
+            <div class="overlay-foot">SIN ANUNCIOS · GRATIS · <span class="app-ver">v84</span></div>
             <div class="overlay-sign">Creado por Antelo Rigali</div>
           </div>
         </div>
@@ -10568,7 +10587,7 @@ function tabScopeSet(){const sc=TABS.sc;if(!sc||sc==='todos')return null;const a
   return null;}
 function tabScopeParams(){const sc=TABS.sc;if(!sc||sc==='todos')return {};if(sc.startsWith('g:'))return {grupo:sc.slice(2)};const S=tabScopeSet();return S?{solo:[...S].slice(0,60).join(',')}:{};}
 try{const v=localStorage.getItem('bloques-tab-sc');if(v)TABS.sc=v;}catch(_){}
-const TAB_G=[['bloquear','BloqueAR'],['poblar','PoblAR'],['truco','TrucAR'],['uno','UnoAR'],['ajedrez','AjedrezAR'],['sudoku','SudokAR'],['solitario','SolitARio'],['buscaminas','BuscaminAR'],['laberinto','LaberintAR'],['invasores','InvasorAR'],['pool','PoolAR'],['ludo','LudAR'],['estancia','EstanciAR']];
+const TAB_G=[['bloquear','BloqueAR'],['poblar','PoblAR'],['truco','TrucAR'],['uno','UnoAR'],['ajedrez','AjedrezAR'],['sudoku','SudokAR'],['solitario','SolitARio'],['buscaminas','BuscaminAR'],['laberinto','LaberintAR'],['invasores','InvasorAR'],['pool','PoolAR'],['ludo','LudAR'],['marcar','MarcAR'],['estancia','EstanciAR']];
 const TAB_BASE=new Set(['bloquear','poblar','truco','uno','ajedrez','estancia']);
 const tabJuegos=()=>TAB_G.filter(([k])=>TAB_BASE.has(k)||GNAMES[k]||(window.RANGOS&&RANGOS.GAMES[k]));
 const tabConRango=g=>!!(window.RANGOS&&RANGOS.GAMES[g]);

@@ -649,6 +649,60 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#06152
  .app.immersive .dice-hud{bottom:36px!important;top:auto!important}
 }
 @media (prefers-reduced-motion:reduce){.app.immersive *{scroll-behavior:auto}}
+
+/* ───── PoblAR v84 · interfaz híbrida («Mapa total»): el mapa es la mesa entera, sin marco ─────
+   El tablero llena toda la mesa y se encuadra solo en el lugar libre (fitBoard/safeRect); se arrastra y se pellizca.
+   Celular: marcador arriba y la mano abajo FLOTAN sobre el mapa. PC: mapa grande a la izquierda + panel fijo a la derecha. */
+.app.immersive .boardcol{inset:0!important;display:block}
+.app.immersive .boardwrap{position:absolute;inset:0;width:auto!important;height:auto;max-width:none;border:0;border-radius:0;box-shadow:none;background:transparent;overflow:hidden;touch-action:none;cursor:grab}
+.app.immersive .boardwrap:active{cursor:grabbing}
+.app.immersive .boardwrap svg{position:absolute;left:0;top:0;width:100%;height:auto;max-width:none;display:block}
+.app.immersive .boardwrap .devbig{left:var(--scx,50%);top:var(--scy,50%)}
+/* el mar del tablero ya no es un recuadro: es toda la mesa (las olas siguen, pero de borde a borde) */
+.app.immersive #board .mar{display:none}
+.app.immersive .boardwrap{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='22'%3E%3Cpath d='M2 12 q5.5-6 11 0 t11 0' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-size:46px 22px}
+.app.immersive .zoom-btn{display:none}
+/* controles chicos del mapa (PC): acercar, alejar, isla completa */
+.zctl{display:none}
+.app.immersive .zctl{position:absolute;z-index:5;right:12px;bottom:46px;display:none;flex-direction:column;gap:5px}
+.app.immersive .zctl button{width:36px;height:36px;border-radius:10px;border:1px solid #9bcbd25c;background:#0c2333e0;color:#eaf6f6;font:800 18px/1 system-ui,sans-serif;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 12px #001b2baa;padding:0}
+.app.immersive .zctl button:disabled{opacity:.4;cursor:default}
+.app.immersive .zctl button:hover:not(:disabled){background:#173a4d}
+.app.immersive .zctl button:focus-visible{outline:3px solid #7ce9e5;outline-offset:2px}
+/* hoja de «Vistas» */
+.vistas-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.vistas-grid button{min-height:58px;border-radius:13px;border:1px solid var(--line);background:#0f2232;color:inherit;font:800 14px/1.2 system-ui,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px}
+.vistas-grid button small{font-weight:600;font-size:11px;color:var(--dim)}
+.vistas-grid button span{font-size:20px}
+.vistas-grid button:active{transform:scale(.97)}
+
+/* Celular y tablet parados (y todo lo angosto que no está acostado): mapa a pantalla completa con la mano flotando */
+@media (max-width:839px) and (orientation:portrait),(max-width:839px) and (min-height:570px){
+ .app.immersive .main{position:relative}
+ .app.immersive .table-surface{position:absolute;inset:0}
+ .app.immersive .table-surface:after{box-shadow:inset 0 22px 26px #0015224d}
+ .app.immersive .panel{position:absolute;left:0;right:0;bottom:0;z-index:6;border-radius:18px 18px 0 0;border:1px solid #8bbfc13d;border-bottom:0;
+   background:linear-gradient(175deg,#142b3cec,#0a1828f4 65%);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 -10px 28px #00121b8c;padding-top:7px}
+ .app.immersive .stline{bottom:calc(var(--pnl-h,150px) + 5px)}
+ .app.immersive:not([data-dice-pos="top-right"]) .dice-hud{bottom:calc(var(--pnl-h,150px) + 42px)!important;top:auto!important}
+ .app.immersive .log{bottom:calc(var(--pnl-h,150px) + 8px)}
+ .app.immersive .score{top:6px}
+}
+/* PC: sin marcos; el mapa ocupa toda su columna y el panel queda pegado a la derecha, de arriba abajo */
+@media (min-width:840px) and (min-height:570px){
+ .app.immersive .main{width:100%;max-width:none;margin:0;padding:0;gap:0}
+ .app.immersive .table-surface{border:0;border-radius:0;box-shadow:none}
+ .app.immersive .panel{flex:0 0 clamp(320px,27vw,384px);max-width:384px;border:0;border-left:1px solid #7ba3a34f;border-radius:0;padding:14px 14px 12px;box-shadow:-12px 0 32px #00111d80}
+ .app.immersive .zctl{display:flex}
+ .app.immersive .scene-rail{top:14px;left:14px}
+ .app.immersive .dice-hud{left:14px}
+ .app.immersive[data-dice-pos="bottom-right"] .dice-hud{right:62px}
+}
+/* celular acostado: el mapa usa todo el alto a la izquierda y también tiene los controles chicos */
+@media (orientation:landscape) and (max-height:569px){
+ .app.immersive .zctl{display:flex;flex-direction:row;right:8px;top:8px;bottom:auto}
+ .app.immersive .zctl button{width:32px;height:32px;font-size:16px}
+}
 </style>
 <script>
 /* ───────── v77 · El sonido de la app no corta la música del celular ─────────
@@ -4072,7 +4126,9 @@ const LK_CSS=`.cx-linkb{display:flex;align-items:center;gap:10px;width:100%;marg
 .cx-lk-r{display:flex;gap:8px}.cx-lk-r button{flex:1;min-height:46px;border-radius:12px;border:1px solid #3b5170;background:#1f3047;color:#f4f7fe;font-weight:700;font-size:14px}
 .cx-lk-x{min-height:44px;border-radius:12px;border:0;background:none;color:#9fb0c6;font-weight:700;font-size:14px}
 .cx-lk button.cx-lk-wa{border:0;width:100%;cursor:pointer;font-family:inherit}.cx-lk-esp{display:flex;align-items:center;gap:8px;color:#7ce9e5!important;font-weight:700}
-.cx-citab small{display:block;font-weight:500;opacity:.7;font-size:12px;margin-top:1px}.cx-citas small{display:block;margin:2px 0 6px;font-size:12.5px}`;
+.cx-citab small{display:block;font-weight:500;opacity:.7;font-size:12px;margin-top:1px}
+/* v84: «Invitar con un link» y «Armar un grupo» más bajos y en un renglón cada uno (antes, dos renglones grandes) */
+.cx-citab,.cx-gnew{min-height:40px;margin:6px 16px 2px;padding:4px 10px}.cx-citab small{display:none}.cx-citas small{display:block;margin:2px 0 6px;font-size:12.5px}`;
 function linkCss(){if(document.getElementById('cx-lk-css'))return;const s=document.createElement('style');s.id='cx-lk-css';s.textContent=LK_CSS;(document.head||document.documentElement).appendChild(s);}
 try{linkLlegada();}catch(_){}
 /* ── v82 · LINK DESDE EL CHAT («cita»; pedido: «invitar por link directo desde el chat, sin abrir un juego»)
@@ -4600,6 +4656,11 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:84,grande:true,titulo:'Novedades',items:[
+    ['🎯','MarcAR: llegaron Muerte por equipos, Todos contra todos y Captura la bandera, con 15 mapas. Y se juega mejor: palanca para mirar y botón para disparar, mira clara, humo que tapa, armas que se levantan y más sangre.'],
+    ['🏘️','PoblAR renovado: el mapa ocupa toda la pantalla y se mueve con los dedos; en la compu, panel fijo a la derecha.'],
+    ['🎁','EstanciAR: 139 objetos nuevos, de temporada (¡Navidad!) y con oro; editor de tu gaucho estilo Mii y el Pomberito que roba y hay que atraparlo.'],
+    ['📱','Todo más ordenado en el celular, el Sudoku con un modo notas inconfundible y el Truco que reparte boca arriba.']]},
   {v:83,grande:true,titulo:'Novedades',items:[
     ['🎯','¡Juego nuevo! MarcAR: policías contra terroristas desde arriba. Bomba en Estación Vieja y Carrera de armas, contra la compu o en línea con amigos.'],
     ['👾','InvasorAR con más tensión (música que se acelera, alarma y latidos) y un Versus donde le mandás ataques al otro.'],
@@ -5473,15 +5534,17 @@ const H={
   pool(k){if(k==='gano')confeti(['#1f7a4d','#f2c14e','#ffffff','#e5574a']);},
   solos(k){
     const juego=PAG;
+    if((k==='palo'||k==='linea')&&juego==='sudoku')return;   // v84: el sudoku va sobrio, sin festejos por línea
     if(k==='palo'||k==='linea'){const n=combo(juego+':ok',k==='palo'?5000:9000),p=punto(juego==='sudoku'?'#tab':'#mesa');
       burst(p.x,p.y,{n:k==='linea'?18:10,col:k==='linea'?C.verde:C.oro,tipo:'estrella',tam:k==='linea'?4:3.2,vel:k==='linea'?3:2.3,grav:.02});
       if(n>=2)texto('×'+n,p.x,p.y-24,{col:n>=4?'#ffd36e':'#fff1c2',tam:Math.min(30,18+n*2)});}
     else if(k==='pum'){const p=punto('#tab');burst(p.x,p.y,{n:20,col:C.humo,tipo:'polvo',tam:4,vel:3,grav:-.01,vida:800});temblor('#tab|#vp',5,320);}
     else if(k==='gano')confeti(juego==='solitario'?['#e5574a','#2b2b2b','#ffffff','#f2c14e']:C.verde.concat(['#74b9e8']));},
-  poblar(k){
-    if(k==='town'){const p=punto('#board|svg');burst(p.x,p.y,{n:18,col:C.oro,tipo:'estrella',tam:4,vel:2.8,grav:.02});}
-    else if(k==='ranch'){const p=punto('#board|svg');burst(p.x,p.y,{n:10,col:C.oro,vel:2.2});}
-    else if(k==='road'){const p=punto('#board|svg');burst(p.x,p.y,{n:6,col:C.polvo,tipo:'polvo',tam:2.4,vel:1.5,grav:0,vida:420});}
+  poblar(k,x){   // v84: x = {x,y} de la pieza recién construida (PoblAR la calcula); si no viene, como antes
+    const aca=()=>x&&isFinite(x.x)&&isFinite(x.y)?x:punto('#board|svg');
+    if(k==='town'){const p=aca();burst(p.x,p.y,{n:18,col:C.oro,tipo:'estrella',tam:4,vel:2.8,grav:.02});}
+    else if(k==='ranch'){const p=aca();burst(p.x,p.y,{n:10,col:C.oro,vel:2.2});}
+    else if(k==='road'){const p=aca();burst(p.x,p.y,{n:6,col:C.polvo,tipo:'polvo',tam:2.4,vel:1.5,grav:0,vida:420});}
     else if(k==='robber')temblor('#board|svg',2);
     else if(k==='win')confeti(['#f2c14e','#b5512e','#57a35d','#3f86d6','#fff']);}
 };
@@ -5510,6 +5573,7 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto};
       <div class="boardcol" id="boardcol">
         <div class="boardwrap" id="boardwrap"><svg id="board" role="img" aria-label="Tablero"></svg><button class="zoom-btn" id="b-zoom" type="button" aria-label="Acercar el tablero" title="Acercar o alejar">🔍</button></div>
       </div>
+      <div class="zctl" id="zctl" role="group" aria-label="Acercar o alejar el mapa"><button type="button" id="z-in" aria-label="Acercar" title="Acercar">+</button><button type="button" id="z-out" aria-label="Alejar" title="Alejar">−</button><button type="button" id="z-fit" aria-label="Ver la isla completa" title="Isla completa">⌖</button></div>
       <div class="score" id="score">
         <div class="pl" id="pl0" style="--pc:var(--me)"><i></i><div><b id="pn0">Vos</b><small id="ps0"></small></div><div class="vp"><span id="vp0">0</span><small>/8</small></div></div>
         <div class="pl" id="pl1" style="--pc:var(--cpu)"><i></i><div><b id="pn1"></b><small id="ps1"></small></div><div class="vp"><span id="vp1">0</span><small>/8</small></div></div>
@@ -5519,6 +5583,7 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto};
         <button class="railbtn" id="hud-bonuses" title="Camino y tropilla" aria-label="Bonificaciones de camino y tropilla">🏅</button>
         <button class="railbtn" id="hud-log" title="Movimientos de la mesa" aria-label="Movimientos de la mesa: tiradas y lo que recibió cada uno">☷<span class="rb-n" id="hud-log-n"></span></button>
         <button class="railbtn" id="hud-costs" title="Costos y reglas rápidas" aria-label="Ver costos de construcción">📖</button>
+        <button class="railbtn" id="hud-vistas" title="Vistas: isla completa, acercar, costos y dados" aria-label="Vistas del mapa">🧭</button>
       </div>
       <div class="dice-hud" id="dice-hud" aria-label="Última tirada"></div>
       <div class="stline" id="stline"><div class="status" id="status" aria-live="polite"></div><div class="relato" id="relato" hidden role="status" aria-live="polite"></div><div class="relato propbar" id="propbar" hidden role="group" aria-label="Propuesta de cambio"></div></div>
@@ -5773,7 +5838,7 @@ function build(p,kind,at){
   const free=kind==='road'&&G.free>0;
   if(free)G.free--;else pay(p,kind);place(p,kind,at);
   if(p===0)lgEv(kind==='road'?'tramos':kind==='ranch'?'ranchos':'pueblos');
-  addLog(`${W(p)} ${V(p,'construiste','construyó')} ${kind==='road'?'un camino':kind==='ranch'?'un rancho':'un pueblo'}${free?' (gratis)':''}.`);
+  addLog(`${W(p)} ${V(p,'construiste','construyó')} ${kind==='road'?'un camino':kind==='ranch'?'un rancho':'un pueblo'}${free?' (gratis)':` <small>(${Object.entries(COST[kind]).map(([r,n])=>n+RI[r].e).join(' ')})</small>`}.`);   // v84: con lo que costó
   if(G.free>0&&(!roadSpots(p).length||G.p[p].road>=LIMIT.road))G.free=0;
   if(p===0&&G.free>0)mode='road';
   checkWin();save();render();
@@ -5897,7 +5962,7 @@ function mostrarCartaNueva(k){
   el.addEventListener('pointerdown',e=>e.stopPropagation());
   el.addEventListener('click',e=>{e.stopPropagation();cerrar();});
   el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '||e.key==='Escape'){e.preventDefault();cerrar();}});
-  temporizador=setTimeout(cerrar,5000);
+  temporizador=setTimeout(cerrar,4000);   // v84: 4 s (pedido del rediseño híbrido)
 }
 const victimsAt=(hex,p)=>[...new Set(B.hexes[hex].v.map(v=>G.owner[v]).filter(o=>o!==null&&o!==p))];
 // La compu le roba al que va ganando (y que tenga cartas).
@@ -6174,7 +6239,7 @@ function buildStatic(W,H,X,Y){
     <radialGradient id="g-luz" cx="35%" cy="25%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient>
     <filter id="f-sombra" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000" flood-opacity=".45"/></filter>
   </defs>
-  <rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#g-mar)"/><rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#p-ola)"/>`;
+  <rect class="mar" x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#g-mar)"/><rect class="mar" x="${X}" y="${Y}" width="${W}" height="${H}" fill="url(#p-ola)"/>`;
   // Costa: arena alrededor de la isla
   for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.08)}" fill="#e3c98f"/>`;
   for(const h of RB.hexes)s+=`<polygon points="${hexPts(h,1.04)}" fill="#cfae6a"/>`;
@@ -6232,7 +6297,7 @@ const RBW={seed:null,last:null,from:null,t0:0};
 // Desde cuándo se ve cada pieza: -1 si ya estaba (o si recién se abrió la partida), si no los ms desde que apareció (hasta 600).
 const NUEVO={seed:null,t:{},armado:0};
 function nuevoT(key){const now=performance.now();if(NUEVO.seed!==G.seed){NUEVO.seed=G.seed;NUEVO.t={};NUEVO.armado=now;}
-  if(!(key in NUEVO.t))NUEVO.t[key]=now-NUEVO.armado<300?-1e9:now;const t0=NUEVO.t[key];if(t0<0)return -1;const d=now-t0;return d<600?d:-1;}
+  if(!(key in NUEVO.t)){NUEVO.t[key]=now-NUEVO.armado<300?-1e9:now;if(NUEVO.t[key]>0)NUEVO.ult={key,t:now};}const t0=NUEVO.t[key];if(t0<0)return -1;const d=now-t0;return d<600?d:-1;}
 function drawBoard(){
   setRB();const svg=$('board'),V=boardBox();
   svg.setAttribute('viewBox',`${V.x} ${V.y} ${V.w} ${V.h}`);
@@ -6412,33 +6477,59 @@ $('relato').addEventListener('click',()=>{$('relato').hidden=true;RELIMP=0;});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('side').hidden)closeSide();else if(!$('modal').hidden&&$('sheet').querySelector('#fl-x,#m-x,#n-no'))closeModal();}});
 // El tablero toma el lugar que queda libre, sin pasarse de ancho ni de alto (nada de scrollear para jugar).
 function fitBoard(){
-  const col=$('boardcol'),bw=$('boardwrap');
-  if(G&&B&&col.clientWidth&&col.clientHeight){
-    // v64: el tablero queda siempre igual (misma orientación en todos los celulares); antes se giraba 90° si así entraba mejor,
-    // y cuando aparecía o se iba un aviso cambiaba el lugar libre y se daba vuelta un momento.
-    if(ROT){ROT=false;setRB();drawBoard();}
-  }
-  const vb=$('board').viewBox.baseVal;if(!vb||!vb.width)return;
-  const ar=vb.width/vb.height,w=Math.floor(Math.min(col.clientWidth,col.clientHeight*ar));
-  if(w>0&&bw.style.width!==w+'px'){bw.style.width=w+'px';zApply();}
+  // v84 · interfaz híbrida: el tablero ocupa toda la mesa (sin marco) y la isla se encuadra en el lugar libre
+  // que dejan el marcador de arriba y la mano de abajo; se puede arrastrar y pellizcar a gusto.
+  const col=$('boardcol'),bw=$('boardwrap'),svg=$('board');
+  if(G&&B&&col.clientWidth&&col.clientHeight){if(ROT){ROT=false;setRB();drawBoard();}}
+  if(bw.style.width)bw.style.width='';
+  const vb=svg.viewBox.baseVal;if(!vb||!vb.width||!bw.clientWidth||!bw.clientHeight)return;
+  const S=safeRect(),k=Math.min(S.w/vb.width,S.h/vb.height);
+  const w=Math.max(10,Math.floor(vb.width*k)),h=Math.max(10,Math.floor(vb.height*k)),L=Math.round(S.x+(S.w-w)/2),T=Math.round(S.y+(S.h-h)/2);
+  bw.style.setProperty('--scx',Math.round(S.x+S.w/2)+'px');bw.style.setProperty('--scy',Math.round(S.y+S.h/2)+'px');
+  if(FIT.w!==w||FIT.h!==h||FIT.L!==L||FIT.T!==T){
+    // si ya estaba acercado, se conserva el mismo punto del tablero en el centro
+    const k0=FIT.w?w/FIT.w:1;ZM.x*=k0;ZM.y*=k0;
+    FIT.w=w;FIT.h=h;FIT.L=L;FIT.T=T;svg.style.width=w+'px';svg.style.height=h+'px';svg.style.left=L+'px';svg.style.top=T+'px';}
+  FIT.S=S;zApply();
+}
+// El lugar libre de la mesa (en coordenadas del tablero): lo que no tapan el marcador, la mano y el renglón de estado.
+function safeRect(){
+  const bw=$('boardwrap'),wr=bw.getBoundingClientRect(),W=wr.width,H=wr.height,m=W<520?5:12;let t=0,b=H;
+  const sc=$('score');if(sc&&sc.closest('.table-surface')&&sc.getClientRects().length){const q=sc.getBoundingClientRect();if(q.bottom>wr.top&&q.top<wr.top+H/2)t=Math.max(t,q.bottom-wr.top);}
+  const pn=$('panel');if(pn&&pn.getClientRects().length){const q=pn.getBoundingClientRect();if(q.top<wr.bottom-1&&q.top>wr.top+H/3&&q.left<wr.left+W/2&&q.right>wr.left+W/2)b=Math.min(b,q.top-wr.top);}
+  const rail=document.querySelector('.scene-rail');let l=0;if(rail&&W>H*1.25&&H<520){const q=rail.getBoundingClientRect();if(q.right>wr.left&&q.left<wr.left+60)l=q.right-wr.left;}
+  b-=W<520?34:38;   // renglón de estado («Tirá los dados», «Juega …»)
+  return {x:l+m,y:t+m,w:Math.max(60,W-l-2*m),h:Math.max(60,b-t-2*m)};
 }
 // Alto real de la pantalla (sin depender de 100vh, que en el iPhone instalado calculaba mal).
 /* ── Acercar el tablero: pellizcar, la lupa o la ruedita del mouse; con el tablero acercado, se arrastra para moverlo ── */
-const ZM={s:1,x:0,y:0},ZMAX=2.6;
-function zApply(){const w=$('boardwrap'),W=w.clientWidth,H=w.clientHeight,on=ZM.s>1.001;
-  ZM.s=Math.max(1,Math.min(ZMAX,ZM.s));ZM.x=Math.min(0,Math.max(W-W*ZM.s,ZM.x));ZM.y=Math.min(0,Math.max(H-H*ZM.s,ZM.y));
-  $('board').style.transform=on?`translate(${ZM.x.toFixed(1)}px,${ZM.y.toFixed(1)}px) scale(${ZM.s.toFixed(3)})`:'';
-  const b=$('b-zoom');if(b){b.textContent=on?'⤢':'🔍';b.setAttribute('aria-label',on?'Ver el tablero entero':'Acercar el tablero');}w.classList.toggle('zoomed',on);}
+const ZM={s:1,x:0,y:0},ZMAX=2.6,FIT={w:0,h:0,L:0,T:0,S:null};
+function zApply(){const w=$('boardwrap'),svg=$('board');
+  ZM.s=Math.max(1,Math.min(ZMAX,ZM.s));
+  // v84: se puede arrastrar siempre (también sin acercar), pero la isla nunca se pierde: si entra en el lugar libre
+  // se mueve un poco alrededor; si es más grande (acercada), sus bordes no se despegan del lugar libre.
+  const S=FIT.S||{x:0,y:0,w:w.clientWidth,h:w.clientHeight},M=48;
+  const rg=(lo,hi,size,base)=>size<=hi-lo?[lo-M-base,hi+M-base-size]:[hi-base-size-M,lo-base+M];
+  const [x0,x1]=rg(S.x,S.x+S.w,FIT.w*ZM.s,FIT.L),[y0,y1]=rg(S.y,S.y+S.h,FIT.h*ZM.s,FIT.T);
+  ZM.x=Math.min(Math.max(x0,x1),Math.max(Math.min(x0,x1),ZM.x));ZM.y=Math.min(Math.max(y0,y1),Math.max(Math.min(y0,y1),ZM.y));
+  const on=ZM.s>1.001,mov=on||Math.abs(ZM.x)>.5||Math.abs(ZM.y)>.5;
+  svg.style.transform=mov?`translate(${ZM.x.toFixed(1)}px,${ZM.y.toFixed(1)}px) scale(${ZM.s.toFixed(3)})`:'';
+  const b=$('b-zoom');if(b){b.textContent=on?'⤢':'🔍';b.setAttribute('aria-label',on?'Ver el tablero entero':'Acercar el tablero');}w.classList.toggle('zoomed',on);w.classList.toggle('movido',mov);
+  const zf=$('z-fit');if(zf)zf.disabled=!mov;}
+// Punto (en la pantalla) del origen del tablero sin acercar: los gestos se calculan desde ahí.
+function zBase(){const r=$('boardwrap').getBoundingClientRect();return {left:r.left+FIT.L,top:r.top+FIT.T};}
 function zTo(s,cx,cy){const k=s/ZM.s;ZM.x=cx-(cx-ZM.x)*k;ZM.y=cy-(cy-ZM.y)*k;ZM.s=s;zApply();}
 function zReset(){ZM.s=1;ZM.x=0;ZM.y=0;zApply();}
+// v84: acercar o alejar sobre el centro del lugar libre (botones + y −, «Acercar» de Vistas)
+function zCentro(s){const S=FIT.S;if(!S)return zTo(s,FIT.w/2,FIT.h/2);zTo(Math.max(1,Math.min(ZMAX,s)),S.x+S.w/2-FIT.L,S.y+S.h/2-FIT.T);}
 {const w=$('boardwrap'),P=new Map();let g=null,swallow=0;
   w.addEventListener('pointerdown',e=>{if(e.target.closest('#b-zoom'))return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});if(P.size===1)w._tap={x:e.clientX,y:e.clientY,t:Date.now(),n:TAPN};
-    if(P.size===2){const [a,b]=[...P.values()],r=w.getBoundingClientRect();g={pinch:Math.hypot(a.x-b.x,a.y-b.y)||1,s:ZM.s,mx:(a.x+b.x)/2-r.left,my:(a.y+b.y)/2-r.top,x:ZM.x,y:ZM.y};}
+    if(P.size===2){const [a,b]=[...P.values()],r=zBase();g={pinch:Math.hypot(a.x-b.x,a.y-b.y)||1,s:ZM.s,mx:(a.x+b.x)/2-r.left,my:(a.y+b.y)/2-r.top,x:ZM.x,y:ZM.y};}
     else if(P.size===1)g={sx:e.clientX,sy:e.clientY,x:ZM.x,y:ZM.y,moved:false};});
   w.addEventListener('pointermove',e=>{if(!P.has(e.pointerId)||!g)return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    if(g.pinch){if(P.size<2)return;const [a,b]=[...P.values()],r=w.getBoundingClientRect(),d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2-r.left,my=(a.y+b.y)/2-r.top;
+    if(g.pinch){if(P.size<2)return;const [a,b]=[...P.values()],r=zBase(),d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2-r.left,my=(a.y+b.y)/2-r.top;
       const s=Math.max(1,Math.min(ZMAX,g.s*d/g.pinch)),cx=(g.mx-g.x)/g.s,cy=(g.my-g.y)/g.s;ZM.s=s;ZM.x=mx-cx*s;ZM.y=my-cy*s;zApply();swallow=Date.now();return;}
-    if(ZM.s<=1.001)return;const dx=e.clientX-g.sx,dy=e.clientY-g.sy;if(!g.moved&&Math.hypot(dx,dy)<8)return;g.moved=true;ZM.x=g.x+dx;ZM.y=g.y+dy;zApply();});
+    const dx=e.clientX-g.sx,dy=e.clientY-g.sy;if(!g.moved&&Math.hypot(dx,dy)<9)return;/* v84: se arrastra siempre */g.moved=true;ZM.x=g.x+dx;ZM.y=g.y+dy;zApply();});
   const up=e=>{if(!P.has(e.pointerId))return;const tp=w._tap;w._tap=null;
     // v64: un toque corto que no llegó a ningún lugar (el tablero se redibujó justo, o el dedo cayó al lado): se busca el más cercano
     if(e.type==='pointerup'&&tp&&P.size===1&&g&&!g.moved&&!g.pinch&&Date.now()-tp.t<700&&Math.hypot(e.clientX-tp.x,e.clientY-tp.y)<12){const x=e.clientX,y=e.clientY;setTimeout(()=>{if(TAPN===tp.n)boardPick(x,y);},90);}
@@ -6447,8 +6538,8 @@ function zReset(){ZM.s=1;ZM.x=0;ZM.y=0;zApply();}
   w.addEventListener('pointerup',up);w.addEventListener('pointercancel',up);
   // Después de arrastrar o pellizcar, soltar el dedo no cuenta como jugada.
   w.addEventListener('click',e=>{if(Date.now()-swallow<350&&!e.target.closest('#b-zoom')){e.stopPropagation();e.preventDefault();}},true);
-  w.addEventListener('wheel',e=>{e.preventDefault();const r=w.getBoundingClientRect();zTo(Math.max(1,Math.min(ZMAX,ZM.s*(e.deltaY<0?1.15:1/1.15))),e.clientX-r.left,e.clientY-r.top);},{passive:false});
-  $('b-zoom').addEventListener('click',e=>{e.stopPropagation();const r=w.getBoundingClientRect();if(ZM.s>1.001)zReset();else zTo(1.8,r.width/2,r.height/2);});
+  w.addEventListener('wheel',e=>{e.preventDefault();const r=zBase();zTo(Math.max(1,Math.min(ZMAX,ZM.s*(e.deltaY<0?1.15:1/1.15))),e.clientX-r.left,e.clientY-r.top);},{passive:false});
+  $('b-zoom').addEventListener('click',e=>{e.stopPropagation();if(ZM.s>1.001)zReset();else zCentro(1.8);});
 }
 function fitScreen(){
   // La barra de arriba del iPhone ya no es transparente: la página empieza debajo de la hora y el alto real es innerHeight.
@@ -6931,7 +7022,7 @@ function openMenu(){
     <a href="./#juegos" id="m-games">🎮 Menú de juegos</a>
     ${ON&&ON.role==='host'&&ON.state==='on'&&G&&G.phase!=='over'?'<button id="m-pausa">⏸️ Pausar y seguir otro día <small>se guarda para todos</small></button>':''}
     ${acct()?'<button id="m-mias">📂 Partidas guardadas <small>en línea, para seguir</small></button>':''}
-    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>${dicePosControls()}<p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 83</p>`);
+    ${ON?'<button id="m-leave">🚪 Salir de la partida en línea</button>':''}</div>${dicePosControls()}<p class="note" style="margin-top:auto;text-align:center">PoblAR · versión 84</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-snd').onclick=()=>{SND_ON=!SND_ON;try{localStorage.setItem('poblar-sonido',SND_ON?'1':'0');}catch(_){}if(SND_ON)sound('turn');openMenu();};
   $('m-x').onclick=closeSide;$('m-games').onclick=e=>{closeSide();goGames(e);};$('m-acct').onclick=e=>{closeSide();goGames(e);};$('m-tabla').onclick=e=>{closeSide();goGames(e);};
@@ -6989,7 +7080,12 @@ const SFX={
   lose(){[N.G4,N.E4,N.C4].forEach((f,i)=>mallet(f,i*.16,.06,.6));},
   nope(){knock(0,.3,320);}
 };
-function sound(k){try{if(!(typeof FAST!=='undefined'&&FAST)&&window.JUGO)JUGO.ev('poblar',k);}catch(_){}if(!SND_ON||(typeof FAST!=='undefined'&&FAST))return;try{SFX[k]&&SFX[k]();}catch(_){}}
+// v84: el festejo de una construcción sale justo donde está la pieza nueva (también con el mapa acercado o corrido).
+function obraPunto(k){try{const u=NUEVO.ult;if(!u||performance.now()-u.t>2500||!RB)return null;const c=u.key[0],i=+u.key.slice(1);
+  if((k==='road')!==(c==='e')||(k==='town'&&c!=='t')||(k==='ranch'&&c!=='v'))return null;
+  let x,y;if(c==='e'){const e=RB.edges[i];if(!e)return null;const A=RB.verts[e.a],C=RB.verts[e.b];x=(A.x+C.x)/2;y=(A.y+C.y)/2;}else{const v=RB.verts[i];if(!v)return null;x=v.x;y=v.y;}   // el centro del dibujo del rancho/pueblo es el vértice
+  const svg=$('board'),M=svg.getScreenCTM&&svg.getScreenCTM();if(!M)return null;const p=new DOMPoint(x,y).matrixTransform(M);return {x:p.x,y:p.y};}catch(_){return null;}}
+function sound(k){try{if(!(typeof FAST!=='undefined'&&FAST)&&window.JUGO)JUGO.ev('poblar',k,(k==='town'||k==='ranch'||k==='road')?obraPunto(k):null);}catch(_){}if(!SND_ON||(typeof FAST!=='undefined'&&FAST))return;try{SFX[k]&&SFX[k]();}catch(_){}}
 // Sonidos según lo que cambió desde la última vez que se dibujó (así suenan también las jugadas del amigo en línea).
 let SNAP=null;
 function snapOf(){const sm=f=>seats().reduce((s,p)=>s+f(G.p[p]),0);return {seed:G.seed,rolls:G.rolls,robber:G.robber,road:[sm(x=>x.road),0],ranch:[sm(x=>x.ranch),0],town:[sm(x=>x.town),0],
@@ -7732,6 +7828,34 @@ window.POBLAR={nuevaLocal,pasarA,get LOCALP(){return LOCALP;},save,showEnd,rankE
    if(G.seed!==lastSeed){lastSeed=G.seed;zReset();}
  };
  try{fitBoard();}catch(e){console.warn('encuadre inicial',e);}
+ // v84 · Vistas (en el celular reemplaza a la lupa): isla completa, acercar, costos, bonificaciones, movimientos y dados.
+ function openVistas(){
+   openModal(`<h2>🧭 Vistas</h2><p class="costs-intro">Arrastrá el mapa con un dedo y pellizcá para acercar. Desde acá lo volvés a encuadrar.</p>
+   <div class="vistas-grid">
+    <button type="button" id="vi-isla"><span>🏝️</span>Isla completa<small>Centrar todo</small></button>
+    <button type="button" id="vi-cerca"><span>🔍</span>Acercar<small>Al centro del mapa</small></button>
+    <button type="button" id="vi-costos"><span>📖</span>Costos<small>Construcciones y cartas</small></button>
+    <button type="button" id="vi-bonos"><span>🏅</span>Bonificaciones<small>Camino y tropilla</small></button>
+    <button type="button" id="vi-mov"><span>☷</span>Movimientos<small>Lo que pasó en la mesa</small></button>
+   </div>${typeof dicePosControls==='function'?dicePosControls():''}
+   <div class="row"><button class="primary" id="vi-x">LISTO</button></div>`);
+   get('vi-isla').onclick=()=>{closeModal();zReset();};
+   get('vi-cerca').onclick=()=>{closeModal();zCentro(Math.max(1.8,ZM.s*1.4));};
+   get('vi-costos').onclick=()=>{closeModal();openCosts();};
+   get('vi-bonos').onclick=()=>{closeModal();get('hud-bonuses').click();};
+   get('vi-mov').onclick=()=>{closeModal();const lg=get('log');if(lg.closest('#desktop-activity'))lg.scrollIntoView({block:'nearest'});else if(!lg.classList.contains('open'))get('hud-log').click();};
+   get('vi-x').onclick=closeModal;
+   get('sheet').querySelectorAll('[data-dice-pos]').forEach(b=>{b.classList.toggle('on',b.dataset.dicePos===dicePos);b.onclick=()=>{setDicePos(b.dataset.dicePos);get('sheet').querySelectorAll('[data-dice-pos]').forEach(x=>x.classList.toggle('on',x.dataset.dicePos===dicePos));};});
+ }
+ get('hud-vistas').addEventListener('click',openVistas);
+ get('z-in').addEventListener('click',()=>zCentro(ZM.s*1.3));
+ get('z-out').addEventListener('click',()=>{if(ZM.s<=1.3)zReset();else zCentro(ZM.s/1.3);});
+ get('z-fit').addEventListener('click',()=>zReset());
+ // El alto de la mano flotante (celular): para poner arriba los dados y el renglón de estado, y encuadrar la isla.
+ {let alto=-1;const medir=()=>{const flota=getComputedStyle(panel).position==='absolute',h=flota?Math.round(panel.getBoundingClientRect().height):0;
+   if(h!==alto){alto=h;get('app').style.setProperty('--pnl-h',h+'px');try{fitBoard();}catch(_){}}};
+  if(window.ResizeObserver)new ResizeObserver(()=>requestAnimationFrame(medir)).observe(panel);
+  window.addEventListener('resize',()=>requestAnimationFrame(medir));medir();}
  // Nota: futuras expansiones deberían registrarse como reglas y configuración, no como CSS condicional.
 })();
 </script>
