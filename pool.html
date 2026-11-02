@@ -2827,10 +2827,10 @@ function invCard(m){const o=S.plain[m.id];return o&&o.card&&o.card.inv?o.card:nu
 function invPendientes(){const out=[];for(let i=S.msgs.length-1;i>=0&&out.length<20;i--){const m=S.msgs[i],c=invCard(m),e=c&&S.invSt[c.inv];if(c&&!INV_FIN.includes(e)&&!(e==='vencida'&&Date.now()-m.t>2*3600e3))out.push(c.inv);}return out;}
 function invGuardarSt(o){let ch=false;for(const [id,e] of Object.entries(o||{}))if(S.invSt[id]!==e){S.invSt[id]=e;ch=true;}
   if(ch){const keep={};for(const m of S.msgs){const c=invCard(m);if(c&&S.invSt[c.inv])keep[c.inv]=S.invSt[c.inv];}S.invSt=keep;ls.set(kInvSt(),JSON.stringify(keep));}return ch;}
-const INV_URL={bloquear:'./',truco:'truco.html',uno:'uno.html',poblar:'poblar.html',ajedrez:'ajedrez.html',ludo:'ludo.html',pool:'pool.html',invasores:'invasores.html',marcar:'marcar.html'},INV_KEY={bloquear:'blq-accept',truco:'truco-accept',uno:'uno-accept',poblar:'poblar-accept',ajedrez:'ajedrez-accept',ludo:'ludo-accept',pool:'pool-accept',invasores:'invasores-accept',marcar:'marcar-accept'};
+const INV_URL={bloquear:'./',truco:'truco.html',uno:'uno.html',poblar:'poblar.html',ajedrez:'ajedrez.html',ludo:'ludo.html',pool:'pool.html',invasores:'invasores.html',marcar:'marcar.html',fortinar:'fortinar.html'},INV_KEY={bloquear:'blq-accept',truco:'truco-accept',uno:'uno-accept',poblar:'poblar-accept',ajedrez:'ajedrez-accept',ludo:'ludo-accept',pool:'pool-accept',invasores:'invasores-accept',marcar:'marcar-accept',fortinar:'fortinar-accept'};
 function invCardHtml(c,m){
   const mine=lc(m.de)===lc(S.me),otro=mine?m.para:m.de,e=S.invSt[c.inv]||(Date.now()-m.t>6*3600e3?'vieja':'esperando'),busy=S.invBusy[c.inv];
-  const ic={bloquear:'🧱',poblar:'🏘️',truco:'🃏',uno:'🎴',ajedrez:'♟️',ludo:'🎲',pool:'🎱',invasores:'👾',marcar:'🎯'}[c.j]||'🎮',nom=GAMES[c.j]||'jugar';
+  const ic={bloquear:'🧱',poblar:'🏘️',truco:'🃏',uno:'🎴',ajedrez:'♟️',ludo:'🎲',pool:'🎱',invasores:'👾',marcar:'🎯',fortinar:'🏰'}[c.j]||'🎮',nom=GAMES[c.j]||'jugar';
   const est={esperando:mine?'Esperando que entre…':'Te está esperando',aceptada:mine?'✓ Entró':'✓ Entraste',rechazada:mine?'Dijo «ahora no»':'Dijiste «ahora no»',
     cancelada:mine?'La cancelaste':'La canceló',vencida:mine?'Venció':'Ya no está esperando',vieja:'Invitación anterior'}[e]||'';
   let btn='';
@@ -3119,7 +3119,7 @@ function amPerfilBtn(n){const st=amEstado(n),u=esc(n);
   if(st==='te-pidio')return `<button type="button" class="cx-primary" data-a="amSi" data-u="${u}">🤝 Aceptar su solicitud</button><button type="button" class="cx-sec" data-a="amNo" data-u="${u}">Ahora no</button>`;
   if(st==='pediste')return `<button type="button" class="cx-sec" data-a="amCancelar" data-u="${u}">⏳ Solicitud enviada · cancelar</button>`;
   return `<button type="button" class="cx-sec" data-a="amPedir" data-u="${u}">➕ Agregar como amigo</button>`;}
-function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="truco">🃏 TrucAR</button><button type="button" data-a="inv" data-g="uno">🎴 UnoAR</button><button type="button" data-a="inv" data-g="ludo">🎲 LudAR</button><button type="button" data-a="inv" data-g="pool">🎱 PoolAR</button><button type="button" data-a="inv" data-g="invasores">👾 InvasorAR (duelo)</button><button type="button" data-a="inv" data-g="marcar">🎯 MarcAR (2 a 8)</button><button type="button" data-a="inv" data-g="ajedrez">♟️ AjedrezAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
+function invSheet(){return `<div class="cx-sheet"><b>¿A qué jugamos con ${esc(S.invFor)}?</b><button type="button" data-a="inv" data-g="bloquear">🧱 BloqueAR</button><button type="button" data-a="inv" data-g="poblar">🏘️ PoblAR</button><button type="button" data-a="inv" data-g="truco">🃏 TrucAR</button><button type="button" data-a="inv" data-g="uno">🎴 UnoAR</button><button type="button" data-a="inv" data-g="ludo">🎲 LudAR</button><button type="button" data-a="inv" data-g="pool">🎱 PoolAR</button><button type="button" data-a="inv" data-g="invasores">👾 InvasorAR (duelo)</button><button type="button" data-a="inv" data-g="marcar">🎯 MarcAR (2 a 8)</button><button type="button" data-a="inv" data-g="fortinar">🏰 FortinAR (1 contra 1)</button><button type="button" data-a="inv" data-g="ajedrez">♟️ AjedrezAR</button><button type="button" data-a="inv" data-g="estancia">🐎 Malón en EstanciAR</button><button type="button" class="cx-ghost" data-a="invx">Cancelar</button></div>`;}
 /* Compartir una partida: elegís a quién y le llega como tarjeta con un botón para jugar. */
 function shareRows(){return convList().map(({u,g,k})=>g?`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(k)}">${avatar({avatar:'👥',color:'#8b7cff'})}<span class="cx-mid"><b>${esc(g.n)}</b><small>${esc(grupoSub(g))}</small></span></button>`:`<button type="button" class="cx-row" data-a="sharecon" data-u="${esc(u.usuario)}">${avatar(u)}<span class="cx-mid"><b>${esc(u.usuario)}<i class="cx-dot${dotCls(u)}"></i></b><small>${esc(estTxt(u))}</small></span></button>`).join('');}
 function renderShare(p){
@@ -3128,7 +3128,7 @@ function renderShare(p){
     <input id="cx-snote" maxlength="200" placeholder="Agregale algo (opcional): ¿me superás?"></div>
     <p class="cx-dim cx-pad" style="padding-top:0">Elegí a quién mandársela:</p><div class="cx-list" id="cx-slist">${shareRows()}</div>`;
 }
-function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏',uno:'🎴',ajedrez:'',ludo:'🎲',pool:'🎱',invasores:'👾',marcar:'🎯'}[c.j]??'🎮';
+function cardHtml(c,btn,id){const ic={bloquear:'🧱',poblar:'🏘️',estancia:'🐎',pampa:'🗺️',truco:'🃏',uno:'🎴',ajedrez:'',ludo:'🎲',pool:'🎱',invasores:'👾',marcar:'🎯',fortinar:'🏰'}[c.j]??'🎮';
   return `<b>${ic} ${esc(c.t||'')}</b>${c.d?`<span>${esc(c.d)}</span>`:''}${c.r?`<span class="cx-cr">${esc(c.r)}</span>`:''}${btn&&(H.play||c.ve)?`<button type="button" class="cx-cplay" data-a="cardplay" data-id="${esc(id)}">${c.ve?'🏡 Ir':'▶ Jugar'}</button>`:''}`;}
 function head(t,extra=''){return `<div class="cx-head"><h2>${t}</h2>${extra}<button type="button" class="cx-x" data-a="cerrar" aria-label="Cerrar">✕</button></div>`;}
 function renderConv(p){
@@ -3191,11 +3191,11 @@ async function onClick(e){
   else if(a==='citaPick'||a==='citaX'){S.citaPick=a==='citaPick'&&!S.citaPick;render();}
   else if(a==='citaJ')citaArmar(b.dataset.g);
   else if(a==='citair'){close();citaIr(b.dataset.j,b.dataset.u);}
-  else if(a==='inv'){const who=S.invFor,g=b.dataset.g;S.invFor=null;close();if((g==='ajedrez'||g==='ludo'||g==='pool'||g==='invasores'||g==='marcar')&&H.game()!==g){location.href=g+'.html#invitar='+encodeURIComponent(who);return;}try{H.invite&&H.invite(g,who);}catch(_){}}
+  else if(a==='inv'){const who=S.invFor,g=b.dataset.g;S.invFor=null;close();if((g==='ajedrez'||g==='ludo'||g==='pool'||g==='invasores'||g==='marcar'||g==='fortinar')&&H.game()!==g){location.href=g+'.html#invitar='+encodeURIComponent(who);return;}try{H.invite&&H.invite(g,who);}catch(_){}}
   else if(a==='sharecon')shareTo(b.dataset.u);
   else if(a==='inventrar'||a==='invno'||a==='invcancel')invAccion(a,b.dataset.id,b.dataset.j);
   else if(a==='cardplay'){const o=S.plain[b.dataset.id];if(o&&o.card&&o.card.j==='estancia'&&o.card.ve&&H.game()!=='estancia'){close();location.href='estancia.html#visitar='+encodeURIComponent(o.card.ve);return;}   /* v77: invitación a una estancia */
-    if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario','laberinto','invasores','marcar'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
+    if(o&&o.card&&o.card.j==='ajedrez'&&H.game()!=='ajedrez'){close();location.href='ajedrez.html'+(o.card.aj?'#partida='+encodeURIComponent(o.card.aj):'');return;}if(o&&o.card&&['ludo','pool','buscaminas','sudoku','solitario','laberinto','invasores','marcar','fortinar'].includes(o.card.j)&&H.game()!==o.card.j){close();location.href=o.card.j+'.html';return;}if(o&&o.card&&H.play){close();try{H.play(o.card);}catch(_){}}}
   else if(a==='cuenta'){close();H.account();}
   else if(a==='activar')activate();
   else if(a==='verpin'){S.pinAsk=true;$('.cx-panel').dataset.sig='';render();setTimeout(()=>$('#cx-pin')?.focus(),50);}
@@ -3435,7 +3435,7 @@ function emoPoner(e){
 /* «¿Quién se prende?» (v66): el que armó una mesa la avisa en un grupo (card.ll). El que toca «Me prendo» le pide lugar
    (pedirLugar); el juego del que armó la mesa lo invita como siempre y acá se entra solo a esa invitación. */
 function llamadoHtml(c,m){
-  const mine=lc(m.de)===lc(S.me),ic={truco:'🃏',uno:'🎴',poblar:'🏘️',bloquear:'🧱',ajedrez:'♟️',ludo:'🎲',pool:'🎱',invasores:'👾',marcar:'🎯'}[c.j]||'🎮',viejo=Date.now()-m.t>30*60e3;
+  const mine=lc(m.de)===lc(S.me),ic={truco:'🃏',uno:'🎴',poblar:'🏘️',bloquear:'🧱',ajedrez:'♟️',ludo:'🎲',pool:'🎱',invasores:'👾',marcar:'🎯',fortinar:'🏰'}[c.j]||'🎮',viejo=Date.now()-m.t>30*60e3;
   const yo=S.espero&&S.espero.mid===m.id,vencio=yo&&Date.now()-S.espero.t>150000;
   let pie='';
   if(mine)pie=`<span class="cx-inv-st st-esperando">Avisaste al grupo: los que se prenden te llegan solos a la mesa.</span>`;
@@ -3457,7 +3457,7 @@ async function mePrendo(mid){
 // Llegó la invitación del que armó la mesa: se entra solo (es la que pediste con «Me prendo»).
 // v70.1: la planilla 19 no conoce LudAR ni PoolAR: su tarjeta dice «BloqueAR · Duelo en línea». Se mira esa invitación
 // (una sola vez por tarjeta) y se corrige el juego que muestra la tarjeta y adónde lleva «Entrar».
-const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool',INVASOR:'invasores',MARCAR:'marcar'};
+const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool',INVASOR:'invasores',MARCAR:'marcar',FORTINAR:'fortinar'};
 async function invCorregir(){
   if(!(S.ver&&S.ver<20))return;S.invFix=S.invFix||{};
   for(const m of S.msgs.slice(-40)){const c=invCard(m);
@@ -3654,7 +3654,7 @@ function init(opts={}){
    con cuenta, entra solo a la mesa (es la misma invitación de siempre, la acepta como si tocara «Entrar» en el chat);
    sin cuenta, la crea (o entra) y después lo lleva a la mesa. Vale mientras el que invita espera, como cualquier invitación. */
 const LINK_U=Object.freeze({usuario:'Alguien con el link',avatar:'🔗',color:'#25d366',link:true});
-const PAG_J={bloquear:'',truco:'truco.html',uno:'uno.html',poblar:'poblar.html',ajedrez:'ajedrez.html',ludo:'ludo.html',pool:'pool.html',invasores:'invasores.html',marcar:'marcar.html'};
+const PAG_J={bloquear:'',truco:'truco.html',uno:'uno.html',poblar:'poblar.html',ajedrez:'ajedrez.html',ludo:'ludo.html',pool:'pool.html',invasores:'invasores.html',marcar:'marcar.html',fortinar:'fortinar.html'};
 function paginaJ(){const f=(location.pathname.split('/').pop()||'').toLowerCase();for(const k in PAG_J)if(PAG_J[k]&&PAG_J[k]===f)return k;return /^(|index\.html|bloques\.html)$/.test(f)?'bloquear':'';}
 function linkDe(id,j){const a=acct(),base=location.href.replace(/[#?].*$/,'').replace(/[^/]*$/,''),pg=PAG_J[j]||(location.protocol==='file:'?'index.html':'');
   return `${base}${pg}#unirse=${id}${a?'&de='+encodeURIComponent(a.usuario):''}`;}
@@ -4236,6 +4236,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:86,grande:true,titulo:'Novedades',items:[
+    ['🏰','FortinAR crece: 4 etapas para avanzar, el modo Conquista para partidas largas, y ya se juega en línea contra un amigo. El Asalto ahora se gana peleando, y la compu juega limpio según el nivel.'],
+    ['🖱️','FortinAR más cómodo: el mapa se mueve con los bordes, las flechas o arrastrando; la tropa sigue elegida después de cada orden; grupos con Ctrl+número y un panel más chico en el celular.'],
+    ['🧟','MarcAR: llegó el modo Zombis por oleadas para jugar de a 1 a 4, cuatro mapas nuevos, partidas Competitivas y sonidos más reales (¡la recarga suena a recarga!).'],
+    ['🎨','EstanciAR con los dibujos nuevos de la biblia y mejor perspectiva: cercos y caminos que empalman, giros dibujados, mascotas en 4 vistas y pisos y paredes nuevos.'],
+    ['🖼️','Miniaturas nuevas en el menú de juegos.']]},
   {v:85,grande:true,titulo:'Novedades',items:[
     ['🏰','Juego nuevo: FortinAR. Armá tu fortín, juntá recursos, entrená tu gente y tomá los puestos en el modo Asalto contra la compu.'],
     ['🎨','EstanciAR con dibujos nuevos: muebles, ropa, jardín, Navidad, premios y juegos. Tienda nueva donde también podés vender, gestos de verdad y el muro de logros en tu casa.'],
@@ -6900,7 +6906,7 @@ function openMenu(){
     <button id="m-new">🎱 Partida nueva</button><button id="m-friend">👥 Jugar en línea con amigos</button><button id="m-ent">🎯 Entrenar</button>${enPartida()?'<button id="m-salir" class="salir">🚪 Salir de la partida</button>':''}
     <button id="m-log">📜 Lo que pasó</button><button id="m-help">❓ Cómo se juega</button><button id="m-tut">🎓 Tutorial</button><button id="m-opc">⚙️ Opciones</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros, retos, tacos y paños</button>':''}<a href="./#tablas=pool">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">PoolAR · versión 85</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">PoolAR · versión 86</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&window.ON&&ON&&ON.state==='juego'&&G&&!G.fin){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});
