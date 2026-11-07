@@ -90,6 +90,19 @@ canvas#map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-
 .item .btn{flex:none;min-height:40px}
 .bar{height:6px;border-radius:3px;background:#ded1b4;overflow:hidden}.bar i{display:block;height:100%;background:var(--olive)}
 .note{font-size:12.5px;color:var(--soft)}
+.chip.semana .emo{font-size:15px;letter-spacing:1px}.chip.semana small.obj{color:#c4a265;font-weight:800}.chip.semana small.obj.full{color:#9fd36b}
+.sem7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0}.sem7 span{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 0 4px;border-radius:8px;background:rgba(120,95,55,.1);font-size:12px;font-weight:700;color:#7a6a52}.sem7 span i{font-style:normal;font-size:12px}
+.sem7 span.ya{opacity:.5}.sem7 span.hoy{background:#c4a265;color:#2a2115;box-shadow:0 0 0 2px rgba(196,162,101,.35)}
+.forma87{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:10px 12px;border-radius:12px;background:rgba(120,95,55,.1);margin-bottom:8px}.forma87 .big{font-size:30px;line-height:1}.forma87 p{margin:3px 0 0}.forma87.sev{background:rgba(70,110,140,.12)}
+.sev87{background:rgba(70,110,140,.12);border-radius:10px;padding:8px 10px;margin:0}.hito{font-weight:700;color:#5b4527;margin:6px 0}
+.obj87{list-style:none;margin:4px 0 8px;padding:0;display:flex;flex-direction:column;gap:6px;text-align:left}.obj87 li{display:flex;gap:9px;align-items:flex-start;padding:7px 10px;border-radius:10px;background:rgba(120,95,55,.1)}
+.obj87 li .ck{width:20px;text-align:center;font-weight:900;color:#a08a63}.obj87 li.ok{background:rgba(110,160,70,.16)}.obj87 li.ok .ck{color:#3f7a2c}.obj87 small{display:block;color:var(--soft);font-weight:600}
+.esp87{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}.esp87>div{display:flex;gap:10px;align-items:center;text-align:left}.esp87 i{flex:0 0 38px;height:38px;border-radius:8px}.esp87 small{display:block;color:var(--soft)}
+.cartel87{position:fixed;overflow:auto;overscroll-behavior:contain;left:50%;transform:translate(-50%,-8px);width:min(420px,calc(100% - 20px));z-index:40;background:var(--parch);color:#3a2d1c;border:1px solid var(--rule);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.45);padding:12px 40px 10px 14px;opacity:0;transition:opacity .25s,transform .25s}
+.cartel87.dentro{opacity:1;transform:translate(-50%,0)}.cartel87.fuera{opacity:0;transform:translate(-50%,-8px)}.cartel87 .t{display:block;font-size:16px;margin-bottom:2px}.cartel87 p{margin:4px 0;font-size:14px;line-height:1.35}
+.cartel87 .x{position:absolute;top:6px;right:6px;width:32px;height:32px;border-radius:10px;border:0;background:rgba(120,95,55,.12);color:#5b4527;font-size:15px}.cartel87 .row{margin-top:6px;justify-content:flex-end}.cartel87 .btn.sm{min-height:36px;padding:0 14px;font-size:14px}
+@media (prefers-reduced-motion:reduce){.cartel87{transition:none}}
+@media (max-height:480px){.cartel87{padding:8px 38px 8px 12px}.cartel87 p{font-size:13px;margin:2px 0}.cartel87 .t{font-size:15px}.cartel87 .row{margin-top:2px}}
 .news{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;color:#4d4031}.news small{color:var(--soft)}
 .legend{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .legend span{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:#fbf7ee;border:1px solid #e1d3b6;font-size:13px}
@@ -4182,6 +4195,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:87,grande:true,titulo:'Novedades',items:[
+    ['🏰','FortinAR: cuatro facciones nuevas (Guardias de la Frontera, Milicias de la Confederación, Montoneras del Interior y Comerciantes del Litoral), el modo Express y partidas de 3 y 4 jugadores, todos contra todos o 2 contra 2, también en línea.'],
+    ['🗺️','La Gran Pampa cambia cada semana: forma del mapa distinta, parajes nuevos (pueblo, pulpería, tapera, vado), una regla de la semana, tres objetivos y la Gaceta del día.'],
+    ['🧟','MarcAR Zombis: El Ingenio, un mapa nuevo con luz, trampas y la Fragua; ventanas con tablas para tapar; la Noche del Familiar; y tabla de récords.'],
+    ['🎯','MarcAR: compras arregladas, más balas que se reponen en la base, flash más fuerte, palanca más fina, vida y balas arriba en el celular, pasos nuevos y bots con más estrategia (misma puntería).'],
+    ['🐄','EstanciAR: los animales vuelven a moverse, el piano vuelve a abrir el teclado, la cama y muchos muebles quedaron bien orientados y ahora se puede girar también afuera.']]},
   {v:86,grande:true,titulo:'Novedades',items:[
     ['🏰','FortinAR crece: 4 etapas para avanzar, el modo Conquista para partidas largas, y ya se juega en línea contra un amigo. El Asalto ahora se gana peleando, y la compu juega limpio según el nivel.'],
     ['🖱️','FortinAR más cómodo: el mapa se mueve con los bordes, las flechas o arrastrando; la tropa sigue elegida después de cada orden; grupos con Ctrl+número y un panel más chico en el celular.'],
@@ -5199,7 +5218,7 @@ function actHoy(){const o=ls.json('pampa-act',null),h=hoyLocal(),r={d:h};for(con
 async function api(p,ms=20000){
   const a=acct(),url=ls.get('bloques-lb-url-v1')||LB_DEF;if(!a)throw new Error('Necesitás tu cuenta de BloqueAR.');
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
-  try{const r=await fetch(url,{method:'POST',body:JSON.stringify({usuario:a.usuario,token:a.token,act:actHoy(),...p}),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
+  try{const r=await fetch(url,{method:'POST',body:JSON.stringify({usuario:a.usuario,token:a.token,act:actHoy(),p87:1,...p}),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
     const j=await r.json();
     if(!j||!j.ok){const e=new Error(j&&j.error||'La planilla respondió con un error.');if(/desconocida/i.test(e.message))e.vieja=true;if(/sesi[oó]n/i.test(e.message))e.sesion=true;throw e;}
     if(!(j.version>=9)||(!j.t&&!/^(modoPacifico|pampaPref)$/.test(p.accion))){const e=new Error('La planilla tiene el código viejo.');e.vieja=true;throw e;}   // v69: el modo y la defensa no traen el mapa
@@ -5259,10 +5278,11 @@ const cv=$('map'),ctx=cv.getContext('2d');
 let W=0,Hh=0,DPR=1;const cam={x:0,y:0,z:.5};let zFit=.5,USERCAM=false;
 // v61: cada paraje con su color, su claridad y su dibujo (trigo en franjas, pasto con vacas y alambrado, monte tupido y oscuro,
 // cerros con nieve, agua con juncos, salitral blanco y cuarteado): se distinguen también sin ver bien los colores.
-const TIPO={p:{n:'Pampa',c:'#ddb548'},a:{n:'Pastura',c:'#6aa346'},m:{n:'Monte',c:'#24421f'},s:{n:'Sierra',c:'#87827b'},l:{n:'Laguna',c:'#2f7ea6'},x:{n:'Salitral',c:'#ece6d7'}};
-const DESC={p:'Trigales de la pampa húmeda: buena tierra.',a:'Pasturas para la hacienda.',m:'Monte de talas y espinillos.',s:'Sierras con piedra y vetas.',l:'Laguna con juncos: la más codiciada.',x:'Salitral: da poco, pero suma.'};
+const TIPO={p:{n:'Pampa',c:'#ddb548'},a:{n:'Pastura',c:'#6aa346'},m:{n:'Monte',c:'#24421f'},s:{n:'Sierra',c:'#87827b'},l:{n:'Laguna',c:'#2f7ea6'},x:{n:'Salitral',c:'#ece6d7'},
+  w:{n:'Agua',c:'#1f5f86'},v:{n:'Vado',c:'#7a8f8c'},h:{n:'Pueblo',c:'#c9a77a'},g:{n:'Pulpería',c:'#a87a4c'},e:{n:'Tapera',c:'#8f8468'}};   // v87: agua y parajes nuevos
+const DESC={w:'Agua: no se ocupa ni se cruza. A la otra orilla se pasa por los vados.',v:'Vado: un banco de piedras y arena por donde se cruza el agua.',h:'Pueblo: casas, capilla y almacén.',g:'Pulpería: el boliche donde se junta el pago.',e:'Tapera: un rancho abandonado; quién sabe qué quedó adentro.',p:'Trigales de la pampa húmeda: buena tierra.',a:'Pasturas para la hacienda.',m:'Monte de talas y espinillos.',s:'Sierras con piedra y vetas.',l:'Laguna con juncos: la más codiciada.',x:'Salitral: da poco, pero suma.'};
 // v61: el papel de cada paraje (sólo en las semanas con las reglas nuevas: V.reglas.mec)
-const ROL={a:m=>`Si tenés una laguna pegada, la riega: <b>+${m.riego} por día</b>.`,l:m=>`Riega: cada pastura tuya pegada da <b>+${m.riego} por día</b>.`,s:m=>`Mirador: desde acá reclamás parajes libres <b>a ${m.alcance} de distancia</b>, sin estar pegados.`,m:m=>`Se defiende solo: desafiarlo cuesta <b>${m.monte} leguas más</b>.`};
+const ROL={v:()=>'Peaje: el vado rinde <b>+1 por día</b> más. Es el paso entre orillas: vale defenderlo.',h:()=>'Te da <b>+1 legua por día</b>, además de lo que rinde.',g:()=>'Cada paraje tuyo <b>pegado a tu pulpería</b> rinde <b>+1 por día</b>.',e:()=>'Reclamarla cuesta <b>1 legua</b> y el primero que la reclama encuentra <b>+3 leguas</b>.',a:m=>`Si tenés una laguna pegada, la riega: <b>+${m.riego} por día</b>.`,l:m=>`Riega: cada pastura tuya pegada da <b>+${m.riego} por día</b>.`,s:m=>`Mirador: desde acá reclamás parajes libres <b>a ${m.alcance} de distancia</b>, sin estar pegados.`,m:m=>`Se defiende solo: desafiarlo cuesta <b>${m.monte} leguas más</b>.`};
 function oval(g,x,y,rx,ry,col){g.fillStyle=col;g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.fill();}
 function circle(g,x,y,r,col){g.fillStyle=col;g.beginPath();g.arc(x,y,r,0,7);g.fill();}
 function line(g,a,b,col,lw){g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.strokeStyle=col;g.lineWidth=lw;g.lineCap='round';g.stroke();}
@@ -5306,6 +5326,24 @@ function paintTerrain(g,t,x,y,seed){
     g.strokeStyle='#b9a77f';g.lineWidth=1.1;
     for(let r=-4;r<=4;r++)for(let q=-4;q<=4;q++){const cx=x+(q+(r&1?.5:0))*12+(R()-.5)*4,cy=y+r*10+(R()-.5)*4;g.beginPath();for(let k=0;k<6;k++){const a=k/6*6.283+R()*.4,rr=6+R()*2.5,px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr*.85;k?g.lineTo(px,py):g.moveTo(px,py);}g.closePath();g.stroke();}
     for(let i=0;i<40;i++){g.fillStyle=R()<.6?'#ffffff':'#d4c6a5';g.fillRect(x+(R()-.5)*1.8*S,y+(R()-.5)*1.8*S,1.3,1.3);}}
+  else if(t==='w'||t==='v'){// v87: agua (mar, río o canal) con olas; el vado, con piedras para cruzar
+    const wg=g.createLinearGradient(x-S,y-S,x+S,y+S);wg.addColorStop(0,'#2e7fae');wg.addColorStop(1,'#174b6c');g.fillStyle=wg;g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);
+    g.strokeStyle='rgba(200,235,250,.45)';g.lineWidth=1.1;for(let i=0;i<7;i++){const px=x+(R()-.5)*1.5*S,py=y+(R()-.5)*1.5*S,w=5+R()*7;g.beginPath();g.moveTo(px-w,py);g.quadraticCurveTo(px-w/2,py-2.5,px,py);g.quadraticCurveTo(px+w/2,py+2.5,px+w,py);g.stroke();}
+    if(t==='v'){g.save();g.translate(x,y);g.rotate(-.5);oval(g,0,0,S*.95,S*.36,'rgba(214,196,150,.85)');for(let k=-4;k<=4;k++){const px=k*8+(R()-.5)*3,py=(R()-.5)*7;oval(g,px+1,py+1.5,4.2,2.6,'rgba(20,25,20,.35)');oval(g,px,py,4,2.8,R()<.5?'#9a958a':'#c8c1b2');oval(g,px-1,py-.9,1.6,1,'#ece7dc');}g.restore();}}
+  else if(t==='h'){// v87: pueblo: calles de tierra, casitas blancas con techo rojo y la capilla
+    g.fillStyle='#b99d70';g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);line(g,[x-S,y+4],[x+S,y-6],'#d9c59a',7);line(g,[x-6,y-S],[x+4,y+S],'#d9c59a',6);
+    const cs=[[-20,-14],[8,-20],[-24,10],[18,6],[-4,18],[22,-4]];for(const [dx,dy] of cs){const px=x+dx,py=y+dy;oval(g,px+2,py+6,9,3,'rgba(30,20,10,.3)');g.fillStyle='#f3ecdc';g.fillRect(px-7,py-3,14,9);g.fillStyle='#b4452c';g.beginPath();g.moveTo(px-9,py-2);g.lineTo(px,py-9);g.lineTo(px+9,py-2);g.closePath();g.fill();g.fillStyle='#5b3a22';g.fillRect(px-2,py+1,3.5,5);}
+    g.fillStyle='#f6f1e4';g.fillRect(x-5,y-12,10,16);g.fillStyle='#9c3b26';g.beginPath();g.moveTo(x-7,y-11);g.lineTo(x,y-20);g.lineTo(x+7,y-11);g.closePath();g.fill();g.fillStyle='#f6f1e4';g.fillRect(x-1.5,y-31,3,11);line(g,[x-4,y-27],[x+4,y-27],'#3b2a1a',1.6);line(g,[x,y-31],[x,y-22],'#3b2a1a',1.6);}
+  else if(t==='g'){// v87: pulpería: rancho con alero, palenque, caballos atados y el farol
+    for(let i=0;i<18;i++){const px=x+(R()-.5)*1.9*S,py=y+(R()-.5)*1.9*S;g.strokeStyle=R()<.5?'#7d5a35':'#c99f63';g.lineWidth=1;g.beginPath();g.moveTo(px,py);g.lineTo(px+1,py-4);g.stroke();}
+    oval(g,x+3,y+9,24,5,'rgba(30,18,8,.35)');g.fillStyle='#e9dcc0';g.fillRect(x-18,y-8,36,16);g.fillStyle='#6b4524';g.beginPath();g.moveTo(x-23,y-6);g.lineTo(x-12,y-19);g.lineTo(x+12,y-19);g.lineTo(x+23,y-6);g.closePath();g.fill();
+    g.fillStyle='#4a2f17';g.fillRect(x-4,y-2,8,10);g.fillStyle='#1d3c55';g.fillRect(x-14,y-4,6,5);g.fillRect(x+8,y-4,6,5);g.fillStyle='#f2d36b';circle(g,x+16,y-11,2.2,'#f2d36b');
+    line(g,[x-26,y+16],[x+4,y+16],'#4a2f17',2);for(const px of [x-24,x-10,x+2])line(g,[px,y+20],[px,y+13],'#4a2f17',2);
+    for(const [px,py,c] of [[x-18,y+14,'#5a3a22'],[x-6,y+14,'#d8c7a8']]){oval(g,px,py,6,3.2,c);oval(g,px+5.5,py-2.5,2.6,2,c);line(g,[px-3,py+2],[px-3,py+6],'#2d1d10',1.2);line(g,[px+3,py+2],[px+3,py+6],'#2d1d10',1.2);}}
+  else if(t==='e'){// v87: tapera: pastizal crecido y un rancho sin techo, con la puerta caída
+    for(let i=0;i<34;i++){const px=x+(R()-.5)*1.9*S,py=y+(R()-.5)*1.9*S;g.strokeStyle=R()<.5?'#6c6247':'#b3a57a';g.lineWidth=1.1;g.beginPath();g.moveTo(px,py);g.lineTo(px+(R()-.5)*3,py-5-R()*3);g.stroke();}
+    oval(g,x+3,y+8,20,5,'rgba(25,20,10,.3)');g.fillStyle='#b9aa86';g.fillRect(x-15,y-6,30,13);g.fillStyle='#8e7f5f';g.beginPath();g.moveTo(x-15,y-6);g.lineTo(x-9,y-14);g.lineTo(x-3,y-6);g.closePath();g.fill();
+    g.fillStyle='#3d3020';g.fillRect(x-3,y-2,7,9);g.fillRect(x+7,y-3,5,4);line(g,[x-12,y-6],[x+14,y-12],'#5b4630',2);line(g,[x+6,y+8],[x+14,y+3],'#5b4630',2.4);}
   const gr=g.createLinearGradient(x-S,y-S,x+S,y+S);gr.addColorStop(0,'rgba(255,248,225,.12)');gr.addColorStop(1,'rgba(20,15,5,.14)');g.fillStyle=gr;g.fillRect(x-S-2,y-S-2,2*S+4,2*S+4);
   g.restore();hexPath(g,x,y,S);g.strokeStyle='rgba(38,28,14,.5)';g.lineWidth=1.2;g.stroke();
 }
@@ -5412,7 +5450,7 @@ function draw(){
   // lo que podés reclamar: marcado suave
   if(V.yo&&!BUSY)for(const i of claimables()){const [x,y]=G.xy[i];hexPath(ctx,x,y,HS-5);ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(242,234,216,.55)';ctx.lineWidth=1.6;ctx.stroke();ctx.setLineDash([]);}
   // fichas con lo que da cada paraje
-  if(cam.z>.32)for(let i=0;i<G.n;i++){if(!G.vis[i]||V.cas[own[i]]===i)continue;const [x,y]=G.xy[i];token(ctx,x,y+HS*.46,valorDe(i),!!own[i],!!(V.bono&&V.bono[i]),!!own[i]&&disp.has(i));if(V.es)estrellas(ctx,x,y-HS*.56,estDe(i));}
+  if(cam.z>.32)for(let i=0;i<G.n;i++){if(!G.vis[i]||V.cas[own[i]]===i||V.t[i]==='w')continue;const [x,y]=G.xy[i];token(ctx,x,y+HS*.46,valorDe(i),!!own[i],!!(V.bono&&V.bono[i]),!!own[i]&&disp.has(i));if(V.es)estrellas(ctx,x,y-HS*.56,estDe(i));}
   if(V.v69)drawEventos(G,t);
   // cascos
   for(const P of V.jugadores){if(P.casco==null)continue;const [x,y]=G.xy[P.casco];drawCasco(ctx,x,y,P,P.k===me);}
@@ -5493,7 +5531,7 @@ const hdist=(a,b)=>{const A=GEO.c[a],B=GEO.c[b];return (Math.abs(A[0]-B[0])+Math
 function fromSierra(i){const m=V&&V.reglas&&V.reglas.mec;if(!m||!GEO)return false;const cas=V.cas[ME];
   for(const k in V.own)if(V.own[k]===ME&&V.t[+k]==='s'&&+k!==cas&&hdist(+k,i)<=m.alcance)return true;return false;}
 const canClaim=i=>mineAdj(i)||fromSierra(i);
-function claimables(){if(!V||!GEO||!V.yo)return [];const out=[];for(let i=0;i<GEO.n;i++)if(GEO.vis[i]&&!V.own[i]&&canClaim(i))out.push(i);return out;}
+function claimables(){if(!V||!GEO||!V.yo)return [];const out=[];for(let i=0;i<GEO.n;i++)if(GEO.vis[i]&&!V.own[i]&&V.t[i]!=='w'&&canClaim(i))out.push(i);return out;}
 // v69: lo que rinde y cuesta cada paraje lo manda la planilla (hx), con las estrellas, los eventos y lo que ya tenés.
 const valorDe=i=>V.hx?V.hx.v[i]:V.tipos[V.t[i]].v+((V.bono&&V.bono[i])||0);
 const costoDe=i=>V.hx?V.hx.c[i]:V.tipos[V.t[i]].costo;
@@ -5526,10 +5564,10 @@ const ICO={leg:'<svg viewBox="0 0 20 20" fill="none" stroke="#c4a265" stroke-wid
   clock:'<svg viewBox="0 0 20 20" fill="none" stroke="#c4a265" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l2.6 1.8"/></svg>'};
 function renderHud(){
   if(!V){$('hud').innerHTML='';return;}const r=myRank();
-  if(!V.yo){const n=V.jugadores.length;$('hud').innerHTML=`<button class="chip" id="h-rank" title="Posiciones">👥 ${n}<small>${V.ligas>1?` en la liga ${V.liga}`:n===1?' en la semana':' en la semana'}</small></button><span class="sp"></span><button class="chip" id="h-fin" title="Cuándo termina la semana">${ICO.clock}<small class="lab">Cierra en</small> ${quedan(V.fin-ahoraS())}</button>`;
-    $('h-rank').onclick=()=>{sfx('tap');openPos();};$('h-fin').onclick=()=>{sfx('tap');openHelp();};return;}
-  $('hud').innerHTML=`<button class="chip leg" id="h-leg" title="Leguas para reclamar y desafiar">${ICO.leg}<b>${fmt(V.yo.leg)}</b><small>leguas</small></button><button class="chip" id="h-rank" title="Posiciones">${ICO.rank}${r}º<small>· ${fpts(V.yo.pts)} pts</small></button><span class="sp"></span><button class="chip" id="h-fin" title="Cuándo termina la semana">${ICO.clock}<small class="lab">Cierra en</small> ${quedan(V.fin-ahoraS())}</button>`;
-  $('h-leg').onclick=()=>{sfx('tap');openLeguas();};$('h-rank').onclick=()=>{sfx('tap');openPos();};$('h-fin').onclick=()=>{sfx('tap');openHelp();};
+  if(!V.yo){const n=V.jugadores.length;$('hud').innerHTML=`<button class="chip" id="h-rank" title="Posiciones">👥 ${n}<small>${V.ligas>1?` en la liga ${V.liga}`:n===1?' en la semana':' en la semana'}</small></button><span class="sp"></span>${finChip()}`;
+    $('h-rank').onclick=()=>{sfx('tap');openPos();};$('h-fin').onclick=()=>{sfx('tap');V.v87?openSemana():openHelp();};return;}
+  $('hud').innerHTML=`<button class="chip leg" id="h-leg" title="Leguas para reclamar y desafiar">${ICO.leg}<b>${fmt(V.yo.leg)}</b><small>leguas</small></button><button class="chip" id="h-rank" title="Posiciones">${ICO.rank}${r}º<small>· ${fpts(V.yo.pts)} pts</small></button><span class="sp"></span>${finChip()}`;
+  $('h-leg').onclick=()=>{sfx('tap');openLeguas();};$('h-rank').onclick=()=>{sfx('tap');openPos();};$('h-fin').onclick=()=>{sfx('tap');V.v87?openSemana():openHelp();};
 }
 function renderAlert(){
   const el=$('alert');if(!V){el.hidden=true;return;}
@@ -5567,6 +5605,7 @@ function renderPanel(){
     h=`<h3>Tu estancia en la pampa${V.ligas>1?` · Liga ${V.liga}`:''}</h3><div class="stats"><span class="st"><b>${V.yo.tierras}</b> ${V.yo.tierras===1?'paraje':'parajes'}</span><span class="st"><b>+${V.yo.renta}</b> por día</span><span class="st"><b>${fmt(V.yo.leg)}</b> leguas</span></div>
       <p>${cl?'Tocá un paraje marcado para reclamarlo, o uno de un vecino para desafiarlo.':'No tenés parajes libres pegados: desafiá a un vecino por uno de los suyos.'}</p>
       ${EA.length?`<div class="row">${EA.map(e=>`<button class="btn col" data-ev="${esc(e.id)}">${e.e} ${esc(e.n)}<small>quedan ${quedan((e.tf||e.h)-ahoraS())}</small></button>`).join('')}</div>`:V.v69&&V.proxEv?`<p class="note">Próximo evento en ${quedan(V.proxEv-ahoraS())}.</p>`:''}`;}
+  else if(V.t[i]==='w'){h=`<button class="x" id="pn-x" aria-label="Cerrar">✕</button><h3>${swatch(i)}Agua</h3><p>${esc(DESC.w)}</p>`;}   // v87
   else{const k=V.own[i],T=V.tipos[V.t[i]],P=k?Pof(k):null,casco=k&&V.cas[k]===i,inDisp=(V.disputa||[]).includes(i);
     h=`<button class="x" id="pn-x" aria-label="Cerrar">✕</button><h3>${swatch(i)}${casco?`Casco de ${esc(P?P.n:'')}`:esc(T.n)}${!casco&&V.es?' '+estHtml(estDe(i)):''}</h3>`;
     if(casco){h+=`<p>${k===ME?'Tu casco: da +2 por día y no se puede desafiar.':`${esc(P.n)} ${P.nivel>1?`tiene el casco nivel ${P.nivel} en EstanciAR`:'arrancó con su estancia'}${P.copas?` y ganó ${P.copas} ${P.copas===1?'semana':'semanas'}`:''}. El casco no se puede desafiar.`}</p>`;}
@@ -5601,7 +5640,9 @@ function renderPanel(){
 }
 // v69: lo que dice la tarjeta de un paraje (estrellas, cuánto rinde, eventos, fortín y su marca).
 function panelV69(i,k,P){const v=valorDe(i),e=estDe(i),b=(V.bono&&V.bono[i])||0,R=V.reglas.v69||{},fer=evEn(i,'feria'),tor=evEn(i,'tormenta'),m=(V.marcas||{})[i];
-  let h=`<p>${esc(DESC[V.t[i]])} ${tor?'<b>Por la tormenta no rinde</b>':`Da <b>+${v} por día</b>`} <small class="note">(${e}⭐${V.t[i]==='p'?' +1 pampa':''}${b?' +1 riego':''}${fer?' · ×2 feria':''})</small>.</p>`;
+  const x87=V.v87&&!tor?Math.max(0,(fer?v/2:v)-e-(V.t[i]==='p'?1:0)-b):0;   // v87: lo que suma la semana (vado, cosecha, sequía, pulpería)
+  let h=`<p>${esc(DESC[V.t[i]])} ${tor?'<b>Por la tormenta no rinde</b>':`Da <b>+${v} por día</b>`} <small class="note">(${e}⭐${V.t[i]==='p'?' +1 pampa':''}${b?` +${b} riego`:''}${x87?` +${x87} ${V.t[i]==='v'&&x87===1?'peaje':'de la semana'}`:''}${fer?' · ×2 feria':''})</small>.</p>`;
+  if(V.v87&&V.v87.sev==='sequia'&&V.t[i]==='x')h+=`<p class="note ev">☀️ <b>Sequía:</b> esta semana el salitral no rinde.</p>`;
   if(fer)h+=`<p class="note ev">🎪 <b>Feria:</b> por ${quedan((fer.tf||fer.h)-ahoraS())} más rinde el doble.</p>`;
   if(tor)h+=`<p class="note ev">⛈️ <b>Tormenta:</b> no rinde por ${quedan((tor.tf||tor.h)-ahoraS())} más y cruzar acá cuesta la mitad.</p>`;
   if(e>=(R.fuerte||4)&&k)h+=`<p class="note fort">🏰 <b>Fortín (${e}⭐):</b> no se gana con un solo cruce. La primera victoria deja una marca 🏴; si el mismo vuelve a ganar en 24 horas, se lo lleva.</p>`;
@@ -5638,6 +5679,48 @@ function renderLeyenda(){
 function verTerritorio(k){if(!GEO)return;let sx=0,sy=0,n=0;for(let i=0;i<GEO.n;i++)if(V.own[i]===k){sx+=GEO.xy[i][0];sy+=GEO.xy[i][1];n++;}if(!n)return;
   const tx=sx/n,ty=sy/n;if(RM){cam.x=tx;cam.y=ty;clampCam();redraw();return;}const x0=cam.x,y0=cam.y,t0=performance.now();
   (function paso(now){const p=Math.min(1,(now-t0)/450),e=ease(p);cam.x=x0+(tx-x0)*e;cam.y=y0+(ty-y0)*e;clampCam();redraw();if(p<1)requestAnimationFrame(paso);})(t0);USERCAM=true;}
+/* ───────── v87: la semana como juego de mesa (forma del mapa, regla de la semana, parajes nuevos, objetivos y la gaceta) ───────── */
+// El chip de la derecha: la forma y la regla de la semana (tocándolo se ve todo) y cuánto falta para el cierre.
+function finChip(){const S=V&&V.v87,ok=S&&S.obj?S.obj.filter(o=>o.hecho).length:0;
+  return S?`<button class="chip semana" id="h-fin" title="Esta semana: ${esc(S.fn.n)} · ${esc(S.sn.n)}"><span class="emo">${S.fn.e}${S.sn.e}</span>${V.yo&&S.obj&&S.obj.length?`<small class="obj${ok===S.obj.length?' full':''}">🎯${ok}/${S.obj.length}</small>`:''} ${quedan(V.fin-ahoraS())}</button>`
+    :`<button class="chip" id="h-fin" title="Cuándo termina la semana">${ICO.clock}<small class="lab">Cierra en</small> ${quedan(V.fin-ahoraS())}</button>`;}
+const DIAS7=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+function diaSemana(){if(!V)return 0;const a=Date.parse(V.semana+'T00:00:00Z'),b=Date.parse((V.hoy||V.semana)+'T00:00:00Z');return Math.max(0,Math.min(6,Math.round((b-a)/864e5)));}
+// La línea de la semana: de lunes a domingo, con hoy marcado (inscripción, eventos y el cierre).
+function semanaLinea(){const d=diaSemana();return `<div class="sem7" role="img" aria-label="Hoy es ${DIAS7[d]}, día ${d+1} de 7">${DIAS7.map((x,i)=>`<span class="${i<d?'ya':i===d?'hoy':''}">${x}<i>${i<2?'📋':i===6?'🏁':'⚡'}</i></span>`).join('')}</div>`;}
+function objHtml(){const S=V.v87;if(!S||!S.obj||!S.obj.length)return '';
+  return `<ul class="obj87">${S.obj.map(o=>`<li class="${o.hecho?'ok':''}"><span class="ck">${o.hecho?'✔':'○'}</span><span>${esc(o.n)}<small>${o.hecho?'cumplido':`+${S.objLeg} leguas`}${o.quien?` · ${o.quien===1?'1 lo cumplió':o.quien+' lo cumplieron'}`:''}</small></span></li>`).join('')}</ul>`;}
+function especialesHtml(){const S=V.v87;if(!S)return '';const hay=[...new Set([...S.mix,...(V.t.includes('v')?['v']:[])])].filter(q=>S.esp[q]);
+  return hay.length?`<div class="esp87">${hay.map(q=>`<div><i style="background:url(${thumb(q)}) center/contain no-repeat"></i><span><b>${S.esp[q].e} ${esc(S.esp[q].n)}</b><small>${esc(S.esp[q].d)}</small></span></div>`).join('')}</div>`:'';}
+function openSemana(){if(!V||!V.v87)return openHelp();const S=V.v87,c=(S.cron||[]).slice(-1)[0];
+  sheet('Esta semana en la pampa',`<div class="forma87"><span class="big">${S.fn.e}</span><div><b>${esc(S.fn.n)}</b><p>${esc(S.fn.d)}</p></div></div>
+    <div class="forma87 sev"><span class="big">${S.sn.e}</span><div><b>Regla de la semana: ${esc(S.sn.n)}</b><p>${esc(S.sn.d.charAt(0).toUpperCase()+S.sn.d.slice(1))}.</p></div></div>
+    ${semanaLinea()}${c&&c.hito?`<p class="hito">${esc(c.hito)}</p>`:''}
+    ${V.yo?`<h4>Objetivos de la semana</h4><p class="note">Los mismos para todos; cada uno da <b>+${S.objLeg} leguas</b> una vez.</p>${objHtml()}`:''}
+    ${especialesHtml()?`<h4>Parajes de esta semana</h4>${especialesHtml()}`:''}
+    ${c&&c.txt?`<h4>📰 La Gaceta</h4><p>${esc(c.txt)}</p>`:''}
+    <p class="note">La semana cierra en <b>${quedan(V.fin-ahoraS())}</b>. El domingo a la medianoche gana el que más juntó.</p>
+    <div class="row"><button class="btn go" id="s7-ok">Al mapa</button><button class="btn" id="s7-help">Cómo se juega</button></div>`);
+  $('s7-ok').onclick=closeSheet;$('s7-help').onclick=openHelp;}
+// Una vez por semana (por aparato): cómo es la semana. Una vez por día: la gaceta con lo de ayer y el hito de hoy.
+// Van en un cartel arriba que no tapa el mapa (se cierra solo, con la ✕ o tocando «Ver la semana»).
+let B87T=0;
+function cartel87(html,key){if(!V||!V.v87||!V.yo||ls.get(key))return false;ls.set(key,'1');
+  let el=$('cartel87');if(!el){el=document.createElement('div');el.id='cartel87';el.className='cartel87';el.setAttribute('role','status');document.body.appendChild(el);}
+  el.innerHTML=`<button class="x" aria-label="Cerrar">✕</button>${html}<div class="row"><button class="btn go sm" data-c87="sem">Ver la semana</button></div>`;
+  // abajo de lo que haya arriba (HUD, leyenda y el aviso de un cruce): nunca tapa un botón de esos
+  let top=$('hud').getBoundingClientRect().bottom;for(const id of ['leyenda','alert']){const x=$(id);if(x&&!x.hidden){const r=x.getBoundingClientRect();if(r.height)top=Math.max(top,r.bottom);}}
+  if(innerHeight-top<170)top=$('hud').getBoundingClientRect().bottom;   // celular acostado: no hay lugar abajo del aviso; se cierra al tocar cualquier cosa
+  top=Math.max(50,top+6);el.style.top=top+'px';el.style.maxHeight=Math.max(110,innerHeight-top-8)+'px';el.hidden=false;el.classList.remove('fuera');void el.offsetWidth;el.classList.add('dentro');
+  const cerrar=()=>{el.classList.remove('dentro');el.classList.add('fuera');clearTimeout(B87T);setTimeout(()=>{el.hidden=true;},RM?0:260);};
+  el.querySelector('.x').onclick=cerrar;el.querySelector('[data-c87=sem]').onclick=()=>{cerrar();openSemana();};
+  // cualquier toque fuera del cartel (el mapa, un botón, el panel) lo cierra: no se interpone
+  const fuera=e=>{if(el.hidden||el.contains(e.target))return;document.removeEventListener('pointerdown',fuera,true);cerrar();};setTimeout(()=>document.addEventListener('pointerdown',fuera,true),0);
+  clearTimeout(B87T);B87T=setTimeout(cerrar,16000);sfx('tap');return true;}
+function anuncioSemana(){if(!V||!V.v87)return false;const S=V.v87;
+  return cartel87(`<b class="t">${S.fn.e} Esta semana: ${esc(S.fn.n)}</b><p>${esc(S.fn.d)}</p><p class="sev87">${S.sn.e} <b>${esc(S.sn.n)}</b>: ${esc(S.sn.d)}.</p>${S.obj&&S.obj.length?`<p class="note">🎯 Tres objetivos de la semana: +${S.objLeg} leguas cada uno.</p>`:''}`,'pampa-semana87-'+V.semana+'-'+(V.liga||1));}
+function gaceta(){if(!V||!V.v87)return false;const c=(V.v87.cron||[]).slice(-1)[0];if(!c||c.dia!==V.hoy||!c.txt)return false;
+  return cartel87(`<b class="t">📰 La Gaceta de la Pampa</b><p>${esc(c.txt)}</p>${c.hito?`<p class="hito">${esc(c.hito)}</p>`:''}`,'pampa-gaceta-'+V.semana+'-'+c.dia);}
 function renderAll(){renderHud();renderLeyenda();renderAlert();renderPanel();saveResumen();redraw();}
 // Los avisos van arriba de la tarjeta de abajo, sin taparla (y se acomodan si la tarjeta cambia de alto).
 function placeToast(d){const pn=$('panel'),r=pn&&!pn.hidden?pn.getBoundingClientRect():null;d.style.bottom=r&&r.width>innerWidth*.6&&r.top>innerHeight*.3?(innerHeight-r.top+12)+'px':'';}
@@ -5732,6 +5815,7 @@ function openHelp(){
 function openHelp69(){
   const R=(V&&V.reglas.v69)||{fuerte:4,tropilla:6,doma:3000,ausente:{relampago:3000,truco:101,uno:1000,ajedrez:1001},admin:5,puntero:3},ini=V?V.reglas.inicio:5;
   const ter=[['p','🌾','Pampa','+1 por día extra'],['a','🐄','Pastura','+1 si una laguna tuya la riega'],['l','💧','Laguna','riega las pasturas tuyas pegadas'],['s','⛰️','Sierra','reclamás parajes a 2 de distancia'],['m','🌳','Monte','desafiarlo cuesta 3 leguas más'],['x','🧂','Salitral','el más barato (1 legua menos)']];
+  if(V&&V.v87)ter.push(['h','🏘️','Pueblo','+1 legua por día para su dueño'],['g','🍷','Pulpería','tus parajes pegados rinden +1'],['e','🏚️','Tapera','cuesta 1 legua; el primero encuentra +3'],['v','🪨','Vado','cruza el agua; +1 por día'],['w','🌊','Agua','no se ocupa ni se cruza']);   // v87
   sheet('Cómo se juega',`<p><b>Un mapa nuevo cada semana.</b> Juntá parajes, ganá puntos todos los días y el domingo a la medianoche gana el que más juntó.</p>
     <div class="como dos">
       <div><span class="ic">🚩</span><span><b>1 · Sumate</b><p>Lunes o martes <b>hasta las 20</b>. Plantás tu casco y arrancás con ${ini} leguas.</p></span></div>
@@ -5760,8 +5844,9 @@ function openHelp69(){
     <p class="note">Salen 1 o 2 por día desde el martes a las 12 y avisan en el mapa.</p>
     <h4>Cada terreno tiene su papel</h4>
     <div class="legend">${ter.map(([q,ic,n,d])=>`<span><i style="background:${thumb(q)?`url(${thumb(q)}) center/contain no-repeat`:TIPO[q].c}"></i><span><b>${n}</b><br><small>${d}</small></span></span>`).join('')}</div>
+    ${V&&V.v87?`<h4>Cada semana es distinta</h4><p>Cada lunes cambia la <b>forma del mapa</b> (llanura, costa, río, archipiélago, sierras o gran laguna), la <b>mezcla de parajes</b> y una <b>regla de la semana</b> que vale hasta el domingo. Además hay <b>tres objetivos</b> iguales para todos (+${V.v87.objLeg} leguas cada uno) y cada mañana sale <b>La Gaceta</b> con lo que pasó ayer. Esta semana: ${V.v87.fn.e} ${esc(V.v87.fn.n)} · ${V.v87.sn.e} ${esc(V.v87.sn.n)}. <a href="#" id="h-sem">Ver la semana</a></p>`:''}
     <h4>🕊️ Modo pacífico</h4><p>La Gran Pampa es un juego de guerra: en modo pacífico no hay malones ni Pampa. Lo cambiás desde el menú.</p>
-    <button class="btn go" id="h-ok">Entendido</button>`);$('h-ok').onclick=closeSheet;if($('h-leg2'))$('h-leg2').onclick=e=>{e.preventDefault();openLeguas();};
+    <button class="btn go" id="h-ok">Entendido</button>`);$('h-ok').onclick=closeSheet;if($('h-sem'))$('h-sem').onclick=e=>{e.preventDefault();openSemana();};if($('h-leg2'))$('h-leg2').onclick=e=>{e.preventDefault();openLeguas();};
 }
 // v69: los eventos de la semana (activos y el próximo).
 function openEventos(){if(!V)return;const A=(V.ev||[]).slice().sort((a,b)=>b.d-a.d);
@@ -5856,6 +5941,8 @@ function apply(nv){
   if(old&&old.yo&&!V.yo)JOIN_VISTO=false;// semana nueva
   if(V.premioTemp)setTimeout(()=>showPremioTemp(V.premioTemp),V.premio?400:0);
   if(V.premio)showPremio(V.premio);else ofrecerSumarse();
+  if(!V.premio&&V.v87&&V.yo){setTimeout(()=>{anuncioSemana()||gaceta();},V.premioTemp?600:350);   // v87
+    for(const id of V.v87.nuevos||[]){const o=(V.v87.obj||[]).find(x=>x.id===id);if(o)setTimeout(()=>toast(`🎯 ¡Objetivo cumplido: ${o.n}! +${V.v87.objLeg} leguas.`),900);}}
 }
 async function load(first){
   if(!acct()){showNoAccount();return false;}
@@ -5878,8 +5965,9 @@ function ofrecerSumarse(){
     center(`<div class="ic">🕊️</div><h3>${pz?'Estás en modo pacífico':'Todavía no'}</h3><p>${pz?'La Gran Pampa es un <b>juego de guerra</b>: para sumarte tenés que pasar a <b>campo abierto</b> (y ahí también hay malones en EstanciAR).':V.modo.pend?'Pediste volver al modo pacífico: mientras tanto no podés sumarte.':'Ya estás en campo abierto: La Gran Pampa se te habilita el lunes.'}</p>
       ${pz?'<button class="btn go" id="j-modo">⚔️ Pasar a campo abierto</button>':''}<button class="btn" id="j-ver">Mirar el mapa</button><button class="btn link" id="j-help">¿Cómo se juega?</button>`);
     if($('j-modo'))$('j-modo').onclick=()=>{hideCenter();openModo();};$('j-ver').onclick=hideCenter;$('j-help').onclick=openHelp;return;}
-  center(`<div class="ic">🗺️</div><h3>Sumate a la semana</h3>
-    <p>Cada lunes arranca un mapa nuevo y se arma con los que se suman: cuantos más son, más grande el mapa.</p>
+  const S87=V.v87;
+  center(`<div class="ic">${S87?S87.fn.e:'🗺️'}</div><h3>Sumate a la semana</h3>
+    ${S87?`<p>Esta semana: <b>${esc(S87.fn.n)}</b>. ${esc(S87.fn.d)}</p><p class="sev87">${S87.sn.e} <b>${esc(S87.sn.n)}</b>: ${esc(S87.sn.d)}.</p>`:'<p>Cada lunes arranca un mapa nuevo y se arma con los que se suman: cuantos más son, más grande el mapa.</p>'}
     <p>Te podés sumar desde el lunes hasta el <b>martes a las 20</b>. Cierra en <b>${quedan(V.inscripcion.hasta-ahoraS())}</b>.</p>
     ${n?`<div class="avs">${L.slice(0,10).map(avHtml).join('')}${n>10?`<span class="mas">+${n-10}</span>`:''}</div>`:''}
     <p class="note">${n?`${n===1?'Ya se sumó':'Ya se sumaron'} ${n===1?esc(L[0].n):n+(V.ligas>1?' en esta liga':'')}.`:'Todavía no se sumó nadie: ¡sé el primero!'}</p>
@@ -6067,7 +6155,7 @@ function openMenu(){
     <button id="m-snd">${SND?'🔊 Sonidos: prendidos':'🔇 Sonidos: apagados'}</button>
     <label class="amb">🌾 Ambiente de campo<input type="range" id="m-amb" min="0" max="100" step="5" value="${Math.round(AMBV*100)}" aria-label="Volumen del ambiente"><small>${AMBV>0?Math.round(AMBV*100)+' %':'apagado'}</small></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros</button>':''}
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 86</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 87</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-pos').onclick=go(()=>openPos('pos'));$('m-cru').onclick=go(()=>openPos('cruces'));$('m-log').onclick=go(()=>openPos('log'));
   $('m-leg').onclick=go(openLeguas);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);

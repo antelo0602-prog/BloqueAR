@@ -4195,6 +4195,12 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:87,grande:true,titulo:'Novedades',items:[
+    ['🏰','FortinAR: cuatro facciones nuevas (Guardias de la Frontera, Milicias de la Confederación, Montoneras del Interior y Comerciantes del Litoral), el modo Express y partidas de 3 y 4 jugadores, todos contra todos o 2 contra 2, también en línea.'],
+    ['🗺️','La Gran Pampa cambia cada semana: forma del mapa distinta, parajes nuevos (pueblo, pulpería, tapera, vado), una regla de la semana, tres objetivos y la Gaceta del día.'],
+    ['🧟','MarcAR Zombis: El Ingenio, un mapa nuevo con luz, trampas y la Fragua; ventanas con tablas para tapar; la Noche del Familiar; y tabla de récords.'],
+    ['🎯','MarcAR: compras arregladas, más balas que se reponen en la base, flash más fuerte, palanca más fina, vida y balas arriba en el celular, pasos nuevos y bots con más estrategia (misma puntería).'],
+    ['🐄','EstanciAR: los animales vuelven a moverse, el piano vuelve a abrir el teclado, la cama y muchos muebles quedaron bien orientados y ahora se puede girar también afuera.']]},
   {v:86,grande:true,titulo:'Novedades',items:[
     ['🏰','FortinAR crece: 4 etapas para avanzar, el modo Conquista para partidas largas, y ya se juega en línea contra un amigo. El Asalto ahora se gana peleando, y la compu juega limpio según el nivel.'],
     ['🖱️','FortinAR más cómodo: el mapa se mueve con los bordes, las flechas o arrastrando; la tropa sigue elegida después de cada orden; grupos con Ctrl+número y un panel más chico en el celular.'],
@@ -7638,7 +7644,7 @@ function openMenu(){
     ${G&&!G.fin&&EST!=='menu'?'<button id="m-pausa">⏸ Pausa</button>':''}<button id="m-modos">👾 Modos de juego</button><button id="m-duelo">⚔️ Duelo con un amigo</button>
     <button id="m-aj">⚙️ Controles y sonido</button><button id="m-help">❓ Cómo se juega</button><button id="m-rec">🏆 Récords</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=invasores">📊 Tablas</a><button id="m-share">📲 Pasar el juego</button>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 86</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">InvasorAR · versión 87</p>`);
   const go=f=>()=>{closeSide();f();};$('m-x').onclick=closeSide;
   if($('m-pausa'))$('m-pausa').onclick=go(()=>pausar());
   $('m-modos').onclick=go(()=>{if(G&&!G.fin&&EST!=='menu'){if(enDuelo()){toast('Estás en un duelo: abandonalo desde la pausa del duelo.');return;}EST='jugando';pausar();return;}portada();});
