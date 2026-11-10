@@ -105,13 +105,15 @@ canvas#map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-
 @media (max-height:480px){.cartel87{padding:8px 38px 8px 12px}.cartel87 p{font-size:13px;margin:2px 0}.cartel87 .t{font-size:15px}.cartel87 .row{margin-top:2px}}
 .news{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;color:#4d4031}.news small{color:var(--soft)}
 .legend{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.legend span{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:#fbf7ee;border:1px solid #e1d3b6;font-size:13px}
+.legend span{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:#fbf7ee;border:1px solid #e1d3b6;font-size:13px;color:#3a2e1c}
 .legend i{width:34px;height:34px;flex:none}
 .roles{margin:4px 0 0;padding-left:18px;font-size:13.5px;line-height:1.45}.roles li{margin:3px 0}
 .note.rol{color:inherit;background:rgba(196,162,101,.14);border-radius:8px;padding:6px 9px}
 .note.disp{color:#7a2e1c;background:rgba(163,72,47,.12);border-radius:8px;padding:6px 9px}
 .item.ini{background:rgba(196,162,101,.16)}
 .legend b{font-family:var(--serif)}
+.rk,.item,.jg,.como>div,.lv-src{color:#2b2418}
+.legend span b,.rk b,.item b,.jg b,.como>div b,.lv-src b{color:#2b2418!important}   /* v90 (C3): fichas crema con texto oscuro aunque la hoja sea oscura */
 /* v69: estrellas, eventos, fortines, juegos de los cruces, medallas y modo pacífico */
 .estr{color:#b8860b;letter-spacing:1px;font-size:14px;white-space:nowrap}.estr i{font-style:normal;color:#d8cbb0}
 .note.ev{color:inherit;background:rgba(246,196,83,.2);border-radius:8px;padding:6px 9px}
@@ -260,6 +262,750 @@ for(const k of ['AudioContext','webkitAudioContext']){
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)ambient();});
 window.addEventListener('pageshow',ambient);
 window.SONIDO={ambient,tipo:()=>{try{return navigator.audioSession?navigator.audioSession.type:null;}catch(_){return null;}}};
+})();
+
+</script>
+<style>
+/* ───────── v89 · Lo común de toda la app (interfaz «A · Pampa al atardecer») ─────────
+   Lo inyectan build.sh y package.sh en TODAS las páginas (antes que el resto). Va junto con comun/comun.js.
+   · Paleta, letras y medidas como variables (las usan también el inicio nuevo y los paneles de Gente y Vos).
+   · Componentes propios (prefijo .bq-): cabecera, hoja de abajo, «Cómo se juega», fin de partida, aviso, volumen.
+   · «Piel A» para lo que ya tienen los juegos (barra .top, hojas #modal, menú #side, carteles .ccard): sólo cuando
+     comun.js le pone html.bq-piel (los juegos de mesa, los solitarios, MarcAR, InvasorAR, LaberintAR, PoblAR y la Pampa).
+     No toca el tablero ni el dibujo de ningún juego. */
+@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:600 800;font-display:swap;src:url(fuentes/bricolage-800.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:400;font-display:swap;src:url(fuentes/atkinson-400.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:700;font-display:swap;src:url(fuentes/atkinson-700.woff2) format('woff2')}
+/* v90 · Color de la app: «Azul» (predeterminado, el de la app original) o «Verde» (el de la v89). Lo elige
+   Vos › Ajustes › Color; comun.js pone html[data-tema] antes de dibujar. Los nombres de las variables siguen
+   siendo los de la pampa (monte = fondo, mate = tarjeta…): sólo cambian los valores. */
+:root{
+  --monte:#0E1626;--mate:#16233A;--mate-claro:#1F2F4A;--alambre:#3B5280;--cal:#F2F4FA;--pasto-seco:#A9B6CD;
+  --maiz:#F2C14E;--maiz-osc:#3A2E0A;--cielo:#8CC8F0;--ceibo:#E8606A;--hondo:#111D31;
+  --linea:#26385A;--velo:rgba(3,7,16,.6);--mate-t:rgba(22,35,58,.92);--alambre-t:rgba(59,82,128,.55);--mate-claro-t:rgba(31,47,74,.6);
+  --tinta-suave:#47546C;--btn-on-tx:#3B4A66;--cab-act:rgba(242,244,250,.1);--sombra-c:rgba(2,6,16,.5);
+  --tabs-bg:rgba(11,18,32,.96);--monte-55:rgba(14,22,38,.55);--monte-88:rgba(14,22,38,.88);--monte-94:rgba(14,22,38,.94);--campo-1:#1D2D49;--campo-2:#0E1626;
+  --f-titulo:'Bricolage Grotesque','Avenir Next','Segoe UI',system-ui,sans-serif;
+  --f-texto:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r-s:10px;--r-m:16px;--r-l:24px;--r-hoja:28px;
+  --t-1:30px;--t-2:21px;--t-3:16px;--t-4:13px;
+  --bq-sombra:0 10px 30px var(--sombra-c);
+  --bq-cab-h:52px;
+}
+html[data-tema="verde"]{
+  --monte:#1B2E24;--mate:#243C2F;--mate-claro:#2E4A3A;--alambre:#456650;--cal:#F3EFE4;--pasto-seco:#B7C4AE;
+  --cielo:#9FD3EE;--ceibo:#E0565B;--hondo:#1D3527;
+  --linea:var(--linea);--velo:rgba(5,10,7,.55);--mate-t:rgba(36,60,47,.9);--alambre-t:rgba(69,102,80,.55);--mate-claro-t:rgba(46,74,58,.55);
+  --tinta-suave:#4B5F4F;--btn-on-tx:#3F5546;--cab-act:rgba(243,239,228,.1);--sombra-c:rgba(6,14,10,.45);
+  --tabs-bg:rgba(20,35,27,.95);--monte-55:rgba(16,28,22,.55);--monte-88:rgba(16,28,22,.88);--monte-94:rgba(16,28,22,.94);--campo-1:#2E4A3A;--campo-2:#1B2E24;
+}
+html[data-tema="azul"],html:not([data-tema]){color-scheme:dark}
+
+/* ── Íconos de línea ── */
+.bq-ico{width:22px;height:22px;display:block;flex:none;pointer-events:none}
+
+/* ── Botones (píldoras) ── */
+.bq-btn{min-height:48px;border-radius:999px;padding:0 20px;border:0;font:700 15.5px/1.15 var(--f-texto);display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;
+  background:var(--mate-claro);color:var(--cal);-webkit-tap-highlight-color:transparent;touch-action:manipulation;text-align:center}
+.bq-btn.prim{background:var(--maiz);color:var(--maiz-osc)}
+.bq-btn.borde{background:transparent;box-shadow:inset 0 0 0 1.5px var(--alambre)}
+.bq-btn.ancho{width:100%}
+.bq-btn:active{filter:brightness(.92)}
+.bq-btn:focus-visible,.bq-cab-b:focus-visible,.bq-hoja :focus-visible,.bq-aviso :focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+.bq-link{background:none;border:0;padding:0;min-height:44px;color:var(--cielo);font:700 15px var(--f-texto);cursor:pointer;text-align:left}
+
+/* ── Hoja de abajo (propia) ── */
+.bq-velo{position:fixed;inset:0;z-index:60;background:var(--velo);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s}
+.bq-velo.on{opacity:1}
+.bq-hoja{width:min(560px,100%);max-height:88%;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--mate);color:var(--cal);font:400 16px/1.42 var(--f-texto);
+  border-radius:var(--r-hoja) var(--r-hoja) 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.45);
+  transform:translateY(105%);transition:transform .26s cubic-bezier(.2,.8,.2,1);box-sizing:border-box;-webkit-text-size-adjust:100%}
+.bq-velo.on .bq-hoja{transform:none}
+.bq-asa{display:block;width:42px;height:5px;border-radius:5px;background:var(--alambre);margin:0 auto 6px;border:0;padding:0}
+.bq-hoja-cab{display:flex;align-items:center;gap:8px;margin:2px 0 4px}
+.bq-hoja-cab h2{flex:1;margin:0;font:800 26px/1.1 var(--f-titulo);letter-spacing:-.3px;color:var(--cal)}
+.bq-x{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--mate-claro);color:var(--cal);display:grid;place-items:center;cursor:pointer}
+.bq-hoja p{margin:6px 0;color:var(--pasto-seco)}
+.bq-hoja b,.bq-hoja strong{color:var(--cal)}
+.bq-tres{counter-reset:p;list-style:none;padding:0;margin:10px 0 6px}
+.bq-tres li{counter-increment:p;display:flex;gap:12px;align-items:flex-start;padding:7px 0;color:var(--cal)}
+.bq-tres li::before{content:counter(p);flex:none;width:28px;height:28px;border-radius:50%;background:var(--maiz);color:var(--maiz-osc);font-weight:700;display:grid;place-items:center;font-size:14px;margin-top:-2px}
+.bq-botones{display:grid;gap:10px;margin-top:14px}
+.bq-botones.dos{grid-template-columns:1fr 1fr}
+.bq-reglas{border-top:1px solid var(--alambre);margin-top:14px;padding-top:4px}
+.bq-reglas>summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--cielo);font-weight:700}
+.bq-reglas>summary::-webkit-details-marker{display:none}
+.bq-reglas>summary::after{content:'';width:7px;height:7px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);margin:-4px 0 0 10px;transition:transform .2s}
+.bq-reglas[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.bq-reglas ul{margin:4px 0 8px;padding-left:20px;color:var(--pasto-seco)}
+.bq-reglas li{margin:5px 0}
+
+/* ── Volumen general ── */
+.bq-vol{display:flex;align-items:center;gap:12px;min-height:56px;padding:4px 2px}
+.bq-vol .bq-ico{color:var(--pasto-seco)}
+.bq-vol label{flex:none;font:700 15px var(--f-texto);color:var(--cal)}
+.bq-vol input[type=range]{flex:1;min-width:0;height:32px;accent-color:var(--maiz);margin:0}
+.bq-vol output{flex:none;width:44px;text-align:right;font:700 14px var(--f-texto);color:var(--pasto-seco);font-variant-numeric:tabular-nums}
+.bq-vol-fila{margin:0 0 10px;padding:6px 12px;border-radius:var(--r-m);background:var(--mate-t);box-shadow:inset 0 0 0 1px var(--alambre-t)}
+
+/* ── Aviso de arriba (cola única) ── */
+.bq-aviso{position:fixed;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:2147483100;max-width:520px;margin:0 auto;visibility:hidden;
+  background:var(--cal);color:var(--monte);border-radius:16px;padding:10px 12px;display:flex;gap:10px;align-items:center;box-shadow:var(--bq-sombra);font:400 14.5px/1.3 var(--f-texto);
+  transform:translateY(calc(-100% - 40px));transition:transform .25s ease,visibility 0s .25s;pointer-events:none}
+.bq-aviso.on{transform:none;visibility:visible;transition:transform .25s ease}
+.bq-aviso.listo{pointer-events:auto}
+.bq-aviso .bq-av-i{font-size:24px;line-height:1;flex:none}
+.bq-aviso .bq-av-t{flex:1;min-width:0}
+.bq-aviso .bq-av-t b{display:block;font-weight:700}
+.bq-aviso.alerta{background:#F7DEDC;box-shadow:var(--bq-sombra),inset 4px 0 0 var(--ceibo)}
+.bq-aviso button{flex:none;min-height:40px;min-width:56px;padding:0 14px;border-radius:999px;border:0;background:var(--monte);color:var(--cal);font:700 14px var(--f-texto);cursor:pointer}
+.bq-aviso .bq-av-x{background:transparent;color:var(--tinta-suave);min-width:40px;padding:0;font-size:18px}
+
+/* ── Fin de partida (propio) ── */
+.bq-fin{text-align:center}
+.bq-fin .bq-fin-ico{font-size:52px;line-height:1;margin:6px 0 4px}
+.bq-fin .bq-res{font:800 40px/1 var(--f-titulo);letter-spacing:-1px;margin:6px 0 6px;color:var(--cal)}
+.bq-fin .bq-tanteo{color:var(--pasto-seco);font-variant-numeric:tabular-nums;margin:0}
+.bq-ganado{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:10px;margin:18px 0 6px}
+.bq-ganado div{background:var(--mate-claro);border-radius:var(--r-m);padding:12px 6px}
+.bq-ganado b{display:block;font:800 24px/1.1 var(--f-titulo);font-variant-numeric:tabular-nums;color:var(--cal)}
+.bq-ganado small{color:var(--pasto-seco);font-size:12.5px}
+.bq-objeto{display:flex;align-items:center;gap:12px;text-align:left;background:var(--mate-claro);border-radius:var(--r-m);padding:12px;margin-top:10px}
+.bq-objeto .bq-oi{width:48px;height:48px;border-radius:12px;background:#3A3218;display:grid;place-items:center;font-size:26px;flex:none}
+.bq-objeto small{display:block;color:var(--pasto-seco);font-size:13px}
+.bq-nivel{margin:16px 0 0;text-align:left}
+.bq-nivel small{color:var(--pasto-seco);font-size:13px;display:flex;justify-content:space-between;margin-bottom:6px}
+.bq-nivel .bq-barra{height:10px;background:var(--hondo);border-radius:6px;overflow:hidden}
+.bq-nivel .bq-barra i{display:block;height:100%;width:0;background:var(--maiz);border-radius:6px;transition:width 1s cubic-bezier(.2,.8,.2,1) .25s}
+
+/* ── Cabecera común (la .top de cada juego, rearmada) ── */
+.bq-cab-b{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:transparent;color:var(--cal);display:grid;place-items:center;position:relative;cursor:pointer;padding:0;text-decoration:none}
+.bq-cab-b:active{background:var(--cab-act)}
+.bq-punto{position:absolute;top:9px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--maiz);box-shadow:0 0 0 2px var(--monte)}
+html.bq-piel .app>.top,html.bq-piel .top.bq-cab{background:var(--monte)!important;border-bottom:1px solid var(--linea)!important;color:var(--cal);gap:2px!important;
+  min-height:var(--bq-cab-h);padding-top:max(2px,env(safe-area-inset-top))!important;padding-bottom:2px!important;padding-left:max(4px,env(safe-area-inset-left))!important;padding-right:max(4px,env(safe-area-inset-right))!important;box-sizing:border-box}
+html.bq-piel .top.bq-cab .brand{flex:1;min-width:0;display:block!important;justify-content:center;text-align:center;font:800 19px/1.1 var(--f-titulo)!important;letter-spacing:-.2px!important;color:var(--cal)!important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0!important;order:0}
+html.bq-piel .top.bq-cab .brand span,html.bq-piel .top.bq-cab .brand b,html.bq-piel .top.bq-cab .brand i{color:inherit!important;font:inherit!important;letter-spacing:inherit!important}
+html.bq-piel .top.bq-cab .brand .beta{display:none}
+html.bq-piel .top.bq-cab.bq-angosta .brand{text-align:left;padding-left:2px}
+html.bq-piel .top.bq-cab .icon-btn{margin-left:0!important;min-width:44px!important;width:44px;height:44px!important;border-radius:50%!important;border:0!important;background:transparent!important;color:var(--cal)!important;box-shadow:none!important;
+  display:grid!important;place-items:center;padding:0!important;font-size:18px;position:relative}
+html.bq-piel .top.bq-cab .icon-btn[hidden]{display:none!important}
+html.bq-piel .top.bq-cab .icon-btn:active{background:var(--cab-act)!important}
+html.bq-piel .top.bq-cab .icon-btn:focus-visible{outline:3px solid var(--cielo);outline-offset:1px}
+html.bq-piel .top.bq-cab .games-btn{display:grid!important;width:48px;min-width:48px!important;height:48px!important}
+html.bq-piel .top.bq-cab .top-tools{display:flex;align-items:center;gap:0;margin:0}
+html.bq-piel .top.bq-cab .bq-der{display:flex;align-items:center;gap:0;flex:none}
+html.bq-piel .top.bq-cab .badge,html.bq-piel .top.bq-cab .cx-badge{top:4px!important;right:2px!important}
+/* el título queda centrado aunque a la derecha haya más botones: a la izquierda se reserva lo mismo */
+html.bq-piel .top.bq-cab .bq-izq{display:flex;align-items:center;flex:none}
+
+/* ── Piel A para las hojas (#modal .sheet), el menú (#side .side-panel) y los carteles (.ccard) de los juegos ── */
+html.bq-piel .modal{background:var(--velo)!important}
+html.bq-piel .sheet,html.bq-piel .side-panel,html.bq-piel:not(.bq-sin-cartel) .ccard{background:var(--mate)!important;color:var(--cal)!important;border-color:var(--linea)!important;font-family:var(--f-texto)}
+html.bq-piel .sheet{border-radius:var(--r-hoja) var(--r-hoja) 0 0!important;border:0!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard{border-radius:var(--r-l)!important;border:0!important;box-shadow:var(--bq-sombra),0 0 0 1px var(--alambre-t)!important}
+html.bq-piel .sheet>header h2,html.bq-piel .sheet h2,html.bq-piel .sheet h3,html.bq-piel:not(.bq-sin-cartel) .ccard h2,html.bq-piel:not(.bq-sin-cartel) .ccard h3,html.bq-piel .side-panel h2,html.bq-piel .side-panel h3{font-family:var(--f-titulo)!important;font-weight:800!important;color:var(--cal)!important;letter-spacing:-.2px}
+html.bq-piel:not(.bq-sin-cartel) .ccard h3,html.bq-piel:not(.bq-sin-cartel) .ccard h2{font-size:28px!important;line-height:1.08!important}
+html.bq-piel .sheet h4,html.bq-piel:not(.bq-sin-cartel) .ccard h4,html.bq-piel .side-panel h4{font-family:var(--f-titulo)!important;color:var(--cal)!important}
+html.bq-piel .sheet p,html.bq-piel .sheet li,html.bq-piel .sheet ul,html.bq-piel .sheet ol,html.bq-piel:not(.bq-sin-cartel) .ccard p,html.bq-piel:not(.bq-sin-cartel) .ccard li,html.bq-piel .side-panel p{color:var(--pasto-seco)!important}
+html.bq-piel .sheet b,html.bq-piel .sheet strong,html.bq-piel:not(.bq-sin-cartel) .ccard b,html.bq-piel:not(.bq-sin-cartel) .ccard strong{color:var(--cal)}
+html.bq-piel .sheet .cap,html.bq-piel:not(.bq-sin-cartel) .ccard .cap,html.bq-piel .sheet small,html.bq-piel:not(.bq-sin-cartel) .ccard small{color:var(--pasto-seco)!important}
+html.bq-piel .sheet a:not(.btn),html.bq-piel:not(.bq-sin-cartel) .ccard a:not(.btn){color:var(--cielo)}
+html.bq-piel .sheet>header .x,html.bq-piel .sheet .x{width:44px!important;height:44px!important;border-radius:50%!important;background:var(--mate-claro)!important;color:var(--cal)!important;border:0!important}
+html.bq-piel .sheet .btn,html.bq-piel:not(.bq-sin-cartel) .ccard .btn,html.bq-piel .side-panel .btn{min-height:48px;border-radius:999px!important;border:0!important;background:var(--mate-claro)!important;color:var(--cal)!important;box-shadow:none!important;font-family:var(--f-texto);font-weight:700}
+html.bq-piel .sheet .btn small,html.bq-piel:not(.bq-sin-cartel) .ccard .btn small{color:var(--pasto-seco)!important;opacity:1!important}
+html.bq-piel .sheet .btn.go,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.go,html.bq-piel .side-panel .btn.go{background:var(--maiz)!important;color:var(--maiz-osc)!important}
+html.bq-piel .sheet .btn.go small,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.go small{color:var(--maiz-osc)!important}
+html.bq-piel .sheet .btn.on,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.on{background:var(--cal)!important;color:var(--monte)!important;box-shadow:none!important}
+html.bq-piel .sheet .btn.on small{color:var(--btn-on-tx)!important}
+html.bq-piel .sheet .btn:has(small),html.bq-piel:not(.bq-sin-cartel) .ccard .btn:has(small){border-radius:16px!important}
+html.bq-piel .sheet .btn.link,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.link{background:none!important;color:var(--cielo)!important;text-decoration:none}
+html.bq-piel .sheet .btn:disabled,html.bq-piel:not(.bq-sin-cartel) .ccard .btn:disabled{opacity:.45}
+html.bq-piel .sheet input:not([type=range]):not([type=checkbox]):not([type=radio]),html.bq-piel .sheet select,html.bq-piel .sheet textarea,
+html.bq-piel:not(.bq-sin-cartel) .ccard input:not([type=range]):not([type=checkbox]):not([type=radio]){background:var(--monte)!important;color:var(--cal)!important;border:1.5px solid var(--alambre)!important;border-radius:14px!important}
+html.bq-piel .sheet input[type=range],html.bq-piel:not(.bq-sin-cartel) .ccard input[type=range]{accent-color:var(--maiz)}
+html.bq-piel:not(.bq-sin-cartel) .ccard .lines,html.bq-piel .sheet .lines{background:var(--mate-claro)!important;border:0!important;border-radius:var(--r-m)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .lines .win,html.bq-piel .sheet .lines .win{color:#8FD6A6!important}
+html.bq-piel .mreg{background:var(--mate-claro-t)!important;border-color:var(--alambre)!important}
+html.bq-piel .side-panel{background:var(--monte)!important;border-left:1px solid var(--linea)!important}
+html.bq-piel .side-panel button:not(.btn):not(.bq-btn):not(.bq-x),html.bq-piel .side-panel>a{font-family:var(--f-texto)}
+html.bq-piel .menu-list button,html.bq-piel .menu-list a{background:var(--mate)!important;border:0!important;border-radius:14px!important;color:var(--cal)!important;min-height:50px;font-family:var(--f-texto)!important;font-weight:700!important}
+html.bq-piel .menu-list button:active,html.bq-piel .menu-list a:active{background:var(--mate-claro)!important}
+html.bq-piel .side-head h2{font:800 24px/1.1 var(--f-titulo)!important;color:var(--cal)!important}
+html.bq-piel .side-x{border-radius:50%!important;background:var(--mate-claro)!important;color:var(--cal)!important;border:0!important}
+html.bq-piel .side .note{color:var(--pasto-seco)!important}
+html.bq-piel .side-panel .rk-mine{background:var(--mate)!important;border-color:transparent!important;color:var(--cal)}html.bq-piel .side-panel .rk-mine small{color:var(--pasto-seco)!important}
+html.bq-piel .toast{font-family:var(--f-texto)}
+
+/* ── Acostado (poca altura): cabecera más baja ── */
+@media (max-height:500px) and (orientation:landscape){
+  :root{--bq-cab-h:44px}
+  html.bq-piel .top.bq-cab .icon-btn,html.bq-piel .top.bq-cab .games-btn,.bq-cab-b{width:44px!important;height:40px!important}
+  html.bq-piel .top.bq-cab .brand{font-size:18px!important}
+  .bq-hoja{max-height:94%;max-height:94dvh}
+}
+@media (prefers-reduced-motion:reduce){.bq-velo,.bq-hoja,.bq-aviso,.bq-nivel .bq-barra i{transition:none!important}}
+html.sin-anim .bq-velo,html.sin-anim .bq-hoja,html.sin-anim .bq-aviso{transition:none!important}
+/* PoolAR: en partida, con el celular parado, los jugadores suben a la barra en lugar del nombre */
+html.bq-piel body.hudarriba .top.bq-cab .brand{display:none!important}
+html.bq-piel body.hudarriba .top.bq-cab .bq-izq{min-width:0!important}
+/* Ajustes › letra más grande (I3): hojas, menús, carteles y lo propio de comun */
+html.blq-letra-grande .bq-hoja .bq-cuerpo,html.blq-letra-grande .bq-aviso .bq-av-t{zoom:1.12}
+html.blq-letra-grande .sheet .body>*,html.blq-letra-grande .ccard>*,html.blq-letra-grande .side-panel>*{zoom:1.1}
+html.blq-letra-grande .top.bq-cab .brand{font-size:21px!important}
+html.blq-sin-anim .bq-velo,html.blq-sin-anim .bq-hoja,html.blq-sin-anim .bq-aviso,html.blq-sin-anim .bq-nivel .bq-barra i{transition:none!important}
+/* v90 · Vos › Ajustes › Color: dos muestras tocables */
+.g9v-temas{display:flex;gap:8px;flex:none}
+.g9v-temas .g9v-tema{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 8px;border-radius:999px;border:2px solid var(--alambre)!important;background:var(--mate-claro);color:var(--cal);font:700 14px/1 var(--f-texto);cursor:pointer}
+.g9v-temas .g9v-tema[aria-checked="true"]{border-color:var(--maiz)!important;background:var(--hondo)}
+.g9v-tema:focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+.g9v-muestra{width:24px;height:24px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.g9v-m-azul{background:linear-gradient(135deg,#1F2F4A 0 50%,#0E1626 50%)}
+.g9v-m-verde{background:linear-gradient(135deg,#2E4A3A 0 50%,#1B2E24 50%)}
+@media (max-width:380px){.g9v-tema-ren{flex-wrap:wrap}.g9v-temas{width:100%}.g9v-tema{flex:1;justify-content:center}}
+/* v90 · C1 · PC (≥1024 px con mouse): las hojas de abajo pasan a ventanas centradas y los menús de cada
+   juego (#modal .sheet con piel) también. En celular y tablet no cambia nada. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  .bq-velo{align-items:center;padding:24px}
+  .bq-hoja{width:min(600px,100%);max-height:86vh;border-radius:var(--r-l);padding:18px 26px 24px;box-shadow:0 24px 60px var(--sombra-c);transform:translateY(14px) scale(.98);opacity:0;transition:transform .18s ease,opacity .18s ease}
+  .bq-velo.on .bq-hoja{transform:none;opacity:1}
+  .bq-hoja .bq-asa{display:none}
+  .bq-hoja-cab h2{font-size:28px}
+  html.bq-piel .modal{align-items:center!important;justify-content:center!important}
+  html.bq-piel .modal>.sheet{border-radius:var(--r-l)!important;max-height:86vh!important;margin:auto!important;box-shadow:0 24px 60px var(--sombra-c)!important}
+  html.bq-piel .modal>.sheet .grab,html.bq-piel .modal>.sheet .asa{display:none!important}
+  .bq-cab-b:hover,html.bq-piel .top.bq-cab .icon-btn:hover{background:var(--cab-act)!important}
+  .bq-btn:hover{filter:brightness(1.06)}
+  .bq-aviso{left:auto;right:20px;width:400px;margin:0}
+  .g9v-tema-ren{flex-wrap:wrap}.g9v-tema-ren .g9v-temas{width:100%}.g9v-tema-ren .g9v-tema{flex:1;justify-content:center}
+}
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:reduce){.bq-hoja{transition:none}}
+/* v90 · C1: el aviso de la primera vez de los solitarios y LaberintAR («Listo») sigue el color de la app */
+html.bq-piel .tip1 .btn.go{background:var(--maiz)!important;border-color:var(--maiz)!important;color:var(--maiz-osc)!important}
+
+</style>
+<script>
+/* ───────── v89 · Lo común de toda la app (interfaz «A · Pampa al atardecer») ─────────
+   Lo inyectan build.sh y package.sh en TODAS las páginas, justo después de chat/sonido.js (antes que cualquier juego
+   cree su sonido). Va con comun/comun.css. Pedido del 09/11: «rediseñar la interfaz de la app… algo que la gente
+   quiera usar» → opción A. Etapa 1: lo mismo en los 16 juegos, sin tocar cómo se juega cada uno.
+
+   API (window.BLQ_UI):
+     icono(nombre, tam)            SVG de línea: casa, grilla, estancia, gente, persona, buscar, ayuda, mas, volver,
+                                   charla, cerrar, sonido, mesa, partidas
+     hoja({titulo, html|el, alCerrar, clase, sinX}) → {el, cuerpo, cerrar}   hoja de abajo (se cierra tocando afuera,
+                                   arrastrando para abajo, con ✕ o Escape)
+     comoSeJuega({juego, pasos, reglas, prueba, completas})   la hoja «Cómo se juega» (3 pasos + reglas plegadas)
+     finPartida({juego, resultado, detalle, icono, ganado:{oro,xp,racha,pesos}, objeto:{icono,nombre,nota},
+                 revancha, otro, estancia, nivel:{lv,into,need}}) → hoja con el fin de partida común
+     aviso({titulo, texto, icono, tipo:'info'|'amigo'|'alerta', accion:{texto,fn}, urgente, ms})
+                                   cola ÚNICA: de a uno, arriba, 5 s, sin aceptar toques los primeros 500 ms (TOQUE).
+                                   Dentro de una partida sólo pasan 'amigo' y urgente; lo demás queda en pendientes()
+     pendientes() → [{…, t}]       lo que no se mostró (para «Hoy»), quitarPendiente(i)
+     volumen() / volumen(v)        volumen general 0..1 de TODO el sonido de la app (música y efectos de cada juego)
+     volumenHtml()                 la fila con la barrita (la usan el menú ⋯ de cada juego y Vos › Ajustes)
+     cabecera({juego, titulo, alVolver, ayuda, menu:[{texto,fn}], el})   cabecera común para páginas sin barra .top;
+                                   en las que ya tienen .top, comun.js la rearma solo
+     enPartida(bool)               el juego avisa que hay una partida en curso (los avisos esperan)
+     juego()                       id del juego de esta página
+   Datos guardados (sólo de este aparato, no viajan): 'bloques-volumen', 'bloques-csj-visto' (juegos cuyo «?» ya se abrió).
+   Llave de emergencia: localStorage 'bloques-piel-a'='0' apaga la piel A en los juegos (queda la vieja). */
+(function(){
+'use strict';
+if(window.BLQ_UI)return;
+const ls={get(k){try{return localStorage.getItem(k);}catch(_){return null;}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(_){}},
+  json(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')??d;}catch(_){return d;}}};
+/* v90 · Color de la app: 'azul' (predeterminado) o 'verde'. Se guarda en blq-ajustes-v89.tema y se pone en
+   <html data-tema> acá mismo (comun.js va en el <head> de todas las páginas: no hay parpadeo). */
+const TEMA_COLOR={azul:'#0E1626',verde:'#1B2E24'};
+function temaLeer(){try{const o=JSON.parse(localStorage.getItem('blq-ajustes-v89')||'{}')||{};return o.tema==='verde'?'verde':'azul';}catch(_){return 'azul';}}
+function temaPoner(t){const h=document.documentElement;h.setAttribute('data-tema',t);
+  try{let m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',TEMA_COLOR[t]);}catch(_){}}
+temaPoner(temaLeer());
+window.BLQ_tema={get:temaLeer,set(t){t=t==='verde'?'verde':'azul';let o={};try{o=JSON.parse(localStorage.getItem('blq-ajustes-v89')||'{}')||{};}catch(_){}
+  o.tema=t;try{localStorage.setItem('blq-ajustes-v89',JSON.stringify(o));}catch(_){}temaPoner(t);
+  try{dispatchEvent(new CustomEvent('blq-ajustes',{detail:{k:'tema',v:t}}));}catch(_){}return t;}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||localStorage.getItem('bloques-efectos')==='0'||document.documentElement.classList.contains('blq-sin-anim');}catch(_){return false;}};
+const PAG=((location.pathname.split('/').pop()||'').replace(/\.html$/,'').replace(/-armado$/,'')||'index').toLowerCase();
+const JUEGO=({index:'bloquear',bloques:'bloquear',bloqueAR:'bloquear'})[PAG]||PAG;
+
+/* ── Volumen general: un «GainNode» delante del parlante de cada AudioContext ──
+   Todos los juegos hacen su sonido con Web Audio (nadie usa <audio>), así que alcanza con envolver AudioContext: cada
+   contexto nuevo conecta todo a ctx.destination, que pasa a ser una perilla común. Con 1 (lo de siempre) no cambia nada. */
+const VK='bloques-volumen';
+const volGuardado=()=>{const v=parseFloat(ls.get(VK));return isFinite(v)?Math.min(1,Math.max(0,v)):1;};
+let VOL=volGuardado();
+const PERILLAS=[];
+function aplicarVol(){for(let i=PERILLAS.length-1;i>=0;i--){const r=PERILLAS[i],g=r.deref?r.deref():r;if(!g){PERILLAS.splice(i,1);continue;}
+  try{const c=g.context;g.gain.cancelScheduledValues(c.currentTime);g.gain.setTargetAtTime(VOL*VOL,c.currentTime,.03);}catch(_){try{g.gain.value=VOL*VOL;}catch(__){}}}}   // curva cuadrática: la barrita se siente pareja al oído
+for(const k of ['AudioContext','webkitAudioContext']){
+  const C=window[k];if(!C||C.__perilla)continue;
+  const W=function(...a){const ctx=new C(...a);
+    try{const real=ctx.destination,g=ctx.createGain();g.gain.value=VOL*VOL;g.connect(real);
+      Object.defineProperty(ctx,'destination',{configurable:true,get(){return g;}});
+      PERILLAS.push(typeof WeakRef==='function'?new WeakRef(g):g);}catch(_){}
+    return ctx;};
+  W.prototype=C.prototype;W.__perilla=true;W.__ambient=C.__ambient;try{Object.setPrototypeOf(W,C);}catch(_){}
+  try{window[k]=W;}catch(_){}
+}
+function volumen(v){if(v===undefined)return VOL;VOL=Math.min(1,Math.max(0,Number(v)||0));ls.set(VK,String(Math.round(VOL*100)/100));aplicarVol();
+  document.querySelectorAll('.bq-vol input').forEach(i=>{if(+i.value!==Math.round(VOL*100)){i.value=Math.round(VOL*100);}const o=i.parentNode.querySelector('output');if(o)o.textContent=Math.round(VOL*100)+'%';});
+  try{dispatchEvent(new CustomEvent('bloques-volumen',{detail:VOL}));}catch(_){}return VOL;}
+addEventListener('storage',e=>{if(e.key===VK){VOL=volGuardado();aplicarVol();}});
+
+/* ── Íconos de línea (2 px, puntas redondeadas) ── */
+const P={
+  casa:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  grilla:'<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  estancia:'<path d="M2 21h20M4 21V11l8-6 8 6v10"/><path d="M9 21v-5h6v5"/><path d="M12 5V2"/>',
+  gente:'<circle cx="9" cy="8" r="4"/><path d="M1 21c0-4 3.5-6 8-6s8 2 8 6"/><path d="M16 4a4 4 0 0 1 0 8M23 21c0-3-2-5-5-5.6"/>',
+  persona:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/>',
+  buscar:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  ayuda:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
+  mas:'<circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/>',
+  volver:'<path d="M15 5l-7 7 7 7"/>',
+  charla:'<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>',
+  mesa:'<path d="M3 6h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H9l-4 3v-3H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/><path d="M19 9h2a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-1v3l-3-3h-4"/>',
+  partidas:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  cerrar:'<path d="M6 6l12 12M18 6L6 18"/>',
+  sonido:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a7.5 7.5 0 0 1 0 11"/>',
+  mudo:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 10l4 4M21 10l-4 4"/>',
+  amigo:'<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M19 8v6M16 11h6"/>'
+};
+function icono(n,t){const p=P[n]||P.ayuda,s=t||22;return `<svg class="bq-ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${p}</svg>`;}
+
+/* ── Textos de «Cómo se juega»: 3 pasos cortos y las reglas que importan, para los 16 ── */
+const N={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',pampa:'La Gran Pampa',truco:'TrucAR',uno:'UnoAR',ludo:'LudAR',pool:'PoolAR',ajedrez:'AjedrezAR',
+  laberinto:'LaberintAR',invasores:'InvasorAR',marcar:'MarcAR',fortinar:'FortinAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR'};
+const AY={
+  bloquear:{p:['Las piezas caen de a una: movelas y girálas para que encajen.','Cada fila completa se borra y suma puntos; varias juntas suman mucho más.','Si las piezas llegan arriba, se termina. Con un amigo, las filas que borrás le suben a él.'],
+    r:['En el celular: deslizá para mover, tocá para girar y deslizá para abajo para bajarla rápido.','En la compu: flechas para mover, ↑ para girar, espacio para tirarla de golpe.','La pieza que viene se ve al costado: pensá la jugada antes.']},
+  poblar:{p:['Tirás los dados: cada terreno con ese número le da su recurso a los ranchos que lo tocan.','Con los recursos hacés caminos, ranchos y pueblos; cambiás con los demás o con el puerto.','Gana el primero que llega a los puntos de la partida (15 de a dos, 10 de a tres o cuatro).'],
+    r:['Al empezar cada uno pone dos ranchos y dos caminos, en serpiente.','Un rancho da 1 carta y un pueblo 2.','Con un 7 sale el malón: quien tenga muchas cartas pierde la mitad.']},
+  estancia:{p:['Sembrá en tus parcelas y cosechá cuando estén listas.','Vendé en el almacén, comprá animales y cosas, y mejorá el casco.','Jugando a los otros juegos ganás oro y premios para tu estancia.'],
+    r:['Los animales hay que alimentarlos; dan productos que se venden.','De noche puede caer un malón: armá defensas y avisá a tus amigos.','Tus amigos pueden visitar tu estancia y vos la de ellos.']},
+  pampa:{p:['Cada lunes hay un mapa nuevo: sumate el lunes o el martes hasta las 20.','Jugando a cualquier juego ganás leguas; con leguas reclamás parajes pegados a los tuyos.','Cada paraje da puntos por día. El domingo a la medianoche gana el que más juntó.'],
+    r:['Si un paraje es de otro, lo podés desafiar: se resuelve con un cruce.','Laguna riega, sierra deja reclamar más lejos, monte se defiende solo.','Con muchos jugadores se abre otra liga con su propio mapa y su copa.']},
+  truco:{p:['Cada mano se juega a tres bazas: gana la carta más alta según el orden del truco.','Antes de jugar podés cantar envido; en cualquier momento, truco, para que la mano valga más.','Gana el primero que llega a 30 (o a 15 si elegís partida corta).'],
+    r:['Orden: ancho de espadas, ancho de bastos, 7 de espadas, 7 de oros, los 3, los 2, anchos falsos, 12, 11, 10, 7 falsos, 6, 5 y 4.','Envido: dos cartas del mismo palo suman 20 más sus números (las figuras valen 0).','Si no querés, el que cantó se lleva lo anterior.']},
+  uno:{p:['Tirá una carta del mismo color o del mismo número que la de arriba del pozo.','Si no tenés, robás una. Las especiales saltan, invierten o hacen robar al que sigue.','Cuando te queda una, ¡UNO! El primero que se queda sin cartas gana la mano.'],
+    r:['Los comodines van siempre y te dejan pedir color.','Si te olvidás de cantar UNO y te agarran, robás 2.','Se juega de 2 a 6.']},
+  ludo:{p:['Tirás el dado y movés una ficha esa cantidad de casillas.','Con un 6 sacás una ficha de la base y volvés a tirar.','Gana el primero que lleva sus cuatro fichas a la meta del centro.'],
+    r:['Si caés donde hay otra ficha, la mandás a su base y tirás otra vez.','En las salidas y en las estrellas no se come.','A la meta se entra con el número justo.']},
+  pool:{p:['Apuntá deslizando el dedo; la fuerza la marcás con la barra.','Meté tus bolas (lisas o rayadas) sin meter la blanca.','En Bola 8, cuando metiste las tuyas, cantás tronera y metés la negra para ganar.'],
+    r:['Si metés la blanca o tocás primero una bola ajena, es falta: el otro pone la blanca donde quiere.','Bola 9: hay que tocar primero la más baja de la mesa; gana quien mete la 9.','Carambola: sumás tocando las otras dos bolas con la tuya.']},
+  ajedrez:{p:['Tocá una pieza y después la casilla adonde va (o arrastrala).','Cada uno mueve una por turno.','Gana el que le da jaque mate al rey del otro.'],
+    r:['Se puede jugar contra la compu, en vivo con un amigo o en distendida: una jugada por día.','Enroque, captura al paso y coronación funcionan como siempre.','Tablas: rey ahogado, triple repetición, 50 jugadas o acuerdo.']},
+  laberinto:{p:['Deslizá (o usá las flechas) para moverte por el laberinto.','Juntá todas las semillas para pasar de nivel.','Que no te agarren: con las semillas grandes, por un rato los corrés vos a ellos.'],
+    r:['Cada laberinto es más rápido que el anterior.','Las frutas que aparecen dan puntos extra.','Hay desafío del día con tabla.']},
+  invasores:{p:['Movete de costado y disparale a la fila que baja.','Escondete detrás de los escudos, que se gastan con los tiros.','Si llegan abajo o te quedás sin vidas, se termina. Contra un amigo, gana quien aguante más.'],
+    r:['La nave de arriba vale muchos puntos.','En el taller mejorás tu nave con lo que juntás.','En Historia cada nivel trae enemigos nuevos.']},
+  marcar:{p:['Moverte con el stick izquierdo (o WASD) y apuntar con el derecho (o el mouse).','Al empezar cada ronda comprás armas en tu base con la plata que ganaste.','En Bomba un equipo la planta y el otro la desactiva; en Zombis aguantan oleadas juntos.'],
+    r:['Ganar rondas da más plata; perder también da algo para no quedarse sin nada.','A la mitad de la partida se cambia de lado.','Las partidas «Normal» son las de siempre; hay modos más cortos y más largos.']},
+  fortinar:{p:['Tus peones juntan comida, madera y piedra: elegilos y mandalos a trabajar.','Con eso hacés casas, cuarteles y tropas.','En Asalto ganás si tumbás el fortín del rival o si juntás más gloria peleando; Conquista y Express tienen sus propias metas.'],
+    r:['Cada facción tiene tropas y una ventaja propia.','Arrastrá para seleccionar a varios; tocá el piso para moverlos.','La compu tiene niveles: empezá en Fácil.']},
+  sudoku:{p:['Completá la grilla con números del 1 al 9.','No se pueden repetir en la misma fila, columna ni cuadro de 3×3.','Uno nuevo cada día, con tabla: cuanto más rápido, mejor.'],
+    r:['Tocá una casilla y después el número.','Con el lápiz anotás candidatos chiquitos.','Las pistas existen, pero suman tiempo.']},
+  solitario:{p:['Ordená las cartas por palo, del 1 al 12, en las cuatro pilas de arriba.','En la mesa se apilan de mayor a menor, alternando palos.','Si te trabás, sacá del mazo.'],
+    r:['Tocá una carta y se va sola adonde puede, o arrastrala.','Sólo un rey (12) puede ir a un lugar vacío.','Se puede deshacer.']},
+  buscaminas:{p:['Tocá una casilla para destaparla.','El número dice cuántas minas tiene alrededor.','Marcá las minas con la banderita y destapá todo lo demás.'],
+    r:['Mantené apretado (o usá el modo banderita) para marcar.','Tocar un número con todas sus minas marcadas destapa lo de alrededor.','Hay desafío del día contra reloj.']}
+};
+/* Para «Reglas completas»: la ayuda larga que ya tiene cada juego (función global de su página). */
+const COMPLETAS=['openHelp','comoSeJuega','reglas','abrirAyuda','verAyuda'];
+
+/* ── Hoja de abajo ── */
+const HOJAS=[];
+function hoja(o){o=o||{};
+  const velo=document.createElement('div');velo.className='bq-velo'+(o.clase?' '+o.clase:'');
+  velo.innerHTML=`<div class="bq-hoja" role="dialog" aria-modal="true"${o.titulo?` aria-label="${esc(o.titulo)}"`:''}><button type="button" class="bq-asa" aria-label="Cerrar" tabindex="-1"></button>${o.titulo||!o.sinX?`<div class="bq-hoja-cab">${o.titulo?`<h2>${esc(o.titulo)}</h2>`:'<span style="flex:1"></span>'}${o.sinX?'':`<button type="button" class="bq-x" aria-label="Cerrar">${icono('cerrar',20)}</button>`}</div>`:''}<div class="bq-cuerpo"></div></div>`;
+  const h=velo.firstChild,cuerpo=velo.querySelector('.bq-cuerpo');
+  if(o.el)cuerpo.appendChild(o.el);else if(o.html)cuerpo.innerHTML=o.html;
+  let cerrada=false;const antes=document.activeElement;
+  function cerrar(){if(cerrada)return;cerrada=true;velo.classList.remove('on');const i=HOJAS.indexOf(api);if(i>=0)HOJAS.splice(i,1);
+    setTimeout(()=>velo.remove(),quieto()?0:260);try{antes&&antes.focus&&antes.focus({preventScroll:true});}catch(_){}try{o.alCerrar&&o.alCerrar();}catch(e){console.error(e);}}
+  velo.addEventListener('click',e=>{if(e.target===velo||e.target.closest('.bq-x')||e.target.closest('.bq-asa'))cerrar();});
+  // Arrastrar para abajo desde arriba de la hoja la cierra.
+  let y0=null;h.addEventListener('pointerdown',e=>{if(h.scrollTop>0||e.target.closest('input,select,textarea,button:not(.bq-asa),a,summary'))return;y0=e.clientY;},{passive:true});
+  h.addEventListener('pointermove',e=>{if(y0==null)return;const d=Math.max(0,e.clientY-y0);if(d>4)h.style.transform=`translateY(${d}px)`;},{passive:true});
+  const suelta=e=>{if(y0==null)return;const d=e.clientY-y0;y0=null;h.style.transform='';if(d>90)cerrar();};
+  h.addEventListener('pointerup',suelta);h.addEventListener('pointercancel',()=>{y0=null;h.style.transform='';});
+  document.body.appendChild(velo);
+  try{window.TOQUE&&TOQUE.proteger(velo,450);}catch(_){}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>velo.classList.add('on')));
+  setTimeout(()=>{const f=velo.querySelector('.bq-x')||h;try{f.focus({preventScroll:true});}catch(_){}},60);
+  const api={el:velo,hoja:h,cuerpo,cerrar};HOJAS.push(api);return api;}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&HOJAS.length){e.stopPropagation();HOJAS[HOJAS.length-1].cerrar();}},true);
+
+/* ── Cómo se juega ── */
+function comoSeJuega(o){o=o||{};const j=o.juego||JUEGO,a=AY[j]||{p:[],r:[]},pasos=o.pasos||a.p,reglas=o.reglas||a.r;
+  marcarVisto(j);
+  const fn=o.completas||o.alCompletas||(()=>{for(const n of (a.f?[a.f]:COMPLETAS))if(typeof window[n]==='function'&&window[n]!==comoSeJuega)return window[n];return null;})();
+  const html=`<ol class="bq-tres">${pasos.map(t=>`<li><span>${esc(t)}</span></li>`).join('')}</ol>
+    <div class="bq-botones">${o.prueba?'<button type="button" class="bq-btn prim ancho" data-a="prueba">Jugar una de prueba</button>':`<button type="button" class="bq-btn prim ancho" data-a="ok"${o.alCerrar?' id="h-ok"':''}>Entendido</button>`}</div>
+    ${reglas&&reglas.length||fn?`<details class="bq-reglas"><summary>Reglas completas</summary>${reglas&&reglas.length?`<ul>${reglas.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}${fn?'<button type="button" class="bq-btn borde ancho" data-a="todo">Ver la ayuda entera del juego</button>':''}</details>`:''}`;
+  let sigue=true;   // o.alCerrar (p. ej. «Partida nueva» la primera vez) corre al cerrar, salvo que se vaya a la ayuda entera
+  const H=hoja({titulo:'Cómo se juega',html,clase:'bq-csj',alCerrar:()=>{if(sigue&&o.alCerrar)try{o.alCerrar();}catch(err){console.error(err);}}});
+  // La primera vez (con alCerrar) la hoja va «atada» a la capa de hojas del juego (#modal): si el juego (o una prueba)
+  // la manda a cerrar, se va también, sin seguir a «Partida nueva».
+  const capa=o.alCerrar&&document.getElementById(o.atar||'modal');
+  if(capa&&window.MutationObserver){const mo=new MutationObserver(()=>{if(capa.hidden||capa.style.display==='none'){sigue=false;mo.disconnect();H.cerrar();}});
+    mo.observe(capa,{attributes:true,attributeFilter:['hidden','style']});const c0=H.cerrar;H.cerrar=()=>{mo.disconnect();c0();};}
+  H.cuerpo.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a2=b.dataset.a;if(a2==='todo'||a2==='prueba')sigue=false;H.cerrar();
+    if(a2==='prueba')try{o.prueba();}catch(err){console.error(err);}
+    if(a2==='todo'&&fn)setTimeout(()=>{try{fn();}catch(err){console.error(err);}},quieto()?0:200);});
+  return H;}
+function vistos(){const v=ls.json('bloques-csj-visto',[]);return Array.isArray(v)?v:[];}   // v90: si el dato está roto, no rompe la página
+function marcarVisto(j){const v=vistos();if(!v.includes(j)){v.push(j);ls.set('bloques-csj-visto',JSON.stringify(v));}document.querySelectorAll('.bq-ayuda .bq-punto').forEach(p=>p.remove());}
+
+/* ── Fin de partida ── */
+function finPartida(o){o=o||{};const g=o.ganado||{},R=o.resultado,tit=R==='gano'?'¡Ganaste!':R==='perdio'?'Perdiste':R==='empate'?'Empate':String(R||'Fin de la partida');
+  const ico=o.icono||(R==='gano'?'🏆':R==='perdio'?'🌧️':R==='empate'?'🤝':'🏁');
+  const cajas=[];if(g.oro)cajas.push([`+${g.oro}`,'🪙 oro']);if(g.pesos)cajas.push([`+${g.pesos}`,'pesos']);if(g.xp)cajas.push([`+${g.xp}`,'experiencia']);if(g.racha)cajas.push([String(g.racha),g.racha===1?'día de racha':'días de racha']);
+  const ob=o.objeto;let nv=o.nivel;
+  if(!nv&&window.RANGOS&&RANGOS.levelInfo&&RANGOS.xp)try{const L=RANGOS.levelInfo(RANGOS.xp(o.juego||JUEGO));nv={lv:L.lv,into:L.into,need:L.need};}catch(_){}
+  const html=`<div class="bq-fin"><div class="bq-fin-ico" aria-hidden="true">${ico}</div><div class="bq-res">${esc(tit)}</div>${o.detalle?`<p class="bq-tanteo">${esc(o.detalle)}</p>`:''}
+    ${cajas.length?`<div class="bq-ganado">${cajas.map(c=>`<div><b>${esc(c[0])}</b><small>${esc(c[1])}</small></div>`).join('')}</div>`:''}
+    ${ob?`<div class="bq-objeto"><span class="bq-oi" aria-hidden="true">${ob.icono||'🎁'}</span><span><b>${esc(ob.nombre||'')}</b><small>${esc(ob.nota||'Nuevo para tu estancia · ya está en Lo mío')}</small></span></div>`:''}
+    ${nv?`<div class="bq-nivel"><small><span>Nivel ${nv.lv}</span><span>${nv.into} / ${nv.need}</span></small><div class="bq-barra"><i></i></div></div>`:''}
+    <div class="bq-botones">${o.revancha?'<button type="button" class="bq-btn prim ancho" data-a="revancha">Revancha</button>':''}
+      <div class="bq-botones dos" style="margin-top:0"><button type="button" class="bq-btn" data-a="otro">Otro juego</button><button type="button" class="bq-btn" data-a="estancia">Ir a la estancia</button></div></div></div>`;
+  const H=hoja({html,clase:'bq-finh',sinX:false,alCerrar:o.alCerrar});
+  const b=H.el.querySelector('.bq-barra i');if(b&&nv){const pct=Math.round(100*nv.into/Math.max(1,nv.need));if(quieto())b.style.width=pct+'%';else setTimeout(()=>b.style.width=pct+'%',60);}
+  H.cuerpo.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a;H.cerrar();
+    if(a==='revancha'&&o.revancha)return o.revancha();
+    if(a==='otro')return o.otro?o.otro():(location.href='./#juegos');
+    if(a==='estancia')return o.estancia?o.estancia():(location.href='estancia.html');});
+  return H;}
+
+/* ── Avisos: una sola cola para toda la app ── */
+const AV={cola:[],el:null,actual:null,timer:0,partida:false,sesion:0};
+const PK='bloques-avisos-pend';
+function pendientes(){return ls.json(PK,[]);}
+function guardarPend(a){const L=pendientes();L.push({titulo:a.titulo||'',texto:a.texto||'',icono:a.icono||'',tipo:a.tipo||'info',t:Date.now()});ls.set(PK,JSON.stringify(L.slice(-20)));}
+function quitarPendiente(i){const L=pendientes();if(i==null)L.length=0;else L.splice(i,1);ls.set(PK,JSON.stringify(L));}
+const jugando=()=>{if(AV.partida)return true;try{return !!(window.CHAT&&CHAT.ocupado&&CHAT.ocupado());}catch(_){return false;}};   // cada juego ya le dice al chat si hay partida (busy)
+function aviso(o){o=o||{};const pasa=o.urgente||o.tipo==='amigo'||o.tipo==='alerta';
+  if(jugando()&&!pasa){guardarPend(o);return false;}
+  if(!pasa&&AV.sesion>=3){guardarPend(o);return false;}    // máximo 3 por sesión que no sean de amigos
+  if(!pasa)AV.sesion++;
+  AV.cola.push(o);if(!AV.actual)siguiente();return true;}
+function siguiente(){const o=AV.cola.shift();if(!o){AV.actual=null;return;}AV.actual=o;
+  const mostrar=()=>{let el=AV.el;if(!el){el=AV.el=document.createElement('div');el.className='bq-aviso';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el);}
+    el.className='bq-aviso'+(o.tipo==='alerta'?' alerta':'');
+    try{const cab=document.querySelector('.bq-cab');const r=cab&&cab.getBoundingClientRect();el.style.top=(r&&r.height>0&&r.bottom<160)?(r.bottom+6)+'px':'';}catch(_){}   // v89: debajo de la cabecera, así no tapa ← ni ⋯
+    el.innerHTML=`${o.icono?`<span class="bq-av-i" aria-hidden="true">${esc(o.icono)}</span>`:''}<span class="bq-av-t">${o.titulo?`<b>${esc(o.titulo)}</b>`:''}${esc(o.texto||'')}</span>${o.accion?`<button type="button" data-a="ir">${esc(o.accion.texto||'Ver')}</button>`:''}<button type="button" class="bq-av-x" data-a="x" aria-label="Cerrar">${icono('cerrar',18)}</button>`;
+    el.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;fuera();if(a==='ir')try{o.accion.fn&&o.accion.fn();}catch(err){console.error(err);}};
+    requestAnimationFrame(()=>{el.classList.add('on');el.classList.remove('listo');setTimeout(()=>el.classList.add('listo'),500);});   // 500 ms sin aceptar toques
+    clearTimeout(AV.timer);AV.timer=setTimeout(fuera,o.ms||5000);};
+  if(window.TOQUE&&!o.urgente)TOQUE.cuando(mostrar,700,4000);else mostrar();}
+function fuera(){clearTimeout(AV.timer);const el=AV.el;if(el){el.classList.remove('on','listo');}setTimeout(siguiente,quieto()?0:300);}
+function enPartida(v){AV.partida=!!v;}
+
+/* ── Volumen: la fila ── */
+function volumenHtml(){const v=Math.round(VOL*100);return `<div class="bq-vol"><span aria-hidden="true">${icono(v?'sonido':'mudo')}</span><label for="bq-vol-${++volN}">Volumen</label><input id="bq-vol-${volN}" type="range" min="0" max="100" step="5" value="${v}" aria-label="Volumen general de la app"><output>${v}%</output></div>`;}
+let volN=0;
+document.addEventListener('input',e=>{const i=e.target;if(!i||!i.closest||!i.closest('.bq-vol'))return;volumen(i.value/100);
+  const ic=i.closest('.bq-vol').querySelector('span');if(ic)ic.innerHTML=icono(+i.value?'sonido':'mudo');},true);
+
+/* ── Cabecera común ── */
+function botonAyuda(j){const b=document.createElement('button');b.type='button';b.className='icon-btn bq-ayuda';b.id='bq-ayuda';b.setAttribute('aria-label','Cómo se juega');b.title='Cómo se juega';
+  b.innerHTML=icono('ayuda')+(vistos().includes(j)?'':'<span class="bq-punto" aria-hidden="true"></span>');
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();comoSeJuega({juego:j});});return b;}
+const ICONO_DE={'btn-chat':'charla','btn-mesa':'mesa','btn-partidas':'partidas','btn-menu':'mas','btn-friend':'amigo'};
+function ponerIcono(b,n){if(!b||b.dataset.bqIco)return;b.dataset.bqIco='1';
+  const extra=[...b.querySelectorAll('.badge,.cx-badge,.cx-ondot')];b.innerHTML=icono(n);extra.forEach(x=>b.appendChild(x));}
+function rearmarTop(top,j){if(!top||top.classList.contains('bq-cab'))return;top.classList.add('bq-cab');
+  const atras=top.querySelector('#btn-games');
+  if(atras){atras.innerHTML=icono('volver',24);atras.setAttribute('aria-label','Volver a Juegos');atras.title='Volver a Juegos';atras.classList.add('bq-volver');}
+  const marca=top.querySelector('.brand');if(marca&&N[j]&&!marca.querySelector('img,svg,canvas')){marca.textContent=N[j];marca.setAttribute('aria-label',N[j]);}
+  // A la derecha: los botones propios del juego (chat de la mesa, partidas, chat) + ? + ⋯ (el ☰ de siempre, con otro dibujo).
+  const der=document.createElement('div');der.className='bq-der';
+  const herr=top.querySelector('.top-tools');const btns=[...(herr||top).querySelectorAll(':scope>.icon-btn:not(#btn-games)')];
+  for(const b of btns){if(b.id==='btn-help'){b.hidden=true;b.classList.add('bq-oculto');continue;}const n=ICONO_DE[b.id];if(n)ponerIcono(b,n);der.appendChild(b);}
+  const menu=der.querySelector('#btn-menu');der.insertBefore(botonAyuda(j),menu||null);
+  if(menu){menu.setAttribute('aria-label','Partida y opciones');menu.title='Partida y opciones';}
+  if(herr)herr.appendChild(der);else top.appendChild(der);
+  // El título queda centrado: a la izquierda se reserva lo mismo que ocupa la derecha.
+  const izq=document.createElement('div');izq.className='bq-izq';if(atras&&atras.parentNode){atras.parentNode.insertBefore(izq,atras);izq.appendChild(atras);}
+  // Si así no entra el nombre, se corre a la izquierda (al lado de ←) en vez de cortarse por los dos lados.
+  const centrar=()=>{try{const w=der.getBoundingClientRect().width,wi=atras?atras.getBoundingClientRect().width:0;top.classList.remove('bq-angosta');izq.style.minWidth=Math.max(wi,w)+'px';
+    if(marca&&marca.scrollWidth>marca.clientWidth+1){izq.style.minWidth='';top.classList.add('bq-angosta');}}catch(_){}};
+  centrar();addEventListener('resize',centrar);try{new MutationObserver(centrar).observe(der,{subtree:true,attributes:true,attributeFilter:['hidden'],childList:true});}catch(_){}
+}
+function cabecera(o){o=o||{};const j=o.juego||JUEGO,el=o.el||document.createElement('header');el.className='top bq-cab bq-cab-sola';
+  el.innerHTML=`<div class="bq-izq"><button type="button" class="bq-cab-b" data-a="volver" aria-label="Volver">${icono('volver',24)}</button></div><div class="brand">${esc(o.titulo||N[j]||'')}</div><div class="bq-der"></div>`;
+  const der=el.querySelector('.bq-der');der.appendChild(botonAyuda(j));
+  if(o.menu&&o.menu.length){const m=document.createElement('button');m.type='button';m.className='icon-btn';m.setAttribute('aria-label','Partida y opciones');m.innerHTML=icono('mas');
+    m.onclick=()=>{const H=hoja({titulo:'Partida',html:volumenHtml()+`<div class="bq-botones">${o.menu.map((x,i)=>`<button type="button" class="bq-btn ancho" data-i="${i}">${esc(x.texto)}</button>`).join('')}</div>`});
+      H.cuerpo.addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(!b)return;H.cerrar();try{o.menu[+b.dataset.i].fn();}catch(err){console.error(err);}});};der.appendChild(m);}
+  el.querySelector('[data-a=volver]').onclick=()=>{if(o.alVolver)o.alVolver();else location.href='./#juegos';};
+  if(o.ayuda)der.querySelector('.bq-ayuda').onclick=e=>{e.preventDefault();o.ayuda();};
+  document.documentElement.classList.add('bq-piel');return el;}
+
+/* ── Menú ⋯ de cada juego: arriba de todo, el volumen general ── */
+function volEnMenu(){const p=document.getElementById('side-panel');if(!p||p.querySelector('.bq-vol'))return;const d=document.createElement('div');d.className='bq-vol-fila';d.innerHTML=volumenHtml();
+  const h=p.querySelector(':scope>header,:scope>.side-head,:scope>h2,:scope>.sp-head');if(h&&h.nextSibling)p.insertBefore(d,h.nextSibling);else p.insertBefore(d,p.firstChild);}
+
+/* ── Ajustes de la app (Vos › Ajustes, de I3): 'blq-ajustes-v89' = {anim, letra, vibrar}. Se aplican en TODAS las páginas:
+   animaciones apagadas = lo mismo que 'bloques-efectos' '0' (JUGO ya deja todo instantáneo y sin partículas), letra más
+   grande en hojas, menús y carteles, y sin vibración. Si la página ya trae BLQ_AJUSTES (el inicio), se usa ese. */
+const AJK='blq-ajustes-v89';
+function ajustes(){let o={};try{o=JSON.parse(localStorage.getItem(AJK)||'{}')||{};}catch(_){}return {anim:o.anim!==false,letra:!!o.letra,vibrar:o.vibrar!==false};}
+let vib0=null;
+function aplicarAjustes(){const a=ajustes(),h=document.documentElement;temaPoner(temaLeer());h.classList.toggle('blq-sin-anim',!a.anim);h.classList.toggle('blq-letra-grande',a.letra);
+  if(!a.anim&&ls.get('bloques-efectos')!=='0'){try{window.JUGO&&JUGO.setEfectos?JUGO.setEfectos(false):ls.set('bloques-efectos','0');}catch(_){ls.set('bloques-efectos','0');}}
+  try{if(!vib0&&navigator.vibrate&&!navigator.vibrate.__bq){vib0=navigator.vibrate.bind(navigator);const f=function(p){return ajustes().vibrar?vib0(p):false;};f.__bq=true;navigator.vibrate=f;}}catch(_){}}
+// Cuando se cambia desde Ajustes: también 'bloques-efectos' (el interruptor viejo de Animaciones) en los dos sentidos.
+addEventListener('blq-ajustes',e=>{try{if(e.detail&&e.detail.k==='anim'&&window.JUGO&&JUGO.setEfectos)JUGO.setEfectos(!!e.detail.v);}catch(_){}aplicarAjustes();});
+addEventListener('storage',e=>{if(e.key===AJK)aplicarAjustes();});
+aplicarAjustes();
+
+/* ── Arranque: rearmar lo que ya tienen las páginas ── */
+const SIN_CARTEL=new Set(['invasores']);   // su cartel de inicio es parte del arte del juego (arcade)
+const CON_PIEL=new Set(['truco','uno','ludo','pool','ajedrez','laberinto','invasores','marcar','sudoku','solitario','buscaminas','pampa','poblar']);
+function arrancar(){
+  const piel=CON_PIEL.has(JUEGO)&&ls.get('bloques-piel-a')!=='0';
+  if(piel){document.documentElement.classList.add('bq-piel','bq-avisos');if(SIN_CARTEL.has(JUEGO))document.documentElement.classList.add('bq-sin-cartel');rearmarTop(document.querySelector('.app>.top,body>.top,.app .top'),JUEGO);}
+  const side=document.getElementById('side');
+  if(side&&(CON_PIEL.has(JUEGO)||JUEGO==='estancia')){const mo=new MutationObserver(()=>{if(!side.hidden)volEnMenu();});mo.observe(side,{attributes:true,attributeFilter:['hidden']});
+    const sp=document.getElementById('side-panel');if(sp)new MutationObserver(()=>{if(!side.hidden)volEnMenu();}).observe(sp,{childList:true});}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrancar);else arrancar();
+
+window.BLQ_UI={icono,hoja,comoSeJuega,finPartida,aviso,pendientes,quitarPendiente,volumen,volumenHtml,cabecera,enPartida,juego:()=>JUEGO,nombre:j=>N[j||JUEGO],
+  ayudaDe:j=>AY[j||JUEGO]||null,cerrarHojas(){HOJAS.slice().forEach(h=>h.cerrar());}};
+})();
+
+/* v90 · comun/entrada.js — la pantalla de entrada simple de cada juego (fork C2; la reusa C3).
+   Pedido del usuario (10/11): «entrás a un juego y te encontrás con un millón de botones; mucha gente entra y juega sin ver todo eso».
+   Va DESPUÉS de comun.js (build.sh/package.sh incluyen comun/comun.js y después todos los comun/*.js en orden).
+
+   API · window.BLQ_UI.entrada(o) → {el, cerrar, pintar}
+     o.juego       clave del juego ('truco', 'uno', …) — para el nombre, la racha y el nivel
+     o.titulo      (opcional) nombre a mostrar; por defecto BLQ_UI.nombre(juego)
+     o.arte        emoji o html chico del juego (ej. '🃏')
+     o.lema        (opcional) una línea de qué es
+     o.resumen     string o fn()→string: lo elegido, «Normal · contra la compu · a 30». Tocarlo llama a o.cambiar.
+     o.jugar       fn: arranca con lo último elegido (la entrada se cierra antes)
+     o.jugarTexto  (opcional) 'Jugar'   ·  o.jugarSub (opcional) texto chico debajo del botón (o fn)
+     o.amigos      fn|null: botón secundario «Con amigos» (o.amigosTexto para cambiarlo)
+     o.cambiar     fn: abre la hoja completa de opciones del juego (la «Partida nueva» de siempre)
+     o.mas         (opcional) [{texto, fn, sub}] renglones extra para «Más opciones» (campaña, práctica, tablas, …).
+                   Si hay o.mas, «Más opciones» abre una hoja con: «Modo, nivel y reglas» (o.cambiar) + estos renglones.
+                   Si no, «Más opciones» es o.cambiar directo.
+     o.atajos      (opcional) [{texto, sub, fn}] hasta 2 botones chicos a la vista debajo de Jugar (ej. «Del día»)
+     o.fija        true: no se cierra tocando afuera (juegos sin mesa vacía detrás, como los solitarios)
+     o.alCerrar    (opcional) fn cuando se cierra sin jugar
+   Devuelve null si BLQ_entradaOn() es false (llave bloques-entrada='0', o prueba automática sin bloques-entrada='1'): el juego entonces abre su hoja completa.
+   Además: BLQ_UI.entradaAbierta() → la api abierta o null · BLQ_UI.cerrarEntrada().
+   Racha y nivel: usa window.BLQ_rachaJuego(juego) → {dias, hoy} y window.BLQ_nivelJuego(juego) → {nivel, xp, falta}
+   (comun/rachas.js, de C4); si no están, el nivel sale de RANGOS y la racha no se muestra.
+   Si el juego abre su propia hoja (#modal visible: una invitación, «Seguir la partida», etc.) la entrada se cierra sola. */
+(function(){'use strict';
+if(!window.BLQ_UI||BLQ_UI.entrada)return;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CSS=`
+.bq-ent .bq-hoja{padding-bottom:max(18px,env(safe-area-inset-bottom));position:relative}
+.bq-ent .bq-hoja-cab{position:absolute;top:10px;right:12px;margin:0;z-index:1}
+.bq-ent .bq-hoja-cab h2{display:none}
+.bq-ent-top{padding-right:44px}
+.bq-ent-top{display:flex;align-items:center;gap:14px;margin:4px 0 10px}
+.bq-ent-arte{flex:none;width:58px;height:58px;border-radius:16px;background:var(--mate-claro);display:grid;place-items:center;font-size:32px;line-height:1;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.bq-ent-arte img{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.bq-ent-tit{min-width:0;flex:1}
+.bq-ent-tit h2{margin:0;font:800 28px/1.05 var(--f-titulo);letter-spacing:-.4px;color:var(--cal)}
+.bq-ent-tit p{margin:3px 0 0;font-size:14px;color:var(--pasto-seco)}
+.bq-ent-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.bq-ent-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:var(--hondo,rgba(0,0,0,.2));color:var(--cal);font:600 13px/1.3 var(--f-texto)}
+.bq-ent-chip.apag{opacity:.7}
+.bq-ent-go{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:66px;border:0;border-radius:18px;background:var(--maiz);color:var(--maiz-osc);
+  font:800 24px/1.1 var(--f-titulo);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.28);-webkit-tap-highlight-color:transparent}
+.bq-ent-go small{font:600 13px/1.3 var(--f-texto);opacity:.8;margin-top:2px}
+.bq-ent-go:active{transform:translateY(1px)}
+.bq-ent-res{display:flex;align-items:center;gap:8px;width:100%;margin:10px 0 0;padding:11px 14px;border:1px solid var(--alambre);border-radius:14px;background:transparent;color:var(--cal);font:500 15px/1.3 var(--f-texto);text-align:left;cursor:pointer}
+.bq-ent-res span{flex:1;min-width:0}
+.bq-ent-res b{font-weight:700;color:var(--maiz);white-space:nowrap}
+.bq-ent-fila{display:flex;gap:8px;margin-top:10px}
+.bq-ent-fila .bq-btn{flex:1;min-height:48px}
+.bq-ent-sec{flex:1;min-height:48px;border:1px solid var(--alambre);border-radius:14px;background:var(--mate-claro);color:var(--cal);font:700 15px/1.2 var(--f-texto);cursor:pointer;padding:8px 10px}
+.bq-ent-sec small{display:block;font:500 12px/1.3 var(--f-texto);color:var(--pasto-seco);margin-top:2px}
+.bq-ent-pie{display:flex;justify-content:center;gap:22px;margin-top:14px}
+.bq-ent-pie button{border:0;background:none;color:var(--pasto-seco);font:600 15px/1.2 var(--f-texto);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:8px 4px;min-height:40px}
+.bq-ent :focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+.bq-mas-lista{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.bq-mas-lista button{display:block;width:100%;text-align:left;padding:13px 14px;border:1px solid var(--alambre);border-radius:14px;background:var(--mate-claro);color:var(--cal);font:700 16px/1.25 var(--f-texto);cursor:pointer;min-height:52px}
+.bq-mas-lista button small{display:block;font:500 13px/1.3 var(--f-texto);color:var(--pasto-seco);margin-top:2px}
+@media (min-width:1024px) and (hover:hover){.bq-ent .bq-hoja{width:min(520px,100%)}}
+@media (orientation:landscape) and (max-height:500px){
+  .bq-ent .bq-hoja{width:min(720px,100%)}
+  .bq-ent-cuerpo{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start}
+  .bq-ent-top{grid-column:1;grid-row:1/4;flex-direction:column;align-items:flex-start;margin:0}
+  .bq-ent-go,.bq-ent-res,.bq-ent-fila,.bq-ent-pie{grid-column:2}
+  .bq-ent-go{min-height:56px;width:calc(100% - 52px)}   /* la ✕ queda arriba a la derecha, sin taparlo */
+}`;
+function css(){if(document.getElementById('bq-ent-css'))return;const s=document.createElement('style');s.id='bq-ent-css';s.textContent=CSS;document.head.appendChild(s);}
+/* ¿Se muestra la entrada? (una sola para todos los juegos; C3 la usaba igual en cada juego)
+   No con la llave bloques-entrada='0' (emergencia). En pruebas automáticas (navigator.webdriver) tampoco, salvo bloques-entrada='1':
+   así las pruebas viejas siguen recorriendo la hoja completa y las nuevas la prenden a propósito. */
+window.BLQ_entradaOn=function(){try{const v=localStorage.getItem('bloques-entrada');if(v==='0')return false;return !(navigator.webdriver&&v!=='1');}catch(_){return false;}};
+let ABIERTA=null;
+function racha(j){try{if(typeof window.BLQ_rachaJuego==='function'){const r=BLQ_rachaJuego(j);if(r&&r.dias>0)return `<span class="bq-ent-chip${r.hoy?'':' apag'}" title="Días seguidos jugando">🔥 ${r.dias} ${r.dias===1?'día':'días'}</span>`;}}catch(_){}return '';}
+function nivel(j){try{if(typeof window.BLQ_nivelJuego==='function'){const n=BLQ_nivelJuego(j);if(n&&n.nivel)return `<span class="bq-ent-chip">Nivel ${n.nivel}</span>`;}
+    if(window.RANGOS&&RANGOS.level){const l=RANGOS.level(j);const n=l&&(l.lv||l.nivel||l);if(typeof n==='number'&&n>0)return `<span class="bq-ent-chip">Nivel ${n}</span>`;}}catch(_){}return '';}
+function entrada(o){o=o||{};
+  if(!BLQ_entradaOn())return null;   // llave de emergencia y pruebas automáticas: la hoja completa de siempre
+  css();if(ABIERTA)ABIERTA.cerrar(true);
+  const j=o.juego||(BLQ_UI.juego&&BLQ_UI.juego())||'';const tit=o.titulo||(BLQ_UI.nombre&&BLQ_UI.nombre(j))||j;
+  const val=v=>typeof v==='function'?v():v;
+  let jugo=false;
+  const H=BLQ_UI.hoja({clase:'bq-ent',sinX:!!o.fija,alCerrar:()=>{if(ABIERTA===api)ABIERTA=null;mo&&mo.disconnect();if(!jugo&&o.alCerrar)try{o.alCerrar();}catch(e){console.error(e);}}});
+  H.hoja.setAttribute('aria-label',tit);
+  if(o.fija){H.el.addEventListener('click',e=>{if(e.target===H.el)e.stopImmediatePropagation();},true);const a=H.el.querySelector('.bq-asa');if(a)a.remove();}
+  const pintar=()=>{const res=val(o.resumen),sub=val(o.jugarSub),ch=racha(j)+nivel(j);
+    H.cuerpo.innerHTML=`<div class="bq-ent-cuerpo">
+      <div class="bq-ent-top"><div class="bq-ent-arte" aria-hidden="true">${o.arte||'🎲'}</div><div class="bq-ent-tit"><h2>${esc(tit)}</h2>${o.lema?`<p>${esc(o.lema)}</p>`:''}${ch?`<div class="bq-ent-chips">${ch}</div>`:''}</div></div>
+      <button type="button" class="bq-ent-go" data-e="jugar">${esc(o.jugarTexto||'Jugar')}${sub?`<small>${esc(sub)}</small>`:''}</button>
+      ${res&&o.cambiar?`<button type="button" class="bq-ent-res" data-e="cambiar" aria-label="${esc(res)}. Cambiar"><span>${esc(res)}</span><b>Cambiar ›</b></button>`:''}
+      ${o.amigos||(o.atajos&&o.atajos.length)?`<div class="bq-ent-fila">${o.amigos?`<button type="button" class="bq-ent-sec" data-e="amigos">👥 ${esc(o.amigosTexto||'Con amigos')}</button>`:''}${(o.atajos||[]).slice(0,2).map((a,i)=>`<button type="button" class="bq-ent-sec" data-e="at${i}">${esc(a.texto)}${a.sub?`<small>${esc(val(a.sub))}</small>`:''}</button>`).join('')}</div>`:''}
+      <div class="bq-ent-pie">${o.cambiar||o.mas?'<button type="button" data-e="mas">Más opciones</button>':''}<button type="button" data-e="ayuda">Cómo se juega</button></div></div>`;};
+  pintar();
+  const ir=fn=>{jugo=true;H.cerrar();if(fn)setTimeout(()=>{try{fn();}catch(e){console.error(e);}},0);};
+  H.cuerpo.addEventListener('click',e=>{const b=e.target.closest('[data-e]');if(!b)return;const k=b.dataset.e;
+    if(k==='jugar')ir(o.jugar);
+    else if(k==='cambiar')ir(o.cambiar);
+    else if(k==='amigos')ir(o.amigos);
+    else if(k.startsWith('at')){const a=(o.atajos||[])[+k.slice(2)];if(a)ir(a.fn);}
+    else if(k==='ayuda'){try{BLQ_UI.comoSeJuega({juego:j});}catch(err){console.error(err);}}
+    else if(k==='mas'){if(!o.mas||!o.mas.length){ir(o.cambiar);return;}
+      const L=[...(o.cambiar?[{texto:'Modo, nivel y reglas',sub:'Todo lo de la partida',fn:o.cambiar}]:[]),...o.mas];
+      const M=BLQ_UI.hoja({titulo:'Más opciones',html:`<div class="bq-mas-lista">${L.map((x,i)=>`<button type="button" data-m="${i}">${esc(x.texto)}${x.sub?`<small>${esc(val(x.sub))}</small>`:''}</button>`).join('')}</div>`});
+      M.cuerpo.addEventListener('click',ev=>{const c=ev.target.closest('[data-m]');if(!c)return;const x=L[+c.dataset.m];M.cerrar();ir(x&&x.fn);});}});
+  // si el juego abre su propia hoja (#modal) o su cartel, la entrada se va (no quedan dos capas)
+  const capa=document.getElementById('modal');let mo=null;
+  if(capa&&window.MutationObserver){mo=new MutationObserver(()=>{if(!capa.hidden&&capa.style.display!=='none'){jugo=true;H.cerrar();}});mo.observe(capa,{attributes:true,attributeFilter:['hidden','style']});}
+  if(matchMedia('(hover:hover) and (pointer:fine)').matches)setTimeout(()=>{const g=H.cuerpo.querySelector('.bq-ent-go');try{g&&g.focus({preventScroll:true});}catch(_){}},80);   // con mouse/teclado: Enter juega; en el celular, sin anillo de foco
+  else setTimeout(()=>{try{const a=document.activeElement;if(a&&H.el.contains(a))a.blur();}catch(_){}},90);
+  const api={el:H.el,pintar,cerrar:(sin)=>{if(sin)jugo=true;H.cerrar();}};ABIERTA=api;return api;}
+BLQ_UI.entrada=entrada;BLQ_UI.entradaAbierta=()=>ABIERTA;BLQ_UI.cerrarEntrada=()=>{if(ABIERTA)ABIERTA.cerrar(true);};
+})();
+
+/* ── v90 · RACHAS 🔥 y NIVEL de cada juego (comun/rachas.js; va en todas las páginas, después de comun.js) ──
+   Pedido del 10/11: «Chequeemos que todos los juegos tengan racha (los fueguitos), leaderboard y etc a medida de cada juego.
+   Racha de app está bueno también».
+   · La racha 🔥 de un juego = días seguidos en los que jugaste ese juego (hasta hoy o ayer, como la de BloqueAR).
+     Se arma con lo que ya existía (no se pierde nada) más una lista nueva de «días jugados» por juego:
+       blq-jugado-v90            {juego: ['AAAA-MM-DD', …]}  (viaja con la cuenta: regla 'dias' = unión de fechas)
+       bloques-progress-v1.playDays (BloqueAR, de siempre)
+       bloques-dias-v81[juego]   (los «del día» de v81)
+       <juego>-dias-v1           (sudoku, solitario, buscaminas, laberinto: el del día)
+       invasores-dia             (la oleada del día)
+     Se anota sola: cuando un juego da XP o premio (RANGOS.addXp / premio / resultado / diaHecho), al terminar una
+     partida de BloqueAR, y en EstanciAR / La Gran Pampa al pasar un rato en tu campo o en el mapa.
+   · Nivel de cada juego: el de RANGOS (XP por juego; BloqueAR, su propio perfil).
+   API (la usan las pantallas de entrada de C2/C3 y el Inicio):
+     BLQ_rachaJuego(j)  → {dias, hoy:bool, mejor}
+     BLQ_nivelJuego(j)  → {nivel, xp, falta, into, need}
+     BLQ_rachas = {marcar(j), dias(j), jugadoHoy(j), todos(), fuego(j) (html chico), css()}  */
+(function(){
+'use strict';
+if(window.BLQ_rachas)return;
+const K='blq-jugado-v90';
+const lsg=k=>{try{return localStorage.getItem(k);}catch(_){return null;}};
+const lss=(k,v)=>{try{localStorage.setItem(k,v);}catch(_){}};
+const jsn=(k,d)=>{try{const v=JSON.parse(lsg(k)||'null');return v==null?d:v;}catch(_){return d;}};
+// Fecha de la Argentina (UTC−3), como «el del día» de todos los juegos.
+const diaAR=(t=Date.now())=>new Date(t-3*3600e3).toISOString().slice(0,10);
+const menos=(f,n)=>new Date(new Date(f+'T12:00:00Z').getTime()-n*864e5).toISOString().slice(0,10);
+const okF=f=>typeof f==='string'&&/^\d{4}-\d\d-\d\d$/.test(f);
+const JUEGOS=['bloquear','truco','uno','ludo','ajedrez','pool','sudoku','buscaminas','solitario','laberinto','invasores','marcar','poblar','fortinar','pampa','estancia'];
+const ALIAS={tetris:'bloquear',bloques:'bloquear',solitario:'solitario',solitar:'solitario'};
+const norm=j=>{j=String(j||'').toLowerCase();return ALIAS[j]||j;};
+
+function marcar(j,t){
+  j=norm(j);if(!/^[a-z]{2,16}$/.test(j))return;const f=diaAR(t);
+  const o=jsn(K,{});const L=Array.isArray(o[j])?o[j]:[];if(L.includes(f))return;
+  L.push(f);L.sort();o[j]=L.slice(-400);lss(K,JSON.stringify(o));
+  try{window.dispatchEvent(new CustomEvent('blq-racha',{detail:{juego:j,fecha:f}}));}catch(_){}
+}
+// Todas las fechas en que jugaste j (Set), juntando lo viejo y lo nuevo.
+function fechas(j){
+  j=norm(j);const S=new Set(),pon=f=>{if(okF(f))S.add(f);};
+  const o=jsn(K,{});if(o&&Array.isArray(o[j]))o[j].forEach(pon);
+  const D=jsn('bloques-dias-v81',{});if(D&&Array.isArray(D[j]))D[j].forEach(pon);
+  if(['sudoku','solitario','buscaminas','laberinto'].includes(j)){const d=jsn(j+'-dias-v1',{});if(d&&typeof d==='object')Object.keys(d).forEach(pon);}
+  if(j==='invasores'){const I=jsn('invasores-dia',{});if(I&&typeof I==='object')for(const [f,v] of Object.entries(I))if(v&&(v.hecho||v.pts!=null||v.j))pon(f);}
+  if(j==='bloquear'){const P=jsn('bloques-progress-v1',{});if(P&&Array.isArray(P.playDays))P.playDays.forEach(pon);}
+  return S;
+}
+function contar(S){let f=diaAR();const hoy=S.has(f);if(!hoy)f=menos(f,1);let n=0;while(S.has(f)&&n<3650){n++;f=menos(f,1);}return {dias:n,hoy};}
+function mejorDe(S){const L=[...S].sort();let b=0,c=0,ant='';for(const f of L){c=ant&&menos(f,1)===ant?c+1:1;if(c>b)b=c;ant=f;}return b;}
+function rachaJuego(j){const S=fechas(j),r=contar(S);return {dias:r.dias,hoy:r.hoy,mejor:Math.max(r.dias,mejorDe(S))};}
+function todos(){const R={};for(const j of JUEGOS)R[j]=rachaJuego(j);return R;}
+
+// Nivel: el mismo cálculo que RANGOS.levelInfo (120 XP el primero, +60 cada nivel).
+function levelInfo(x){let lv=1,acc=0,need=120;while(x>=acc+need){acc+=need;lv++;need=120+60*(lv-1);}return {lv,into:x-acc,need};}
+function nivelJuego(j){
+  j=norm(j);let x=0;
+  try{if(window.RANGOS&&RANGOS.xp)x=RANGOS.xp(j)||0;else if(j==='bloquear')x=(jsn('bloques-progress-v1',{}).xp)||0;else x=(jsn('bloques-xpjuegos-v1',{})[j])||0;}catch(_){}
+  if(j==='estancia'){try{const E=jsn('estancia-v2',null);if(E&&E.lv)return {nivel:E.lv|0,xp:E.xp|0,falta:0,into:0,need:0};}catch(_){}}
+  const L=levelInfo(x);return {nivel:L.lv,xp:x,falta:Math.max(0,L.need-L.into),into:L.into,need:L.need};
+}
+
+// El fueguito chico: «🔥 4» (encendido si ya jugaste hoy; apagadito si falta jugar hoy para no cortarla).
+const CSS=`.bq-fuego{display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 6px;border-radius:999px;font:700 13px/1.4 var(--f-texto,system-ui);
+  background:rgba(242,193,78,.16);color:var(--maiz,#F2C14E);white-space:nowrap}
+.bq-fuego.apagado{background:rgba(255,255,255,.07);color:var(--pasto-seco,#B7C4AE)}
+.bq-fuego.apagado .bq-fuego-i{filter:grayscale(1);opacity:.7}
+.bq-fuego small{font-weight:600;opacity:.85}`;
+function css(){if(document.getElementById('bq-fuego-css'))return;const s=document.createElement('style');s.id='bq-fuego-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
+function fuego(j,o){
+  o=o||{};css();const r=rachaJuego(j);if(!r.dias&&!o.siempre)return '';
+  const tit=r.dias?(r.hoy?`${r.dias} ${r.dias===1?'día':'días'} seguidos jugando`:`${r.dias} ${r.dias===1?'día':'días'} seguidos: jugá hoy para no cortarla`):'Jugá hoy y arrancás una racha';
+  return `<span class="bq-fuego${r.hoy?'':' apagado'}" title="${tit}" aria-label="Racha: ${tit}"><span class="bq-fuego-i" aria-hidden="true">🔥</span>${r.dias}${o.texto&&r.dias?` <small>${r.dias===1?'día':'días'}</small>`:''}</span>`;
+}
+
+window.BLQ_rachaJuego=rachaJuego;
+window.BLQ_nivelJuego=nivelJuego;
+window.BLQ_rachas={marcar,dias:j=>rachaJuego(j).dias,jugadoHoy:j=>rachaJuego(j).hoy,todos,fuego,css,fechas,JUEGOS,clave:K};
+
+/* ── Anotar solo ── */
+// v90 · Logros de MarcAR y FortinAR (chat/logros.js): se cuentan con lo que el juego ya manda a RANGOS.premio.
+const CON_LOGROS90={marcar:1,fortinar:1};
+function logrosPartida(j,info){
+  const L=window.LOGROS;if(!CON_LOGROS90[j]||!L||!L.evento||!info)return;
+  const res=String(info.res||''),gano=res==='g'||res==='gana',rival=String(info.rival||''),pers=rival==='p'||rival==='personas',dif=String(info.dif||''),key=info.key?String(info.key):'';
+  const ev=[['partidas',1]];
+  if(gano){ev.push(['ganadas',1]);if(!pers&&dif==='dificil')ev.push(['ganadas_dif',1]);if(!pers&&(dif==='normal'||dif==='dificil'))ev.push(['ganadas_nd',1]);if(pers)ev.push(['ganadas_online',1]);}
+  for(const [k,n] of ev)L.evento(j,k,n,key?key+':'+k:undefined);
+}
+function marcarLogroRacha(j){try{if(CON_LOGROS90[j]&&window.LOGROS&&LOGROS.marca)LOGROS.marca(j,'racha_dias',rachaJuego(j).dias);}catch(_){}}
+window.addEventListener('blq-racha',e=>{const j=e&&e.detail&&e.detail.juego;if(j)setTimeout(()=>marcarLogroRacha(j),0);});
+// 1 · RANGOS (se carga después de este archivo): cada vez que un juego da XP, premio o anota un resultado, ese juego se jugó hoy.
+function engancharRangos(){
+  const R=window.RANGOS;if(!R||R.__rachas90)return !!R;R.__rachas90=1;
+  const id={};try{for(const [k,n] of Object.entries(Object.assign({},R.GAMES||{},R.SOLOS||{})))id[String(n).toLowerCase()]=k;}catch(_){}
+  const deNombre=n=>{n=String(n||'');return id[n.toLowerCase()]||norm(n);};
+  const envolver=(f,quien)=>{const v=R[f];if(typeof v!=='function')return;R[f]=function(){try{const j=quien.apply(null,arguments);if(j)marcar(j);}catch(_){}return v.apply(this,arguments);};};
+  envolver('addXp',(g,n)=>(Number(n)||0)>0?g:'');
+  envolver('premio',(de,xp,ranked,info)=>{const j=(info&&info.j)||deNombre(de);try{logrosPartida(j,info);}catch(_){}return j;});
+  envolver('resultado',j=>j);
+  envolver('diaHecho',(j,f)=>f?j:'');
+  return true;
+}
+if(!engancharRangos()){let n=0;const t=setInterval(()=>{if(engancharRangos()||++n>60)clearInterval(t);},250);document.addEventListener('DOMContentLoaded',engancharRangos);}
+
+// 2 · BloqueAR: su perfil ya anota playDays al terminar cada partida (eso cuenta para su 🔥, ver fechas()).
+// 3 · EstanciAR y La Gran Pampa no tienen «partidas»: cuenta pasar un rato (20 s con la pantalla a la vista) en tu campo o en el mapa.
+const pag=(location.pathname.split('/').pop()||'').toLowerCase();
+function estarUnRato(j,ok){let ms=0,last=Date.now();const t=setInterval(()=>{const now=Date.now();if(document.visibilityState==='visible')ms+=Math.min(2000,now-last);last=now;
+  if(ms>=20000){try{if(ok())marcar(j);}catch(_){}clearInterval(t);}},1000);}
+const hash0=location.hash||'';
+if(/^estancia/.test(pag))estarUnRato('estancia',()=>{if(/visitar=/.test(hash0)||/visitar=/.test(location.hash))return false;try{if(typeof VISIT!=='undefined'&&VISIT)return false;}catch(_){}return true;});
+if(/^pampa/.test(pag))estarUnRato('pampa',()=>true);
 })();
 
 </script>
@@ -474,7 +1220,7 @@ const PARTES={
   gen:[['bloques-novedades','maxnum'],['bloques-chat-read-{me}','max'],['bloques-chat-borr-{me}','max'],'bloques-chat-frase','bloques-chat-modo',
     'bloques-ranked-bloquear','bloques-ranked-poblar','bloques-ranked-truco','bloques-ranked-uno','bloques-ranked-ludo','bloques-ranked-pool','bloques-ranked-invasores','bloques-ranked-estancia',
     'bloques-favoritos-v1','bloques-orden-v1','bloques-efectos',   // v67: juegos fijados y orden propio del menú de juegos
-    ['bloques-dias-v81','dias'],['bloques-ganchos-v81','ganchos'],['bloques-citas-vistas','union'],['bloques-records-v81','recs']]   // v82: rachas (días seguidos del del día y ganadas seguidas) con la cuenta
+    ['bloques-dias-v81','dias'],['bloques-ganchos-v81','ganchos'],['bloques-citas-vistas','union'],['bloques-records-v81','recs'],['blq-jugado-v90','dias']]   // v90: días jugados de cada juego (la racha 🔥 de cada uno, comun/rachas.js)   // v82: rachas (días seguidos del del día y ganadas seguidas) con la cuenta
 };
 // v75: también el oro. Antes, el oro que ganabas sin que cambiara otra cosa de «rk» (el cofre al subir de nivel la estancia,
 // la pulpería, una compra con oro) no se marcaba para subir: si cerrabas la app, el otro dispositivo nunca lo veía.
@@ -1315,7 +2061,7 @@ async function podio(host,o){
   const idx=[...show].filter(i=>i>=0&&i<L.length).sort((x,y)=>x-y);
   let rows='',prev=-1;
   for(const i of idx){if(prev>=0&&i>prev+1)rows+='<li class="pd-gap">⋯</li>';prev=i;const r=L[i],k=String(r.u).toLowerCase();
-    rows+=`<li class="${i===yo?'me':''}${am.has(k)?' am':''}"><i>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'°'}</i><span class="pd-av" style="background:${escP(r.col||'#7ce9e5')}">${escP(r.av||'🙂')}</span><b>${escP(r.u)}${am.has(k)&&i!==yo?' <small>🤝</small>':''}</b><em>${escP(r.vd)}</em></li>`;}
+    rows+=`<li class="${i===yo?'me':''}${am.has(k)?' am':''}"><i>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'°'}</i><span class="pd-av" style="background:${escP(r.col||'#7ce9e5')}">${escP(r.av||'🙂')}</span><b>${escP(r.u)}${(j.rachas||{})[k]>=2?` <small class="pd-fu" title="${(j.rachas||{})[k]} días seguidos jugando">🔥${(j.rachas||{})[k]}</small>`:''}${am.has(k)&&i!==yo?' <small>🤝</small>':''}</b><em>${escP(r.vd)}</em></li>`;}
   const fuera=L.map((r,i)=>({r,i})).filter(x=>!show.has(x.i)&&am.has(String(x.r.u).toLowerCase())).slice(0,4);
   let msg='';
   if(!me)msg=`Con una cuenta entrás en esta tabla. <a href="./#cuenta">Crear cuenta</a>`;
@@ -2192,6 +2938,41 @@ ludo:{n:'LudAR',e:'🎲',
       {id:'oro',n:'Con aro de oro',sw:'#f1cf6a',logro:'cazador',css:'.pz .tapa{stroke:#f1cf6a;stroke-width:.1}.pz .cuerpo{stroke:#8a6a1e}'},
       {id:'gemas',n:'Gemas',sw:'#7fd6ff',logro:'comilon',css:'.pz .cuerpo{stroke:rgba(255,255,255,.7);stroke-width:.08}.pz .tapa{fill:rgba(255,255,255,.35);stroke:#fff}.pz .brillo{fill:#fff}'}],
       css:(o,s)=>o.css.replace(/(^|\})\s*\./g,`$1${s} .`)}}},
+// v90 · MarcAR y FortinAR no tenían logros (pedido del 10/11: «que todos los juegos tengan racha, leaderboard y etc»).
+// Se cuentan solos con lo que el juego ya manda a RANGOS.premio (ganó / perdió, contra quién, dificultad), desde comun/rachas.js.
+// «racha_dias» = la 🔥 de días seguidos jugando ese juego (comun/rachas.js la marca con LOGROS.marca).
+marcar:{n:'MarcAR',e:'🎯',
+  logros:[
+    {id:'primera',e:'🎯',n:'Primer operativo',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Misión cumplida',d:'Ganá una partida.',k:'ganadas'},
+    {id:'dificil',e:'🧠',n:'Más vivo que los bots',d:'Ganá contra la compu en Difícil.',k:'ganadas_dif'},
+    {id:'online',e:'🤝',n:'Escuadra de verdad',d:'Ganá una partida en línea con personas.',k:'ganadas_online'},
+    {id:'gane10',e:'🎖️',n:'Veterano',d:'Ganá 10 partidas.',k:'ganadas',m:10},
+    {id:'gane50',e:'⭐',n:'Comandante',d:'Ganá 50 partidas.',k:'ganadas',m:50},
+    {id:'habitue',e:'🧉',n:'De la casa',d:'Jugá 50 partidas.',k:'partidas',m:50},
+    {id:'racha3',e:'🔥',n:'Tres días al hilo',d:'Jugá 3 días seguidos.',k:'racha_dias',m:3,marca:true},
+    {id:'racha7',e:'🔥',n:'Semana de servicio',d:'Jugá 7 días seguidos.',k:'racha_dias',m:7,marca:true},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[3,5],t:n=>`Jugá ${n} partidas`,xp:40},
+    {id:'g',k:'ganadas',v:[2,3],t:n=>`Ganá ${n} partidas`,xp:60},
+    {id:'n',k:'ganadas_nd',v:[1,2],t:n=>n===1?'Ganá contra la compu en Normal o Difícil':`Ganá ${n} veces contra la compu en Normal o Difícil`,xp:55}]},
+fortinar:{n:'FortinAR',e:'🏰',
+  logros:[
+    {id:'primera',e:'🏰',n:'Primer fortín',d:'Terminá una partida.',k:'partidas'},
+    {id:'gane1',e:'🏆',n:'Fortín en pie',d:'Ganá una partida.',k:'ganadas'},
+    {id:'dificil',e:'🧠',n:'Estratega',d:'Ganale a la compu en Difícil.',k:'ganadas_dif'},
+    {id:'online',e:'🤝',n:'Frente a frente',d:'Ganale una partida en línea a alguien de verdad.',k:'ganadas_online'},
+    {id:'gane10',e:'🎖️',n:'Comandante de frontera',d:'Ganá 10 partidas.',k:'ganadas',m:10},
+    {id:'gane25',e:'⭐',n:'Señor de la frontera',d:'Ganá 25 partidas.',k:'ganadas',m:25},
+    {id:'habitue',e:'🧉',n:'Fortinero',d:'Jugá 30 partidas.',k:'partidas',m:30},
+    {id:'racha3',e:'🔥',n:'Tres días al hilo',d:'Jugá 3 días seguidos.',k:'racha_dias',m:3,marca:true},
+    {id:'racha7',e:'🔥',n:'Guardia de la semana',d:'Jugá 7 días seguidos.',k:'racha_dias',m:7,marca:true},
+    {id:'semana',e:'📅',n:'Semana redonda',d:'Cumplí los 3 retos de una semana.',k:'semanas'}],
+  retos:[
+    {id:'p',k:'partidas',v:[2,3],t:n=>`Jugá ${n} partidas`,xp:45},
+    {id:'g',k:'ganadas',v:[1,2],t:n=>n===1?'Ganá una partida':`Ganá ${n} partidas`,xp:60},
+    {id:'n',k:'ganadas_nd',v:[1,2],t:n=>n===1?'Ganale a la compu en Normal o Difícil':`Ganale ${n} veces a la compu en Normal o Difícil`,xp:55}]},
 pool:{n:'PoolAR',e:'🎱',
   logros:[
     {id:'primera',e:'🎱',n:'Primera mesa',d:'Terminá una partida.',k:'partidas'},
@@ -2289,7 +3070,7 @@ const AP_V70={
 for(const [j,T] of Object.entries(AP_V70))for(const [tipo,L] of Object.entries(T)){const A=D[j]&&D[j].ap&&D[j].ap[tipo];if(!A)continue;for(const op of L)if(!A.op.some(x=>x.id===op.id))A.op.push(op);}
 // Cada apariencia sabe de qué juego y tipo es (para comprarla con oro: «ap:juego:tipo:id»).
 for(const [j,G] of Object.entries(D))for(const [tipo,A] of Object.entries(G.ap||{}))for(const op of A.op)op.k_='ap:'+j+':'+tipo+':'+op.id;
-const ORDEN=['truco','uno','poblar','ajedrez','pool','ludo','estancia','pampa','sudoku','solitario','buscaminas','laberinto','invasores'];
+const ORDEN=['truco','uno','poblar','ajedrez','pool','ludo','estancia','pampa','sudoku','solitario','buscaminas','laberinto','invasores','marcar','fortinar'];
 let OCULTOS=[];
 
 /* ── Datos guardados ── */
@@ -2962,7 +3743,11 @@ function znPoner(box,el,ms,n=0){
   // el tiempo corre desde que se ve (no desde que llegó), y en la zona se va un poco antes
   setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},ZN.on?Math.min(ms,4800):ms);}
 window.ZONA_AVISOS={calc:zonaCalc,get on(){return ZN.on;},get modo(){return ZN.modo;}};
+// v89: en las páginas con la interfaz nueva (html.bq-avisos), los avisos chicos van por la cola única de BLQ_UI (de a uno, arriba,
+// 500 ms sin aceptar toques). En el resto (el inicio de siempre) siguen como antes.
+function porCola(){try{return !!(window.BLQ_UI&&BLQ_UI.aviso&&document.documentElement.classList.contains('bq-avisos'));}catch(_){return false;}}
 function mini(txt,sub,onTap,cls){
+  if(porCola()){BLQ_UI.aviso({titulo:txt,texto:sub||'',tipo:'amigo',accion:onTap?{texto:'Ver',fn:onTap}:null});return null;}
   const box=$('.cx-toasts');if(!box)return null;const el=document.createElement('button');el.type='button';el.className='cx-toast cx-mini'+(cls?' '+cls:'');
   el.innerHTML=`<span><b>${esc(txt)}</b>${sub?`<small>${esc(sub)}</small>`:''}</span>`;
   el.onclick=()=>{el.remove();try{onTap&&onTap();}catch(_){}};
@@ -2993,6 +3778,8 @@ function verAmigos(){S.tab='amigos';ls.set('bloques-chat-tab','amigos');S.view='
 setInterval(()=>{if(S.open)return;   // con el chat abierto (que pausa el juego) no cuenta como «terminó la partida»
   let b=false;try{b=!!H.busy();}catch(_){}if(FP.busy&&!b)finPartida();FP.busy=b;if(!b)soltarConexiones();},1500);
 function toast(who,txt,openWho=who){
+  if(porCola()){const u=esGK(openWho)?{avatar:'👥'}:userOf(who),av=u&&typeof u.avatar==='string'&&u.avatar.length<=4?u.avatar:'💬';
+    BLQ_UI.aviso({icono:av,titulo:who,texto:String(txt||'').slice(0,140),tipo:'amigo',accion:{texto:'Abrir',fn:()=>open(openWho||undefined)}});return;}
   const box=$('.cx-toasts');if(!box)return;const u=esGK(openWho)?{avatar:'👥',color:'#8b7cff'}:userOf(who);
   const el=document.createElement('button');el.type='button';el.className='cx-toast';
   el.innerHTML=`${u?avatar(u):'<span class="cx-av">💬</span>'}<span><b>${esc(who)}</b><small>${esc(txt).slice(0,140)}</small></span>`;
@@ -3841,9 +4628,12 @@ function citaLlegada(){
     if(paginaJ()!==q.j){location.href=PAG_J[q.j]||'./';return;}P=q;unirse();}},1500);
 }
 try{citaLlegada();}catch(_){}
+// v89 (panel Gente de la interfaz nueva): las charlas con mensajes, la más nueva primero, con su vista previa ya descifrada.
+const charlas=()=>convList().filter(x=>x.m).map(({u,g,m})=>({nombre:g?'g:'+g.id:u.usuario,grupo:g?g.n:'',avatar:g?'👥':u.avatar,color:g?'#8b7cff':u.color,enLinea:!!(u&&u.enLinea),
+  t:m.t,txt:preview(m),mio:lc(m.de)===lc(S.me),sinLeer:unreadFrom(g?'g:'+g.id:u.usuario)}));
 const conectados=()=>{const me=lc(S.me),on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me&&nombreOk(u.usuario)),A=new Set(S.am.a.map(lc));return {amigos:on.filter(u=>A.has(lc(u.usuario))),global:on};};
 window.CHAT={grupos:()=>S.grupos.filter(g=>!g.arch).concat(S.grupos.filter(g=>g.arch)),amigos:()=>S.am.a.slice(),solicitudes:()=>({in:S.am.in.slice(),out:S.am.out.slice()}),esAmigo:n=>amEstado(n)==='amigo',
-  usuarios:()=>S.users.slice(),conectados,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
+  usuarios:()=>S.users.slice(),conectados,charlas,pedirAmistad,responderAmistad,quitarAmigo,cancelarAmistad,cargarUsuarios:()=>loadUsers().then(()=>S.users.slice()),
   grupoJuego,grupoJuegoListo,grupoPartida,llamar,api:p=>call(auth(p)),share,ensureKey:(pin)=>ensureKey(pin).then(()=>{decryptAll().then(()=>{render();badges();});poll();return true;}).catch(()=>false),init,open,close,get unread(){return unreadTotal();},verAmigos,ocupado:()=>{try{return !!H.busy();}catch(_){return false;}},get state(){return S;},poll,bindButtons,LINK:LINK_U,linkBoton,linkCompartir,linkQuien,linkCerrar,linkDe,
   invitarJuego:(g,u)=>{if(!H.invite)return false;H.invite(g,u);return true;}};   // v85: la mesa de la estancia invita sola a los que están sentados
 })();
@@ -4281,6 +5071,19 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:90,grande:true,titulo:'Novedades',items:[
+    ['💙','Vuelve el azul: es el color de la app. Si te gustaba el verde, lo elegís en Vos › Ajustes › Color.'],
+    ['▶️','Los juegos abren simple: un «Jugar» grande con lo último que elegiste. Todo lo demás está en «Más opciones».'],
+    ['⭐','Tus juegos favoritos arriba de todo en el Inicio: tocá la ☆ de cualquier juego para fijarlo.'],
+    ['🔥','Racha en cada juego y racha de la app, a la vista. En las tablas se ve la racha de cada uno.'],
+    ['🖥️','En la compu, una pantalla pensada para la compu: menú al costado y todo más a mano.'],
+    ['🏆','MarcAR y FortinAR estrenan logros y retos de la semana.']]},
+  {v:89,grande:true,titulo:'Novedades',items:[
+    ['🌅','Cara nueva: un Inicio con lo de hoy, tu estancia, «Seguí jugando» y tus amigos, y abajo las pestañas Inicio, Juegos, Gente y Vos.'],
+    ['🧉','Todos los juegos con la misma cabecera, letra más clara, «Cómo se juega» en 3 pasos y un volumen general.'],
+    ['🗺️','EstanciAR: mapita de todo tu campo con lo que está pendiente; tocás un punto y vas ahí.'],
+    ['👋','Gente: amigos en línea, charlas y buscar gente en un solo lugar. En Vos: lo que tenés, logros y Ajustes ordenados.'],
+    ['🎄','Para diciembre, la app se viste de Navidad de verano (se apaga en Vos › Ajustes).']]},
   {v:88,grande:true,titulo:'Novedades',items:[
     ['🧹','Gran revisión: arreglamos más de cien cosas en todos los juegos, sobre todo en el celular. Los avisos ya no te roban el toque.'],
     ['🌾','Tu estancia se ve como un solo campo: pasto de verdad, pampa alrededor, luciérnagas de noche y anda más fluida con todo puesto.'],
@@ -5199,9 +6002,10 @@ if(JUEGOS_PAG.test(PAG)){if(document.readyState==='loading')addEventListener('DO
       sesión) y el oro que sube contando desde lo último que viste (si ganaste algo jugando). ── */
 const SS={get(k){try{return sessionStorage.getItem(k);}catch(_){return null;}},set(k,v){try{sessionStorage.setItem(k,v);}catch(_){}}};
 function hubMomento(){if(quieto()||SS.get('jugo-hub'))return;SS.set('jugo-hub','1');
-  const L=[...document.querySelectorAll('#hub .hub-game')].filter(e=>e.getClientRects().length).slice(0,12);
+  const L=[...document.querySelectorAll('#hub .hub-game, #ini .ini-hoy, #ini .ini-tarea, #ini .ini-viva, #ini .ini-mini, #ini .ini-amigo')].filter(e=>e.getClientRects().length&&e.getBoundingClientRect().top<innerHeight).slice(0,12);   // v89: también lo que se ve del inicio nuevo
   L.forEach((e,i)=>{try{e.animate([{opacity:0,transform:'translateY(12px) scale(.97)'},{opacity:1,transform:'none'}],{duration:320,delay:60+i*32,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});}catch(_){}});}
-function hubOro(){const el=document.querySelector('#hub-oro [data-oro-saldo]');if(!el)return;const v=parseInt((el.textContent||'').replace(/\D/g,''),10);if(!(v>=0))return;
+function hubOro(){const el=document.querySelector('#ini-oro [data-oro-saldo]')||document.querySelector('#hub-oro [data-oro-saldo]');   // v89: el oro del inicio nuevo
+if(!el)return;const v=parseInt((el.textContent||'').replace(/\D/g,''),10);if(!(v>=0))return;
   const k='jugo-oro-visto',antes=parseInt(SS.get(k)||'',10);SS.set(k,String(v));
   if(antes>=0&&v>antes){setTimeout(()=>{contar(el,700,antes);const c=centro(el);burst(c.x,c.y,{n:10,col:C.oro,arriba:true,grav:-.01,vel:2,vida:650});},350);}}
 if(/^(index|bloques)$/.test(PAG)){const mira=()=>{const h=document.getElementById('hub');if(!h)return;let antes=h.hidden;const ver=()=>{hubMomento();setTimeout(hubOro,60);};
@@ -6248,7 +7052,7 @@ function openMenu(){
     <button id="m-snd">${SND?'🔊 Sonidos: prendidos':'🔇 Sonidos: apagados'}</button>
     <label class="amb">🌾 Ambiente de campo<input type="range" id="m-amb" min="0" max="100" step="5" value="${Math.round(AMBV*100)}" aria-label="Volumen del ambiente"><small>${AMBV>0?Math.round(AMBV*100)+' %':'apagado'}</small></label>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros</button>':''}
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 88</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">La Gran Pampa · versión 90</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;$('m-pos').onclick=go(()=>openPos('pos'));$('m-cru').onclick=go(()=>openPos('cruces'));$('m-log').onclick=go(()=>openPos('log'));
   $('m-leg').onclick=go(openLeguas);$('m-help').onclick=go(openHelp);$('m-share').onclick=go(shareGame);
