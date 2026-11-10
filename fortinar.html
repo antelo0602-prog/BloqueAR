@@ -63,8 +63,11 @@ body:not(.jugando) #panel,body:not(.jugando) #mini{display:none}
 body.apuntando #mundo{cursor:crosshair}body.colocando #mundo{cursor:copy}
 #aviso{position:fixed;z-index:6;left:50%;top:calc(58px + env(safe-area-inset-top));transform:translate(-50%,-8px);padding:6px 12px;border-radius:10px;background:rgba(23,36,50,.95);border:1px solid var(--brass);font-weight:700;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap}
 #aviso.on{opacity:1;transform:translate(-50%,0)}
-#tut{position:fixed;z-index:7;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top));width:min(94vw,520px);display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(241,230,203,.97);color:#2a2118;font-weight:650;box-shadow:0 10px 26px rgba(0,0,0,.5)}
-#tut[hidden]{display:none}#tut span{flex:1}#tut button{border:0;border-radius:9px;padding:8px 10px;background:#3f7a5a;color:#fff;font-weight:800}#tut .x{background:#c9b48a;color:#2a2118}
+/* v88: la ayuda de la primera partida es una tarjeta chica arriba del panel: no tapa el marcador ni el minimapa */
+#tut{position:fixed;z-index:7;right:max(8px,env(safe-area-inset-right));bottom:calc(var(--panel-h,72px) + 14px + env(safe-area-inset-bottom));width:min(calc(100vw - 16px),420px);display:flex;gap:7px;align-items:center;padding:7px 8px 7px 10px;border-radius:12px;background:rgba(241,230,203,.96);color:#2a2118;font-weight:650;font-size:13px;line-height:1.3;box-shadow:0 8px 22px rgba(0,0,0,.45)}
+#tut[hidden]{display:none}#tut span{flex:1}#tut small{font:800 11px system-ui;color:#7a6440;align-self:flex-start;margin-top:2px}
+#tut button{border:0;border-radius:9px;min-height:40px;padding:0 10px;background:#3f7a5a;color:#fff;font-weight:800;flex:none}#tut .x{min-width:40px;padding:0;background:#c9b48a;color:#2a2118}
+@media (max-height:500px){#tut{left:calc(max(8px,env(safe-area-inset-left)) + var(--mini-w,140px));right:auto;width:min(calc(100vw - var(--mini-w,140px) - 24px),440px);font-size:12px;padding:5px 6px 5px 9px}#tut button{min-height:36px}#tut .x{min-width:36px}}
 .toast{position:fixed;z-index:30;left:50%;top:30%;transform:translateX(-50%);background:rgba(23,36,50,.97);border:1px solid var(--brass);border-radius:12px;padding:10px 16px;font-weight:650;pointer-events:none}
 /* portada */
 #portada{position:fixed;inset:0;z-index:8;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:calc(60px + env(safe-area-inset-top)) 12px 20px;background:radial-gradient(120% 90% at 50% 30%,rgba(11,18,26,.25),rgba(11,18,26,.82));touch-action:pan-y}
@@ -128,7 +131,7 @@ table.rk tr.yo td{color:var(--aqua);font-weight:700}table.rk .punto{display:inli
 @media (max-width:600px) and (min-height:501px){
   #panel{left:max(8px,env(safe-area-inset-left));flex-direction:column}#mini{bottom:auto;top:calc(52px + env(safe-area-inset-top));left:auto;right:8px}
   #recursos .rec:nth-child(3){display:none}.marca{display:none}#puntos{position:fixed;top:calc(50px + env(safe-area-inset-top));left:8px}
-  #acciones{max-height:110px}
+  #acciones{max-height:96px}
 }
 @media (prefers-reduced-motion:reduce){#aviso{transition:none}}
 /* v86: soltar, grupos, atajos, arrastre del mapa, panel plegable */
@@ -169,6 +172,18 @@ body.arrastrando #mundo{cursor:grabbing}
   #grupos{bottom:calc(var(--panel-h,50px) + 12px + env(safe-area-inset-bottom))}
   #aviso{top:calc(46px + env(safe-area-inset-top))}
 }
+/* v88: por qué una mejora está apagada; aviso de que hay más botones (se desliza); toques de 40 px en la portada */
+.ac .falta{display:block;font-style:normal;font-weight:600;color:#e7b19a;font-size:10px;line-height:1.1;white-space:normal;text-align:center;max-width:100%}
+.ac small{flex-wrap:wrap;justify-content:center}
+.ac .falta{flex-basis:100%;width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}@media (max-height:500px){.ac .falta{display:block;white-space:nowrap;text-overflow:ellipsis}}.ac.tec{max-width:200px;min-width:0;overflow:hidden}.ac small{max-width:100%}
+#acciones{min-width:0}
+#acciones.mas-y{-webkit-mask-image:linear-gradient(180deg,#000 78%,transparent);mask-image:linear-gradient(180deg,#000 78%,transparent)}
+#acciones.mas-x{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
+.c87 .jugs button,.c87 .dif button,.c87 .fac{min-height:40px}.fila-b .btn{min-height:40px}.c87 .modos button{min-height:40px}
+.c87 .facdet{cursor:pointer}.c87 .facdet.abierta .fd{-webkit-line-clamp:unset;display:block}
+.c87 .modo-d{margin:0;font-size:12px;color:#cdd8db;text-align:center;line-height:1.3;display:none}
+@media (max-width:420px),(max-height:520px){.c87 .modo-d{display:block}}
+@media (max-height:520px){.c87 .modo-d{font-size:11.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
 </style>
 <script>
 /* ───────── v77 · El sonido de la app no corta la música del celular ─────────
@@ -320,6 +335,40 @@ window.LATIDO={
   get pausado(){return !!L.pausa;},
   intervalo,
   get estado(){return {quietos:L.quietos,ms:intervalo(),n:L.n,ok:L.ok,viejo:L.viejo};}
+};
+})();
+
+/* ───────── Toque (v88): los avisos no se comen el toque que estás haciendo ─────────
+   Un cartel que aparece solo justo donde tocás se llevaba el toque (era el «dedo fantasma» de la estancia).
+   API, para toda la app:
+     TOQUE.libre(ms=1500)  → true si no hay ningún dedo apoyado y nadie tocó/tecleó en los últimos ms
+     TOQUE.cuando(fn,ms=1500,max=12000) → corre fn cuando la pantalla está quieta (o a los max ms, igual)
+     TOQUE.proteger(el,ms=600) → durante ms, el (y lo de adentro) deja pasar los toques a lo de abajo: un toque que ya
+                                 venía no cae en su botón
+     TOQUE.aparecer(el,ms=600) → el.hidden=false + proteger(el)
+   Los avisos automáticos (carteles «Nuevo», toasts, hojas que se abren solas) deberían salir con TOQUE.cuando y/o
+   TOQUE.proteger. Lo que abre el usuario con su propio toque no necesita nada. */
+(function(){
+'use strict';
+if(window.TOQUE)return;
+const T={t:0,abajo:new Set()};
+const ahora=()=>Date.now();
+try{
+  addEventListener('pointerdown',e=>{T.t=ahora();T.abajo.add(e.pointerId);},true);
+  const fin=e=>{T.t=ahora();T.abajo.delete(e.pointerId);};
+  addEventListener('pointerup',fin,true);addEventListener('pointercancel',fin,true);
+  addEventListener('keydown',()=>{T.t=ahora();},true);
+  addEventListener('wheel',()=>{T.t=ahora();},{capture:true,passive:true});
+  addEventListener('blur',()=>{T.abajo.clear();});
+}catch(_){}
+let css=false;
+function estilo(){if(css)return;css=true;try{const s=document.createElement('style');s.textContent='.tq-prot,.tq-prot *{pointer-events:none!important}';(document.head||document.documentElement).appendChild(s);}catch(_){}}
+window.TOQUE={
+  libre(ms=1500){return !T.abajo.size&&ahora()-T.t>=ms;},
+  ultimo(){return T.t;},
+  cuando(fn,ms=1500,max=12000){const t0=ahora();const f=()=>{if(window.TOQUE.libre(ms)||ahora()-t0>=max){try{fn();}catch(e){console.error(e);}}else setTimeout(f,200);};f();},
+  proteger(el,ms=600){if(!el)return el;estilo();el.classList.add('tq-prot');clearTimeout(el._tqT);el._tqT=setTimeout(()=>el.classList.remove('tq-prot'),ms);return el;},
+  aparecer(el,ms=600){if(!el)return el;el.hidden=false;return window.TOQUE.proteger(el,ms);}
 };
 })();
 
@@ -915,7 +964,7 @@ window.GESTOS={salida,deslizar};
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR',fortinar:'FortinAR'};   // v88: FortinAR con XP, nivel y tabla como los demás
 // Solitarios (v62): no tienen rango (no son competitivos), pero su XP suma al nivel general.
 const SOLOS={sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR'};   // v73: LaberintAR (arcade para uno solo, sin rango)
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
@@ -956,7 +1005,8 @@ function apply(g,res){
 function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100][t];}
 // XP por juego. La de BloqueAR vive en su progreso; la de los demás, acá.
 function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
-function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]||0)+Math.max(0,Math.round(n));o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}
+const XP_MAX=100;
+function addXp(g,n){if(g==='bloquear')return;n=Math.min(XP_MAX,Math.max(0,Math.round(Number(n)||0)));const o=ls.json(XKEY,{});o[g]=(o[g]||0)+n;o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}   // v88: hasta 100 de XP por partida
 // Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
 // ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 // v70: «info» (opcional) dice cómo fue la partida, para que las leguas dependan del rival y del resultado, para los
@@ -964,7 +1014,7 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 //   info = {j: 'truco' (id del juego), res: 'g' ganó | 'e' empate | 'p' perdió, rival: 'p' personas | 'c' compu | 's' solo,
 //           dif: 'facil'|'normal'|'dificil'|'maestro', esf: true si la partida tuvo «esfuerzo» (cada juego dice cuánto
 //           es: perder en 20 segundos no cuenta), key (para no anotarla dos veces), x: {…datos para las tablas}}
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar'};
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar',FortinAR:'fortinar'};
 const ACT_DE={bloquear:'b',poblar:'p',truco:'t',uno:'u',ajedrez:'a',pool:'l',ludo:'k',invasores:'v'};
 function premio(de,xp,ranked,info,extra){
   const n=Math.max(0,Math.round(xp||0));
@@ -976,13 +1026,17 @@ function premio(de,xp,ranked,info,extra){
   if(info&&j&&info.rival!=='s')try{contar(j,info);}catch(_){}          // (el Maratón ranked sólo da leguas: no es una partida contra nadie)
   if(info&&j&&info.rival!=='s')try{ganchoAnotar(j,info);}catch(_){}     // v81: rachas y «hoy» para el cartel final
   if(info&&j&&ranked&&info.rival!=='s')try{anotarPartida(j,info);}catch(_){}
+  // v88: FortinAR no anotaba XP (no tenía nivel, títulos ni cofres): si el juego no lo hace, lo anota acá
+  if(j==='fortinar'&&n>0&&!(info&&info.xpHecho))try{addXp('fortinar',n);}catch(_){}
   if(!n)return null;
   // v70 (dos monedas): lo que dan los juegos es ORO (ORO.premio, con su tabla y su tope del día). Para la estancia queda «un
   // poquito» de pesos: un décimo de la XP (mínimo 2), hasta 30 por partida y hasta 150 por día. Iguales a ECO.premio de EstanciAR.
-  const d=new Date(Date.now()),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya=PD.d===dia?PD.n||0:0;
+  // v88: el tope de 150 por día es POR CUENTA (ORO.pesosHoy suma todos tus dispositivos)
+  const d=new Date(Date.now()),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya0=PD.d===dia?PD.n||0:0;
+  let ya=ya0;try{if(window.ORO&&ORO.pesosHoy)ya=Math.max(ya0,ORO.pesosHoy());}catch(_){}
   const pesos=Math.max(0,Math.min(30,Math.max(2,Math.round(n*.1)),150-ya));
   const p={de,trigo:0,pesos,t:Date.now()};
-  if(pesos){ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));}
+  if(pesos){ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya0+pesos}));try{window.ORO&&ORO.pesosSumar&&ORO.pesosSumar(pesos);}catch(_){}const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));}
   let oro=0;try{if(window.ORO)oro=ORO.premio(de,info,extra);}catch(_){}
   let leguas=0,nota='';
   if(ranked){const q=ACT_DE[j]||(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':de==='AjedrezAR'?'a':'b');
@@ -1278,9 +1332,9 @@ window.MEDALLAS=(function(){
 /* ───────── ORO (v70): la moneda de los juegos ─────────
    Dos monedas (pedido del 24/10): los PESOS salen de la estancia y sirven para lo común; el ORO sale de jugar cualquier juego
    y sirve para lo lindo (apariencias, ropa y caballos especiales, adornos únicos, gestos y marcos). Las mejoras grandes de
-   la estancia piden las dos. En la pulpería se puede cambiar oro por pesos (1 → 8, hasta 50 de oro por día); al revés no.
+   la estancia piden las dos. En la pulpería se puede cambiar oro por pesos (1 → 8, hasta 50 de oro por día) y, desde la v88, pesos por oro (1.000 → 8, hasta 80 por semana).
    · Cuánto da cada juego: ORO_TABLA (abajo), por partida ganada contra la compu; contra personas ×2, empate ×0,6, perder con
-     esfuerzo ×0,4, abandonar 0; contra la compu en Fácil ×0,5 y en Difícil ×1,5 (la misma regla que las leguas: RANGOS.cuenta). Tope del día: 150 enteros, hasta 300 a la mitad, después un cuarto.
+     esfuerzo ×0,5, abandonar 0; contra la compu en Fácil ×0,5 y en Difícil ×1,3, personas ×1,6 (v88). Tope del día por cuenta: 120 enteros, hasta 240 a la mitad, después un cuarto.
    · Se guarda en «bloques-oro-v1» y viaja con la cuenta dentro de RANGOS.exportData() («o»). Para que dos dispositivos no se
      pisen, el saldo no se guarda: se CALCULA. Cada dispositivo anota lo suyo (d[dev] = {g ganado suelto, s gastado suelto}) y lo
      que tiene nombre va aparte: k = premios con clave (cofres de nivel, puestos de La Gran Pampa…: cuentan una sola vez aunque
@@ -1301,33 +1355,38 @@ const diaAR=(t=Date.now())=>new Date(t-3*3600e3).toISOString().slice(0,10);
 
 /* ── Cuánto da cada juego (partida ganada contra la compu, duración normal) ── */
 const NIVEL_DIF=s=>({facil:1,principiante:1,normal:2,medio:2,intermedio:2,dificil:3,experto:3,maestro:3})[s]||2;
+// v88 (economía unificada): el oro sale de los MINUTOS jugados con esfuerzo, ≈0,6 de oro por minuto ganándole a la compu
+// Normal, parecido en todos los juegos (antes iba de 0,2 a 1,6 por minuto). Cada número = minutos típicos × 0,6.
 const ORO_TABLA={
-  poblar:12,
-  truco:i=>((i.x&&i.x.a)||15)>=30?10:6,          // a 30: 10 · a 15: 6
-  ajedrez:i=>i.x&&i.x.ritmo==='bala'?4:8,         // bala: 4
-  uno:6,ludo:6,
-  pool:4,                                          // por mesa de Bola 8
+  poblar:13,                                       // ~22 min
+  truco:i=>((i.x&&i.x.a)||15)>=30?10:5,           // a 30 (~18 min): 10 · a 15 (~9 min): 5
+  ajedrez:i=>i.x&&i.x.ritmo==='bala'?2:8,         // ~14 min · bala ~3 min
+  uno:4,                                           // ~6 min
+  ludo:8,                                          // ~14 min
+  pool:4,                                          // por mesa de Bola 8 (~6 min)
   bloquear:(i,ex)=>Math.min(10,Math.floor(((ex&&ex.lin)||(i.x&&i.x.lin)||0)/10)),   // 1 cada 10 líneas, hasta 10
   sudoku:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
   solitario:i=>i.extra&&i.extra.delDia?6:(i.extra&&i.extra.dificultad==='dificil'?3:2),
   buscaminas:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
-  laberinto:i=>i.extra&&i.extra.delDia?6:Math.min(10,4+2*Math.min(3,(i.extra&&i.extra.mapas)||0)),   // v73: 4 por participar, +2 por mapa limpio (hasta 10); el del día 6
-  invasores:i=>{const x=i.x||i.extra||{};if(x.modo==='duelo')return 6;if(x.modo==='dia')return 6;return Math.min(10,2+(x.olas||0))*(x.dif==='tranquila'?.6:1);},   // v73: 2 + 1 por oleada limpia (hasta 10); duelo y del día 6
-  marcar:i=>{const x=i.x||i.extra||{};return x.modo==='carrera'?6:8;},   // v83: MarcAR (Bomba 8, Carrera 6)
+  laberinto:i=>i.extra&&i.extra.delDia?6:Math.min(6,3+Math.min(3,(i.extra&&i.extra.mapas)||0)),   // ~5 min: 3, +1 por mapa limpio (hasta 6); el del día 6
+  invasores:i=>{const x=i.x||i.extra||{};if(x.modo==='dia')return 6;if(x.modo==='duelo')return 4;return Math.min(6,2+Math.floor((x.olas||0)/2))*(x.dif==='tranquila'?.6:1);},   // ~7 min
+  marcar:i=>{const x=i.x||i.extra||{};return x.modo==='carrera'?5:x.modo==='zombis'?Math.min(14,4+Math.floor((x.ronda||0)/2)):11;},   // Bomba ~18 min
+  fortinar:i=>{const x=i.x||i.extra||{};return x.modo==='conquista'?14:x.modo==='express'?12:8;},   // Asalto ~13 · Express ~20 · Conquista 25–45 min
   reto:5                                           // cada reto de la semana cumplido
 };
 const ORO_DEF=4;   // un juego que todavía no está en la tabla
-const MULT_RES={g:1,e:.6,p:.4,a:0},MULT_RIVAL={p:2,c:1,s:1};
-const MULT_DIF=d=>d==='facil'?.5:(d==='dificil'||d==='maestro')?1.5:1;
-const TOPE=[150,300];   // del día: hasta 150 enteros, hasta 300 a la mitad, después un cuarto
+const MULT_RES={g:1,e:.7,p:.5,a:0},MULT_RIVAL={p:1.6,c:1,s:1};   // v88: empate ×0,7, perder peleando ×0,5; personas ×1,6
+const MULT_DIF=d=>d==='facil'?.5:(d==='dificil'||d==='maestro')?1.3:1;   // v88: Difícil ×1,3
+const ORO_MAX=20;   // v88: lo más que da una partida
+const TOPE=[120,240];   // v88: del día, POR CUENTA (todos tus dispositivos juntos): hasta 120 enteros, hasta 240 a la mitad, después un cuarto
 const CAMBIO={tasa:8,dia:50};
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar'};
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar',FortinAR:'fortinar'};
 const SOLOS=new Set(['sudoku','solitario','buscaminas','laberinto']);
 
 // «info» de cada juego, en la forma corta que usa RANGOS ({res:'g'|'e'|'p'|'a', rival:'p'|'c'|'s', esf}); también acepta la larga
 // ({rival:'compu'|'personas', res:'gana'|'empata'|'pierde'|'abandona', ok, extra}). Los solitarios van como «solo».
 function norm(info,de){if(!info||typeof info!=='object')return info;const o={...info};
-  const R={compu:'c',personas:'p',amigos:'p',solo:'s'},S={gana:'g',empata:'e',pierde:'p',abandona:'a'};
+  const R={compu:'c',personas:'p',amigos:'p',solo:'s',h:'p',humano:'p'},S={gana:'g',empata:'e',pierde:'p',abandona:'a'};   // v88: «h» (FortinAR en línea) = personas
   if(R[o.rival])o.rival=R[o.rival];if(S[o.res])o.res=S[o.res];if(o.esf===undefined&&o.ok!==undefined)o.esf=!!o.ok;
   if(!o.j&&de)o.j=NOM_ID[de]||NOM_ID[String(de).replace(/ \(reto\)$/,'')]||'';
   if(SOLOS.has(o.j))o.rival='s';
@@ -1341,8 +1400,9 @@ function calc(de,info,extra){
   if(!info)return Math.round(base);
   const res=i.res||'g';if(res==='a'||i.esf===false)return 0;   // sin esfuerzo (perder en 20 segundos, ganar sin jugar) no da
   // contra quién: la misma regla que las leguas (RANGOS.cuenta: personas 2, compu Difícil 1,5, Normal 1, Fácil 0,5, solo 1)
-  let rv=1;try{rv=SOLOS.has(j)?1:window.RANGOS&&RANGOS.cuenta?RANGOS.cuenta(j,{rival:i.rival||'c',res,dif:i.dif}).mult||1:(MULT_RIVAL[i.rival]||1)*(i.rival==='c'?MULT_DIF(i.dif):1);}catch(_){}
-  return Math.round(base*(MULT_RES[res]??1)*rv);}
+  // v88: contra quién, propio del oro: personas ×1,6, compu Fácil ×0,5 / Normal ×1 / Difícil ×1,3, solo ×1
+  const rv=SOLOS.has(j)?1:(i.rival==='p'?MULT_RIVAL.p:(i.rival||'c')==='c'?MULT_DIF(i.dif):1);
+  return Math.min(ORO_MAX,Math.round(base*(MULT_RES[res]??1)*rv));}
 
 /* ── Datos ── */
 function load(){const o=ls.json(K,{});o.d=o.d&&typeof o.d==='object'?o.d:{};o.k=o.k&&typeof o.k==='object'?o.k:{};o.p=o.p&&typeof o.p==='object'?o.p:{};o.h=Array.isArray(o.h)?o.h:[];return o;}
@@ -1366,34 +1426,66 @@ function gastar(n,que){n=Math.max(0,Math.round(Number(n)||0));const o=load();if(
 // v81 · Administración: multiplicadores globales que pone el admin (bloques-cfg-v1, lo trae chat/admin.js). Por defecto 1.
 function admMul(k){try{const c=JSON.parse(localStorage.getItem('bloques-cfg-v1')||'null'),v=Number(c&&c.eco&&c.eco[k]);return v>=.1&&v<=10?v:1;}catch(_){return 1;}}
 function cambioDia(){return Math.max(0,Math.round(CAMBIO.dia*admMul('cambio')));}
-function cambioHoy(){const o=load(),c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;return Math.max(0,cambioDia()-c);}
+/* v88 · Contadores POR CUENTA (antes cada dispositivo tenía su tope y con dos se duplicaba). Cada contador del día (o de la
+   semana) guarda lo de cada dispositivo: {d: día, n: {dispositivo: cuánto}}; viaja con la cuenta (exportData) y al juntar
+   queda, de cada dispositivo, lo mayor. Lo que «llevás hoy» es la suma de todos. */
+function cuentaDe(c,per){return c&&c.d===per?Object.values(c.n||{}).reduce((a,v)=>a+(typeof v==='number'?v:0),0):0;}
+function cuentaSumar(o,campo,per,n){const d=dev();if(!o[campo]||o[campo].d!==per)o[campo]={d:per,n:{}};o[campo].n[d]=(Number(o[campo].n[d])||0)+n;}
+// de cada juego (tope propio, como MarcAR): {d, n: {dispositivo: {juego: cuánto}}}
+function cuentaJDe(c,per,j){return c&&c.d===per?Object.values(c.n||{}).reduce((a,v)=>a+(v&&typeof v==='object'?Number(v[j])||0:0),0):0;}
+function cuentaJSumar(o,campo,per,j,n){const d=dev();if(!o[campo]||o[campo].d!==per)o[campo]={d:per,n:{}};const m=o[campo].n[d]=o[campo].n[d]||{};m[j]=(Number(m[j])||0)+n;}
+function juntarCont(a,b){if(!b||typeof b!=='object'||!b.d)return a;if(!a||!a.d||b.d>a.d)return JSON.parse(JSON.stringify(b));if(b.d<a.d)return a;
+  const r={d:a.d,n:{...(a.n||{})}};for(const [dv,v] of Object.entries(b.n||{})){const y=r.n[dv];
+    if(typeof v==='number')r.n[dv]=Math.max(Number(y)||0,v);else if(v&&typeof v==='object'){const m={...(y&&typeof y==='object'?y:{})};for(const [j,x] of Object.entries(v))m[j]=Math.max(Number(m[j])||0,Number(x)||0);r.n[dv]=m;}}
+  return r;}
+// lo que había antes de la v88 (un solo número por dispositivo) cuenta como de este dispositivo
+function migrarCont(o){const hoy=diaAR(),sw=semAR();let ch=false;
+  if(o.dia&&o.dia.d===hoy&&!(o.dd&&o.dd.d===hoy)){o.dd={d:hoy,n:{[dev()]:o.dia.n|0}};ch=true;}
+  if(o.cam&&o.cam.d===hoy&&!(o.cd&&o.cd.d===hoy)){o.cd={d:hoy,n:{[dev()]:o.cam.n|0}};ch=true;}
+  if(o.tj&&o.tj.d===hoy&&!(o.tjd&&o.tjd.d===hoy)){o.tjd={d:hoy,n:{[dev()]:{...(o.tj.n||{})}}};ch=true;}
+  if(o.tw&&o.tw.s===sw&&!(o.twd&&o.twd.d===sw)){o.twd={d:sw,n:{[dev()]:{...(o.tw.n||{})}}};ch=true;}
+  return ch;}
+function cambioHoy(){const o=load();migrarCont(o);return Math.max(0,cambioDia()-cuentaDe(o.cd,diaAR()));}
 // v81 · Un ajuste del admin: suma (o resta) oro una sola vez aunque se aplique en dos dispositivos (va como premio o compra con nombre).
 function ajustar(key,delta,de){key=String(key);delta=Math.round(Number(delta)||0);const o=load();if(o.k[key]||o.p[key])return 0;
   if(delta>0)o.k[key]=[delta,Date.now()];else if(delta<0)o.p[key]=[-delta,Date.now()];else o.k[key]=[0,Date.now()];
   if(delta)hist(o,delta,de||'Ajuste de la administración');save(o);return delta;}
 function cambiar(n){n=Math.floor(Number(n)||0);if(n<=0||n>cambioHoy())return 0;const o=load();if(saldoDe(o)<n)return 0;
-  mio(o).s+=n;const c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;o.cam={d:diaAR(),n:c+n};hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
+  mio(o).s+=n;cuentaSumar(o,'cd',diaAR(),n);hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
+/* v88 · Al revés: pesos → oro en la pulpería (para que los pesos de sobra tengan destino y el que juega sólo la estancia
+   pueda juntar oro). 1.000 pesos → 8 de oro, hasta 80 de oro por semana (por cuenta). Los pesos los descuenta la estancia:
+   esto sólo anota el oro. Devuelve el oro que entró (0 si no se pudo). */
+const COMPRA={pesos:1000,oro:8,semana:80};
+function compraSemana(){return Math.max(0,Math.round(COMPRA.semana*admMul('cambio')));}
+function compraHoy(){const o=load();migrarCont(o);return Math.max(0,compraSemana()-cuentaDe(o.co,semAR()));}
+function comprarOro(n){n=Math.floor(Number(n)||0);if(n<=0||n%COMPRA.oro||n>compraHoy())return 0;const o=load();
+  cuentaSumar(o,'co',semAR(),n);o.k['pc:'+dev()+':'+Date.now()]=[n,Date.now()];hist(o,n,'Compra en la pulpería');save(o);anim(n);return n;}
+/* v88 · Los pesos que dan los juegos para la estancia (hasta 150 por día), también por cuenta. */
+const PESOS_DIA=150;
+function pesosHoy(){const o=load();return cuentaDe(o.pd,diaAR());}
+function pesosSumar(n){n=Math.max(0,Math.round(Number(n)||0));if(!n)return;const o=load();cuentaSumar(o,'pd',diaAR(),n);save(o);}
 
 /* ── Lo que da una partida (lo llama RANGOS.premio): con el tope del día ── */
 // v85: tope propio de algunos juegos (MarcAR: 50 de oro por día y 200 por semana, biblia de MarcAR cap. 25), además del tope general
-const TOPE_J={marcar:[50,200]};
+const TOPE_J={marcar:[60,240]};   // v88: 60 por día y 240 por semana (MarcAR paga por minuto como los demás)
 const semAR=(t=Date.now())=>{const d=new Date(t-3*3600e3);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10);};
-function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load(),h=o.tj&&o.tj.d===diaAR()?o.tj.n||{}:{},w=o.tw&&o.tw.s===semAR()?o.tw.n||{}:{};
-  return {dia:T[0],semana:T[1],hoy:h[j]|0,sem:w[j]|0,queda:Math.max(0,Math.min(T[0]-(h[j]|0),T[1]-(w[j]|0)))};}
+function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load();migrarCont(o);const h=cuentaJDe(o.tjd,diaAR(),j),w=cuentaJDe(o.twd,semAR(),j);
+  return {dia:T[0],semana:T[1],hoy:h,sem:w,queda:Math.max(0,Math.min(T[0]-h,T[1]-w))};}
 function premio(de,info,extra){
   let v=calc(de,info,extra);if(v<=0)return 0;v=Math.max(1,Math.round(v*admMul('oro')));   // v81: multiplicador del admin
-  const o=load(),hoy=diaAR(),ya=o.dia&&o.dia.d===hoy?o.dia.n|0:0;
+  const o=load(),hoy=diaAR();migrarCont(o);const ya=cuentaDe(o.dd,hoy);   // v88: lo de todos tus dispositivos
   v=Math.max(1,Math.round(v*(ya<TOPE[0]?1:ya<TOPE[1]?.5:.25)));
   {const j=(norm(info||{},de)||{}).j||NOM_ID[de]||'',tj=topeJuego(j);if(tj){v=Math.min(v,tj.queda);if(v<=0)return 0;
-    const sw=semAR();o.tj=o.tj&&o.tj.d===hoy?o.tj:{d:hoy,n:{}};o.tw=o.tw&&o.tw.s===sw?o.tw:{s:sw,n:{}};o.tj.n[j]=(o.tj.n[j]|0)+v;o.tw.n[j]=(o.tw.n[j]|0)+v;}}
-  o.dia={d:hoy,n:ya+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
+    cuentaJSumar(o,'tjd',hoy,j,v);cuentaJSumar(o,'twd',semAR(),j,v);}}
+  cuentaSumar(o,'dd',hoy,v);o.dia={d:hoy,n:(o.dia&&o.dia.d===hoy?o.dia.n|0:0)+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
   anim(v);
   try{setTimeout(()=>niveles(true),1600);}catch(_){}
   return v;}
-function hoy(){const o=load();return o.dia&&o.dia.d===diaAR()?o.dia.n|0:0;}
+function hoy(){const o=load();migrarCont(o);return cuentaDe(o.dd,diaAR());}
 
 /* ── Cuenta: viaja dentro de RANGOS.exportData() como «o» ── */
-function exportData(){const o=load();return {d:o.d,k:o.k,p:o.p,ti:o.ti||null,mc:o.mc||null,r70:o.r70||0,at:o.at||0};}
+const CONT=['dd','cd','tjd','twd','pd','co'];   // v88: contadores por cuenta (ver cuentaDe)
+function exportData(){const o=load();migrarCont(o);const r={d:o.d,k:o.k,p:o.p,ti:o.ti||null,mc:o.mc||null,r70:o.r70||0,at:o.at||0};for(const c of CONT)if(o[c])r[c]=o[c];return r;}
 function importData(d){if(!d||typeof d!=='object')return false;const o=load();let ch=false;
   for(const [dv,x] of Object.entries(d.d||{})){if(!x||typeof x!=='object')continue;const y=o.d[dv]||{g:0,s:0},g=Math.max(Number(y.g)||0,Number(x.g)||0),s=Math.max(Number(y.s)||0,Number(x.s)||0);if(g!==(y.g||0)||s!==(y.s||0)||!o.d[dv]){o.d[dv]={g,s};ch=true;}}
   for(const M of ['k','p'])for(const [key,x] of Object.entries(d[M]||{})){if(!Array.isArray(x))continue;const y=o[M][key];
@@ -1401,6 +1493,7 @@ function importData(d){if(!d||typeof d!=='object')return false;const o=load();le
   if(Array.isArray(d.ti)&&(!Array.isArray(o.ti)||(Number(d.ti[2])||0)>(Number(o.ti[2])||0))){o.ti=d.ti;ch=true;}
   if(Array.isArray(d.mc)&&(!Array.isArray(o.mc)||(Number(d.mc[1])||0)>(Number(o.mc[1])||0))){o.mc=d.mc;ch=true;}
   if(d.r70&&!o.r70){o.r70=d.r70;ch=true;}
+  for(const c of CONT)if(d[c]){const x=juntarCont(o[c],d[c]);if(JSON.stringify(x)!==JSON.stringify(o[c]||null)){o[c]=x;ch=true;}}
   if(ch){const at=o.at;ls.set(K,JSON.stringify({...o,at:Math.max(at||0,d.at||0)}));aviso();}
   return ch;}
 
@@ -1467,12 +1560,12 @@ const TIT_GEN={5:'Peón de campo',10:'Puestero',15:'Baqueano',20:'Rastreador',25
 const ADORNO_GEN={5:['farol_bronce','Farol de bronce'],10:['banco_tallado','Banco tallado'],15:['aljibe_azulejos','Aljibe de azulejos'],20:['carreta_pintada','Carreta pintada'],25:['fuente_plata','Fuente de plata'],
   30:['ombu_otono','Ombú de otoño'],35:['estatua_bronce','Estatua de bronce'],40:['glorieta_nevada','Glorieta blanca'],45:['molino_plata','Molino de plata'],50:['calesita_oro','Calesita de oro'],55:['capilla_rosa','Capilla rosada'],60:['estatua_oro','Estatua de oro']};
 const ROPA_GEN={10:['ropa:gala','Poncho de gala'],20:['som:dorado','Chambergo dorado'],30:['ropa:patrio','Poncho celeste y blanco'],40:['ropa:caudillo','Saco de caudillo'],50:['ropa:vicuna','Poncho de vicuña']};
-const cofreGen=L=>20+5*L;
+const cofreGen=L=>20+5*Math.min(L,20);   // v88: crece hasta el nivel 20 (120) y después queda en 120 (antes crecía sin tope)
 // Nivel de cada juego: 5/10/20/30 una apariencia exclusiva (las declara LOGROS con lv); 10 y 30, un título.
 const TIT_J={bloquear:['Apilador','Gran arquitecto'],poblar:['Colono','Fundador de pueblos'],truco:['Gaucho del truco','Mano de oro del truco'],uno:['Cantor del uno','Rey de la mesa'],
   ajedrez:['Alfil del pago','Gran maestro'],ludo:['Fichero','Patrón del ludo'],pool:['Taquero','Mago del paño'],sudoku:['Numerero','Sabio de los números'],solitario:['Paciente','Maestro del solitario'],
-  buscaminas:['Rastreador de minas','Desactivador'],invasores:['Defensor de la llanura','Azote de la Nodriza'],marcar:['Recluta de la Estación','Leyenda del Mercado'],estancia:['Chacarero','Gran estanciero']};
-const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',invasores:'InvasorAR',marcar:'MarcAR',estancia:'EstanciAR'};
+  buscaminas:['Rastreador de minas','Desactivador'],invasores:['Defensor de la llanura','Azote de la Nodriza'],marcar:['Recluta de la Estación','Leyenda del Mercado'],fortinar:['Comandante de posta','Señor de la frontera'],estancia:['Chacarero','Gran estanciero']};
+const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',invasores:'InvasorAR',marcar:'MarcAR',fortinar:'FortinAR',estancia:'EstanciAR'};
 const cofreEst=L=>L>=8?10+2*L:0;   // EstanciAR: desde el nivel 8, un cofre chico por nivel (lo cobra la estancia)
 function R(){return window.RANGOS||null;}
 function lvGen(){try{return R().general().level.lv;}catch(_){return 1;}}
@@ -1559,14 +1652,14 @@ function pampaPuesto(pr){if(!pr||!pr.semana)return 0;return cobrar('pm:'+pr.sema
 
 /* ── Hoja «¿Cómo gano oro?» ── */
 function hojaHtml(){css();const o=load(),h=o.h.slice(0,8),y=hoy();
-  const filas=[['🏘️','PoblAR, partida ganada','12'],['🃏','TrucAR a 30 (a 15: 6)','10'],['♟️','AjedrezAR (bala: 4)','8'],['🎴','UnoAR · 🎲 LudAR','6'],['🎱','PoolAR, por mesa','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],['👾','InvasorAR (duelo y del día: 6)','2 + 1 por oleada, hasta 10'],
-    ['🧩','Sudoku, Solitario o Buscaminas del día','6'],['🧩','Sudoku, Solitario o Buscaminas común','1 a 3'],['🎯','Cada reto de la semana','5'],['⭐','Cada nivel general','20 + 5 × nivel'],['🗺️','La Gran Pampa: 1.º / 2.º / 3.º','300 / 200 / 120'],['🗺️','Terminar la semana de La Gran Pampa jugando','40']];
+  const filas=[['🏘️','PoblAR (~22 min)','13'],['🏰','FortinAR: Asalto / Express / Conquista','8 / 12 / 14'],['🎯','MarcAR: Bomba (Carrera 5)','11'],['🃏','TrucAR a 30 (a 15: 5)','10'],['♟️','AjedrezAR (bala: 2)','8'],['🎲','LudAR','8'],['🎴','UnoAR · 🎱 PoolAR (por mesa)','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],['👾','InvasorAR (del día: 6)','2 + 1 cada 2 oleadas, hasta 6'],['🌀','LaberintAR (del día: 6)','3 + 1 por mapa limpio, hasta 6'],
+    ['🧩','Sudoku, Solitario o Buscaminas del día','6'],['🧩','Sudoku, Solitario o Buscaminas común','1 a 3'],['🎯','Cada reto de la semana','5'],['⭐','Cada nivel general','20 + 5 × nivel (hasta 120)'],['🗺️','La Gran Pampa: 1.º / 2.º / 3.º','300 / 200 / 120'],['🗺️','Terminar la semana de La Gran Pampa jugando','40']];
   return `<div class="oro-hoja"><p class="oro-saldo">${ico()}<b data-oro-saldo>${fmt(saldoDe(o))}</b><span>de oro</span></p>
   <p>El <b>oro</b> sale de jugar cualquier juego y sirve para lo lindo: apariencias de los juegos, ropa y caballos especiales, adornos únicos para la estancia, gestos y marcos. Los <b>pesos</b> salen de la estancia y sirven para lo de todos los días. Las mejoras grandes de la estancia piden las dos.</p>
-  <h4>Cuánto da cada juego</h4><p class="note">Por partida ganada contra la compu. Contra personas, el doble. Empatar da algo y perder peleando, un poco; abandonar no da nada.</p>
+  <h4>Cuánto da cada juego</h4><p class="note">Por partida ganada contra la compu en Normal: cada juego da parecido por minuto jugado (unos 0,6 de oro por minuto). En Fácil, la mitad; en Difícil, un 30 % más; contra personas, un 60 % más. Empatar da el 70 % y perder peleando, la mitad; abandonar no da nada.</p>
   <div class="oro-tabla">${filas.map(f=>`<div><i>${f[0]}</i><span>${f[1]}</span><b>${f[2]}</b></div>`).join('')}</div>
-  <p class="note">Hoy juntaste ${fmt(y)} jugando. Los primeros 150 del día van enteros; hasta 300, a la mitad; después, un cuarto.</p>
-  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${cambioDia()} de oro por día). Al revés no se puede.</p>
+  <p class="note">Hoy juntaste ${fmt(y)} jugando (contando todos tus dispositivos). Los primeros ${TOPE[0]} del día van enteros; hasta ${TOPE[1]}, a la mitad; después, un cuarto.</p>
+  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${cambioDia()} de oro por día) y también pesos por oro (${fmt(COMPRA.pesos)} pesos = ${COMPRA.oro} de oro, hasta ${compraSemana()} de oro por semana).</p>
   ${h.length?`<h4>Últimos movimientos</h4><div class="oro-tabla">${h.map(x=>`<div><i>${x.n>0?'＋':'－'}</i><span>${esc(x.de||'')}</span><b>${x.n>0?'+':''}${fmt(x.n)}</b></div>`).join('')}</div>`:''}</div>`;}
 const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:left}.oro-hoja p{margin:0}.oro-hoja h4{margin:8px 0 0;font-size:14px}
 .oro-saldo{display:flex;align-items:center;gap:8px;font-size:15px}.oro-saldo .oro-i{width:30px;height:30px}.oro-saldo b{font-size:28px;color:#f5c94c}
@@ -1575,7 +1668,7 @@ const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:
 .oro-tabla i{font-style:normal;text-align:center}.oro-tabla b{color:#f5c94c;text-align:right}`;
 function hojaCss(){css();if(document.getElementById('oro-hoja-css'))return;const s=document.createElement('style');s.id='oro-hoja-css';s.textContent=HOJA_CSS;(document.head||document.documentElement).appendChild(s);}
 
-return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
+return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,COMPRA,compraSemana,compraHoy,comprarOro,PESOS_DIA,pesosHoy,pesosSumar,juntarCont,cuentaDe,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
   MARCOS,GESTOS_ORO,marco,ponerMarco,gestos,subirPerfil,
   ico,txt,premioTxt,anim,css,niveles,cartel,titulos,titulo,ponerTitulo,TIT_GEN,TIT_J,ADORNO_GEN,ROPA_GEN,cofreGen,cofreEst,PAMPA_ORO,pampaPuesto,hojaHtml,hojaCss,
   sub(f){SUB.add(f);},_load:load,_K:K};
@@ -3352,6 +3445,14 @@ async function mePrendo(mid){
 // v70.1: la planilla 19 no conoce LudAR ni PoolAR: su tarjeta dice «BloqueAR · Duelo en línea». Se mira esa invitación
 // (una sola vez por tarjeta) y se corrige el juego que muestra la tarjeta y adónde lleva «Entrar».
 const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool',INVASOR:'invasores',MARCAR:'marcar',FORTINAR:'fortinar'};
+// v88: UNA sola tabla de juegos para las invitaciones (prefijo de la oferta, página, nombre, emoji). La usan los carteles
+// «Te invitan» de todos los juegos (antes cada uno tenía su lista y no conocían MarcAR/FortinAR: decían «BloqueAR»).
+// Al aceptar se va DIRECTO a la página del juego con «<pag>-accept» (sin pasar por el menú).
+window.BLQ_JUEGOS_INV=[['TRUCO:','truco','TrucAR','🃏'],['UNO:','uno','UnoAR','🎴'],['LUDO:','ludo','LudAR','🎲'],['POOL:','pool','PoolAR','🎱'],
+  ['AJEDREZ:','ajedrez','AjedrezAR','♟️'],['POBLAR:','poblar','PoblAR','🏘️'],['INVASOR:','invasores','InvasorAR','👾'],['MARCAR:','marcar','MarcAR','🎯'],['FORTINAR:','fortinar','FortinAR','🏰']];
+window.BLQ_invInfo=function(oferta){const of=String(oferta||'');for(const r of window.BLQ_JUEGOS_INV)if(of.startsWith(r[0]))return{pref:r[0],pag:r[1],nom:r[2],emo:r[3],html:'<b>'+r[2]+'</b> '+r[3]};
+  return{pref:'',pag:'',nom:'BloqueAR',emo:'🧱',html:'<b>BloqueAR</b> 🧱'};};
+window.BLQ_invIr=function(inv){const i=window.BLQ_invInfo(inv&&inv.oferta);try{sessionStorage.setItem(i.pag?i.pag+'-accept':'blq-accept',inv.id);}catch(_){}location.href=i.pag?i.pag+'.html':'./';};
 async function invCorregir(){
   if(!(S.ver&&S.ver<20))return;S.invFix=S.invFix||{};
   for(const m of S.msgs.slice(-40)){const c=invCard(m);
@@ -4130,6 +4231,13 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:88,grande:true,titulo:'Novedades',items:[
+    ['🧹','Gran revisión: arreglamos más de cien cosas en todos los juegos, sobre todo en el celular. Los avisos ya no te roban el toque.'],
+    ['🌾','Tu estancia se ve como un solo campo: pasto de verdad, pampa alrededor, luciérnagas de noche y anda más fluida con todo puesto.'],
+    ['💰','Economía pareja: el oro se gana igual en todos los juegos, los topes son por cuenta, hay obras del pueblo para invertir y se puede cambiar pesos por oro.'],
+    ['🏰','FortinAR: la compu ahora tumba fortines y respeta el nivel, ya no se gana quedándose quieto, y aparece en Tablas y Logros.'],
+    ['🎯','MarcAR: volver a una partida en línea funciona, cambio de lado a la mitad, ayuda corta y partidas en «Normal» por defecto.'],
+    ['🌀','LaberintAR estrena 5 laberintos propios.']]},
   {v:87,grande:true,titulo:'Novedades',items:[
     ['🏰','FortinAR: cuatro facciones nuevas (Guardias de la Frontera, Milicias de la Confederación, Montoneras del Interior y Comerciantes del Litoral), el modo Express y partidas de 3 y 4 jugadores, todos contra todos o 2 contra 2, también en línea.'],
     ['🗺️','La Gran Pampa cambia cada semana: forma del mapa distinta, parajes nuevos (pueblo, pulpería, tapera, vado), una regla de la semana, tres objetivos y la Gaceta del día.'],
@@ -5125,7 +5233,7 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto,efecto
    Fuentes y decisiones de cada dato histórico: ver claude/fortinar-v85.md (sección «De dónde sale cada cosa»). */
 'use strict';
 
-const FV_DATOS = 3;   // versión de reglas (va en el hash de la partida y en los resultados). v87: Express y 3–4 jugadores. v86: edades, Conquista, Asalto con gloria
+const FV_DATOS = 4;   // versión de reglas (va en el hash de la partida y en los resultados). v88: la gloria es de la tropa (no de los edificios), peón que martilla en diagonal. v87: Express y 3–4 jugadores. v86: edades, Conquista, Asalto con gloria
 
 /* ── Recursos (§11) ── */
 const RECURSOS = ['comida', 'madera', 'piedra', 'plata'];
@@ -5263,8 +5371,8 @@ const FACCIONES = {
 // hostiga: manda jinetes a molestar a los peones; retira: se retira si la pelea viene mal; peones: cuántos quiere en Asalto
 // (en Conquista ×2,2); edadEspera: segundos extra antes de pasar de etapa (la fácil se demora).
 const DIFICULTADES = {
-  facil: {n: 'Fácil', piensa: 3.5, micro: 0.15, errores: 0.45, contra: 0.3, apm: 35, peones: 5, ataqueDesde: 200, ataqueMin: 6, hostiga: 0, retira: 0, custodia: 0, edadEspera: 150,
-    explica: 'Piensa cada 3½ s, se olvida cosas, ataca con poca tropa directo a tu fortín (desde el minuto 3⅓), no contrarresta y no se retira.'},
+  facil: {n: 'Fácil', piensa: 3.5, micro: 0.15, errores: 0.45, contra: 0.3, apm: 35, peones: 5, ataqueDesde: 300, ataqueMin: 6, hostiga: 0, retira: 0, custodia: 0, edadEspera: 150,
+    explica: 'Piensa cada 3½ s, se olvida cosas, tarda en salir a pelear (minuto 5 en Asalto, más tarde en Express y Conquista) y lo hace con poca tropa, no contrarresta y no se retira.'},
   normal: {n: 'Normal', piensa: 1.6, micro: 0.6, errores: 0.12, contra: 0.8, apm: 90, peones: 9, ataqueDesde: 170, ataqueMin: 8, hostiga: 220, retira: 1, custodia: 1, edadEspera: 40,
     explica: 'Contrarresta lo que ve, sale a pelear desde el minuto 3, hostiga peones y se retira si pierde.'},
   dificil: {n: 'Difícil', piensa: 0.8, micro: 0.6, errores: 0, contra: 1, apm: 160, peones: 11, ataqueDesde: 150, ataqueMin: 8, hostiga: 200, retira: 1, custodia: 1, edadEspera: 0,
@@ -5464,7 +5572,7 @@ FACCIONES.milicias = {n: 'Milicias de la Confederación', corto: 'Milicias', lem
       efecto: 'Montados +8% de velocidad; si no pelean durante 6 s se curan 1 de vida por segundo.',
       efectos: [{clase: 'montado', campo: 'vel', mult: 1.08}], curaFuera: {clase: 'montado', seg: 6, cura: 1}}
   });
-  FACCIONES.montonera = {n: 'Montoneras del Interior', corto: 'Interior', lema: 'Recluta móvil, hostigamiento y repliegue',
+  FACCIONES.montonera = {n: 'Montoneras del Interior', corto: 'Montoneras', lema: 'Recluta móvil, hostigamiento y repliegue',
     bonos: ['Los montados se forman un 25% más rápido (recluta móvil).', 'Los peones andan un 15% más rápido.', 'Los baqueanos cuestan un 20% menos.'],
     debil: 'Defensa fija menor: sus edificios tienen un 10% menos de vida y su árbol no llega al cañón pesado.',
     singular: 'montonero_veterano', tecnologia: 'marcha_travesia', arquitectura: 'llanos',
@@ -5888,15 +5996,18 @@ function recalcPob(G) {
 }
 
 /* ── Caminos: A* en la grilla (8 vecinos, sin cortar esquinas) + estirado de la línea ── */
+const DX8 = [1, -1, 0, 0, 1, 1, -1, -1], DY8 = [0, 0, 1, -1, 1, -1, 1, -1], OFS5 = [[0, 0], [70, 0], [-70, 0], [0, 70], [0, -70]];
 function aEstrella(G, sx, sy, meta, hx, hy, max = 4000) {
   const W = G.W, H = G.H, N = W * H;
   if (!G._g || G._g.length !== N) { G._g = new Int32Array(N); G._from = new Int32Array(N); G._vis = new Int32Array(N); G._gen = 0; }
   const g = G._g, from = G._from, vis = G._vis; const gen = ++G._gen;
   const heap = [], hf = [];
-  const push = (i, f) => { heap.push(i); hf.push(f); let c = heap.length - 1; while (c > 0) { const pa = (c - 1) >> 1; if (hf[pa] < hf[c] || (hf[pa] === hf[c] && heap[pa] <= heap[c])) break; [heap[pa], heap[c]] = [heap[c], heap[pa]]; [hf[pa], hf[c]] = [hf[c], hf[pa]]; c = pa; } };
+  // v88: sin crear arreglos en cada intercambio (el recolector de basura frenaba la partida en ráfagas); mismo orden de siempre
+  const sw = (a, b) => { const t = heap[a]; heap[a] = heap[b]; heap[b] = t; const u = hf[a]; hf[a] = hf[b]; hf[b] = u; };
+  const push = (i, f) => { heap.push(i); hf.push(f); let c = heap.length - 1; while (c > 0) { const pa = (c - 1) >> 1; if (hf[pa] < hf[c] || (hf[pa] === hf[c] && heap[pa] <= heap[c])) break; sw(pa, c); c = pa; } };
   const pop = () => { const top = heap[0], lh = heap.pop(), lf = hf.pop(); if (heap.length) { heap[0] = lh; hf[0] = lf; let c = 0; for (;;) { const l = 2 * c + 1, r = l + 1; let m = c;
     if (l < heap.length && (hf[l] < hf[m] || (hf[l] === hf[m] && heap[l] < heap[m]))) m = l; if (r < heap.length && (hf[r] < hf[m] || (hf[r] === hf[m] && heap[r] < heap[m]))) m = r; if (m === c) break;
-    [heap[m], heap[c]] = [heap[c], heap[m]]; [hf[m], hf[c]] = [hf[c], hf[m]]; c = m; } } return top; };
+    sw(m, c); c = m; } } return top; };
   const h = (x, y) => { const dx = Math.abs(x - hx), dy = Math.abs(y - hy); return 10 * Math.max(dx, dy) + 4 * Math.min(dx, dy); };
   const s = sy * W + sx; g[s] = 0; from[s] = -1; vis[s] = gen; push(s, h(sx, sy));
   let mejor = s, mejorH = h(sx, sy), n = 0;
@@ -5907,7 +6018,7 @@ function aEstrella(G, sx, sy, meta, hx, hy, max = 4000) {
     if (meta(cx, cy)) { mejor = c; mejorH = 0; break; }
     const hc = h(cx, cy); if (hc < mejorH) { mejorH = hc; mejor = c; }
     for (let k = 0; k < 8; k++) {
-      const dx = [1, -1, 0, 0, 1, 1, -1, -1][k], dy = [0, 0, 1, -1, 1, -1, 1, -1][k];
+      const dx = DX8[k], dy = DY8[k];
       const nx = cx + dx, ny = cy + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
       const ni = ny * W + nx; if (G.bloq[ni] && !meta(nx, ny)) continue;
       if (dx && dy && (G.bloq[cy * W + nx] || G.bloq[ny * W + cx])) continue;
@@ -5926,7 +6037,7 @@ function lineaLibre(G, x0, y0, x1, y1) {
   const d = distE(x0, y0, x1, y1), pasos = Math.max(1, Math.ceil(d / 64));
   for (let i = 0; i <= pasos; i++) {
     const x = x0 + Math.round((x1 - x0) * i / pasos), y = y0 + Math.round((y1 - y0) * i / pasos);
-    for (const [ox, oy] of [[0, 0], [70, 0], [-70, 0], [0, 70], [0, -70]]) { const tx = (x + ox) >> 8, ty = (y + oy) >> 8; if (!pasa(G, tx, ty) && !(tx === x1 >> 8 && ty === y1 >> 8)) return false; }
+    for (let k = 0; k < 5; k++) { const tx = (x + OFS5[k][0]) >> 8, ty = (y + OFS5[k][1]) >> 8; if (!pasa(G, tx, ty) && !(tx === x1 >> 8 && ty === y1 >> 8)) return false; }
   }
   return true;
 }
@@ -6235,13 +6346,15 @@ function herir(G, b, dano, quien, tipoAtk) {
       if (v !== C.ultV) { C.ultV = v; C.ventanas++; C.enV = 0; } if (++C.enV === 8) { C.peleas = (C.peleas || 0) + 1; if (C.pelea == null) C.pelea = G.tick; } } }
   if (b.k === 'u') { b.ultAtk = {o: quien, t: G.tick}; }
   G.ev.push({e: 'golpe', id: b.id, x: b.x, y: b.y, d: dano, k: b.k});
-  if (b.hp <= 0) morir(G, b, quien);
+  if (b.hp <= 0) morir(G, b, quien, tipoAtk);
 }
-function morir(G, e, quien) {
+function morir(G, e, quien, tipoAtk) {
   if (e.muerto) return;
   if (e.k === 'u') {
     G.jug[e.o].st.perdidas++; if (quien >= 0 && !aliado(G, quien, e.o)) { G.jug[quien].st.matadas++;
-      const g = e.t === 'peon' ? (G.preset.ptsPeon || 0) : UNIDADES[e.t].pob * (G.preset.ptsBaja || 0); G.jug[quien].puntos += g; G.jug[quien].st.gloria.bajas += g; }
+      // v88: lo que tumba un edificio solo (fortín, centro, torre sin gente adentro) no da gloria: «quedarse quieto no gana». Los tiros de la guarnición sí.
+      const porEdif = tipoAtk && EDIFICIOS[tipoAtk];
+      const g = porEdif ? 0 : e.t === 'peon' ? (G.preset.ptsPeon || 0) : UNIDADES[e.t].pob * (G.preset.ptsBaja || 0); G.jug[quien].puntos += g; G.jug[quien].st.gloria.bajas += g; }
     if (e.ord && e.ord.k === 'recolectar') soltarRecurso(G, e);
     G.ev.push({e: 'muere', id: e.id, t: e.t, o: e.o, x: e.x, y: e.y, dir: e.dir});
     baja(G, e); recalcPob(G);
@@ -6418,7 +6531,8 @@ function construir(G, u) {
   if (b.listo && b.hp >= b.vida) { // terminado: si era un corral, ponerse a juntar; si no, seguir con la cola
     if (b.ganado !== undefined && !u.cola.length) { darOrden(G, u, {k: 'recolectar', id: b.id}); return; }
     siguienteOrden(G, u); return; }
-  if (distA(u, b) > L(0.75)) { andar(G, u, b.x, b.y, junto(b)); if ((!u.path || u.pi >= u.path.length) && distA(u, b) > L(1.4)) { if (++u.repath > 3) siguienteOrden(G, u); } return; }
+  // v88: desde una casilla en diagonal (a ~1 casilla de la huella) también se martilla: antes el peón quedaba «martillando» sin avanzar para siempre
+  if (distA(u, b) > L(0.75) && !(distA(u, b) <= L(1.15) && (!u.path || u.pi >= u.path.length))) { andar(G, u, b.x, b.y, junto(b)); if ((!u.path || u.pi >= u.path.length) && distA(u, b) > L(1.4)) { if (++u.repath > 3) siguienteOrden(G, u); } return; }
   u.path = null; const dr = dirDe(b.x - u.x, b.y - u.y); if (dr >= 0) u.dir = dr;
   setSt(G, u, 'martillar');
   b.obreros = (b.obreros || 0) + 1;
@@ -6520,7 +6634,7 @@ function defensas(G) {
       const acierta = azar(G) < 0.85;
       const tx = acierta ? e.x : e.x + Math.round((azar(G) - 0.5) * L(1.2)), ty = acierta ? e.y : e.y + Math.round((azar(G) - 0.5) * L(1.2));
       const dano = Math.max(1, a.dano - stat(G, e.o, e.t, 'armadura1'));
-      alta(G, {id: G.sig++, k: 'p', o: b.o, de: b.t, x: sx, y: sy, x0: sx, y0: sy, tx, ty, t0: G.tick, t1: G.tick + 3, blanco: acierta ? e.id : 0, dano, area: 0, tipo: 'tiro'});
+      alta(G, {id: G.sig++, k: 'p', o: b.o, de: i >= (a.tiros || 0) && b.guar.length ? 'guarnicion' : b.t, x: sx, y: sy, x0: sx, y0: sy, tx, ty, t0: G.tick, t1: G.tick + 3, blanco: acierta ? e.id : 0, dano, area: 0, tipo: 'tiro'});   // v88: los tiros de la tropa de adentro son «de la guarnición» (dan gloria)
       G.ev.push({e: 'tiro', id: b.id, x: sx, y: sy, tx, ty, edif: true});
     }
     b.cd = T(a.recarga);
@@ -6789,7 +6903,8 @@ const MOTOR_ = MOTOR;
 function crearIA(G, p, dif, perso) {
   const semilla = (G.seed * 31 + p * 7 + 13) >>> 0;
   const D = DIFICULTADES[DIFICULTADES[dif] ? dif : 'normal'];
-  const ia = {p, dif: DIFICULTADES[dif] ? dif : 'normal', perso: perso || null, mem: new Map(), r: semilla || 1, prox: 0, proxT: 0,
+  const ia = {p, dif: DIFICULTADES[dif] ? dif : 'normal', perso: perso || null, mem: new Map(), r: semilla || 1, prox: p * 3, proxT: p * 2,   // v88: cada compu piensa en un paso distinto (no todas juntas)
+   
     modo: 'abrir', plan: null, log: [], visto: {caballeria: 0, infanteria: 0, distancia: 0, asedio: 0, lancero: 0, tirador: 0, miliciano: 0},
     exploro: 0, ultimoAtaque: -9999, retirada: 0, esc: null,
     tok: D.apm / 12, tokT: 0, ordenes: 0, ola: 0, olaIds: null, olaT: -1, olaObj: null, guardias: {}, hostT: 0, hostIds: null,
@@ -6912,7 +7027,10 @@ function economia(G, ia, P, cmds) {
   let objetivoPeones = D.peones + (ia.perso === 'economica' ? 2 : ia.perso === 'agresiva' ? -2 : 0);
   if (conquista(G)) objetivoPeones = Math.round(objetivoPeones * (yo.edad >= 3 ? 2.6 : yo.edad === 2 ? 2.2 : 1.6));
   // peones nuevos (siempre que haya lugar y no estemos en apuros)
-  if (fort && peones.length + fort.cola.filter(q => q.t === 'peon').length < objetivoPeones && fort.cola.length < 2 && yo.rec.comida >= 50 && yo.pob < yo.pobMax)
+  // v88: los peones van primero: mientras falten, la producción de tropa deja 50 de comida para el próximo peón
+  const enColaP = fort ? fort.cola.filter(q => q.t === 'peon').length : 0;
+  ia.reservaPeon = fort && ia.modo !== 'defender' && G.preset.perder !== 'fortin' && peones.length + enColaP < objetivoPeones && yo.pob < yo.pobMax && !enColaP ? 50 : 0;   // v88: defendiéndose, la comida va a la tropa
+  if (fort && peones.length + enColaP < objetivoPeones && fort.cola.length < 2 && yo.rec.comida >= 50 && yo.pob < yo.pobMax)
     cmds.push({c: 'entrenar', id: fort.id, tipo: 'peon'});
   // reparto por déficit: comida para tropas, madera para tropas y obras, piedra sólo si hace falta
   const quiere = {comida: 0.58, madera: 0.4, piedra: 0.02};
@@ -6920,13 +7038,23 @@ function economia(G, ia, P, cmds) {
   if (yo.rec.comida > tope) quiere.comida = 0.3; if (yo.rec.madera > tope) quiere.madera = 0.25;
   if (yo.rec.piedra > 60) quiere.piedra = 0;
   if (conquista(G) && yo.edad >= 2 && yo.rec.piedra < 170) quiere.piedra = 0.15;   // para el fortín de la Frontera
+  // v88: el reparto sigue a lo que falta de verdad: si la comida sobra y la madera no alcanza (o al revés), corre peones
+  if (yo.rec.comida > yo.rec.madera * 2 + 120 || (yo.rec.madera < 40 && yo.rec.comida > 70)) { quiere.madera += 0.2; quiere.comida -= 0.2; }
+  else if (yo.rec.madera > yo.rec.comida * 2 + 120) { quiere.comida += 0.15; quiere.madera -= 0.15; }
   const hay = {comida: 0, madera: 0, piedra: 0};
   const ociosos = [];
   for (const u of peones) {
     const o = u.ord;
     if (o && o.k === 'recolectar') { const r = G.ent.get(o.id); const tr = r ? MOTOR.tipoRec(r) : o.rt; if (hay[tr] !== undefined) hay[tr]++; }
     else if (!o || (o.k === 'mover' && !u.path)) ociosos.push(u);
+    // v88: un peón «reparando» un edificio terminado sin madera para pagar la reparación se quedaba trabado para siempre
+    else if (o.k === 'construir') { const b = G.ent.get(o.id); if (b && b.listo && yo.rec.madera < 15) ociosos.push(u); }
   }
+  // v88: si un recurso está muy por encima de su parte y otro muy por debajo, pasar un peón (no hace falta que esté ocioso)
+  { const n = peones.length; let sobra = null, falta = null, ms = 1.5, mf = -1.5;
+    for (const tr of ['comida', 'madera', 'piedra']) { const d = hay[tr] - quiere[tr] * n; if (d > ms) { ms = d; sobra = tr; } if (d < mf) { mf = d; falta = tr; } }
+    if (sobra && falta) { const u = peones.find(x => x.ord && x.ord.k === 'recolectar' && (() => { const r = G.ent.get(x.ord.id); return r && MOTOR.tipoRec(r) === sobra; })() && !x.carga);
+      if (u) { ociosos.push(u); hay[sobra]--; } } }
   const amenazado = P.enemigos.some(e => e.k === 'u' && e.t !== 'peon' && fort && MOTOR.distA(e, fort) < L_(7));
   for (const u of ociosos) {
     // ¿a qué recurso? el de mayor déficit
@@ -6940,11 +7068,12 @@ function economia(G, ia, P, cmds) {
   const colaPob = P.mios.filter(e => e.k === 'b').reduce((s, b) => s + b.cola.length, 0);
   if (yo.pobMax < G.preset.pobMax && yo.pob + colaPob + 2 >= yo.pobMax && !enObra.some(b => b.t === 'rancho') && yo.rec.madera >= 30)
     construirCerca(G, ia, P, 'rancho', cmds);
+  const ahorraMadera = ia.ahorra && (TECNOLOGIAS[ia.ahorra] || {}).coste && TECNOLOGIAS[ia.ahorra].coste.madera;   // v88: ahorrando madera para una mejora: sin obras nuevas
   // caballeriza (temprano si es agresiva; si no, cuando junta madera)
   const tiene = t => P.mios.some(e => e.k === 'b' && e.t === t);
   const puede = t => (EDIFICIOS[t].edad || 1) <= yo.edad && !(G.preset.prohibido || []).includes(t);
-  if (puede('caballeriza') && !tiene('caballeriza') && yo.rec.madera >= 150 && (G.tick > 20 * (ia.perso === 'agresiva' ? 15 : 45) || yo.rec.madera > 220)) construirCerca(G, ia, P, 'caballeriza', cmds);
-  if (conquista(G)) {
+  if (!ahorraMadera && puede('caballeriza') && !tiene('caballeriza') && yo.rec.madera >= 150 && (G.tick > 20 * (ia.perso === 'agresiva' ? 15 : 45) || yo.rec.madera > 220)) construirCerca(G, ia, P, 'caballeriza', cmds);
+  if (!ahorraMadera && conquista(G)) {
     // Conquista: rancho y cuartel en el Puesto; torre en la Estancia; fortín en la Frontera; un segundo cuartel cuando sobra
     if (puede('cuartel') && !tiene('cuartel') && yo.rec.madera >= 150 && G.tick > 20 * 70 && !enObra.some(b => b.t === 'cuartel')) construirCerca(G, ia, P, 'cuartel', cmds);
     if (puede('fortin') && !tiene('fortin') && !enObra.some(b => b.t === 'fortin') && MOTOR.puedePagar(yo, MOTOR.costeEdif(G, yo.id, 'fortin'))) construirCerca(G, ia, P, 'fortin', cmds);
@@ -6957,12 +7086,12 @@ function economia(G, ia, P, cmds) {
   const corrales = P.mios.filter(e => e.k === 'b' && e.t === 'corral');
   // la comida sale de los corrales (3 peones por corral): con madera de sobra, más corrales
   const maxCorr = conquista(G) ? 2 + yo.edad : ia.dif === 'facil' ? 2 : (yo.rec.madera > 200 ? 4 : 3);
-  if (corrales.length < maxCorr && hay.comida >= 3 * corrales.length - 1 && yo.rec.madera >= 75 && G.tick > 20 * (ia.dif === 'facil' ? 120 : 40) && !enObra.some(b => b.t === 'corral')) construirCerca(G, ia, P, 'corral', cmds);
+  if (!ahorraMadera && corrales.length < maxCorr && hay.comida >= 3 * corrales.length - 1 && yo.rec.madera >= 75 && G.tick > 20 * (ia.dif === 'facil' ? 120 : 40) && !enObra.some(b => b.t === 'corral')) construirCerca(G, ia, P, 'corral', cmds);
   // segundo cuartel en Asalto si sobra madera (normal y difícil)
-  if (!conquista(G) && ia.dif !== 'facil' && yo.rec.madera > (ia.dif === 'dificil' ? 190 : 260) && P.mios.filter(e => e.k === 'b' && e.t === 'cuartel').length < 2 && !enObra.some(b => b.t === 'cuartel')) construirCerca(G, ia, P, 'cuartel', cmds);
+  if (!ahorraMadera && !conquista(G) && ia.dif !== 'facil' && yo.rec.madera > (ia.dif === 'dificil' ? 190 : 260) && P.mios.filter(e => e.k === 'b' && e.t === 'cuartel').length < 2 && !enObra.some(b => b.t === 'cuartel')) construirCerca(G, ia, P, 'cuartel', cmds);
   // torre de vigía en un puesto propio (defensiva) si sobra
   const torresQ = (FACCIONES[yo.fac].ia || {}).torres || (ia.perso === 'defensiva' ? 2 : 0);   // v87: la facción puede pedir torres
-  if (torresQ && yo.rec.madera >= 120 && yo.rec.piedra >= 25 && P.mios.filter(e => e.k === 'b' && e.t === 'puesto_vigia').length < torresQ && G.tick > 20 * 90)
+  if (!ahorraMadera && torresQ && yo.rec.madera >= 120 && yo.rec.piedra >= 25 && P.mios.filter(e => e.k === 'b' && e.t === 'puesto_vigia').length < torresQ && G.tick > 20 * 90)
     construirCerca(G, ia, P, 'puesto_vigia', cmds, true);
   // obras sin terminar: que alguien las siga
   for (const b of enObra) { const trab = peones.filter(u => u.ord && u.ord.k === 'construir' && u.ord.id === b.id).length;
@@ -7030,6 +7159,12 @@ function construirCerca(G, ia, P, tipo, cmds, adelante) {
 }
 
 /* ── Producción: contrarrestar lo que vio (sin saber lo que no vio) ── */
+// v88: en Asalto, el cañón para tumbar el fortín se busca sólo cuando no la están apurando (pasados 4 min, sin defender y sin ir perdiendo por mucho)
+function asedioOk(G, ia) {
+  if (ia.dif === 'facil' || G.preset.perder !== 'fortin' || ia.modo === 'defender' || G.tick < 20 * 240) return false;
+  const yo = G.jug[ia.p], mx = Math.max(...G.jug.filter(j => j.id !== ia.p && !MOTOR.aliado(G, j.id, ia.p)).map(j => j.puntos || 0));
+  return (yo.puntos || 0) + 25 >= mx;
+}
 function produccion(G, ia, P, cmds) {
   const yo = P.J, v = ia.visto;
   const ejercito = P.mios.filter(e => e.k === 'u' && e.t !== 'peon');
@@ -7053,15 +7188,20 @@ function produccion(G, ia, P, cmds) {
   { let choque = 0, tiro = 0; for (const t in cuenta) { const a = UNIDADES[t] && UNIDADES[t].ataque; if (!a || t === 'peon') continue; if (a.tipo === 'cuerpo') choque += cuenta[t]; else tiro += cuenta[t]; }
     if (ia.dif !== 'facil' && tiro > choque) { w.miliciano += 1; w.lancero_pie += 0.8; w.jinete_ligero += 0.5; w.tirador *= 0.4; w.soldado_linea *= 0.6; } }
   if (yo.techs.curenas === true) w.canon_ligero += 0.6;
+  // v88: en Asalto el fortín rival es EL objetivo y su lugar se conoce desde el principio: con plata de sobra, cañones (normal y difícil)
+  if (asedioOk(G, ia) && yo.techs.curenas === true && yo.rec.plata >= 140) w.canon_ligero += ia.dif === 'dificil' ? 1.6 : 1;
   // rival sin ejército a la vista y con fortín: para tumbarlo hacen falta cañones (normal y difícil)
   if (ia.dif !== 'facil' && yo.techs.curenas === true && v.total < 3 && [...ia.mem.values()].some(m => m.k === 'b' && EDIFICIOS[m.t].centro)) w.canon_ligero += 1.5;
   const exploradores = ejercito.filter(u => (UNIDADES[u.t].reemplaza || u.t) === 'explorador').length;
   if (!exploradores && G.tick > 20 * 30) w.explorador = 2;
+  // v88: Asalto (normal y difícil): con cureñas y plata, guardar la madera del cañón hasta tenerlo (sin cañón el fortín no cae)
+  const nCan = (cuenta.canon_ligero || 0) + (cuenta.canon_pesado || 0);
+  ia.reservaCanon = asedioOk(G, ia) && yo.techs.curenas === true && yo.rec.plata >= 95 && nCan < (ia.dif === 'dificil' ? 2 : 1) ? 60 : 0;
   const tot = Object.values(cuenta).reduce((s, n) => s + n, 0) + 1;
   const sw = Object.values(w).reduce((s, n) => s + Math.max(0, n), 0);
   const edif = P.mios.filter(e => e.k === 'b' && e.listo);
   // cada edificio que forma tropas: si su cola está corta, pedir lo que más falta de lo que él sabe hacer
-  if (ia.ahorra && (G.tick - ia.ahorraT > 20 * (String(ia.ahorra).startsWith('edad') ? 90 : 25) || ia.modo === 'defender')) ia.ahorra = null;
+  if (ia.ahorra && (G.tick - ia.ahorraT > 20 * (String(ia.ahorra).startsWith('edad') || ia.ahorra === 'curenas' ? 90 : 25) || ia.modo === 'defender' || (G.preset.empuje && G.tick > 20 * G.preset.empuje))) ia.ahorra = null;   // v88: en el empuje final no se ahorra: todo a la tropa
   if (ia.ahorra) return;
   // Conquista: en El Puesto, poca tropa (la comida va a pasar de etapa)
   if (conquista(G) && yo.edad === 1 && ejercito.length >= 5 + (ia.perso === 'agresiva' ? 3 : 0)) return;
@@ -7082,7 +7222,9 @@ function produccion(G, ia, P, cmds) {
     const reserva = yo.pob + 2 >= yo.pobMax ? 30 : 0;   // guardar un poco para ranchos si la población aprieta
     for (const [, tipo] of cands) {
       const coste = MOTOR.costeDe(G, ia.p, tipo);
-      if (MOTOR.puedePagar(yo, {...coste, madera: (coste.madera || 0) + reserva}) && yo.pob + b.cola.length < yo.pobMax + 2) { cmds.push({c: 'entrenar', id: b.id, tipo}); break; }
+      const resC = coste.comida && ia.modo !== 'defender' ? (ia.reservaPeon || 0) : 0;   // v88: primero los peones
+      const resM = coste.madera && !UNIDADES[tipo].clase.includes('asedio') ? (ia.reservaCanon || 0) : 0;   // v88: después el cañón
+      if (MOTOR.puedePagar(yo, {...coste, madera: (coste.madera || 0) + reserva + resM, comida: (coste.comida || 0) + resC}) && yo.pob + b.cola.length < yo.pobMax + 2) { cmds.push({c: 'entrenar', id: b.id, tipo}); break; }
       if (ia.dif === 'facil') break;   // la fácil no busca alternativas
     }
   }
@@ -7105,16 +7247,19 @@ function tecnologia(G, ia, P, cmds) {
   let quiere = ia.dif === 'facil' ? ['carretilla', 'herrado', 'bayonetas'] : ['carretilla', 'curenas', 'herrado', 'bayonetas', 'cartucheras', FACCIONES[yo.fac].tecnologia, 'veteranos', 'bateria_pesada', 'disciplina_carga'];
   if ((FACCIONES[yo.fac].ia || {}).tecPrimero && ia.dif !== 'facil') quiere = ['carretilla', FACCIONES[yo.fac].tecnologia, ...quiere.filter(t => t !== 'carretilla' && t !== FACCIONES[yo.fac].tecnologia)];   // v87: la facción prioriza su tecnología propia
   if (ia.visto.caballeria > 2) quiere.unshift('bayonetas');
+  if (asedioOk(G, ia) && yo.rec.plata >= 120) quiere = ['curenas', ...quiere.filter(t => t !== 'curenas')];   // v88: para tumbar el fortín hace falta cañón
   if (G.tick < 20 * 50) return;   // primero tropas y economía
   if (P.mios.some(e => e.k === 'b' && e.inv)) return;
   for (const id of quiere) {
     const t = TECNOLOGIAS[id]; if (!t || yo.techs[id] || (t.faccion && t.faccion !== yo.fac)) continue;
+    if (ia.reservaCanon && t.coste.madera) continue;   // v88: la madera es para el cañón
     if (!MOTOR.puedeInvestigar(G, ia.p, id).ok) continue;
     const b = P.mios.find(e => e.k === 'b' && MOTOR.enEdificio(t, e.t) && e.listo && !e.inv); if (!b) continue;
     if (MOTOR.puedePagar(yo, t.coste)) { cmds.push({c: 'investigar', id: b.id, tipo: id}); anotar(ia, G, 'investiga ' + id); ia.ahorra = null; ia.ultTec = G.tick; return; }
     // no alcanza: ahorrar un rato para la mejora (deja de pedir tropas hasta juntar), sólo con tropa suficiente y no seguido
     const tropa = P.mios.filter(e => e.k === 'u' && e.t !== 'peon').length;
-    if (!ia.ahorra && tropa >= 7 && G.tick - (ia.ultTec || 0) > 20 * 45 && G.tick - (ia.ultAhorro || -9999) > 20 * 90) { ia.ahorra = id; ia.ahorraT = G.tick; ia.ultAhorro = G.tick; anotar(ia, G, 'ahorra para ' + id); }
+    const urge = id === 'curenas' && asedioOk(G, ia);   // v88: en Asalto, el cañón es la llave del fortín: se ahorra para él antes
+    if (!ia.ahorra && !(G.preset.empuje && G.tick > 20 * G.preset.empuje) && tropa >= (urge ? 5 : 7) && G.tick - (ia.ultTec || 0) > 20 * (urge ? 20 : 45) && G.tick - (ia.ultAhorro || -9999) > 20 * (urge ? 30 : 90)) { ia.ahorra = id; ia.ahorraT = G.tick; ia.ultAhorro = G.tick; anotar(ia, G, 'ahorra para ' + id); }
     return;
   }
 }
@@ -7218,21 +7363,21 @@ function estrategia(G, ia, P, cmds) {
       }
       // el resto del ejército (lo que salió del cuartel después) se suma a la oleada
       const nuevos = ejercito.filter(u => !ia.olaIds.includes(u.id) && !u.ord);
-      if (nuevos.length >= 3) { ia.olaIds.push(...nuevos.map(u => u.id)); cmds.push({c: 'amover', ids: nuevos.map(u => u.id), x: c[0], y: c[1]}); }
+      if (nuevos.length >= 3 && ia.dif !== 'facil') { ia.olaIds.push(...nuevos.map(u => u.id)); cmds.push({c: 'amover', ids: nuevos.map(u => u.id), x: c[0], y: c[1]}); }
       return;
     }
   }
 
   // 5) ¿Sale una oleada? (pasado el minuto pedido, con tropa suficiente, y no apenas terminó otra)
   const minimo = Math.round((D.ataqueMin + 2 * Math.min(ia.ola, 5)) * (G.preset.iaTropa || (larga ? 1.6 : 1)) * (G.preset.empuje && seg > G.preset.empuje ? 0.6 : 1));
-  const desde = D.ataqueDesde * (G.preset.iaDesde || (larga ? 3.2 : 1)) * (ia.perso === 'agresiva' ? 0.8 : ia.perso === 'defensiva' ? 1.2 : 1);
+  const desde = D.ataqueDesde * (G.preset.iaDesde || (larga ? 3.2 : 1)) * (ia.perso === 'agresiva' && ia.dif !== 'facil' ? 0.8 : ia.perso === 'defensiva' ? 1.2 : 1) * (ia.dif === 'facil' && larga ? 1.3 : 1);   // v88: la fácil no se apura por su personalidad
   const enfriar = G.tick - ia.olaT > 20 * (G.preset.iaEnfriar || (larga ? 70 : 35));
   const yoAtrasado = MOTOR.atrasado(G, p);
   // la fácil sale con números; normal y difícil miran también la fuerza que conocen del rival (lo visto hace poco)
   const empuje = G.preset.empuje && seg > G.preset.empuje;   // Conquista larga: empuje final (no quedarse en empate eterno)
   const animo = ia.dif === 'facil' || empuje ? true : fYo >= fEl * (ia.dif === 'dificil' ? 1.15 : 0.95) || ejercito.length >= 20 || (G.preset.duracion && seg > G.preset.duracion - 150);
   if (seg >= desde && enfriar && animo && (ejercito.length >= minimo || (yoAtrasado && ejercito.length >= minimo - 3) || ejercito.length >= 20)) {
-    ia.ola++; ia.olaIds = ejercito.map(u => u.id); ia.olaN = ejercito.length; ia.olaObj = null; ia.modo = 'ola';
+    ia.ola++; ia.olaIds = (ia.dif === 'facil' ? ejercito.slice(0, minimo + 2) : ejercito).map(u => u.id); ia.olaN = ia.olaIds.length;   // v88: la fácil sale con poca tropa (el resto se queda en casa) ia.olaObj = null; ia.modo = 'ola';
     anotar(ia, G, 'sale la oleada ' + ia.ola + ' con ' + ejercito.length + ' (fuerza ' + Math.round(fYo) + ' contra ' + Math.round(fEl) + ')');
     const obj = blancoOla(G, ia, P, base ? [base.x, base.y] : [0, 0], fYo);
     cmds.push({c: 'amover', ids: ia.olaIds, x: obj.x, y: obj.y}); ia.olaObj = obj.id;
@@ -7262,7 +7407,10 @@ function estrategia(G, ia, P, cmds) {
     const bR = baseRival(G, ia), dR = q => Math.hypot((q.x >> 8) - bR[0] - 2, (q.y >> 8) - bR[1] - 2);
     const costo = q => { const dM = Math.sqrt(cercaMia(q)) / L_(1); let c = dM + Math.max(0, dM - dR(q)) * 1.5;
       if (ia.dif !== 'facil' && fuerzaEn(q) > fYo * 0.9) c += 40; if (q === G.puestos[0] && ia.apertura === 'centro') c -= 6; return c; };
-    const cand = (pend.length ? pend : G.puestos).slice().sort((a, b) => costo(a) - costo(b));
+    // v88: la fácil, antes de su minuto de ataque, no va a los puestos pegados a la base rival (se terminaba metiendo en tu base sin querer)
+    let pool = pend.length ? pend : G.puestos;
+    if (ia.dif === 'facil' && seg < D.ataqueDesde * (G.preset.iaDesde || (larga ? 3.2 : 1)) * (larga ? 1.3 : 1)) { const lej = (pend.length ? pend : []).filter(q => dR(q) > 18); pool = lej.length ? lej : G.puestos.filter(q => dR(q) > 18); }   // v88: hasta el mismo minuto que su primera oleada
+    const cand = pool.slice().sort((a, b) => costo(a) - costo(b));
     obj = cand[0];
   }
   // pelea perdida en el camino: retirarse hacia casa y juntar (normal y difícil)
@@ -7793,7 +7941,11 @@ function empezarPartida(cfg) {
   R.vistos.clear(); R.part = []; R.muertos = []; R.trozos.clear(); R.prev.clear(); R.listo = false;
   const fort = G.B.find(b => b.o === P.yo && EDIFICIOS[b.t].centro);
   const [sx, sy] = aPant(fort.x / 256 + 1.5, fort.y / 256 - 1.5); R.cam.x = sx; R.cam.y = sy;
-  R.cam.z = TACTIL ? (Math.min(innerWidth, innerHeight) < 500 ? 0.72 : 0.9) : 1;
+  // v88: en el celular parado se ve más campo de entrada (el panel ocupa abajo); una vez se sugiere girarlo
+  const parado = TACTIL && innerHeight > innerWidth && innerWidth < 600;
+  R.cam.z = TACTIL ? (parado ? 0.64 : Math.min(innerWidth, innerHeight) < 500 ? 0.72 : 0.9) : 1;
+  if (parado) { R.cam.y += 150; R.cam.x -= 110; }   // el panel tapa abajo: el fortín queda un poco más arriba del medio
+  if (parado && ls.get('fortinar-tut') && !ls.get('fortinar-girar')) { ls.set('fortinar-girar', '1'); const av = () => toast('Tip: con el teléfono acostado se ve más campo.', 3600); if (window.TOQUE) TOQUE.cuando(av); else setTimeout(av, 1500); }
   document.body.classList.add('jugando'); $('portada').hidden = true;
   hud(true); P.ult = performance.now(); P.acc = 0;
   if (!ls.get('fortinar-tut')) setTimeout(tutorial, 600);
@@ -7808,9 +7960,10 @@ function cuadro(t) {
   else if (!P.pausa && !G.fin) {
     P.acc += dtMs * (AJ.velocidad || 1);
     let pasos = 0;
-    while (P.acc >= 50 && pasos < 6) {
+    // v88: hasta 3 pasos por cuadro (con 6, un cuadro lento en el teléfono hacía el siguiente más lento todavía: tirones en cadena)
+    while (P.acc >= 50 && pasos < 3) {
       P.acc -= 50; pasos++;
-      for (const e of G.U) R.prev.set(e.id, [e.x, e.y]);
+      for (const e of G.U) { const q = R.prev.get(e.id); if (q) { q[0] = e.x; q[1] = e.y; } else R.prev.set(e.id, [e.x, e.y]); }   // v88: sin basura por paso
       const cmds = P.cola.splice(0);
       for (const ia of P.ias) if (!G.jug[ia.p].perdio) for (const c of IA.pensarIA(G, ia)) cmds.push([ia.p, c]);
       for (const [p, c] of cmds) if (p === P.yo) { const r = MOTOR.aplicar(G, p, c); if (r && !r.ok && r.por) avisar(r.por); }
@@ -7818,7 +7971,8 @@ function cuadro(t) {
       efectos(G, G.ev, P.yo);
       eventosHud(G.ev);
     }
-    if (pasos >= 6) P.acc = 0;
+    if (pasos >= 3) P.acc = Math.min(P.acc, 50);
+    if (R.prev.size > G.U.length * 2 + 64) for (const id of [...R.prev.keys()]) if (!G.ent.has(id)) R.prev.delete(id);   // v88: no guardar a los muertos para siempre
     R.alfa = Math.min(1, P.acc / 50);
     espectador(G);
     if (G.fin && !P.fin) { P.fin = true; setTimeout(() => resultado(G), 1400); }
@@ -8366,8 +8520,9 @@ function panel() {
       acc += boton('b-parar', 'Parar', 's');
       if (tropa) { const mant = us.every(u => u.postura === 'mantener'); acc += boton('b-mant', mant ? 'Mantener ✓' : 'Mantener', 'n', {cls: mant ? 'on' : '', tip: mant ? 'Mantienen su lugar: tocá para soltarlos' : 'No se mueve de su lugar'}); acc += boton('b-patr', 'Patrullar', 'p'); acc += boton('b-fmt', 'Formación: ' + ({linea: 'línea', columna: 'columna', abierta: 'abierta'}[P.fmt || 'linea']), 'o', {tip: 'Línea, columna o abierta (contra cañones)'}); }
       if (peones) acc += boton('b-constr', 'Construir', 'b', {cls: 'go'});
-      acc += boton('b-guar', 'Al fortín', 'g', {tip: 'Se meten en el fortín: los protege y suma disparos'});
-      if (TACTIL) acc += boton('b-cola', 'En cola', '', {cls: P.colaFija ? 'on' : '', tip: 'Las órdenes se encadenan'});
+      const hayF = G.B.some(x => x.o === P.yo && x.t === 'fortin' && x.listo);   // v88: fuera de Asalto (sin fortín) el botón dice adónde van
+      acc += boton('b-guar', hayF ? 'Al fortín' : 'Al centro', 'g', {tip: hayF ? 'Se meten en el fortín: los protege y suma disparos' : 'Se meten en el centro más cercano: los protege y suma disparos'});
+      if (TACTIL) acc += boton('b-cola', P.colaFija ? 'Encadenar ✓' : 'Encadenar', '', {cls: P.colaFija ? 'on' : '', tip: 'Prendido: cada orden nueva se suma a la anterior en vez de reemplazarla'});
       if (TACTIL) acc += boton('b-grupo', 'Guardar grupo', '', {tip: 'Queda como un número arriba del panel: tocalo para volver a elegirlos'});
     }
   } else if (b) {
@@ -8384,13 +8539,13 @@ function panel() {
         if (t.edadSube && (G.preset.sinEdades || t.edadSube !== J.edad + 1)) continue;   // v86: sólo el próximo paso de etapa
         if (!t.edadSube && (t.edad || 1) > J.edad + 1) continue;   // lo de etapas lejanas no se muestra todavía
         const pr = hecha ? {ok: true} : MOTOR.puedeInvestigar(G, P.yo, id);
-        acc += boton('t-' + id, (hecha ? '✓ ' : t.edadSube ? '⬆ ' : '') + t.n, hecha ? '' : letraLibre(t.n, usadas), {coste: hecha ? '' : costeHtml(t.coste), dis: hecha || !!J.techs[id] || !!b.inv || !pr.ok || !MOTOR.puedePagar(J, t.coste), tip: pr.ok ? t.efecto : pr.por + '. ' + t.efecto, cls: t.edadSube ? 'tec edad' : 'tec'}); }
+        acc += boton('t-' + id, (hecha ? '✓ ' : t.edadSube ? '⬆ ' : '') + t.n, hecha ? '' : letraLibre(t.n, usadas), {coste: hecha ? '' : costeHtml(t.coste) + (!pr.ok && pr.por !== 'Faltan recursos' ? `<em class="falta">🔒 ${esc(pr.por)}</em>` : b.inv && !J.techs[id] ? '<em class="falta">⚙ Ya investiga otra</em>' : ''), dis: hecha || !!J.techs[id] || !!b.inv || !pr.ok || !MOTOR.puedePagar(J, t.coste), tip: pr.ok ? t.efecto : pr.por + '. ' + t.efecto, cls: t.edadSube ? 'tec edad' : 'tec'}); }
       if (d.entrena) acc += boton('b-reunion', 'Reunión', 'r', {tip: 'Dónde van las tropas nuevas'});
       if (b.guar.length) acc += boton('b-desg', 'Sacar a todos', 'q');
     }
   } else {
     info = `<div class="inf"><b>${FACCIONES[G.jug[P.yo].fac].n}</b><small class="pista">${TACTIL ? 'Tocá una unidad para elegirla. Mantené apretado y arrastrá para elegir varias. Dos dedos: acercar.' : 'Clic: elegir · arrastrar: varias · clic derecho: ordenar · bordes, flechas o arrastre con clic derecho: mover el mapa · rueda: acercar.'}</small></div>`;
-    acc = boton('b-ocioso', 'Peón sin trabajo', '.', {tip: 'Busca un peón que no está haciendo nada'}) + boton('b-fortin', 'Fortín', 'h') + boton('b-ejercito', 'Todo el ejército', 'e');
+    acc = boton('b-ocioso', 'Peón sin trabajo', '.', {tip: 'Busca un peón que no está haciendo nada'}) + boton('b-fortin', G.B.some(x => x.o === P.yo && x.t === 'fortin') ? 'Fortín' : 'Centro', 'h', {tip: 'Ir a tu casa'}) + boton('b-ejercito', 'Todo el ejército', 'e');
     if (TACTIL) acc += boton('b-varios', 'Elegir varios', '', {cls: P.modo === 'seleccionar' ? 'on' : ''});
   }
   const haySel = us.length || b;
@@ -8398,9 +8553,18 @@ function panel() {
   $('acciones').innerHTML = acc;
   document.body.classList.toggle('con-sel', !!haySel);
   grupos();
+  masAcc();
   // retrato
   const rc = $('retrato'); if (rc) { if (us.length) retrato(rc, fac, us[0].o, `${us[0].t}|quieto|0|0`); else if (b) retrato(rc, G.jug[b.o].fac, b.o, `${b.t}|${estadoEdif(b)}`); }
   conectarAcciones(us, b);
+}
+// v88: si hay más botones de los que entran (celular), el borde se esfuma para avisar que se desliza
+function masAcc() {
+  const a = $('acciones'); if (!a) return;
+  if (!a._mas) { a._mas = 1; a.addEventListener('scroll', masAcc, {passive: true}); addEventListener('resize', masAcc); }
+  const x = a.scrollWidth > a.clientWidth + 4 && a.scrollLeft + a.clientWidth < a.scrollWidth - 4;
+  const y = !x && a.scrollHeight > a.clientHeight + 4 && a.scrollTop + a.clientHeight < a.scrollHeight - 4;
+  a.classList.toggle('mas-x', x); a.classList.toggle('mas-y', y);
 }
 // chips de grupos (arriba del panel): número + cuántos quedan; tocar = elegir, dos veces seguidas = ir hasta ellos
 function grupos() {
@@ -8445,6 +8609,11 @@ function conectarAcciones(us, b) {
   }
 }
 // v87: resultado con 3 o 4 jugadores: el podio (equipo ganador primero; después quién aguantó más) y lo de cada uno
+// v88: la partida va a la tabla de FortinAR (Victorias y En línea) con la misma clave que el premio, para no anotarla dos veces
+function tablaFortin(G, gana, empate, enLinea, esf) {
+  try { if (!esf || !window.RANGOS || !RANGOS.resultado) return; const dif = P.cfg.dif;
+    RANGOS.resultado('fortinar', 'partida', empate ? 0.5 : gana ? 1 : 0, {r: enLinea ? 'p' : 'c', d: enLinea ? '' : dif, cu: enLinea || dif === 'dificil' ? 1 : 0, modo: G.modo}, 'f' + G.seed + '-' + G.fin.tick + '-' + P.yo); } catch (_) {}
+}
 function resultadoN(G) {
   const J = G.jug[P.yo], gana = G.fin.gana === J.eq, empate = G.fin.gana < 0, equipos = G.nEq < G.jug.length;
   const rk = G.fin.ranking || G.jug.map(j => j.id), puesto = rk.indexOf(P.yo) + 1;
@@ -8453,8 +8622,9 @@ function resultadoN(G) {
   const min = Math.floor(G.tick / 20 / 60), seg = Math.floor(G.tick / 20) % 60;
   const mot = {fortin: 'Cayó el último fortín en pie.', centros: 'Cayeron los centros del último rival.', puntos: 'Llegaron a la gloria.', tiempo: 'Se terminó el tiempo: ganó la gloria.', rendicion: 'Se rindieron los demás.', abandono: 'Los demás se fueron.', empate: 'Empate en gloria.'}[G.fin.motivo] || '';
   let premio = '';
-  try { if (window.RANGOS) { const esf = G.tick > 20 * 90; const r = RANGOS.premio('FortinAR', esf ? (gana ? 60 : puesto === 2 ? 35 : 25) : 0, false, {j: 'fortinar', rival: enLinea ? 'h' : 'c', res: empate ? 'e' : gana ? 'g' : 'p', dif: P.cfg.dif, esf, extra: {modo: G.modo, fac: J.fac, edad: J.edad, jug: G.jug.length, puesto}});
+  try { if (window.RANGOS && !G.premiado) { G.premiado = true; const esf = G.tick > 20 * 90; const r = RANGOS.premio('FortinAR', esf ? (gana ? 60 : puesto === 2 ? 35 : 25) : 0, false, {j: 'fortinar', key: 'f' + G.seed + '-' + G.fin.tick + '-' + P.yo, rival: enLinea ? 'h' : 'c', res: empate ? 'e' : gana ? 'g' : 'p', dif: P.cfg.dif, esf, extra: {modo: G.modo, fac: J.fac, edad: J.edad, jug: G.jug.length, puesto}}); tablaFortin(G, gana, empate, enLinea, esf);
     if (r && (r.oro || r.pesos)) premio = `<p class="premio">${r.oro ? '+' + r.oro + ' de oro' : ''}${r.pesos ? ' · +' + r.pesos + ' pesos para tu estancia' : ''}</p>`; } } catch (_) {}
+  if (premio) G.premioHtml = premio; premio = G.premioHtml || '';   // v88: si el cartel se vuelve a dibujar, el premio sigue a la vista (y no se cobra dos veces)
   const obj = G.preset.objetivoPuntos;
   const filas = rk.map((id, k) => { const K = G.jug[id]; return `<tr class="${id === P.yo ? 'yo' : ''}"><td>${K.eq === G.fin.gana ? '🏆' : (k + 1) + '°'}</td><td><i class="punto" style="background:${COLOR_EQ[id]}"></i>${esc(id === P.yo ? 'Vos' : K.nombre)}${equipos ? ' <small>eq. ' + (K.eq + 1) + '</small>' : ''}</td><td>${obj ? K.puntos : EDADES[K.edad].romano}</td><td>${K.st.matadas}</td><td>${K.perdio ? Math.floor(K.fuera / 1200) + "'" : '—'}</td></tr>`; }).join('');
   $('res-c').innerHTML = `<h2 class="${gana ? 'si' : empate ? '' : 'no'}">${empate ? 'Empate' : gana ? (equipos ? '¡Ganó tu equipo!' : '¡Victoria!') : puesto === 2 && !equipos ? 'Segundo puesto' : 'Derrota'}</h2><p>${mot} · ${min}:${String(seg).padStart(2, '0')}</p>${premio}
@@ -8526,7 +8696,7 @@ function abrirLateral(que) {
     h = `<div class="lat-h"><h2>${enPartida && !P.red ? 'Pausa' : 'Menú'}</h2><button class="x" id="l-x">✕</button></div>${window.RANGOS ? RANGOS.mine('fortinar') : ''}<div class="lista">
       ${enPartida ? '<button id="l-seguir" class="go">Seguir</button>' : ''}<button id="l-ayuda">❓ Cómo se juega</button><button id="l-aj">⚙️ Ajustes</button>
       ${enPartida && P.red ? '<button id="l-pausa86">⏸ Pedir una pausa</button>' : ''}${enPartida ? '<button id="l-rendir">🏳 Rendirse</button><button id="l-salir">↩ Salir al menú de FortinAR</button>' : ''}
-      <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="nota">FortinAR · Beta · versión 87</p>`;
+      <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="nota">FortinAR · Beta · versión 88</p>`;
   }
   $('lat-panel').innerHTML = h; $('menu-lat').hidden = false;
   const on = (id, f) => { const e = $(id); if (e) e.onclick = ev => { ev.preventDefault(); f(); }; };
@@ -8543,6 +8713,10 @@ function abrirLateral(que) {
 function cerrarLateral() { $('menu-lat').hidden = true; }
 
 /* ── Portada y elección de partida ── */
+// v88: una línea por modo (en el celular los botones no traen la descripción)
+const lineaModo = id => id === 'asalto' ? 'unos 12 min. Ganás tumbando el fortín rival o con más gloria al final (se gana peleando con la tropa).'
+  : id === 'express' ? 'estancia armada y todo más rápido; 15 a 25 min. Ganás tumbando todos los centros del rival.'
+  : 'la larga: de El Puesto a La Nación, pasando de etapa. Ganás tumbando todos los centros del rival.';
 function portada() {
   document.body.classList.remove('jugando'); $('portada').hidden = false; P.G = null; P.red = false;
   const cfg = {fac: 'sur', dif: 'normal', modo: 'asalto', ...ls.json('fortinar-cfg', {})}; if (!PRESETS[cfg.modo]) cfg.modo = 'asalto';
@@ -8558,12 +8732,14 @@ function portada() {
     <div class="caja c87"><div class="col a">
       <div class="modos">${Object.values(PRESETS).map(m => `<button data-modo="${m.id}" class="${cfg.modo === m.id ? 'on' : ''}"><b>${m.n}</b><small>${descModo(m)}</small></button>`).join('')}</div>
       <div class="jugs"><span>Jugadores</span>${[2, 3, 4].map(k => `<button data-n="${k}" class="${(cfg.n || 2) === k ? 'on' : ''}">${k}</button>`).join('')}${(cfg.n || 2) === 4 ? `${[['ffa', 'Todos contra todos'], ['eq', '2 contra 2']].map(([k, t]) => `<button data-fmt="${k}" class="${(cfg.fmt || 'ffa') === k ? 'on' : ''}">${t}</button>`).join('')}` : ''}</div>
-      <div class="dif"><span>Compu</span>${Object.entries(DIFICULTADES).map(([k, d]) => `<button data-dif="${k}" class="${cfg.dif === k ? 'on' : ''}">${d.n}</button>`).join('')}</div></div>
+      <div class="dif"><span>Compu</span>${Object.entries(DIFICULTADES).map(([k, d]) => `<button data-dif="${k}" class="${cfg.dif === k ? 'on' : ''}">${d.n}</button>`).join('')}</div>
+    <p class="modo-d"><b>${esc(PRESETS[cfg.modo].n)}:</b> ${esc(lineaModo(cfg.modo))}</p></div>
     <div class="col b"><div class="facs">${facIds.map(facHtml).join('')}</div>${facDet(cfg.fac)}</div>
     <div class="acc"><button class="btn go grande" id="p-jugar">Jugar · ${esc(PRESETS[cfg.modo].n)}</button><button class="btn" id="p-amigo">🤝 1 contra 1 en línea</button><button class="btn" id="p-grupo">👥 Sala de 3 o 4</button></div></div>
-    <div class="fila-b"><button class="btn" id="p-ayuda">Cómo se juega</button><button class="btn" id="p-aj">Ajustes</button><a class="btn" href="./#juegos">Volver a los juegos</a></div>
+    <div class="fila-b"><button class="btn" id="p-ayuda">Cómo se juega</button><button class="btn" id="p-aj">Ajustes</button></div>
     <p class="nota">Estilos regionales inventados para jugar, inspirados en la historia. Beta.</p>`;
   if (window.ARTE_IDX && (!R.atlas['sur#0'] || !R.atlas['norte#1']) && R.cv) prepararArte(['sur', 'norte']).then(() => { if (!R.fondo && typeof fondoVivo === 'function') fondoVivo(); }).catch(() => {});
+  { const fd = document.querySelector('#portada-c .facdet'); if (fd) { fd.title = 'Tocá para leer todo'; fd.onclick = () => fd.classList.toggle('abierta'); } }   // v88: el detalle se lee entero al tocarlo
   document.querySelectorAll('#portada-c .fac').forEach(b => b.onclick = () => { cfg.fac = b.dataset.fac; ls.set('fortinar-cfg', JSON.stringify(cfg)); portada(); });
   document.querySelectorAll('#portada-c .dif button').forEach(b => b.onclick = () => { cfg.dif = b.dataset.dif; ls.set('fortinar-cfg', JSON.stringify(cfg)); portada(); });
   document.querySelectorAll('#portada-c .modos button').forEach(b => b.onclick = () => { cfg.modo = b.dataset.modo; ls.set('fortinar-cfg', JSON.stringify(cfg)); portada(); });
@@ -8595,11 +8771,26 @@ async function prepararArte(facs) {
   car.hidden = true;
 }
 function tutorial() {
-  const pasos = TACTIL ? ['Tocá a tus jinetes y después tocá un puesto (el banderín) para mandarlos.', 'Con algo elegido, tocá un enemigo para atacarlo. Mantené apretado y arrastrá para elegir varios.', 'Tocá el fortín para hacer peones y el cuartel para tropas. Los peones juntan en el monte y el corral.', 'Ganás tumbando el fortín rival o juntando gloria, que se gana peleando. Los puestos dan plata.']
-    : ['Arrastrá para elegir tropas y hacé clic derecho en un puesto (el banderín) para mandarlas.', 'Clic derecho sobre un enemigo: atacar. A + clic: atacar al avanzar. Shift encadena órdenes.', 'Elegí el fortín para hacer peones y el cuartel para tropas. Los peones juntan en el monte y el corral.', 'Ganás tumbando el fortín rival o juntando gloria, que se gana peleando. Los puestos dan plata.'];
-  let i = 0; const el = $('tut');
-  const ver = () => { if (i >= pasos.length) { el.hidden = true; ls.set('fortinar-tut', '1'); return; } el.innerHTML = `<span>${pasos[i]}</span><button id="tut-s">${i < pasos.length - 1 ? 'Siguiente' : 'Listo'}</button><button id="tut-x" class="x">Saltar</button>`; el.hidden = false;
-    $('tut-s').onclick = () => { i++; ver(); }; $('tut-x').onclick = () => { i = 99; ver(); }; };
+  // v88: tarjeta chica arriba del panel (no tapa marcador ni minimapa), con pasos según el modo, que avanza sola
+  const G = P.G, asalto = G && G.preset.perder === 'fortin', casa = asalto ? 'el fortín' : 'el Centro';
+  const pasos = TACTIL ? [
+      asalto ? 'Tocá a tus jinetes y después tocá un puesto (el banderín) para mandarlos.' : 'Tocá un peón y después el monte o el corral para que junte.',
+      'Con algo elegido, tocá un enemigo para atacarlo. Mantené apretado y arrastrá para elegir varios.',
+      'Tocá ' + casa + ' para hacer peones y el cuartel para tropas. Tocá el piso vacío para soltar lo elegido.',
+      asalto ? 'Ganás tumbando el fortín rival o juntando gloria, que se gana peleando. Los puestos dan plata.' : 'Ganás tumbando todos los centros del rival. Pasá de etapa desde ' + casa + ' para desbloquear tropas.']
+    : [
+      asalto ? 'Arrastrá para elegir tropas y hacé clic derecho en un puesto (el banderín) para mandarlas.' : 'Elegí un peón y hacé clic derecho en el monte o el corral para que junte.',
+      'Clic derecho sobre un enemigo: atacar. A + clic: atacar al avanzar. Shift encadena órdenes. Esc suelta lo elegido.',
+      'Elegí ' + casa + ' para hacer peones y el cuartel para tropas. Ctrl + número guarda un grupo.',
+      asalto ? 'Ganás tumbando el fortín rival o juntando gloria, que se gana peleando. Los puestos dan plata.' : 'Ganás tumbando todos los centros del rival. Pasá de etapa desde ' + casa + ' para desbloquear tropas.'];
+  let i = 0, t = 0; const el = $('tut');
+  const ver = () => { clearTimeout(t);
+    if (i >= pasos.length || !document.body.classList.contains('jugando')) { el.hidden = true; ls.set('fortinar-tut', '1'); return; }
+    el.innerHTML = `<small>${i + 1}/${pasos.length}</small><span>${pasos[i]}</span><button id="tut-s">${i < pasos.length - 1 ? 'Siguiente' : 'Listo'}</button><button id="tut-x" class="x" aria-label="Cerrar la ayuda">✕</button>`;
+    if (el.hidden) { if (window.TOQUE && TOQUE.aparecer) TOQUE.aparecer(el); else el.hidden = false; }
+    $('tut-s').onclick = () => { i++; ver(); }; $('tut-x').onclick = () => { i = 99; ver(); };
+    t = setTimeout(() => { i++; ver(); }, 16000);   // si nadie la toca, pasa sola (y al final se va)
+  };
   ver();
 }
 function resultado(G) {
@@ -8610,8 +8801,9 @@ function resultado(G) {
   gana ? SON.gano() : SON.pierdo();
   const min = Math.floor(G.tick / 20 / 60), seg = Math.floor(G.tick / 20) % 60;
   let premio = '';
-  try { if (window.RANGOS) { const esf = G.tick > 20 * 90; const r = RANGOS.premio('FortinAR', esf ? (gana ? 60 : 25) : 0, false, {j: 'fortinar', rival: enLinea ? 'h' : 'c', res: empate ? 'e' : gana ? 'g' : 'p', dif: P.cfg.dif, esf, extra: {modo: G.modo, fac: J.fac, edad: J.edad}});
+  try { if (window.RANGOS && !G.premiado) { G.premiado = true; const esf = G.tick > 20 * 90; const r = RANGOS.premio('FortinAR', esf ? (gana ? 60 : 25) : 0, false, {j: 'fortinar', key: 'f' + G.seed + '-' + G.fin.tick + '-' + P.yo, rival: enLinea ? 'h' : 'c', res: empate ? 'e' : gana ? 'g' : 'p', dif: P.cfg.dif, esf, extra: {modo: G.modo, fac: J.fac, edad: J.edad}}); tablaFortin(G, gana, empate, enLinea, esf);
     if (r && (r.oro || r.pesos)) premio = `<p class="premio">${r.oro ? '+' + r.oro + ' de oro' : ''}${r.pesos ? ' · +' + r.pesos + ' pesos para tu estancia' : ''}</p>`; } } catch (_) {}
+  if (premio) G.premioHtml = premio; premio = G.premioHtml || '';   // v88: si el cartel se vuelve a dibujar, el premio sigue a la vista (y no se cobra dos veces)
   const fila = (n, a, b) => `<tr><td>${n}</td><td>${a}</td><td>${b}</td></tr>`;
   $('res-c').innerHTML = `<h2 class="${gana ? 'si' : empate ? '' : 'no'}">${empate ? 'Empate' : gana ? '¡Victoria!' : 'Derrota'}</h2><p>${mot} · ${min}:${String(seg).padStart(2, '0')}</p>${premio}
     <table><tr><th></th><th>Vos</th><th>${enLinea ? esc(enLinea.rival) : 'Compu'}</th></tr>${G.preset.objetivoPuntos ? fila('Gloria', J.puntos, O.puntos) + fila('· por bajas', J.st.gloria.bajas, O.st.gloria.bajas) + fila('· por edificios', J.st.gloria.edif, O.st.gloria.edif) + fila('· por puestos', J.st.gloria.puestos, O.st.gloria.puestos) : fila('Etapa', EDADES[J.edad].n, EDADES[O.edad].n)}${fila('Tropas hechas', J.st.hechas, O.st.hechas)}${fila('Bajas causadas', J.st.matadas, O.st.matadas)}${fila('Perdidas', J.st.perdidas, O.st.perdidas)}
@@ -9017,11 +9209,12 @@ const RED86 = (() => {
     if (!S || S.rol !== 'host' || !(S.listo && S.rlisto)) return;
     const lado = Math.random() < 0.5 ? 0 : 1;   // lado del anfitrión (los dos lados del mapa son espejos)
     const f = [], n = []; f[lado] = S.fac; f[1 - lado] = S.rfac || (S.fac === 'sur' ? 'norte' : 'sur'); n[lado] = S.yo.usuario; n[1 - lado] = S.rival.usuario;
-    const cfg = {seed: ((Math.random() * 2147483646) | 0) + 1, facs: f, nombres: n, modo: S.modo || 'asalto', mapa: S.mapa || undefined, v: 86};
+    const cfg = {seed: ((Math.random() * 2147483646) | 0) + 1, facs: f, nombres: n, modo: S.modo || 'asalto', mapa: S.mapa || undefined, v: 86, fv: FV_DATOS};   // v88: versión de reglas, para avisar si no coinciden
     enviar({t: 'go', cfg, lado: 1 - lado}); arrancar(cfg, lado);
   }
   const cfgJuego = (cfg, yo) => ({online: true, seed: cfg.seed, yo, fac: cfg.facs[yo], rival: cfg.facs[1 - yo], facs: cfg.facs, nombres: cfg.nombres, modo: cfg.modo, mapa: cfg.mapa, dif: 'persona'});
   async function arrancar(cfg, lado) {
+    if (S && cfg.fv !== FV_DATOS && S.rol !== 'host') toast('El otro tiene otra versión de FortinAR: si se traba, que los dos recarguen la página o actualicen la app.', 6000);   // v88
     if (!S) return; S.cfg = cfg; S.lado = lado; S.estado = 'juego'; S.revancha = S.rRevancha = false; S.pausas = S.rpausas = 0; S.finAvisado = false;
     cerrarVentana(); $('resultado').hidden = true;
     recordar();
@@ -9410,12 +9603,13 @@ const SALA87 = (() => {
     const oc = ocupados(), n = oc.length, eqs = S.fmt === 'eq' && n === 4 ? oc.map(s => s.eq || 0) : null;
     if (eqs && eqs.filter(e => e === 0).length !== 2) { toast('Armen dos equipos de dos.'); return; }
     const cfg = {seed: ((Math.random() * 2147483646) | 0) + 1, facs: oc.map(s => s.fac), nombres: oc.map(s => s.tipo === 'cpu' ? 'Compu ' + DIFICULTADES[s.dif || 'normal'].n.toLowerCase() : s.usuario),
-      ids: oc.map(s => s.tipo === 'cpu' ? '' : s.usuario), cpu: oc.map(s => s.tipo === 'cpu'), difs: oc.map(s => s.dif || 'normal'), equipos: eqs, modo: S.modo, n, v: 87};
+      ids: oc.map(s => s.tipo === 'cpu' ? '' : s.usuario), cpu: oc.map(s => s.tipo === 'cpu'), difs: oc.map(s => s.dif || 'normal'), equipos: eqs, modo: S.modo, n, v: 87, fv: FV_DATOS};   // v88: versión de reglas
     for (const c of S.con.values()) { const id = cfg.ids.indexOf(c.usuario); if (id >= 0) { c.slot = id; mandarA(c, {t: 'go', cfg, yo: id}); } }
     arrancar(cfg, 0);
   }
   const cfgJuego = (cfg, yo) => ({online: true, grupo: true, seed: cfg.seed, yo, fac: cfg.facs[yo], facs: cfg.facs, nombres: cfg.nombres, cpu: cfg.cpu, equipos: cfg.equipos, modo: cfg.modo, dif: 'persona'});
   async function arrancar(cfg, yo) {
+    if (S && cfg.fv !== FV_DATOS && yo !== 0) toast('Alguien tiene otra versión de FortinAR: si se traba, que todos recarguen la página o actualicen la app.', 6000);   // v88
     if (!S) return; S.cfg = cfg; S.yoId = yo; S.estado = 'juego'; S.cur = 0; S.acc = 0; S.T = new Map(); S.Tmax = -1; S.hh = new Map(); S.Th = new Map(); S.pausasUsadas = {}; S.revancha = false;
     U().cerrarVentana(); $('resultado').hidden = true;
     try { await prepararArte(cfg.facs); } catch (_) {}

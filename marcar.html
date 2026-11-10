@@ -130,6 +130,7 @@ body:not(.tactil) .tactil-ctrl,body:not(.jugando) .tactil-ctrl{display:none}
 .pt-modo .mp{font:700 11.5px/1.2 system-ui;color:#e6cb84;margin-top:auto}
 .pt-op{width:min(680px,100%);display:flex;flex-direction:column;gap:10px;margin-top:12px}
 .seg{display:flex;gap:6px;flex-wrap:wrap}.seg .btn{flex:1;min-width:70px;background:#1d1814;border-color:#3c3127;color:#e9e1cf}.seg .btn.on{background:#3d2f22;border-color:#e6cb84;box-shadow:none;color:#fff}
+#pt-mapa{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#pt-mapa [data-mapa=""]{grid-column:1/-1}#pt-mapa:has(>:nth-child(4):last-child){grid-template-columns:repeat(3,minmax(0,1fr))}@media (min-width:700px){#pt-mapa{grid-template-columns:repeat(4,minmax(0,1fr))}#pt-mapa:has(>:nth-child(4):last-child){grid-template-columns:repeat(3,minmax(0,1fr))}}/* v88 (MA-20): grilla pareja; la rotación arriba, los mapas parejos */
 .pt-lbl{font:800 11px/1 system-ui;letter-spacing:.12em;color:#9d917c;margin:4px 0 -2px}
 .pt-go{display:flex;gap:10px}.pt-go .btn{flex:1;min-height:58px;font-size:17px}
 .pt-go .btn.go{background:linear-gradient(180deg,#c24a2c,#8e2f1b);border-color:#6a2312;color:#fff6ea;font-weight:900;letter-spacing:.04em;box-shadow:0 4px 0 #4a160a,0 10px 26px #c24a2c44}
@@ -148,7 +149,11 @@ body:not(.tactil) .tactil-ctrl,body:not(.jugando) .tactil-ctrl{display:none}
 .sheet .body{overflow-y:auto;padding:4px 16px 16px;display:flex;flex-direction:column;gap:10px}
 .sheet p{margin:0;color:#4d4031}.sheet h4{margin:6px 0 0;font:700 16px/1.2 var(--serif);color:var(--brown)}
 .sheet ul{margin:0;padding-left:18px;color:#4d4031;display:flex;flex-direction:column;gap:4px}
-.sheet .seg .btn{background:#fbf7ee;border-color:#b9a27a;color:var(--brown)}.sheet .seg .btn.on{box-shadow:inset 0 0 0 2px #3f7a5a;background:#e8efe2}
+/* v88: ayuda corta, otros modos plegados */
+.sheet details.ay-mas>summary,.sheet details.ay-otro>summary{cursor:pointer;font:700 15px/1.3 var(--serif);color:var(--brown);padding:8px 0;min-height:40px;display:flex;align-items:center}
+.sheet details.ay-otro{padding-left:10px;border-left:2px solid var(--rule)}.sheet details.ay-mas>summary::before,.sheet details.ay-otro>summary::before{content:'▸';display:inline-block;width:1.1em;transition:transform .15s}.sheet details[open]>summary::before{transform:rotate(90deg)}.sheet details>summary::-webkit-details-marker{display:none}.sheet details>summary{list-style:none}.sheet details.ay-otro>summary{font:600 14px/1.3 var(--sans,system-ui);min-height:36px}
+.sheet .seg .btn{background:#fbf7ee;border-color:#b9a27a;color:var(--brown)}
+.sheet .aj-f{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.sheet .aj-l{flex:0 0 130px;font:600 13.5px/1.2 system-ui;color:#4d4031}.sheet .aj-f .seg{flex:1;min-width:200px}.sheet .seg .btn.on{box-shadow:inset 0 0 0 2px #3f7a5a;background:#e8efe2}
 .ulist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:none}
 .ulist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid var(--rule);background:#fbf7ee}
 .ulist .av{width:34px;height:34px;font-size:18px}.ulist .nm{flex:1;font-weight:700;min-width:0}.ulist .nm small{display:block;font-weight:600;color:var(--soft);font-size:12px}
@@ -160,7 +165,7 @@ body:not(.tactil) .tactil-ctrl,body:not(.jugando) .tactil-ctrl{display:none}
 .mesa{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .lugar{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:12px;border:1px solid var(--rule);background:#fbf7ee;min-height:50px}
 .lugar .av{width:30px;height:30px;font-size:16px}.lugar b{display:block;font-size:13.5px;line-height:1.15}.lugar small{display:block;font-size:11px;color:var(--soft)}.lugar>div{flex:1;min-width:0}
-.lugar.eqA{border-left:4px solid #465a78}.lugar.eqB{border-left:4px solid #b76035}
+.lugar.eqA{border-left:4px solid #b76035}.lugar.eqB{border-left:4px solid #465a78}/* v88 (MA-14): el bando A arranca de Terrorista (naranja) */
 .lugar .qx{border:0;background:none;font-size:14px;color:#8a6a4a;min-width:30px;min-height:30px}
 .busy{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid #b9a27a;border-top-color:transparent;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -218,6 +223,14 @@ body:not(.tactil) .tactil-ctrl,body:not(.jugando) .tactil-ctrl{display:none}
 .resul .gana{font:900 28px/1.1 system-ui;letter-spacing:.04em}
 .resul table{width:100%;border-collapse:collapse;font-size:13px}.resul th{font:800 10.5px/1 system-ui;letter-spacing:.08em;color:var(--soft);text-align:right;padding:3px 5px}.resul th:first-child,.resul td:first-child{text-align:left}
 .resul td{padding:5px;text-align:right;border-top:1px solid #e1d3b6;font-weight:700}.resul tr.yo td{color:#2d5c43}
+/* v88 (MA-08): cartel final con los botones siempre a la vista (lo de arriba se desplaza) y, acostado, en dos columnas */
+.ccard:has(.resul){overflow:hidden}.ccard .resul{overflow:auto;min-height:0;flex:1}.ccard:has(.resul)>.row{flex-shrink:0}
+.resul tr.eqh td{text-align:left;font:800 11px/1.2 system-ui;letter-spacing:.06em;padding:8px 5px 3px;border-top:0}.resul tr.eqh.t td{color:#a24a1c}.resul tr.eqh.p td{color:#2f5f93}
+@media (orientation:landscape) and (max-height:520px){
+  .ccard:has(.resul){width:min(820px,100%);padding:12px 14px 10px;gap:8px}
+  .resul{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);column-gap:16px;row-gap:6px;align-content:start;text-align:left}
+  .resul>.gana,.resul>p,.resul>.premios{grid-column:1}.resul>table{grid-column:2;grid-row:1 / span 4}
+  .resul .gana{font-size:24px}.resul td{padding:3px 5px}.resul tr.eqh td{padding-top:5px}}
 .premios{display:flex;flex-direction:column;gap:4px;text-align:left;padding:8px 10px;border-radius:10px;background:#f6f0e2;border:1px dashed #d4c29c;font-size:13px}
 .giro{position:absolute;inset:0;z-index:16;display:none;place-items:center;background:#0b0b0cee;color:#efe7d6;text-align:center;padding:20px;font-weight:700}
 .giro b{display:block;font-size:44px;margin-bottom:8px;animation:gira 1.6s ease-in-out infinite}@keyframes gira{50%{transform:rotate(90deg)}}
@@ -225,7 +238,9 @@ body:not(.tactil) .tactil-ctrl,body:not(.jugando) .tactil-ctrl{display:none}
 body.tactil .vidabox{transform:scale(.74);transform-origin:left bottom}
 body.tactil .armabox{transform:scale(.74);transform-origin:right bottom}
 body.tactil .equipo{transform:translateX(-50%) scale(.82);transform-origin:center bottom}
+body.tactil .equipo .ic:not(.st){display:none}/* v88 (MA-21): en el celular los botones Curar/Granada ya muestran lo que tenés; la fila de abajo parecía tocable y no lo era; quedan sólo el kit y la bomba */
 body.tactil .feed{transform:scale(.85);transform-origin:right top}
+body.tactil:not(.vertical) .feed div:nth-child(n+4){display:none}/* v88 (MA-07): acostado, 3 renglones: el 4º y 5º caían debajo del botón Cuchillo */
 body.tactil .marcador{transform:translateX(-50%) scale(.86);transform-origin:center top}
 body.tactil .carrera-hud{top:calc(max(6px,env(safe-area-inset-top)) + 38px)}
 body.tactil.vertical .vidabox{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 0px)}
@@ -238,7 +253,7 @@ body.tactil .hud:has(#carrera-hud:not([hidden])) .vidabox,body.tactil .hud:has(#
 body.tactil.vertical .vidabox,body.tactil.vertical .armabox{left:auto;right:max(8px,env(safe-area-inset-right));bottom:auto;transform-origin:right top}
 body.tactil.vertical .vidabox{top:calc(max(6px,env(safe-area-inset-top)) + 98px)}body.tactil.vertical .armabox{top:calc(max(6px,env(safe-area-inset-top)) + 136px)}
 body.tactil.vertical .hud:has(#carrera-hud:not([hidden])) .vidabox{top:calc(max(6px,env(safe-area-inset-top)) + 128px)}body.tactil.vertical .hud:has(#carrera-hud:not([hidden])) .armabox{top:calc(max(6px,env(safe-area-inset-top)) + 166px)}
-body.tactil:not(.vertical) .aviso{top:32%}
+body.tactil:not(.vertical) .aviso{top:41%;font-size:22px}body.tactil:not(.vertical) .aviso small{font-size:12px}/* v88 (MA-09): más abajo, para no pisar vida y arma */
 body.tactil.vertical .feed{top:calc(max(6px,env(safe-area-inset-top)) + 178px)}body.tactil.vertical .hud:has(#carrera-hud:not([hidden])) .feed{top:calc(max(6px,env(safe-area-inset-top)) + 208px)}
 /* v87: mantener apretado un control o una imagen no abre la vista previa del iPhone ni el menú de copiar/guardar */
 body.jugando,body.jugando *{-webkit-touch-callout:none}
@@ -264,6 +279,8 @@ body.vertical .marcador{top:calc(max(6px,env(safe-area-inset-top)) + 48px)}body.
 .pt-go{width:min(680px,100%);margin-top:10px}
 .pt-go .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .pt-go .btn small{font:700 11px/1 system-ui;letter-spacing:.04em;opacity:.8}
+/* v88 (MA-12): JUGAR siempre a la vista: la barra de botones queda pegada abajo mientras lo demás se desplaza */
+.pt-go{order:99;position:sticky;bottom:0;z-index:3;padding:10px 0 calc(6px + env(safe-area-inset-bottom));margin-bottom:-6px;background:linear-gradient(180deg,rgba(11,11,12,0),#0b0b0c 32%)}
 .pt-ajd{width:min(680px,100%);margin-top:10px;border-radius:12px;border:1px solid #33291f;background:#15110e;color:#efe7d6}
 .pt-ajd>summary{list-style:none;cursor:pointer;padding:11px 36px 11px 12px;position:relative;display:flex;flex-direction:column;gap:3px;min-height:44px;justify-content:center}
 .pt-ajd>summary::-webkit-details-marker{display:none}
@@ -288,7 +305,7 @@ body.vertical .marcador{top:calc(max(6px,env(safe-area-inset-top)) + 48px)}body.
 .sheet .aj86-l,.sheet .aj86-prop{color:#7a6548}.sheet .aj86-mas{border-color:#d9c7a3}.sheet .aj86-mas>summary,.sheet .aj86-prop .lnk{color:#3f7a5a}
 .sheet .aj86 .pt-lbl{font:800 12px/1.2 system-ui;color:#7a6548}
 .pt-rec .h85{color:#e6cb84}
-@media (max-width:620px){.pt-modos{grid-template-columns:1fr 1fr}.pt-modo.m85-bomba{grid-column:1/3}.pt-modo .ico{font-size:22px}}
+@media (max-width:620px){.pt-modos{grid-template-columns:1fr 1fr}.pt-modo.m85-bomba,.pt-modo.m85-zombis{grid-column:1/3}.pt-modo .ico{font-size:22px}}
 @media (max-height:480px) and (orientation:landscape){.pt-hero{aspect-ratio:6/1}.pt-titulo{font-size:28px}.pt-titulo small{display:none}.pt-modo small{display:none}.pt-paso{margin-top:8px}.pt-elegido small{display:none}.pt-go .btn{min-height:50px}}
 #mini85{position:absolute;z-index:7;left:calc(max(8px,env(safe-area-inset-left)) + 96px);top:max(8px,env(safe-area-inset-top));border-radius:6px;box-shadow:0 4px 14px #0009;opacity:.92;touch-action:none;cursor:pointer;image-rendering:auto}
 #mini85.grande{opacity:.97;z-index:9}#mini85[hidden]{display:none}
@@ -461,6 +478,40 @@ window.LATIDO={
   get pausado(){return !!L.pausa;},
   intervalo,
   get estado(){return {quietos:L.quietos,ms:intervalo(),n:L.n,ok:L.ok,viejo:L.viejo};}
+};
+})();
+
+/* ───────── Toque (v88): los avisos no se comen el toque que estás haciendo ─────────
+   Un cartel que aparece solo justo donde tocás se llevaba el toque (era el «dedo fantasma» de la estancia).
+   API, para toda la app:
+     TOQUE.libre(ms=1500)  → true si no hay ningún dedo apoyado y nadie tocó/tecleó en los últimos ms
+     TOQUE.cuando(fn,ms=1500,max=12000) → corre fn cuando la pantalla está quieta (o a los max ms, igual)
+     TOQUE.proteger(el,ms=600) → durante ms, el (y lo de adentro) deja pasar los toques a lo de abajo: un toque que ya
+                                 venía no cae en su botón
+     TOQUE.aparecer(el,ms=600) → el.hidden=false + proteger(el)
+   Los avisos automáticos (carteles «Nuevo», toasts, hojas que se abren solas) deberían salir con TOQUE.cuando y/o
+   TOQUE.proteger. Lo que abre el usuario con su propio toque no necesita nada. */
+(function(){
+'use strict';
+if(window.TOQUE)return;
+const T={t:0,abajo:new Set()};
+const ahora=()=>Date.now();
+try{
+  addEventListener('pointerdown',e=>{T.t=ahora();T.abajo.add(e.pointerId);},true);
+  const fin=e=>{T.t=ahora();T.abajo.delete(e.pointerId);};
+  addEventListener('pointerup',fin,true);addEventListener('pointercancel',fin,true);
+  addEventListener('keydown',()=>{T.t=ahora();},true);
+  addEventListener('wheel',()=>{T.t=ahora();},{capture:true,passive:true});
+  addEventListener('blur',()=>{T.abajo.clear();});
+}catch(_){}
+let css=false;
+function estilo(){if(css)return;css=true;try{const s=document.createElement('style');s.textContent='.tq-prot,.tq-prot *{pointer-events:none!important}';(document.head||document.documentElement).appendChild(s);}catch(_){}}
+window.TOQUE={
+  libre(ms=1500){return !T.abajo.size&&ahora()-T.t>=ms;},
+  ultimo(){return T.t;},
+  cuando(fn,ms=1500,max=12000){const t0=ahora();const f=()=>{if(window.TOQUE.libre(ms)||ahora()-t0>=max){try{fn();}catch(e){console.error(e);}}else setTimeout(f,200);};f();},
+  proteger(el,ms=600){if(!el)return el;estilo();el.classList.add('tq-prot');clearTimeout(el._tqT);el._tqT=setTimeout(()=>el.classList.remove('tq-prot'),ms);return el;},
+  aparecer(el,ms=600){if(!el)return el;el.hidden=false;return window.TOQUE.proteger(el,ms);}
 };
 })();
 
@@ -1056,7 +1107,7 @@ window.GESTOS={salida,deslizar};
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR',fortinar:'FortinAR'};   // v88: FortinAR con XP, nivel y tabla como los demás
 // Solitarios (v62): no tienen rango (no son competitivos), pero su XP suma al nivel general.
 const SOLOS={sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR'};   // v73: LaberintAR (arcade para uno solo, sin rango)
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
@@ -1097,7 +1148,8 @@ function apply(g,res){
 function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100][t];}
 // XP por juego. La de BloqueAR vive en su progreso; la de los demás, acá.
 function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
-function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]||0)+Math.max(0,Math.round(n));o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}
+const XP_MAX=100;
+function addXp(g,n){if(g==='bloquear')return;n=Math.min(XP_MAX,Math.max(0,Math.round(Number(n)||0)));const o=ls.json(XKEY,{});o[g]=(o[g]||0)+n;o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}   // v88: hasta 100 de XP por partida
 // Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
 // ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 // v70: «info» (opcional) dice cómo fue la partida, para que las leguas dependan del rival y del resultado, para los
@@ -1105,7 +1157,7 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 //   info = {j: 'truco' (id del juego), res: 'g' ganó | 'e' empate | 'p' perdió, rival: 'p' personas | 'c' compu | 's' solo,
 //           dif: 'facil'|'normal'|'dificil'|'maestro', esf: true si la partida tuvo «esfuerzo» (cada juego dice cuánto
 //           es: perder en 20 segundos no cuenta), key (para no anotarla dos veces), x: {…datos para las tablas}}
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar'};
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar',FortinAR:'fortinar'};
 const ACT_DE={bloquear:'b',poblar:'p',truco:'t',uno:'u',ajedrez:'a',pool:'l',ludo:'k',invasores:'v'};
 function premio(de,xp,ranked,info,extra){
   const n=Math.max(0,Math.round(xp||0));
@@ -1117,13 +1169,17 @@ function premio(de,xp,ranked,info,extra){
   if(info&&j&&info.rival!=='s')try{contar(j,info);}catch(_){}          // (el Maratón ranked sólo da leguas: no es una partida contra nadie)
   if(info&&j&&info.rival!=='s')try{ganchoAnotar(j,info);}catch(_){}     // v81: rachas y «hoy» para el cartel final
   if(info&&j&&ranked&&info.rival!=='s')try{anotarPartida(j,info);}catch(_){}
+  // v88: FortinAR no anotaba XP (no tenía nivel, títulos ni cofres): si el juego no lo hace, lo anota acá
+  if(j==='fortinar'&&n>0&&!(info&&info.xpHecho))try{addXp('fortinar',n);}catch(_){}
   if(!n)return null;
   // v70 (dos monedas): lo que dan los juegos es ORO (ORO.premio, con su tabla y su tope del día). Para la estancia queda «un
   // poquito» de pesos: un décimo de la XP (mínimo 2), hasta 30 por partida y hasta 150 por día. Iguales a ECO.premio de EstanciAR.
-  const d=new Date(Date.now()),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya=PD.d===dia?PD.n||0:0;
+  // v88: el tope de 150 por día es POR CUENTA (ORO.pesosHoy suma todos tus dispositivos)
+  const d=new Date(Date.now()),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya0=PD.d===dia?PD.n||0:0;
+  let ya=ya0;try{if(window.ORO&&ORO.pesosHoy)ya=Math.max(ya0,ORO.pesosHoy());}catch(_){}
   const pesos=Math.max(0,Math.min(30,Math.max(2,Math.round(n*.1)),150-ya));
   const p={de,trigo:0,pesos,t:Date.now()};
-  if(pesos){ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));}
+  if(pesos){ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya0+pesos}));try{window.ORO&&ORO.pesosSumar&&ORO.pesosSumar(pesos);}catch(_){}const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));}
   let oro=0;try{if(window.ORO)oro=ORO.premio(de,info,extra);}catch(_){}
   let leguas=0,nota='';
   if(ranked){const q=ACT_DE[j]||(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':de==='AjedrezAR'?'a':'b');
@@ -1419,9 +1475,9 @@ window.MEDALLAS=(function(){
 /* ───────── ORO (v70): la moneda de los juegos ─────────
    Dos monedas (pedido del 24/10): los PESOS salen de la estancia y sirven para lo común; el ORO sale de jugar cualquier juego
    y sirve para lo lindo (apariencias, ropa y caballos especiales, adornos únicos, gestos y marcos). Las mejoras grandes de
-   la estancia piden las dos. En la pulpería se puede cambiar oro por pesos (1 → 8, hasta 50 de oro por día); al revés no.
+   la estancia piden las dos. En la pulpería se puede cambiar oro por pesos (1 → 8, hasta 50 de oro por día) y, desde la v88, pesos por oro (1.000 → 8, hasta 80 por semana).
    · Cuánto da cada juego: ORO_TABLA (abajo), por partida ganada contra la compu; contra personas ×2, empate ×0,6, perder con
-     esfuerzo ×0,4, abandonar 0; contra la compu en Fácil ×0,5 y en Difícil ×1,5 (la misma regla que las leguas: RANGOS.cuenta). Tope del día: 150 enteros, hasta 300 a la mitad, después un cuarto.
+     esfuerzo ×0,5, abandonar 0; contra la compu en Fácil ×0,5 y en Difícil ×1,3, personas ×1,6 (v88). Tope del día por cuenta: 120 enteros, hasta 240 a la mitad, después un cuarto.
    · Se guarda en «bloques-oro-v1» y viaja con la cuenta dentro de RANGOS.exportData() («o»). Para que dos dispositivos no se
      pisen, el saldo no se guarda: se CALCULA. Cada dispositivo anota lo suyo (d[dev] = {g ganado suelto, s gastado suelto}) y lo
      que tiene nombre va aparte: k = premios con clave (cofres de nivel, puestos de La Gran Pampa…: cuentan una sola vez aunque
@@ -1442,33 +1498,38 @@ const diaAR=(t=Date.now())=>new Date(t-3*3600e3).toISOString().slice(0,10);
 
 /* ── Cuánto da cada juego (partida ganada contra la compu, duración normal) ── */
 const NIVEL_DIF=s=>({facil:1,principiante:1,normal:2,medio:2,intermedio:2,dificil:3,experto:3,maestro:3})[s]||2;
+// v88 (economía unificada): el oro sale de los MINUTOS jugados con esfuerzo, ≈0,6 de oro por minuto ganándole a la compu
+// Normal, parecido en todos los juegos (antes iba de 0,2 a 1,6 por minuto). Cada número = minutos típicos × 0,6.
 const ORO_TABLA={
-  poblar:12,
-  truco:i=>((i.x&&i.x.a)||15)>=30?10:6,          // a 30: 10 · a 15: 6
-  ajedrez:i=>i.x&&i.x.ritmo==='bala'?4:8,         // bala: 4
-  uno:6,ludo:6,
-  pool:4,                                          // por mesa de Bola 8
+  poblar:13,                                       // ~22 min
+  truco:i=>((i.x&&i.x.a)||15)>=30?10:5,           // a 30 (~18 min): 10 · a 15 (~9 min): 5
+  ajedrez:i=>i.x&&i.x.ritmo==='bala'?2:8,         // ~14 min · bala ~3 min
+  uno:4,                                           // ~6 min
+  ludo:8,                                          // ~14 min
+  pool:4,                                          // por mesa de Bola 8 (~6 min)
   bloquear:(i,ex)=>Math.min(10,Math.floor(((ex&&ex.lin)||(i.x&&i.x.lin)||0)/10)),   // 1 cada 10 líneas, hasta 10
   sudoku:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
   solitario:i=>i.extra&&i.extra.delDia?6:(i.extra&&i.extra.dificultad==='dificil'?3:2),
   buscaminas:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
-  laberinto:i=>i.extra&&i.extra.delDia?6:Math.min(10,4+2*Math.min(3,(i.extra&&i.extra.mapas)||0)),   // v73: 4 por participar, +2 por mapa limpio (hasta 10); el del día 6
-  invasores:i=>{const x=i.x||i.extra||{};if(x.modo==='duelo')return 6;if(x.modo==='dia')return 6;return Math.min(10,2+(x.olas||0))*(x.dif==='tranquila'?.6:1);},   // v73: 2 + 1 por oleada limpia (hasta 10); duelo y del día 6
-  marcar:i=>{const x=i.x||i.extra||{};return x.modo==='carrera'?6:8;},   // v83: MarcAR (Bomba 8, Carrera 6)
+  laberinto:i=>i.extra&&i.extra.delDia?6:Math.min(6,3+Math.min(3,(i.extra&&i.extra.mapas)||0)),   // ~5 min: 3, +1 por mapa limpio (hasta 6); el del día 6
+  invasores:i=>{const x=i.x||i.extra||{};if(x.modo==='dia')return 6;if(x.modo==='duelo')return 4;return Math.min(6,2+Math.floor((x.olas||0)/2))*(x.dif==='tranquila'?.6:1);},   // ~7 min
+  marcar:i=>{const x=i.x||i.extra||{};return x.modo==='carrera'?5:x.modo==='zombis'?Math.min(14,4+Math.floor((x.ronda||0)/2)):11;},   // Bomba ~18 min
+  fortinar:i=>{const x=i.x||i.extra||{};return x.modo==='conquista'?14:x.modo==='express'?12:8;},   // Asalto ~13 · Express ~20 · Conquista 25–45 min
   reto:5                                           // cada reto de la semana cumplido
 };
 const ORO_DEF=4;   // un juego que todavía no está en la tabla
-const MULT_RES={g:1,e:.6,p:.4,a:0},MULT_RIVAL={p:2,c:1,s:1};
-const MULT_DIF=d=>d==='facil'?.5:(d==='dificil'||d==='maestro')?1.5:1;
-const TOPE=[150,300];   // del día: hasta 150 enteros, hasta 300 a la mitad, después un cuarto
+const MULT_RES={g:1,e:.7,p:.5,a:0},MULT_RIVAL={p:1.6,c:1,s:1};   // v88: empate ×0,7, perder peleando ×0,5; personas ×1,6
+const MULT_DIF=d=>d==='facil'?.5:(d==='dificil'||d==='maestro')?1.3:1;   // v88: Difícil ×1,3
+const ORO_MAX=20;   // v88: lo más que da una partida
+const TOPE=[120,240];   // v88: del día, POR CUENTA (todos tus dispositivos juntos): hasta 120 enteros, hasta 240 a la mitad, después un cuarto
 const CAMBIO={tasa:8,dia:50};
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar'};
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar',FortinAR:'fortinar'};
 const SOLOS=new Set(['sudoku','solitario','buscaminas','laberinto']);
 
 // «info» de cada juego, en la forma corta que usa RANGOS ({res:'g'|'e'|'p'|'a', rival:'p'|'c'|'s', esf}); también acepta la larga
 // ({rival:'compu'|'personas', res:'gana'|'empata'|'pierde'|'abandona', ok, extra}). Los solitarios van como «solo».
 function norm(info,de){if(!info||typeof info!=='object')return info;const o={...info};
-  const R={compu:'c',personas:'p',amigos:'p',solo:'s'},S={gana:'g',empata:'e',pierde:'p',abandona:'a'};
+  const R={compu:'c',personas:'p',amigos:'p',solo:'s',h:'p',humano:'p'},S={gana:'g',empata:'e',pierde:'p',abandona:'a'};   // v88: «h» (FortinAR en línea) = personas
   if(R[o.rival])o.rival=R[o.rival];if(S[o.res])o.res=S[o.res];if(o.esf===undefined&&o.ok!==undefined)o.esf=!!o.ok;
   if(!o.j&&de)o.j=NOM_ID[de]||NOM_ID[String(de).replace(/ \(reto\)$/,'')]||'';
   if(SOLOS.has(o.j))o.rival='s';
@@ -1482,8 +1543,9 @@ function calc(de,info,extra){
   if(!info)return Math.round(base);
   const res=i.res||'g';if(res==='a'||i.esf===false)return 0;   // sin esfuerzo (perder en 20 segundos, ganar sin jugar) no da
   // contra quién: la misma regla que las leguas (RANGOS.cuenta: personas 2, compu Difícil 1,5, Normal 1, Fácil 0,5, solo 1)
-  let rv=1;try{rv=SOLOS.has(j)?1:window.RANGOS&&RANGOS.cuenta?RANGOS.cuenta(j,{rival:i.rival||'c',res,dif:i.dif}).mult||1:(MULT_RIVAL[i.rival]||1)*(i.rival==='c'?MULT_DIF(i.dif):1);}catch(_){}
-  return Math.round(base*(MULT_RES[res]??1)*rv);}
+  // v88: contra quién, propio del oro: personas ×1,6, compu Fácil ×0,5 / Normal ×1 / Difícil ×1,3, solo ×1
+  const rv=SOLOS.has(j)?1:(i.rival==='p'?MULT_RIVAL.p:(i.rival||'c')==='c'?MULT_DIF(i.dif):1);
+  return Math.min(ORO_MAX,Math.round(base*(MULT_RES[res]??1)*rv));}
 
 /* ── Datos ── */
 function load(){const o=ls.json(K,{});o.d=o.d&&typeof o.d==='object'?o.d:{};o.k=o.k&&typeof o.k==='object'?o.k:{};o.p=o.p&&typeof o.p==='object'?o.p:{};o.h=Array.isArray(o.h)?o.h:[];return o;}
@@ -1507,34 +1569,66 @@ function gastar(n,que){n=Math.max(0,Math.round(Number(n)||0));const o=load();if(
 // v81 · Administración: multiplicadores globales que pone el admin (bloques-cfg-v1, lo trae chat/admin.js). Por defecto 1.
 function admMul(k){try{const c=JSON.parse(localStorage.getItem('bloques-cfg-v1')||'null'),v=Number(c&&c.eco&&c.eco[k]);return v>=.1&&v<=10?v:1;}catch(_){return 1;}}
 function cambioDia(){return Math.max(0,Math.round(CAMBIO.dia*admMul('cambio')));}
-function cambioHoy(){const o=load(),c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;return Math.max(0,cambioDia()-c);}
+/* v88 · Contadores POR CUENTA (antes cada dispositivo tenía su tope y con dos se duplicaba). Cada contador del día (o de la
+   semana) guarda lo de cada dispositivo: {d: día, n: {dispositivo: cuánto}}; viaja con la cuenta (exportData) y al juntar
+   queda, de cada dispositivo, lo mayor. Lo que «llevás hoy» es la suma de todos. */
+function cuentaDe(c,per){return c&&c.d===per?Object.values(c.n||{}).reduce((a,v)=>a+(typeof v==='number'?v:0),0):0;}
+function cuentaSumar(o,campo,per,n){const d=dev();if(!o[campo]||o[campo].d!==per)o[campo]={d:per,n:{}};o[campo].n[d]=(Number(o[campo].n[d])||0)+n;}
+// de cada juego (tope propio, como MarcAR): {d, n: {dispositivo: {juego: cuánto}}}
+function cuentaJDe(c,per,j){return c&&c.d===per?Object.values(c.n||{}).reduce((a,v)=>a+(v&&typeof v==='object'?Number(v[j])||0:0),0):0;}
+function cuentaJSumar(o,campo,per,j,n){const d=dev();if(!o[campo]||o[campo].d!==per)o[campo]={d:per,n:{}};const m=o[campo].n[d]=o[campo].n[d]||{};m[j]=(Number(m[j])||0)+n;}
+function juntarCont(a,b){if(!b||typeof b!=='object'||!b.d)return a;if(!a||!a.d||b.d>a.d)return JSON.parse(JSON.stringify(b));if(b.d<a.d)return a;
+  const r={d:a.d,n:{...(a.n||{})}};for(const [dv,v] of Object.entries(b.n||{})){const y=r.n[dv];
+    if(typeof v==='number')r.n[dv]=Math.max(Number(y)||0,v);else if(v&&typeof v==='object'){const m={...(y&&typeof y==='object'?y:{})};for(const [j,x] of Object.entries(v))m[j]=Math.max(Number(m[j])||0,Number(x)||0);r.n[dv]=m;}}
+  return r;}
+// lo que había antes de la v88 (un solo número por dispositivo) cuenta como de este dispositivo
+function migrarCont(o){const hoy=diaAR(),sw=semAR();let ch=false;
+  if(o.dia&&o.dia.d===hoy&&!(o.dd&&o.dd.d===hoy)){o.dd={d:hoy,n:{[dev()]:o.dia.n|0}};ch=true;}
+  if(o.cam&&o.cam.d===hoy&&!(o.cd&&o.cd.d===hoy)){o.cd={d:hoy,n:{[dev()]:o.cam.n|0}};ch=true;}
+  if(o.tj&&o.tj.d===hoy&&!(o.tjd&&o.tjd.d===hoy)){o.tjd={d:hoy,n:{[dev()]:{...(o.tj.n||{})}}};ch=true;}
+  if(o.tw&&o.tw.s===sw&&!(o.twd&&o.twd.d===sw)){o.twd={d:sw,n:{[dev()]:{...(o.tw.n||{})}}};ch=true;}
+  return ch;}
+function cambioHoy(){const o=load();migrarCont(o);return Math.max(0,cambioDia()-cuentaDe(o.cd,diaAR()));}
 // v81 · Un ajuste del admin: suma (o resta) oro una sola vez aunque se aplique en dos dispositivos (va como premio o compra con nombre).
 function ajustar(key,delta,de){key=String(key);delta=Math.round(Number(delta)||0);const o=load();if(o.k[key]||o.p[key])return 0;
   if(delta>0)o.k[key]=[delta,Date.now()];else if(delta<0)o.p[key]=[-delta,Date.now()];else o.k[key]=[0,Date.now()];
   if(delta)hist(o,delta,de||'Ajuste de la administración');save(o);return delta;}
 function cambiar(n){n=Math.floor(Number(n)||0);if(n<=0||n>cambioHoy())return 0;const o=load();if(saldoDe(o)<n)return 0;
-  mio(o).s+=n;const c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;o.cam={d:diaAR(),n:c+n};hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
+  mio(o).s+=n;cuentaSumar(o,'cd',diaAR(),n);hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
+/* v88 · Al revés: pesos → oro en la pulpería (para que los pesos de sobra tengan destino y el que juega sólo la estancia
+   pueda juntar oro). 1.000 pesos → 8 de oro, hasta 80 de oro por semana (por cuenta). Los pesos los descuenta la estancia:
+   esto sólo anota el oro. Devuelve el oro que entró (0 si no se pudo). */
+const COMPRA={pesos:1000,oro:8,semana:80};
+function compraSemana(){return Math.max(0,Math.round(COMPRA.semana*admMul('cambio')));}
+function compraHoy(){const o=load();migrarCont(o);return Math.max(0,compraSemana()-cuentaDe(o.co,semAR()));}
+function comprarOro(n){n=Math.floor(Number(n)||0);if(n<=0||n%COMPRA.oro||n>compraHoy())return 0;const o=load();
+  cuentaSumar(o,'co',semAR(),n);o.k['pc:'+dev()+':'+Date.now()]=[n,Date.now()];hist(o,n,'Compra en la pulpería');save(o);anim(n);return n;}
+/* v88 · Los pesos que dan los juegos para la estancia (hasta 150 por día), también por cuenta. */
+const PESOS_DIA=150;
+function pesosHoy(){const o=load();return cuentaDe(o.pd,diaAR());}
+function pesosSumar(n){n=Math.max(0,Math.round(Number(n)||0));if(!n)return;const o=load();cuentaSumar(o,'pd',diaAR(),n);save(o);}
 
 /* ── Lo que da una partida (lo llama RANGOS.premio): con el tope del día ── */
 // v85: tope propio de algunos juegos (MarcAR: 50 de oro por día y 200 por semana, biblia de MarcAR cap. 25), además del tope general
-const TOPE_J={marcar:[50,200]};
+const TOPE_J={marcar:[60,240]};   // v88: 60 por día y 240 por semana (MarcAR paga por minuto como los demás)
 const semAR=(t=Date.now())=>{const d=new Date(t-3*3600e3);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10);};
-function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load(),h=o.tj&&o.tj.d===diaAR()?o.tj.n||{}:{},w=o.tw&&o.tw.s===semAR()?o.tw.n||{}:{};
-  return {dia:T[0],semana:T[1],hoy:h[j]|0,sem:w[j]|0,queda:Math.max(0,Math.min(T[0]-(h[j]|0),T[1]-(w[j]|0)))};}
+function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load();migrarCont(o);const h=cuentaJDe(o.tjd,diaAR(),j),w=cuentaJDe(o.twd,semAR(),j);
+  return {dia:T[0],semana:T[1],hoy:h,sem:w,queda:Math.max(0,Math.min(T[0]-h,T[1]-w))};}
 function premio(de,info,extra){
   let v=calc(de,info,extra);if(v<=0)return 0;v=Math.max(1,Math.round(v*admMul('oro')));   // v81: multiplicador del admin
-  const o=load(),hoy=diaAR(),ya=o.dia&&o.dia.d===hoy?o.dia.n|0:0;
+  const o=load(),hoy=diaAR();migrarCont(o);const ya=cuentaDe(o.dd,hoy);   // v88: lo de todos tus dispositivos
   v=Math.max(1,Math.round(v*(ya<TOPE[0]?1:ya<TOPE[1]?.5:.25)));
   {const j=(norm(info||{},de)||{}).j||NOM_ID[de]||'',tj=topeJuego(j);if(tj){v=Math.min(v,tj.queda);if(v<=0)return 0;
-    const sw=semAR();o.tj=o.tj&&o.tj.d===hoy?o.tj:{d:hoy,n:{}};o.tw=o.tw&&o.tw.s===sw?o.tw:{s:sw,n:{}};o.tj.n[j]=(o.tj.n[j]|0)+v;o.tw.n[j]=(o.tw.n[j]|0)+v;}}
-  o.dia={d:hoy,n:ya+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
+    cuentaJSumar(o,'tjd',hoy,j,v);cuentaJSumar(o,'twd',semAR(),j,v);}}
+  cuentaSumar(o,'dd',hoy,v);o.dia={d:hoy,n:(o.dia&&o.dia.d===hoy?o.dia.n|0:0)+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
   anim(v);
   try{setTimeout(()=>niveles(true),1600);}catch(_){}
   return v;}
-function hoy(){const o=load();return o.dia&&o.dia.d===diaAR()?o.dia.n|0:0;}
+function hoy(){const o=load();migrarCont(o);return cuentaDe(o.dd,diaAR());}
 
 /* ── Cuenta: viaja dentro de RANGOS.exportData() como «o» ── */
-function exportData(){const o=load();return {d:o.d,k:o.k,p:o.p,ti:o.ti||null,mc:o.mc||null,r70:o.r70||0,at:o.at||0};}
+const CONT=['dd','cd','tjd','twd','pd','co'];   // v88: contadores por cuenta (ver cuentaDe)
+function exportData(){const o=load();migrarCont(o);const r={d:o.d,k:o.k,p:o.p,ti:o.ti||null,mc:o.mc||null,r70:o.r70||0,at:o.at||0};for(const c of CONT)if(o[c])r[c]=o[c];return r;}
 function importData(d){if(!d||typeof d!=='object')return false;const o=load();let ch=false;
   for(const [dv,x] of Object.entries(d.d||{})){if(!x||typeof x!=='object')continue;const y=o.d[dv]||{g:0,s:0},g=Math.max(Number(y.g)||0,Number(x.g)||0),s=Math.max(Number(y.s)||0,Number(x.s)||0);if(g!==(y.g||0)||s!==(y.s||0)||!o.d[dv]){o.d[dv]={g,s};ch=true;}}
   for(const M of ['k','p'])for(const [key,x] of Object.entries(d[M]||{})){if(!Array.isArray(x))continue;const y=o[M][key];
@@ -1542,6 +1636,7 @@ function importData(d){if(!d||typeof d!=='object')return false;const o=load();le
   if(Array.isArray(d.ti)&&(!Array.isArray(o.ti)||(Number(d.ti[2])||0)>(Number(o.ti[2])||0))){o.ti=d.ti;ch=true;}
   if(Array.isArray(d.mc)&&(!Array.isArray(o.mc)||(Number(d.mc[1])||0)>(Number(o.mc[1])||0))){o.mc=d.mc;ch=true;}
   if(d.r70&&!o.r70){o.r70=d.r70;ch=true;}
+  for(const c of CONT)if(d[c]){const x=juntarCont(o[c],d[c]);if(JSON.stringify(x)!==JSON.stringify(o[c]||null)){o[c]=x;ch=true;}}
   if(ch){const at=o.at;ls.set(K,JSON.stringify({...o,at:Math.max(at||0,d.at||0)}));aviso();}
   return ch;}
 
@@ -1608,12 +1703,12 @@ const TIT_GEN={5:'Peón de campo',10:'Puestero',15:'Baqueano',20:'Rastreador',25
 const ADORNO_GEN={5:['farol_bronce','Farol de bronce'],10:['banco_tallado','Banco tallado'],15:['aljibe_azulejos','Aljibe de azulejos'],20:['carreta_pintada','Carreta pintada'],25:['fuente_plata','Fuente de plata'],
   30:['ombu_otono','Ombú de otoño'],35:['estatua_bronce','Estatua de bronce'],40:['glorieta_nevada','Glorieta blanca'],45:['molino_plata','Molino de plata'],50:['calesita_oro','Calesita de oro'],55:['capilla_rosa','Capilla rosada'],60:['estatua_oro','Estatua de oro']};
 const ROPA_GEN={10:['ropa:gala','Poncho de gala'],20:['som:dorado','Chambergo dorado'],30:['ropa:patrio','Poncho celeste y blanco'],40:['ropa:caudillo','Saco de caudillo'],50:['ropa:vicuna','Poncho de vicuña']};
-const cofreGen=L=>20+5*L;
+const cofreGen=L=>20+5*Math.min(L,20);   // v88: crece hasta el nivel 20 (120) y después queda en 120 (antes crecía sin tope)
 // Nivel de cada juego: 5/10/20/30 una apariencia exclusiva (las declara LOGROS con lv); 10 y 30, un título.
 const TIT_J={bloquear:['Apilador','Gran arquitecto'],poblar:['Colono','Fundador de pueblos'],truco:['Gaucho del truco','Mano de oro del truco'],uno:['Cantor del uno','Rey de la mesa'],
   ajedrez:['Alfil del pago','Gran maestro'],ludo:['Fichero','Patrón del ludo'],pool:['Taquero','Mago del paño'],sudoku:['Numerero','Sabio de los números'],solitario:['Paciente','Maestro del solitario'],
-  buscaminas:['Rastreador de minas','Desactivador'],invasores:['Defensor de la llanura','Azote de la Nodriza'],marcar:['Recluta de la Estación','Leyenda del Mercado'],estancia:['Chacarero','Gran estanciero']};
-const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',invasores:'InvasorAR',marcar:'MarcAR',estancia:'EstanciAR'};
+  buscaminas:['Rastreador de minas','Desactivador'],invasores:['Defensor de la llanura','Azote de la Nodriza'],marcar:['Recluta de la Estación','Leyenda del Mercado'],fortinar:['Comandante de posta','Señor de la frontera'],estancia:['Chacarero','Gran estanciero']};
+const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',invasores:'InvasorAR',marcar:'MarcAR',fortinar:'FortinAR',estancia:'EstanciAR'};
 const cofreEst=L=>L>=8?10+2*L:0;   // EstanciAR: desde el nivel 8, un cofre chico por nivel (lo cobra la estancia)
 function R(){return window.RANGOS||null;}
 function lvGen(){try{return R().general().level.lv;}catch(_){return 1;}}
@@ -1700,14 +1795,14 @@ function pampaPuesto(pr){if(!pr||!pr.semana)return 0;return cobrar('pm:'+pr.sema
 
 /* ── Hoja «¿Cómo gano oro?» ── */
 function hojaHtml(){css();const o=load(),h=o.h.slice(0,8),y=hoy();
-  const filas=[['🏘️','PoblAR, partida ganada','12'],['🃏','TrucAR a 30 (a 15: 6)','10'],['♟️','AjedrezAR (bala: 4)','8'],['🎴','UnoAR · 🎲 LudAR','6'],['🎱','PoolAR, por mesa','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],['👾','InvasorAR (duelo y del día: 6)','2 + 1 por oleada, hasta 10'],
-    ['🧩','Sudoku, Solitario o Buscaminas del día','6'],['🧩','Sudoku, Solitario o Buscaminas común','1 a 3'],['🎯','Cada reto de la semana','5'],['⭐','Cada nivel general','20 + 5 × nivel'],['🗺️','La Gran Pampa: 1.º / 2.º / 3.º','300 / 200 / 120'],['🗺️','Terminar la semana de La Gran Pampa jugando','40']];
+  const filas=[['🏘️','PoblAR (~22 min)','13'],['🏰','FortinAR: Asalto / Express / Conquista','8 / 12 / 14'],['🎯','MarcAR: Bomba (Carrera 5)','11'],['🃏','TrucAR a 30 (a 15: 5)','10'],['♟️','AjedrezAR (bala: 2)','8'],['🎲','LudAR','8'],['🎴','UnoAR · 🎱 PoolAR (por mesa)','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],['👾','InvasorAR (del día: 6)','2 + 1 cada 2 oleadas, hasta 6'],['🌀','LaberintAR (del día: 6)','3 + 1 por mapa limpio, hasta 6'],
+    ['🧩','Sudoku, Solitario o Buscaminas del día','6'],['🧩','Sudoku, Solitario o Buscaminas común','1 a 3'],['🎯','Cada reto de la semana','5'],['⭐','Cada nivel general','20 + 5 × nivel (hasta 120)'],['🗺️','La Gran Pampa: 1.º / 2.º / 3.º','300 / 200 / 120'],['🗺️','Terminar la semana de La Gran Pampa jugando','40']];
   return `<div class="oro-hoja"><p class="oro-saldo">${ico()}<b data-oro-saldo>${fmt(saldoDe(o))}</b><span>de oro</span></p>
   <p>El <b>oro</b> sale de jugar cualquier juego y sirve para lo lindo: apariencias de los juegos, ropa y caballos especiales, adornos únicos para la estancia, gestos y marcos. Los <b>pesos</b> salen de la estancia y sirven para lo de todos los días. Las mejoras grandes de la estancia piden las dos.</p>
-  <h4>Cuánto da cada juego</h4><p class="note">Por partida ganada contra la compu. Contra personas, el doble. Empatar da algo y perder peleando, un poco; abandonar no da nada.</p>
+  <h4>Cuánto da cada juego</h4><p class="note">Por partida ganada contra la compu en Normal: cada juego da parecido por minuto jugado (unos 0,6 de oro por minuto). En Fácil, la mitad; en Difícil, un 30 % más; contra personas, un 60 % más. Empatar da el 70 % y perder peleando, la mitad; abandonar no da nada.</p>
   <div class="oro-tabla">${filas.map(f=>`<div><i>${f[0]}</i><span>${f[1]}</span><b>${f[2]}</b></div>`).join('')}</div>
-  <p class="note">Hoy juntaste ${fmt(y)} jugando. Los primeros 150 del día van enteros; hasta 300, a la mitad; después, un cuarto.</p>
-  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${cambioDia()} de oro por día). Al revés no se puede.</p>
+  <p class="note">Hoy juntaste ${fmt(y)} jugando (contando todos tus dispositivos). Los primeros ${TOPE[0]} del día van enteros; hasta ${TOPE[1]}, a la mitad; después, un cuarto.</p>
+  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${cambioDia()} de oro por día) y también pesos por oro (${fmt(COMPRA.pesos)} pesos = ${COMPRA.oro} de oro, hasta ${compraSemana()} de oro por semana).</p>
   ${h.length?`<h4>Últimos movimientos</h4><div class="oro-tabla">${h.map(x=>`<div><i>${x.n>0?'＋':'－'}</i><span>${esc(x.de||'')}</span><b>${x.n>0?'+':''}${fmt(x.n)}</b></div>`).join('')}</div>`:''}</div>`;}
 const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:left}.oro-hoja p{margin:0}.oro-hoja h4{margin:8px 0 0;font-size:14px}
 .oro-saldo{display:flex;align-items:center;gap:8px;font-size:15px}.oro-saldo .oro-i{width:30px;height:30px}.oro-saldo b{font-size:28px;color:#f5c94c}
@@ -1716,7 +1811,7 @@ const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:
 .oro-tabla i{font-style:normal;text-align:center}.oro-tabla b{color:#f5c94c;text-align:right}`;
 function hojaCss(){css();if(document.getElementById('oro-hoja-css'))return;const s=document.createElement('style');s.id='oro-hoja-css';s.textContent=HOJA_CSS;(document.head||document.documentElement).appendChild(s);}
 
-return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
+return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,COMPRA,compraSemana,compraHoy,comprarOro,PESOS_DIA,pesosHoy,pesosSumar,juntarCont,cuentaDe,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
   MARCOS,GESTOS_ORO,marco,ponerMarco,gestos,subirPerfil,
   ico,txt,premioTxt,anim,css,niveles,cartel,titulos,titulo,ponerTitulo,TIT_GEN,TIT_J,ADORNO_GEN,ROPA_GEN,cofreGen,cofreEst,PAMPA_ORO,pampaPuesto,hojaHtml,hojaCss,
   sub(f){SUB.add(f);},_load:load,_K:K};
@@ -3493,6 +3588,14 @@ async function mePrendo(mid){
 // v70.1: la planilla 19 no conoce LudAR ni PoolAR: su tarjeta dice «BloqueAR · Duelo en línea». Se mira esa invitación
 // (una sola vez por tarjeta) y se corrige el juego que muestra la tarjeta y adónde lleva «Entrar».
 const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool',INVASOR:'invasores',MARCAR:'marcar',FORTINAR:'fortinar'};
+// v88: UNA sola tabla de juegos para las invitaciones (prefijo de la oferta, página, nombre, emoji). La usan los carteles
+// «Te invitan» de todos los juegos (antes cada uno tenía su lista y no conocían MarcAR/FortinAR: decían «BloqueAR»).
+// Al aceptar se va DIRECTO a la página del juego con «<pag>-accept» (sin pasar por el menú).
+window.BLQ_JUEGOS_INV=[['TRUCO:','truco','TrucAR','🃏'],['UNO:','uno','UnoAR','🎴'],['LUDO:','ludo','LudAR','🎲'],['POOL:','pool','PoolAR','🎱'],
+  ['AJEDREZ:','ajedrez','AjedrezAR','♟️'],['POBLAR:','poblar','PoblAR','🏘️'],['INVASOR:','invasores','InvasorAR','👾'],['MARCAR:','marcar','MarcAR','🎯'],['FORTINAR:','fortinar','FortinAR','🏰']];
+window.BLQ_invInfo=function(oferta){const of=String(oferta||'');for(const r of window.BLQ_JUEGOS_INV)if(of.startsWith(r[0]))return{pref:r[0],pag:r[1],nom:r[2],emo:r[3],html:'<b>'+r[2]+'</b> '+r[3]};
+  return{pref:'',pag:'',nom:'BloqueAR',emo:'🧱',html:'<b>BloqueAR</b> 🧱'};};
+window.BLQ_invIr=function(inv){const i=window.BLQ_invInfo(inv&&inv.oferta);try{sessionStorage.setItem(i.pag?i.pag+'-accept':'blq-accept',inv.id);}catch(_){}location.href=i.pag?i.pag+'.html':'./';};
 async function invCorregir(){
   if(!(S.ver&&S.ver<20))return;S.invFix=S.invFix||{};
   for(const m of S.msgs.slice(-40)){const c=invCard(m);
@@ -4271,6 +4374,13 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:88,grande:true,titulo:'Novedades',items:[
+    ['🧹','Gran revisión: arreglamos más de cien cosas en todos los juegos, sobre todo en el celular. Los avisos ya no te roban el toque.'],
+    ['🌾','Tu estancia se ve como un solo campo: pasto de verdad, pampa alrededor, luciérnagas de noche y anda más fluida con todo puesto.'],
+    ['💰','Economía pareja: el oro se gana igual en todos los juegos, los topes son por cuenta, hay obras del pueblo para invertir y se puede cambiar pesos por oro.'],
+    ['🏰','FortinAR: la compu ahora tumba fortines y respeta el nivel, ya no se gana quedándose quieto, y aparece en Tablas y Logros.'],
+    ['🎯','MarcAR: volver a una partida en línea funciona, cambio de lado a la mitad, ayuda corta y partidas en «Normal» por defecto.'],
+    ['🌀','LaberintAR estrena 5 laberintos propios.']]},
   {v:87,grande:true,titulo:'Novedades',items:[
     ['🏰','FortinAR: cuatro facciones nuevas (Guardias de la Frontera, Milicias de la Confederación, Montoneras del Interior y Comerciantes del Litoral), el modo Express y partidas de 3 y 4 jugadores, todos contra todos o 2 contra 2, también en línea.'],
     ['🗺️','La Gran Pampa cambia cada semana: forma del mapa distinta, parajes nuevos (pueblo, pulpería, tapera, vado), una regla de la semana, tres objetivos y la Gaceta del día.'],
@@ -5324,7 +5434,7 @@ const VEL=4.6,VEL_SIG=2.7,RADIO=.30,VISION=12,TICK=30,DT=1/30;
 const CUCHILLO={dmg:65,dmgEspalda:100,alc:.9,cad:550};
 const CUCHILLO_FINAL={dmg:100,alc:.9,cad:650};
 // Bomba (cap. 11 y 16)
-const BOMBA={inicio:800,tope:16000,compra:20,accion:105,mecha:35,resultado:4,ganar:8,cambio:6,plantar:3,desactivar:8,desactivarKit:4,radioDes:1.25,
+const BOMBA={inicio:800,tope:16000,compra:20,accion:105,mecha:35,resultado:4,ganar:8,cambio:7,plantar:3,desactivar:8,desactivarKit:4,radioDes:1.25,
   victoria:3250,victoriaObj:3500,derrota:[1400,1900,2400,2900,3400],plantarPremio:300,plantadaPerdida:800,desactivarPremio:300,asist:100};
 // Carrera de armas (cap. 17)
 const ESCALERA=['S1','S2','S3','R1','R2','R3','R4','E1','E2','M1','M2','M3','P1','P2','P3','P4','CF'];
@@ -5400,7 +5510,7 @@ if(typeof MAPAS!=='undefined')Object.assign(MAPAS,MAPAS84);
      (absorción = D·(1−p)·0,5, en centésimas).
    - Vida 100 sin regeneración, botiquín de 40 en 2,5 s, munición finita, recarga, cambio de arma 250 ms, sigilo.
    - Humo, flash y granada; cuchillo (65 de frente, 100 por la espalda).
-   - Bomba (rondas, compra, plantar 3 s, desactivar 8/4 s, cambio de lado a las 6, gana el que llega a 7) y
+   - Bomba (rondas, compra, plantar 3 s, desactivar 8/4 s, cambio de lado a la mitad, gana el que llega a 8) y
      Carrera de armas (17 niveles, dos bajas por arma, cuchillo final).
    - Visión: 12 m, 360°, cortada por sólidos y humo. vista(G,id) arma lo que puede saber ese jugador y nada más. */
 
@@ -5455,7 +5565,7 @@ function crearPartida(cfg){
   const M=MAPAS[cfg.mapa]();const G={v:1,modo:cfg.modo,M,sol:M.sol,solM:M.agua?M.sol.concat(M.agua):null,t:0,tick:0,rng:rngNuevo(cfg.semilla||1),semilla:cfg.semilla||1,J:[],ev:[],humos:[],gran:[],suelo:[],
     recibos:{},fase:'espera',faseFin:0,ronda:0,puntos:{A:0,B:0},ladoA:cfg.ladoA==='P'?'P':'T',nivelRec:{A:0,B:0},bomba:null,fin:null,inst:1,rapida:!!cfg.rapida,pubs:[],
     log:[],nombre:cfg.nombre||''};
-  G.reglas=M84(G)?M84(G).reglas(cfg):cfg.modo==='bomba'?{...BOMBA,...(cfg.rapida?{compra:12,accion:85,mecha:30,ganar:5,cambio:3}:{})}:{...CARRERA,...(cfg.rapida?{porArma:1}:{})};
+  G.reglas=M84(G)?M84(G).reglas(cfg):cfg.modo==='bomba'?{...BOMBA,...(cfg.rapida?{compra:12,accion:85,mecha:30,ganar:5,cambio:4}:{})}:{...CARRERA,...(cfg.rapida?{porArma:1}:{})};
   if(globalThis.REGLAS86)REGLAS86.aplicar(G,cfg);// v86: ajustes de la partida (objetivo, tiempos, fuego amigo, armas, prórroga)
   for(const j of cfg.jugadores)G.J.push(nuevoJugador(G,j));
   G.grid=navGrid(G);
@@ -5964,7 +6074,7 @@ const R84={
   equipos:{limite:540,bajas:60,extra:60,reaparecer:3,proteccion:2,ventana:8,compraIni:15,inicio:4500,baja:300,asist:100,tope:8000,piso:1600,sube:600},
   ffa:{limite:480,bajas:30,extra:60,reaparecer:3,proteccion:2,ventana:8,compraIni:15,inicio:4500,baja:300,asist:100,tope:8000,piso:1600,sube:600},
   bandera:{limite:540,capturas:3,extra:60,ola:5,proteccion:2,ventana:8,compraIni:15,inicio:3000,baja:150,asist:75,tope:8000,piso:2000,sube:500,
-    devolver:150,captura:750,escolta:200,radioBase:1.25,toque:.9,vuelve:15,velPortador:.9,zonaCada:3}};
+    devolver:150,captura:750,escolta:200,radioBase:1.25,toque:.9,vuelve:10,velPortador:1,zonaCada:3}};
 // v85: partidas un poco más largas (antes 420/50, 360/25, 420; rápidas 180/20, 180/12, 240)
 const RAPIDA={equipos:{limite:240,bajas:25,compraIni:8},ffa:{limite:240,bajas:15,compraIni:8},bandera:{limite:300,capturas:2,compraIni:8}};
 const otro=l=>l==='P'?'T':'P';
@@ -5986,7 +6096,10 @@ function lugar(G,p){
   if(G.modo==='ffa'){const C=G.M.spawns.map(s=>{let peor=99,visto=false;for(const q of G.J)if(q.vivo&&q.id!==p.id){const d=dist(s[0],s[1],q.x,q.y);peor=Math.min(peor,d);if(d<VISION&&!corta(G,q.x,q.y,s[0],s[1]))visto=true;}
       return {s,score:(visto?-50:0)+Math.min(peor,20)+G.rng()*3-(p.ultSpawn===s?8:0)};}).sort((a,b)=>b.score-a.score);return C[0].s;}
   const L=G.M.spawn[p.lado];const ocup=s=>G.J.some(q=>q!==p&&q.vivo&&dist(q.x,q.y,s[0],s[1])<.8);
-  const lib=L.filter(s=>!ocup(s));const A=lib.length?lib:L;return A[Math.floor(G.rng()*A.length)];}
+  const lib=L.filter(s=>!ocup(s));const A=lib.length?lib:L;
+  // v88 (MA-19): dentro de la base, el lugar que ningún rival ve y más lejos de ellos (antes al azar: se reaparecía a la vista)
+  const sc=s=>{let peor=99,visto=false;for(const q of G.J)if(q.vivo&&q.eq!==p.eq){const d=dist(s[0],s[1],q.x,q.y);peor=Math.min(peor,d);if(d<VISION&&!corta(G,q.x,q.y,s[0],s[1]))visto=true;}return (visto?-50:0)+Math.min(peor,20)+G.rng()*2;};
+  let mejor=A[0],ms=-1e9;for(const s of A){const v=sc(s);if(v>ms){ms=v;mejor=s;}}return mejor;}
 function aparecer(G,p,inicio){const R=G.reglas,s=lugar(G,p);p.ultSpawn=s;p.zonaS=s;
   p.x=s[0]+(G.rng()-.5)*.3;p.y=s[1]+(G.rng()-.5)*.3;p.vivo=true;p.vida=100;p.ciego=0;p.curFin=0;p.objT=0;p.recFin=0;p.cambioFin=G.t+.25;p.cadFin=0;p.danos=[];p.disp=0;
   // se pierde el equipo al morir: pistola gratis y el crédito con piso (biblia 12.4 / 15.6)
@@ -6164,7 +6277,7 @@ globalThis.REGLAS84=R84;
 (function(){
 function aplicar(G,cfg){const x=cfg&&cfg.x;if(!x||typeof x!=='object')return;const R=G.reglas,m=G.modo,num=v=>typeof v==='number'&&isFinite(v)&&v>0;
   if(m==='bomba'){
-    if(num(x.obj)){R.ganar=Math.round(x.obj);R.cambio=R.ganar>=13?R.ganar-1:R.ganar===5?3:R.ganar===8?6:Math.max(1,R.ganar-2);R.mr=R.ganar>=13?1:0;}
+    if(num(x.obj)){R.ganar=Math.round(x.obj);R.cambio=Math.max(1,R.ganar-1);/* v88: cambio de lado a la mitad del máximo (a 5: después de la 4; a 8: de la 7; a 13: de la 12) */R.mr=R.ganar>=13?1:0;}
     if(num(x.t))R.accion=x.t;if(num(x.mecha))R.mecha=x.mecha;
     if(x.plata==='mucha')R.inicio=10000;
     R.prorroga=x.prorroga?1:0;}
@@ -7006,7 +7119,7 @@ function metaCT(G,p,L,T,N){const B=p.bot,b=G.bomba,ct=planCT(G,p,T,L),S=Object.k
     const amenaza=sabido(G,p,T,L,2.5).filter(e=>dist(e.x,e.y,bs.x,bs.y)<12).length;
     if(L.coord&&!T.retoma){// juntarse antes de entrar (si hay tiempo)
       const pv=previa(G,bs.sitio||S[0],'P');const junt=P.filter(q=>dist(q.x,q.y,pv[0],pv[1])<5).length;
-      if(junt>=Math.min(2,P.length)||resta<tDes+9||P.length===1)T.retoma=G.t;
+      if(junt>=P.length||resta<tDes+9||P.length===1)T.retoma=G.t;// v88 (MA-02): la recuperación entra con todos los vivos (antes de a 2: morían de a uno)
       else{if(dist(p.x,p.y,pv[0],pv[1])<1.4)return {accion:'mirar',mirar:ang(bs.x-p.x,bs.y-p.y)};return pv;}}
     if(T.retoma&&G.t-T.retoma<1.5&&p.util==='flash'&&!T.util.flash&&dist(p.x,p.y,bs.x,bs.y)<14&&G.rng()<L.util){T.util.flash=1;return {tira:'flash',x:bs.x,y:bs.y};}
     if(yoDes){const listo=!L.defusa||!amenaza||resta<tDes+1.5;
@@ -7025,7 +7138,7 @@ function metaCT(G,p,L,T,N){const B=p.bot,b=G.bomba,ct=planCT(G,p,T,L),S=Object.k
       if(T.llamado.n>=3&&otros.indexOf(p)>=quedan)mi=s;}
     // los del sitio atacado, si los superan, retroceden a esperar refuerzos (y después recuperan juntos) en vez de morir de a uno
     if(L.coord&&mi===s&&G.t-T.llamado.t<12){const aca=P.filter(q=>dist(q.x,q.y,centro(G,s)[0],centro(G,s)[1])<10).length;
-      if(T.llamado.n>=aca+2&&P.length>aca){const pv=previa(G,s,'P');if(dist(p.x,p.y,pv[0],pv[1])<1.4){const e=entrada(G,s);return {accion:'mirar',mirar:ang(centro(G,s)[0]-p.x,centro(G,s)[1]-p.y)};}return pv;}}}
+      if(T.llamado.n>=aca+1&&P.length>aca)/* v88 (MA-02): retroceden apenas los superan (antes con 2 de ventaja), para recuperar con más gente */{const pv=previa(G,s,'P');if(dist(p.x,p.y,pv[0],pv[1])<1.4){const e=entrada(G,s);return {accion:'mirar',mirar:ang(centro(G,s)[0]-p.x,centro(G,s)[1]-p.y)};}return pv;}}}
   if(mi==='rot'){// el que rota espera en el medio, mirando hacia donde vienen los T
     const q=ct.mid;if(dist(p.x,p.y,q[0],q[1])<.8)return {accion:'mirar',mirar:ang(spawnC(G,'T')[0]-p.x,spawnC(G,'T')[1]-p.y)};return q;}
   if(B.puestoS!==mi||!B.puesto){const L2=ct.pu[mi];const u=ct.usados[mi]=ct.usados[mi]||{};let k=u[p.id];if(k==null){const tom=Object.values(u);k=L2.findIndex((q,i)=>tom.indexOf(i)<0);if(k<0)k=0;u[p.id]=k;}B.puesto=L2[k];B.puestoS=mi;B.mira=null;}
@@ -7120,7 +7233,7 @@ function sheet(title,body){$('sheet').innerHTML=`<header><h2>${title}</h2><butto
 function closeSheet(){$('modal').hidden=true;try{alCerrarHoja&&alCerrarHoja();}catch(_){}alCerrarHoja=null;}
 let alCerrarHoja=null;
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeSheet();});
-function over(h){$('over').innerHTML=`<div class="ccard">${h}</div>`;$('over').hidden=false;}
+function over(h){$('over').innerHTML=`<div class="ccard">${h}</div>`;$('over').hidden=false;if(window.TOQUE)TOQUE.proteger($('over'),700);}// v88: el cartel que aparece solo no se come el toque que venías haciendo
 function hideOver(){$('over').hidden=true;$('over').innerHTML='';}
 function openSide(h){$('side-panel').innerHTML=h;$('side').hidden=false;}
 function closeSide(){$('side').hidden=true;}
@@ -7486,12 +7599,12 @@ sfx=function(k,pos,arg,R,arg2){if(!AJ.sonido)return;const a=actx();if(!a)return;
 const S=SN86,son=(k,dest,t,g,va)=>S.sonar(k,dest,t,g,va);
 Object.assign(SX,{
   disparo(o,fam){const f=S.TIROS[fam]?fam:'pistola';son(S.v('tiro:'+f,3),o,0,1,.035);},
-  recarga(o,d,fam){for(const [t,k,g] of S.planRecarga(fam||'fusil',d||2))son(k+':0',o,t,g*.9,.03);},
+  recarga(o,d,fam){for(const [t,k,g] of S.planRecarga(fam||'fusil',d||2))son(k+':0',o,t,g*2,.03);},// v88 (MA-17): +7 dB (quedaba 12–15 dB debajo de los tiros y se perdía en el parlante del celular)
   paso(o,sig){const p=S.pos||OIDO;const sup=S.superficie(p.x,p.y);son(S.v('paso:'+sup,6),o,0,(sig?.3:.62)*(S.pos?1:.7),.07);},
   // v87: zumbido de oído al quedar encandilado (dura lo que el encandilado y se va apagando)
   zumbido(o,d){try{const t=Math.max(.6,Math.min(3.6,d||1.5));tono(o,3900,0,t,.06,'sine',3700);tono(o,5200,.02,t*.7,.02,'sine');}catch(_){}},
   casquillo(o){son(S.v('casquillo',4),o,0,.5,.08);},
-  cargador(o){son(S.v('cargador',3),o,0,.6,.05);},
+  cargador(o){son(S.v('cargador',3),o,0,1,.05);},
   vacio(o){son('vacio:0',o,0,.6,.03);},
   cambio(o){son('cambio:0',o,0,.55,.05);},
   cuchillo(o){son(S.v('tajo',3),o,0,.6,.08);},
@@ -7508,7 +7621,7 @@ if(typeof module!=='undefined'&&typeof window==='undefined')module.exports=SN86;
    Estado: {pre:'rapida'|'normal'|'competitiva', ov:{modo:{regla:valor}}}; lo usan la portada (CFG) y la sala (ONL). */
 const AJ86=(function(){
 const PRE={rapida:'Rápida',normal:'Normal',competitiva:'Competitiva'};
-const objTxt=(m,n)=>m==='bomba'?`a ${n}${n>=13?` · ${2*(n-1)} rondas`:''}`:m==='bandera'?`${n} capturas`:m==='carrera'?`${n} ${n>1?'bajas':'baja'} por arma`:`${n} bajas`;
+const objTxt=(m,n)=>m==='zombis'?`desde la ronda ${n}`:m==='bomba'?`a ${n}${n>=13?` · ${2*(n-1)} rondas`:''}`:m==='bandera'?`${n} capturas`:m==='carrera'?`${n} ${n>1?'bajas':'baja'} por arma`:`${n} bajas`;
 const T=(n)=>n>=60?(n%60?`${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`:`${n/60} min`):`${n} s`;
 // opciones por regla y modo: [valor, etiqueta corta]
 const OP={
@@ -7531,7 +7644,7 @@ const BASE={
   rapida:{bomba:{obj:5,t:85,mecha:30,prorroga:0},equipos:{obj:25,t:240,reap:3},ffa:{obj:15,t:240,reap:3},bandera:{obj:2,t:300,reap:5},carrera:{obj:1,reap:1.5}},
   normal:{bomba:{obj:8,t:105,mecha:35,prorroga:0},equipos:{obj:60,t:540,reap:3},ffa:{obj:30,t:480,reap:3},bandera:{obj:3,t:540,reap:5},carrera:{obj:2,reap:1.5}},
   competitiva:{bomba:{obj:13,t:115,mecha:40,prorroga:1,ff:1},equipos:{obj:100,t:900,reap:5,ff:1},ffa:{obj:50,t:720,reap:3},bandera:{obj:5,t:900,reap:8,ff:1},carrera:{obj:3,reap:3}}};
-function pre(s){return PRE[s&&s.pre]?s.pre:(s&&s.rapida===false?'normal':'rapida');}
+function pre(s){return PRE[s&&s.pre]?s.pre:(s&&s.rapida===true?'rapida':'normal');}
 function base(s,m,k){const b=BASE[pre(s)][m]||{};return b[k]!==undefined?b[k]:COMUN[k];}
 function val(s,m,k){const o=s&&s.ov&&s.ov[m];return o&&o[k]!==undefined?o[k]:base(s,m,k);}
 function reglas(m){return Object.keys(OP).filter(k=>OP[k][m]&&!(k==='prorroga'));}
@@ -7926,10 +8039,14 @@ const RAP84={bomba:['Rápida · a 5','Completa · a 8'],carrera:['Rápida · 1 b
 function mapaDe(modo,elegido){const L=MODOS[modo].mapas||[MODOS[modo].mapa];if(elegido&&L.includes(elegido))return elegido;
   const k='marcar-rota-'+modo;let i=+(ls.get(k)||0);if(!(i>=0))i=0;const m=L[i%L.length];try{ls.set(k,String((i+1)%L.length));}catch(_){}return m;}
 const DIFS={facil:'Fácil',normal:'Normal',dificil:'Difícil'};
-const CFG={modo:'bomba',dif:'normal',tam:4,lado:'T',rapida:true,mapa:'',...ls.json('marcar-cfg',{})};
-if(!MODOS[CFG.modo])CFG.modo='bomba';if(!DIFS[CFG.dif])CFG.dif='normal';
+const CFG={modo:'bomba',dif:'normal',tam:4,lado:'T',rapida:false,pre:'normal',mapa:'',...ls.json('marcar-cfg',{})};
+if(!MODOS[CFG.modo]&&CFG.modo!=='zombis')CFG.modo='bomba';/* v88: Zombis se define después (zombis86_ui.js); antes, al volver a abrir, se perdía y quedaba Bomba */if(!DIFS[CFG.dif])CFG.dif='normal';
 if(!AJ86.PRE[CFG.pre])CFG.pre=CFG.rapida===false?'normal':'rapida';// v86: preset de la partida (antes sólo Rápida/Completa)
+// v88: de fábrica «Normal» (pedido v85: partidas más largas). Una sola vez, a quien seguía en la Rápida de fábrica sin tocar reglas,
+// se lo pasa a Normal; si después elige Rápida, queda guardado.
+try{if(!ls.get('marcar-pre88')){if(CFG.pre==='rapida'&&!(CFG.ov&&Object.keys(CFG.ov).length))CFG.pre='normal';CFG.rapida=CFG.pre==='rapida';CFG._g88=1;ls.set('marcar-pre88','1');}}catch(_){}
 function guardarCfg(){ls.set('marcar-cfg',JSON.stringify({modo:CFG.modo,dif:CFG.dif,tam:CFG.tam,lado:CFG.lado,rapida:CFG.pre==='rapida',mapa:CFG.mapa||'',pre:CFG.pre,ov:CFG.ov||{}}));}
+if(CFG._g88){delete CFG._g88;try{guardarCfg();}catch(_){}}
 
 /* ── Armar una partida ── */
 function jugadoresCfg(modo,humanos,tam,dif){// humanos: [{id,nom,eq?,ap?}]
@@ -8135,16 +8252,16 @@ function hud(V,now){if(!V||now-HUD_T<66)return;HUD_T=now;const S=V.S;const yo=S.
   $('armabox').innerHTML=`${S.modo!=='carrera'?`<div class="cred">$${fmt(yo.cred)}</div>`:''}<div><div class="municion${sl&&sl.c===0?' vacia':''}">${sl?`${sl.c}<small> / ${sl.r}</small>`:'—'}</div><div class="nom">${A?esc(A.n.toUpperCase()):'CUCHILLO'}${yo.rec>0?' · RECARGANDO':''}</div></div><img src="${armaImg(sl?sl.a:'cuc')}" alt="">`;
   // equipo
   const ic=(k,tiene,n,tit)=>`<div class="ic${tiene?'':' no'}" title="${tit}"><img src="${ARTE['eq_'+k]}" alt="">${n?`<b>${n}</b>`:''}</div>`;
-  $('equipo').innerHTML=ic('botiquin',yo.botiq,'','Botiquín (H)')+ic(yo.util||'humo',yo.util,'','Utilidad (Q)')+ic('granada',yo.frag,'','Granada (F)')+(S.modo==='bomba'&&yo.lado==='P'?ic('kit',yo.kit,'','Kit'):'')+(S.bomba&&S.bomba.por===P.yoId&&S.bomba.est==='portada'?`<div class="ic" title="La bomba"><b style="position:static;font-size:20px">💣</b></div>`:'');
+  $('equipo').innerHTML=ic('botiquin',yo.botiq,'','Botiquín (H)')+ic(yo.util||'humo',yo.util,'','Utilidad (Q)')+ic('granada',yo.frag,'','Granada (F)')+(S.modo==='bomba'&&yo.lado==='P'&&(yo.kit||!TACTIL)?ic('kit',yo.kit,'','Kit').replace('class="ic','class="ic st'):'')+(S.bomba&&S.bomba.por===P.yoId&&S.bomba.est==='portada'?`<div class="ic st" title="La bomba"><b style="position:static;font-size:20px">💣</b></div>`:'');
   // progreso (plantar, desactivar, curar)
   const yoV=V.J.find(q=>q.id===P.yoId)||{};let pr=null;
   if(yoV.obj>0){const tot=yo.objDisp==='plantar'?3:(yo.kit?4:8);pr=[yo.objDisp==='plantar'?'Plantando…':'Desactivando…',1-yoV.obj/tot];}
   else if(yoV.cura>0)pr=['Curando…',1-yoV.cura/2.5];
   $('prog').classList.toggle('on',!!pr);if(pr){$('prog-t').textContent=pr[0];$('prog-i').style.width=(Math.max(0,Math.min(1,pr[1]))*100)+'%';}
   // ayuda del objetivo
-  let ay='';if(yo.vivo){if(yo.objDisp==='plantar')ay=TACTIL?'Mantené 🎯 para plantar':'Mantené E para plantar';else if(yo.objDisp==='desactivar')ay=TACTIL?'Mantené 🎯 para desactivar':'Mantené E para desactivar';
+  let ay='';if(yo.vivo){if(yo.objDisp==='plantar')ay=TACTIL?'Mantené 💣 Plantar':'Mantené E para plantar';else if(yo.objDisp==='desactivar')ay=TACTIL?'Mantené ✂️ Desactivar':'Mantené E para desactivar';// v88 (MA-11): mismo nombre que el botón
     else if(yo.cerca&&S.modo!=='carrera')ay=`${TACTIL?'✋ Agarrar':'E'}: ${ARMA(yo.cerca).n}${(ARMA(yo.cerca).sec?yo.sec:yo.pri)?' (dejás la tuya)':''}`;
-    else if(IN._famActual==='precision'&&!IN.mira&&yo.vivo)ay=TACTIL?'🔭 Mira: ves más lejos':'Clic derecho o Z: mira';else if(yo.compra&&$('tienda').className.indexOf('on')<0&&(S.fase==='compra'||S.compraResta>0))ay=TACTIL?'Tocá 🛒 para comprar':'B: comprar';}
+    else if(IN._famActual==='precision'&&!IN.mira&&yo.vivo)ay=TACTIL?'🔭 Mira: ves más lejos':'Clic derecho o Z: mira';else if(yo.compra&&S.fase!=='fin'&&$('tienda').className.indexOf('on')<0&&(S.fase==='compra'||S.compraResta>0))ay=TACTIL?'Tocá 🛒 para comprar':'B: comprar';}
   $('ayuda-obj').textContent=ay;$('ayuda-obj').classList.toggle('on',!!ay&&!pr);
   // muerto
   let mu='';if(!yo.vivo&&S.fase!=='fin'){if(S.modo==='carrera')mu='Volvés en un segundo…';else if(S.modo!=='bomba')mu=S.modo==='bandera'?'Te dieron. Volvés con la próxima oleada (cada 5 s)…':'Te dieron. Volvés en 3 segundos…';else{const al=S.J.filter(q=>q.eq===yo.eq&&q.vivo);mu=al.length?`Te dieron. Mirás a ${esc(quien(S,S.ojo))}${TACTIL?' · tocá para cambiar':' · clic para cambiar'}`:'Te dieron. Esperá la próxima ronda.';}}
@@ -8243,13 +8360,18 @@ $('f-tabla').addEventListener('pointerdown',e=>{e.preventDefault();tabla(true);}
 
 /* ── Resultado y premios ── */
 const XP_K='marcar-xp-hechas';
-function resultados(S,e){if(!P)return;cerrarTienda();tabla(false);const yo=S.J.find(q=>q.id===P.yoId)||{};
+function resultados(S,e){if(!P)return;cerrarTienda();tabla(false);try{$('feed').innerHTML='';$('aviso').classList.remove('on');}catch(_){}const yo=S.J.find(q=>q.id===P.yoId)||{};
   let gano,titulo,sub;
   const nMapa=(P.M&&P.M.n)||'';
   if(eqModo(S.modo)){gano=yo.eq===e.gana;const ld=(S.J.find(q=>q.eq===e.gana)||{}).lado;titulo=e.gana==='empate'?'Empate':gano?'¡Ganaron!':'Perdieron';const mio=S.puntos[yo.eq]||0,suyo=S.puntos[yo.eq==='A'?'B':'A']||0;sub=`${mio} a ${suyo}${S.modo==='bandera'?' en capturas':S.modo==='equipos'?' en bajas':''} · ${MODOS[S.modo].n} en ${esc(nMapa)}`;}
   else if(S.modo==='ffa'){const gs=(S.fin&&S.fin.ganadores)||[e.gana];gano=gs.includes(P.yoId);titulo=gano?(gs.length>1?'¡Empataste arriba!':'¡Ganaste!'):`Ganó ${esc(e.nom||quien(S,e.gana))}`;const pos=[...S.J].sort((a,b)=>b.bajas-a.bajas).findIndex(q=>q.id===P.yoId)+1;sub=`Terminaste ${pos}º con ${yo.bajas} bajas · ${MODOS.ffa.n} en ${esc(nMapa)}`;}
   else{gano=e.gana===P.yoId;titulo=gano?'¡Ganaste la carrera!':`Ganó ${esc(e.nom||quien(S,e.gana))}`;sub=`Llegaste al nivel ${yo.nivel} · ${esc(nMapa)}`;}
-  const filas=[...S.J].sort((a,b)=>S.modo==='carrera'?(b.nivel-a.nivel||b.bajas-a.bajas):(b.bajas-a.bajas)).map(p=>`<tr class="${p.id===P.yoId?'yo':''}"><td>${esc(p.nom)}</td>${S.modo==='carrera'?`<td>${p.nivel}</td>`:S.modo==='ffa'?'<td></td>':`<td>${p.lado==='P'?'👮':'🧨'}</td>`}<td>${p.bajas}</td><td>${p.asist}</td><td>${p.muertes}</td></tr>`).join('');
+  // v88 (MA-08): en los modos por equipos, la tabla va por equipo (el tuyo arriba), cada uno con su encabezado
+  const fila=p=>`<tr class="${p.id===P.yoId?'yo':''}"><td>${esc(p.nom)}</td>${S.modo==='carrera'?`<td>${p.nivel}</td>`:S.modo==='ffa'?'<td></td>':`<td>${p.lado==='P'?'👮':'🧨'}</td>`}<td>${p.bajas}</td><td>${p.asist}</td><td>${p.muertes}</td></tr>`;
+  let filas;if(eqModo(S.modo)){const eqs=[yo.eq||'A',(yo.eq||'A')==='A'?'B':'A'];
+    filas=eqs.map(q=>{const L=S.J.filter(p=>p.eq===q).sort((a,b)=>b.bajas-a.bajas);if(!L.length)return '';const ld=L[0].lado;
+      return `<tr class="eqh ${ld==='P'?'p':'t'}"><td colspan="5">${q===yo.eq?'Tu equipo · ':''}${ld==='P'?'👮 Policías':'🧨 Terroristas'} · ${S.puntos[q]||0}</td></tr>`+L.map(fila).join('');}).join('');}
+  else filas=[...S.J].sort((a,b)=>S.modo==='carrera'?(b.nivel-a.nivel||b.bajas-a.bajas):(b.bajas-a.bajas)).map(fila).join('');
   const pr=premios(S,gano,yo);
   over(`<div class="resul"><div class="gana" style="color:${gano?'#2d5c43':'#8a2a1a'}">${titulo}</div><p>${sub}</p>
     <table><tr><th>Jugador</th><th>${S.modo==='carrera'?'Nivel':''}</th><th>Bajas</th><th>Asist.</th><th>Muertes</th></tr>${filas}</table>${pr}</div>
@@ -8368,8 +8490,8 @@ function hudZ86(V){const S=V.S,Z=S.zz||{},yo=S.J.find(q=>q.id===P.yoId);if(!yo)r
   const yoC=(Z.caidos||[]).find(c=>c.id===P.yoId);let ay='',mu='';const tecla=TACTIL?'🎯':'E';
   const otro=(Z.caidos||[]).find(c=>c.id!==P.yoId&&V.yo&&V.yo.x!=null&&Math.hypot(c.x-V.yo.x,c.y-V.yo.y)<1.35);
   if(yoC)mu=yoC.auto?'¡Te levantás con la Estampita!':yoC.rev?'Te están levantando…':`Estás en el piso: que un compañero te levante · ${Math.ceil(yoC.sangra)} s`;
-  else if(otro&&!yoC)ay=otro.rev?'Levantando…':`Mantené ${tecla} para levantar a ${quien(S,otro.id)}`;
-  else if(Z.inter&&Z.inter.hold)ay=Z.inter.rep?`Tapando… ${Z.inter.txt.split('·').pop().trim()}`:`Mantené ${tecla} para tapar la ventana · ${Z.inter.txt.split('·').pop().trim()}`;// v87
+  else if(otro&&!yoC)ay=otro.rev?'Levantando…':TACTIL?`Mantené 🤝 Levantar: ${quien(S,otro.id)}`:`Mantené E para levantar a ${quien(S,otro.id)}`;// v88: como el botón
+  else if(Z.inter&&Z.inter.hold)ay=Z.inter.rep?`Tapando… ${Z.inter.txt.split('·').pop().trim()}`:TACTIL?`Mantené 🪵 Tapar · ${Z.inter.txt.split('·').pop().trim()}`:`Mantené E para tapar la ventana · ${Z.inter.txt.split('·').pop().trim()}`;// v87
   else if(Z.inter)ay=Z.inter.no?Z.inter.txt:`${tecla}: ${Z.inter.txt}${Z.inter.costo?` · ★ ${fmt(Z.inter.costo)}`:''}${Z.inter.ok||!Z.inter.costo?'':' (te faltan puntos)'}`;
   if(ay){$('ayuda-obj').textContent=ay;$('ayuda-obj').classList.add('on');}
   if(mu){$('muerto').innerHTML=esc(mu);$('muerto').classList.add('on');}
@@ -8429,7 +8551,7 @@ const ZEV={
     else if(e.est==='seva'){sfx('zrisa',pos,null,30);aviso('El Mandinga se lleva el baúl','Te devuelve los puntos · aparece en otro lado',2400);}},
   zdrop(e){sfx('zdrop',{x:e.x,y:e.y},null,22);},
   ztoma(e){sfx('ztoma');aviso({municion:'¡Munición completa!',dobles:'¡Puntos dobles!',insta:'¡Golpe seco!',kaboom:'¡Kaboom!'}[e.dk]||'',{municion:'Todos con las armas llenas',dobles:'30 segundos',insta:'Matan de un tiro · 30 segundos',kaboom:'+400 para cada uno'}[e.dk]||'',1800);if(e.dk==='kaboom'){temblor(2);vibrar(120);}},
-  zcae(e,S){sfx('zcae');if(e.id===P.yoId){temblor(1.6);vibrar([40,40,80]);}else aviso(`¡Bajaron a ${quien(S,e.id)}!`,'Mantené E o 🎯 al lado para levantarlo',2000);},
+  zcae(e,S){sfx('zcae');if(e.id===P.yoId){temblor(1.6);vibrar([40,40,80]);}else aviso(`¡Bajaron a ${quien(S,e.id)}!`,TACTIL?'Andá al lado y mantené 🤝 Levantar':'Andá al lado y mantené E',2000);},
   zlevanta(e,S){sfx('zlevanta');if(e.id===P.yoId)aviso('¡De pie!',e.de?`Te levantó ${quien(S,e.de)}`:'',1200);},
   zrevive(){}};
 const _evento86=evento;
@@ -8521,9 +8643,10 @@ HORNEAR84B=function(c,M){MAPA_86_NIEVE=M.id==='nevado';if(_horn84b_86)_horn84b_8
   for(const p of Z.pozos){const i=img('z_pozo');if(i.naturalWidth)c.drawImage(i,(p[0]-1.1)*PXM,(p[1]-1.1)*PXM,2.2*PXM,2.2*PXM);}
   // armas de la pared: dibujadas con tiza, con el nombre y el precio
   for(const w of Z.pared){const i=img('arma_'+w[2]);const x=(w[0]+Math.cos(w[4]||0)*.75)*PXM,y=(w[1]+Math.sin(w[4]||0)*.62)*PXM;c.save();c.translate(x,y);// un poco hacia adentro de la sala (no queda abajo del techo)
-    c.fillStyle='rgba(20,16,12,.55)';c.fillRect(-1.1*PXM,-.62*PXM,2.2*PXM,1.24*PXM);
-    if(i.naturalWidth){const ww=1.5*PXM,hh=ww*i.naturalHeight/i.naturalWidth;c.globalAlpha=.9;c.filter='grayscale(1) brightness(2.4) contrast(.8)';c.drawImage(i,-ww/2,-hh/2-.12*PXM,ww,hh);c.filter='none';c.globalAlpha=1;}
-    c.fillStyle='#f3ead2';c.font=`800 ${Math.round(.3*PXM)}px system-ui,sans-serif`;c.textAlign='center';c.fillText(`${ARMA(w[2]).n} · ★${w[3]}`,0,.48*PXM);c.restore();}
+    // v88 (MA-09): el dibujo entra en su lugar (antes se montaba sobre el nombre) y el cartel es más ancho que el texto
+    c.fillStyle='rgba(20,16,12,.6)';c.fillRect(-1.3*PXM,-.66*PXM,2.6*PXM,1.32*PXM);
+    if(i.naturalWidth){const k=Math.min(1.7*PXM/i.naturalWidth,.66*PXM/i.naturalHeight),ww=i.naturalWidth*k,hh=i.naturalHeight*k;c.globalAlpha=.9;c.filter='grayscale(1) brightness(2.4) contrast(.8)';c.drawImage(i,-ww/2,-.24*PXM-hh/2,ww,hh);c.filter='none';c.globalAlpha=1;}
+    c.fillStyle='#f3ead2';c.font=`800 ${Math.round(.27*PXM)}px system-ui,sans-serif`;c.textAlign='center';c.textBaseline='alphabetic';c.fillText(`${ARMA(w[2]).n} · ★${w[3]}`,0,.5*PXM);c.restore();}
   // v87: escaleras (escalones con sombra hacia donde baja), marcos de las ventanas, rejas/postes de las trampas, la Fragua
   for(const e of Z.escaleras||[]){const [x0,y0,x1,y1,dir]=e,X=x0*PXM,Y=y0*PXM,w=(x1-x0)*PXM,h=(y1-y0)*PXM,v=dir==='S'||dir==='N',n=Math.round((v?h:w)/(.42*PXM));
     for(let k=0;k<n;k++){const f=dir==='S'||dir==='E'?k/n:1-k/n;c.fillStyle=`rgb(${Math.round(150-70*f)},${Math.round(130-62*f)},${Math.round(108-52*f)})`;if(v)c.fillRect(X,Y+k*h/n,w,h/n+1);else c.fillRect(X+k*w/n,Y,w/n+1,h);
@@ -8783,6 +8906,9 @@ function drawSalaSi(){if(ONL&&!$('modal').hidden&&$('sa-x'))drawSala();}
 function sacar(L,cancelar){if(!ONL)return;const i=ONL.lugares.indexOf(L);if(i>=0)ONL.lugares.splice(i,1);try{enviar(L.ch,{t:'bye'});L.ch&&L.ch.close();L.pc&&L.pc.close();}catch(_){}
   const a=acct();if(cancelar&&a&&L.id&&L.estado==='invitando')lbCall({accion:'cancelar',usuario:a.usuario,token:a.token,id:L.id}).catch(()=>{});}
 function cablearHost(L,ch){L.ch=ch;
+  // v88 (MA-01): canal nuevo = conexión nueva. El canal rápido viejo (de la conexión que se cortó) puede seguir figurando «abierto»
+  // un rato: si quedaba, las vistas se iban por ahí y el que volvía veía pantalla negra. Se descarta; el invitado vuelve a pedir uno.
+  if(L.chR){try{L.chR.close();}catch(_){}L.chR=null;}
   ch.onopen=()=>{L.estado=L.jugador&&P&&P.G&&P.G.fase!=='fin'?'jugando':'conectado';try{RECON.quitar('mc-'+L.usuario);}catch(_){}enviar(ch,{t:'hola',host:ONL.yo,mesa:ONL.mesa});salaCambio();sfx('menu');
     if(L.jugador&&P&&P.G){// volvió en medio de la partida: recupera su lugar
       const p=P.G.J.find(q=>q.id===L.jugador);if(p){p.bot=null;p.hum=true;}enviar(ch,{t:'go',cfg:P.cfg,yo:L.jugador,vuelta:1});toast(`🔗 ${esc(L.usuario)} volvió`);}};
@@ -8915,7 +9041,8 @@ async function pollInbox(force=false){const a=acct();if(!a||polling||document.hi
       if(mio&&want===inv.id){try{sessionStorage.removeItem('marcar-accept');}catch(_){}aceptarInv(inv);}else showInvite(inv);}}catch(_){}
   polling=false;}
 const PREF_PAG=[['MARCAR:','marcar','<b>MarcAR</b> 🎯'],['INVASOR:','invasores','<b>InvasorAR</b> 👾'],['LUDO:','ludo','<b>LudAR</b> 🎲'],['POOL:','pool','<b>PoolAR</b> 🎱'],['UNO:','uno','<b>UnoAR</b> 🎴'],['TRUCO:','truco','<b>TrucAR</b> 🃏'],['POBLAR:','poblar','<b>PoblAR</b> 🏘️'],['AJEDREZ:','ajedrez','<b>AjedrezAR</b> ♟️'],['FORTINAR:','fortinar','<b>FortinAR</b> 🏰']];
-function showInvite(inv){UIQ.dismissed.add(inv.id);const of=String(inv.oferta||''),Q=PREF_PAG.find(p=>of.startsWith(p[0]));
+function showInvite(inv){if(window.TOQUE&&!inv._tq){inv._tq=1;UIQ.dismissed.add(inv.id);TOQUE.cuando(()=>{if(P&&!P.fin)return;showInvite(inv);if(!$('modal').hidden)TOQUE.proteger($('modal'),700);});return;}// v88: la invitación sale cuando no estás tocando
+  UIQ.dismissed.add(inv.id);const of=String(inv.oferta||''),Q=PREF_PAG.find(p=>of.startsWith(p[0]));
   sheet('Te invitan',`<div style="display:flex;align-items:center;gap:12px">${avHtml(inv.avatar,inv.color)}<div><b style="font:700 18px var(--serif)">${esc(inv.de)}</b><div class="note">te invita a jugar ${Q?Q[2]:'<b>BloqueAR</b> 🧱'}</div></div></div>
     <div class="row"><button class="btn" id="iv-no">Ahora no</button><button class="btn go" id="iv-yes">Aceptar</button></div>`);
   $('iv-no').onclick=()=>{closeSheet();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});};
@@ -8992,7 +9119,7 @@ async function portada(){EST='menu';document.body.classList.remove('jugando');do
       <div class="pt-op">
       ${fila('Compu',`<div class="seg" id="pt-dif">${Object.entries(DIFS).map(([k,n])=>`<button class="btn${CFG.dif===k?' on':''}" data-d="${k}">${n}</button>`).join('')}</div>`)}
       ${fila(eq?'Equipos':'Rivales',`<div class="seg" id="pt-tam">${[2,3,4,5].map(n=>`<button class="btn${CFG.tam===n?' on':''}" data-t="${n}">${eq?n+' vs '+n:(n*2-1)}</button>`).join('')}</div>`)}
-      ${eq?fila('Tu lado',`<div class="seg" id="pt-lado"><button class="btn${CFG.lado==='T'?' on':''}" data-l="T">🧨 ${CFG.modo==='bomba'?'Atacás':'Terrorista'}</button><button class="btn${CFG.lado==='P'?' on':''}" data-l="P">👮 ${CFG.modo==='bomba'?'Defendés':'Policía'}</button></div>`):''}
+      ${eq?fila('Tu lado',`<div class="seg" id="pt-lado"><button class="btn${CFG.lado==='T'?' on':''}" data-l="T">🧨 Terrorista${CFG.modo==='bomba'?'<small>atacás</small>':''}</button><button class="btn${CFG.lado==='P'?' on':''}" data-l="P">👮 Policía${CFG.modo==='bomba'?'<small>defendés</small>':''}</button></div>`):''}
       ${AJ86.html(CFG,CFG.modo)}
       ${fila('Mapa',`<div class="seg" id="pt-mapa"><button class="btn chico${!CFG.mapa||!(MODOS[CFG.modo].mapas||[]).includes(CFG.mapa)?' on':''}" data-mapa="">🔁 Rotación</button>${(MODOS[CFG.modo].mapas||[]).map(id=>`<button class="btn chico${CFG.mapa===id?' on':''}" data-mapa="${id}">${MAPAS[id]().n}</button>`).join('')}</div>`)}
       </div></details>
@@ -9018,20 +9145,35 @@ function portadaAnim(now){const cv=$('hero');if(!cv||!HERO||!MAPA)return;const r
   for(const [pj,x,y,a] of pjs){const tiro=(Math.sin(t*7+x)>.93);const [i,sx,sy]=cuadro(pj,tiro?'disparar':'caminar',tiro?2:Math.floor(t*6+x)%6);if(!i.naturalWidth)continue;c.save();c.translate(x,y);c.fillStyle='rgba(0,0,0,.35)';c.beginPath();c.ellipse(.08,.1,.42,.36,0,0,7);c.fill();c.rotate(a);c.drawImage(i,sx,sy,160,160,-80*MUNDO,-80*MUNDO,160*MUNDO,160*MUNDO);
     if(tiro){preparar();c.globalCompositeOperation='lighter';c.drawImage(FOGON,.5,-.3,.9,.6);c.globalCompositeOperation='source-over';}c.restore();}
   c.setTransform(1,0,0,1,0,0);const g=c.createLinearGradient(0,0,0,cv.height);g.addColorStop(0,'rgba(10,8,6,0)');g.addColorStop(1,'rgba(10,8,6,.85)');c.fillStyle=g;c.fillRect(0,0,cv.width,cv.height);}
-function ayuda(alCerrar){sheet('Cómo se juega',`<p><b>MarcAR</b> es un tirador visto desde arriba: ves lo que tu personaje ve (12 m, las paredes y el humo tapan), y lo que no ves lo podés <b>escuchar</b>: en el borde aparece de qué lado vienen los tiros y los pasos.</p>
-  <h4>💣 Bomba</h4><ul><li>Los <b>Terroristas</b> llevan la bomba a A o B y la plantan (3 s). Explota en 35 s.</li><li>Los <b>Policías</b> defienden o la desactivan (8 s, 4 con kit).</li><li>Cada ronda empieza con 20 s de compra. Plata por ganar, por perder (cada vez más si perdés seguido) y por cada baja.</li><li>Sin reaparecer: si te dan, mirás a un compañero hasta la próxima ronda.</li></ul>
-  <h4>🔫 Carrera de armas</h4><ul><li>Todos contra todos. Dos bajas con cada arma y pasás a la siguiente (17 niveles).</li><li>Una baja con cuchillo te sube un nivel y le baja uno al otro. El último nivel es el cuchillo: el primero que lo logra, gana.</li></ul>
-  <h4>Controles</h4><ul><li><b>Compu:</b> WASD mover · mouse apuntar · clic tirar (clic derecho: cuchillo) · Shift sigilo · R recargar · E objetivo/levantar · H curar · Q humo o flash · F granada · 1/2/3 armas · B tienda · Tab tabla.</li>
-  <li><b>Celular (acostado):</b> palanca izquierda para moverte; la derecha apunta y, si la deslizás un poco más allá del aro, <b>dispara</b> (el aro se pone rojo; volvé adentro para dejar de tirar). En ☰ podés cambiar al botón 🔥. Podés caminar para un lado y mirar para otro. Los botones: recargar, arma, cuchillo, mira 🔭 (francotirador), sigilo, curar, granada, objetivo/agarrar y comprar.</li>
-  <li><b>Compu:</b> 1 primaria, 2 pistola, 3 cuchillo, 4 granada, Q la anterior, rueda o X la siguiente. Clic derecho o Z: mira del francotirador (con otra arma, cuchillazo rápido). E: plantar, desactivar o agarrar un arma del piso.</li></ul>
-  <p class="note">El sigilo te hace más lento pero casi no hacés ruido. Curarte tarda 2,5 s: si te movés o te pegan, se corta.</p><button class="btn go" id="ay-ok">${alCerrar?'¡A jugar!':'Entendido'}</button>`);
+/* v88: «Cómo se juega» corto y al día (auditoría MA-04/05): una pantalla, primero el modo elegido con los números de la partida
+   que vas a jugar, después los controles del aparato que usás, y los otros modos plegados. */
+function ayudaModo(m){const v=k=>{try{return AJ86.val(CFG,m,k);}catch(_){return null;}},o=v('obj'),t=v('t'),T=n=>n>=60?(n%60?`${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`:`${n/60} min`):`${n} s`;
+  const pre=(()=>{try{return AJ86.pre(CFG);}catch(_){return 'normal';}})();
+  return ({
+  bomba:[`Los <b>Terroristas</b> plantan la bomba en A o B (3 s); los <b>Policías</b> la defienden o la desactivan (8 s, 4 con kit). Explota a los ${v('mecha')||35} s.`,
+    `Gana el primero en llegar a ${o||8} rondas. A la mitad se cambia de lado.`,`Sin reaparecer: si te dan, mirás a un compañero. Cada ronda empieza con ${pre==='rapida'?12:20} s para comprar (B o 🛒).`],
+  equipos:[`Policías contra Terroristas. Gana el primero en ${o||60} bajas o el que más tenga a los ${T(t||540)}.`,`Reaparecés a los ${v('reap')||3} s en tu base y tenés unos segundos para comprar.`],
+  ffa:[`Cada uno por su cuenta. Gana el primero en ${o||30} bajas o el que más tenga a los ${T(t||480)}.`,`Reaparecés a los ${v('reap')||3} s. Morir por tu culpa te resta una baja.`],
+  bandera:[`Traé la bandera rival a tu base <b>con la tuya en casa</b>. Gana el primero en ${o||3} capturas o el que va ganando a los ${T(t||540)}.`,`Si matan al que la lleva, la bandera queda en el piso: tocala para devolverla. Reaparecés en oleadas.`],
+  carrera:[`Todos contra todos. Con ${o||2} ${o===1?'baja':'bajas'} por arma pasás a la siguiente; la última es el cuchillo y el primero que lo logra, gana.`,`Una baja con cuchillo te sube un nivel y le baja uno al otro. Sin límite de tiempo.`],
+  zombis:[`Cooperativo de 1 a 4. Aguanten oleadas cada vez más grandes.`,`Ganás puntos pegándoles y los gastás en armas de la pared, puertas, el baúl y tónicos. Junto a una ventana, mantené E (en el celular, 🪵 Tapar) para poner tablas.`,`Si te bajan, un compañero te levanta (E o 🤝 Levantar). Si caen todos, se termina.`]
+  })[m]||[];}
+function ayuda(alCerrar){const m=CFG.modo,M=MODOS[m]||MODOS.bomba,ico=(typeof ICO84!=='undefined'&&ICO84[m])||'';
+  const ctl=TACTIL?[`<b>Palanca izquierda</b> para moverte.`,`<b>Palanca derecha</b> para apuntar: deslizala más allá del aro y <b>dispara</b> (se pone roja). En ☰ podés cambiar al botón 🔥.`,`Los botones: recargar, cambiar arma, cuchillo, curar, granada y 🛒 comprar. Cuando hay algo para hacer aparece su botón (💣 Plantar, ✂️ Desactivar, ✋ Agarrar, 🪵 Tapar).`]
+    :[`<b>WASD</b> mover · <b>mouse</b> apuntar · <b>clic</b> tirar · <b>clic derecho</b> cuchillazo (o mira del francotirador).`,`<b>R</b> recargar · <b>1/2/3</b> arma · <b>rueda</b> o <b>X</b> siguiente · <b>Shift</b> sigilo · <b>H</b> curar.`,`<b>E</b> plantar, desactivar, agarrar o tapar · <b>F</b> granada · <b>Q</b> humo o flash · <b>B</b> comprar · <b>Tab</b> tabla.`];
+  const otros=Object.keys(MODOS).filter(k=>k!==m).map(k=>`<details class="ay-otro"><summary>${(typeof ICO84!=='undefined'&&ICO84[k])||''} ${MODOS[k].n}</summary><ul>${ayudaModo(k).map(x=>`<li>${x}</li>`).join('')}</ul></details>`).join('');
+  sheet('Cómo se juega',`<p>Tirador visto desde arriba: ves lo que ve tu personaje (las paredes y el humo tapan) y lo que no ves, lo <b>escuchás</b>: las marcas del borde avisan de dónde vienen tiros y pasos.</p>
+  <h4>${ico} ${M.n}</h4><ul>${ayudaModo(m).map(x=>`<li>${x}</li>`).join('')}</ul>
+  <h4>${TACTIL?'Controles (celular acostado)':'Controles'}</h4><ul>${ctl.map(x=>`<li>${x}</li>`).join('')}</ul>
+  ${otros?`<details class="ay-mas"><summary>Los otros modos</summary>${otros}</details>`:''}
+  <button class="btn go" id="ay-ok">${alCerrar?'¡A jugar!':'Entendido'}</button>`);
   $('ay-ok').onclick=()=>{closeSheet();alCerrar&&alCerrar();};}
-function ajustes(){const seg=(id,ops,v)=>`<div class="seg" id="${id}">${ops.map(([k,n])=>`<button class="btn${String(v)===String(k)?' on':''}" data-v="${k}">${n}</button>`).join('')}</div>`;
-  sheet('Sonido y controles',`<h4>Sonido</h4>${seg('aj-son',[[1,'Con sonido'],[0,'Sin sonido']],AJ.sonido?1:0)}${seg('aj-vol',[[.4,'Bajo'],[.8,'Medio'],[1.2,'Alto']],AJ.vol)}${seg('aj-amb',[[1,'Ambiente'],[0,'Sin ambiente']],AJ.ambiente?1:0)}
-    <h4>Pantalla</h4>${seg('aj-san',[['alta','Sangre: mucha'],['media','Normal'],['baja','Poca']],AJ.sangre)}${seg('aj-tem',[[1,'Temblor de cámara'],[0,'Sin temblor']],AJ.temblor?1:0)}${seg('aj-vib',[[1,'Vibrar'],[0,'Sin vibrar']],AJ.vib?1:0)}${seg('aj-num',[[1,'Números de daño'],[0,'Sin números']],AJ.numeros?1:0)}
-    ${TACTIL?`<h4>Celular</h4>${seg('aj-zur',[[0,'Diestro'],[1,'Zurdo (palancas al revés)']],AJ.zurdo?1:0)}${seg('aj-ver',[[0,'Pedir girar'],[1,'Dejar jugar en vertical']],AJ.vertical?1:0)}
-      <p class="note">Cómo se dispara: con <b>umbral</b> (el de siempre), la palanca derecha apunta adentro del aro y tira cuando la deslizás más allá (se pone roja). Con <b>botón</b>, la palanca solo apunta y tirás con el botón 🔥.</p>
-      ${seg('aj-esq',[['umbral','Disparo por umbral'],['boton','Disparo con botón 🔥']],AJ.esquema)}${seg('aj-asi',[[1,'Ayuda de puntería (suave)'],[0,'Sin ayuda']],AJ.asist?1:0)}`:''}`);
+function ajustes(){const seg=(id,ops,v,lbl)=>`<div class="aj-f">${lbl?`<span class="aj-l">${lbl}</span>`:''}<div class="seg" id="${id}">${ops.map(([k,n])=>`<button class="btn${String(v)===String(k)?' on':''}" data-v="${k}">${n}</button>`).join('')}</div></div>`;
+  // v88 (MA-13): cada fila con su nombre (antes «Sangre: mucha» era el primer botón y parecía el título)
+  sheet('Sonido y controles',`<h4>Sonido</h4>${seg('aj-son',[[1,'Con sonido'],[0,'Sin sonido']],AJ.sonido?1:0,'Sonido')}${seg('aj-vol',[[.4,'Bajo'],[.8,'Medio'],[1.2,'Alto']],AJ.vol,'Volumen')}${seg('aj-amb',[[1,'Sí'],[0,'No']],AJ.ambiente?1:0,'Ambiente')}
+    <h4>Pantalla</h4>${seg('aj-san',[['alta','Mucha'],['media','Normal'],['baja','Poca']],AJ.sangre,'Sangre')}${seg('aj-tem',[[1,'Sí'],[0,'No']],AJ.temblor?1:0,'Temblor de cámara')}${seg('aj-vib',[[1,'Sí'],[0,'No']],AJ.vib?1:0,'Vibrar')}${seg('aj-num',[[1,'Sí'],[0,'No']],AJ.numeros?1:0,'Números de daño')}
+    ${TACTIL?`<h4>Celular</h4>${seg('aj-zur',[[0,'Diestro'],[1,'Zurdo']],AJ.zurdo?1:0,'Palancas')}${seg('aj-ver',[[0,'Pedir girar'],[1,'Dejar jugar']],AJ.vertical?1:0,'En vertical')}
+      ${seg('aj-esq',[['umbral','Por umbral'],['boton','Con botón 🔥']],AJ.esquema,'Disparo')}<p class="note">Por <b>umbral</b> (el de siempre), la palanca derecha apunta adentro del aro y tira cuando la deslizás más allá (se pone roja). Con <b>botón</b>, la palanca sólo apunta y tirás con 🔥.</p>${seg('aj-asi',[[1,'Suave'],[0,'Sin ayuda']],AJ.asist?1:0,'Ayuda de puntería')}`:''}`);
   const on=(id,f)=>$(id).querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{f(b.dataset.v);guardarAj();ambiente(!!P);ajustes();try{armarBotones();}catch(_){}medir();});
   on('aj-son',v=>AJ.sonido=v==='1');on('aj-vol',v=>AJ.vol=+v);on('aj-amb',v=>AJ.ambiente=v==='1');on('aj-san',v=>AJ.sangre=v);on('aj-tem',v=>AJ.temblor=v==='1');on('aj-vib',v=>AJ.vib=v==='1');
   on('aj-num',v=>AJ.numeros=v==='1');
@@ -9044,7 +9186,7 @@ function openMenu(){const jugando=!!P;
     <button id="m-amigos">👥 Jugar con amigos</button><button id="m-aj">⚙️ Sonido y controles</button><button id="m-help">❓ Cómo se juega</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<button id="m-share">📲 Pasar el juego</button>
     <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div>
-    <p class="note" style="margin-top:auto;text-align:center">${jugando&&P.rol==='solo'?'La partida contra la compu no se pausa del todo: los bots siguen.<br>':''}MarcAR · versión 87</p>`);
+    <p class="note" style="margin-top:auto;text-align:center">${jugando&&P.rol==='solo'?'La partida contra la compu no se pausa del todo: los bots siguen.<br>':''}MarcAR · versión 88</p>`);
   const go=f=>()=>{closeSide();f();};$('m-x').onclick=closeSide;
   if($('m-volver'))$('m-volver').onclick=closeSide;
   if($('m-rein'))$('m-rein').onclick=go(()=>empezarSolo());
@@ -9095,14 +9237,14 @@ function hud84(V,S,yo){if(S.modo!=='equipos'&&S.modo!=='ffa'&&S.modo!=='bandera'
   const fase=S.fase==='compra'?'COMPRA':S.fase==='fin'?'FINAL':S.extra?(S.modo==='equipos'?'MUERTE SÚBITA':'TIEMPO EXTRA'):S.modo==='bandera'?`A ${meta} CAPTURAS`:`A ${meta} BAJAS`;
   if(S.modo==='ffa'){const orden=[...S.J].sort((a,b)=>b.bajas-a.bajas);const lid=orden[0];const pos=orden.findIndex(q=>q.id===P.yoId)+1;
     $('marcador').innerHTML=`<div class="mc-ter"><span class="mc-lbl">PUESTO</span><span class="mc-n">${pos}º</span></div><div class="mc-reloj">${mmss(S.resta)}<small>${fase}</small></div><div class="mc-pol"><span class="mc-n">${lid.bajas}</span><span class="mc-lbl">${esc(lid.id===P.yoId?'VOS':lid.nom.slice(0,10))}</span></div>`;
-    ch.hidden=false;ch.innerHTML=`Tus bajas <b>${yo.bajas}</b>/${meta}${S.compraResta>0&&yo.vivo?` · 🛒 ${Math.ceil(S.compraResta)} s`:''}`;return true;}
+    ch.hidden=false;ch.innerHTML=`Tus bajas <b>${yo.bajas}</b>/${meta}${S.compraResta>0&&yo.vivo&&S.fase!=='fin'?` · 🛒 ${Math.ceil(S.compraResta)} s`:''}`;return true;}
   const mio=S.puntos[yo.eq]||0,suyo=S.puntos[yo.eq==='A'?'B':'A']||0,L=yo.lado,O=L==='P'?'T':'P';
   const lbl=l=>l==='P'?['pol','POLICÍAS']:['ter','TERRORISTAS'];const iz=lbl(L),de=lbl(O);
   $('marcador').innerHTML=`<div class="mc-${iz[0]}"><span class="mc-lbl">${iz[1]}</span><span class="mc-n">${mio}</span></div><div class="mc-reloj${S.extra?' rojo':''}">${mmss(S.resta)}<small>${fase}</small></div><div class="mc-${de[0]}"><span class="mc-n">${suyo}</span><span class="mc-lbl">${de[1]}</span></div>`;
   let t='';
   if(S.modo==='bandera'&&S.ban){const est=(f,mia)=>!f?'':f.est==='base'?'en la base':f.est==='suelo'?`en el piso · vuelve en ${f.vuelve} s`:f.por===P.yoId?'<b>¡la llevás vos!</b>':mia?'<b style="color:#ff9a6a">¡se la llevan!</b>':'la lleva tu equipo';
     t=`🏁 Tuya: ${est(S.ban[L],1)} · Rival: ${est(S.ban[O],0)}`;}
-  if(S.compraResta>0&&yo.vivo)t+=`${t?' · ':''}🛒 ${Math.ceil(S.compraResta)} s para comprar`;
+  if(S.compraResta>0&&yo.vivo&&S.fase!=='fin')t+=/* v88 (MA-18) */`${t?' · ':''}🛒 ${Math.ceil(S.compraResta)} s para comprar`;
   ch.hidden=!t;ch.innerHTML=t;return true;}
 
 /* XP del cap. 25: 80 por terminar, 20 por ganar, 10 por contribuir; hasta 1000 por día en MarcAR (el oro lo decide la tabla central) */

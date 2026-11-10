@@ -53,6 +53,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .seat .ring{position:absolute;inset:-2px;border-radius:15px;pointer-events:none}
 .av{border-radius:50%;display:grid;place-items:center;background:var(--c,#3b5866);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 0 0 2px rgba(214,226,206,.30);flex:none}
 .say{position:absolute;z-index:6;left:50%;bottom:calc(100% - 6px);transform:translateX(-50%);max-width:180px;padding:5px 10px;border-radius:12px;background:var(--parch);color:var(--brown);font:700 14px/1.15 var(--serif);white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.45);border:1px solid var(--rule);pointer-events:none;animation:sayIn .2s ease-out}
+/* v88 (MESA-06): la fila de rivales tiene overflow (se desliza de costado) y recortaba el globo que salía por arriba, debajo de la barra: ahora sale ADENTRO del lugar, sobre las cartas, y no se corta */
+.seats .say{bottom:auto;top:40%;width:max-content;max-width:136px;white-space:normal;text-align:center;font-size:13px}
 @keyframes sayIn{from{opacity:0;transform:translate(-50%,5px) scale(.94)}}
 /* Paño con el mazo y el pozo */
 .felt{position:relative;flex:1;min-height:0;margin:2px max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left));border-radius:22px;
@@ -133,7 +135,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes sheetIn{from{transform:translateY(40px);opacity:.4}}
 .sheet>header{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
 .sheet>header h2{margin:0;font:700 22px/1.15 var(--serif);flex:1}
-.sheet>header .x{width:38px;height:38px;border-radius:10px;border:0;background:var(--parch2);font-size:15px;color:var(--brown)}
+.sheet>header .x{width:44px;height:44px;margin:-3px -3px -3px 0;border-radius:10px;border:0;background:var(--parch2);font-size:15px;color:var(--brown)}
 .sheet .body{overflow-y:auto;padding:4px 16px 16px;display:flex;flex-direction:column;gap:10px}
 .sheet p{margin:0;color:#4d4031}
 .sheet h4{margin:6px 0 0;font:700 16px/1.2 var(--serif);color:var(--brown)}
@@ -201,7 +203,9 @@ button{font:inherit;color:inherit;cursor:pointer}
   .felt{grid-column:1;grid-row:2;margin-bottom:6px}
   .me{grid-column:2;grid-row:1/3;justify-content:center;padding-top:6px}
   .acts{min-height:40px;flex-wrap:wrap}.act{min-height:40px;font-size:14px;padding:0 10px}
-  .hand{height:calc(var(--ch) + 14px);padding-top:10px}}
+  .hand{height:calc(var(--ch) + 14px);padding-top:10px}
+  /* v88: acostado el mazo y el pozo quedan cerca y «Va amarillo» pisaba «73 en el mazo»: el color va arriba del pozo */
+  .colorpill{bottom:auto;top:-24px}}
 /* v67: en línea en pasos, lista chica para invitar, charla de la espera */
 .pasos{list-style:none;margin:0;padding:0;display:flex;gap:4px;font-size:12.5px;color:var(--soft)}
 .pasos li{flex:1;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:10px;background:#efe6d2;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -235,6 +239,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* v74: la lista de amigos para invitar no se achica dentro de la hoja (se veía una sola fila cortada): se ven 2 o 3 filas enteras y, si hay más, scroll */
 .sheet .ulist,.ulist.chica,.ulist.compacta,.ulist.corta{flex:none}.ulist li{flex:none}.ulist.chica,.ulist.compacta{max-height:max(156px,min(240px,34vh))}
+
+/* v88: acostado en el celular el cartel del medio es más compacto, así entran sus botones sin tener que desplazar */
+@media (orientation:landscape) and (max-height:440px){.ccard{padding:12px 16px 12px;gap:7px}.ccard .ic{font-size:26px;line-height:1}.ccard h3{margin:0}.ccard p{margin:0}}
 </style>
 <script>
 /* ───────── v77 · El sonido de la app no corta la música del celular ─────────
@@ -386,6 +393,40 @@ window.LATIDO={
   get pausado(){return !!L.pausa;},
   intervalo,
   get estado(){return {quietos:L.quietos,ms:intervalo(),n:L.n,ok:L.ok,viejo:L.viejo};}
+};
+})();
+
+/* ───────── Toque (v88): los avisos no se comen el toque que estás haciendo ─────────
+   Un cartel que aparece solo justo donde tocás se llevaba el toque (era el «dedo fantasma» de la estancia).
+   API, para toda la app:
+     TOQUE.libre(ms=1500)  → true si no hay ningún dedo apoyado y nadie tocó/tecleó en los últimos ms
+     TOQUE.cuando(fn,ms=1500,max=12000) → corre fn cuando la pantalla está quieta (o a los max ms, igual)
+     TOQUE.proteger(el,ms=600) → durante ms, el (y lo de adentro) deja pasar los toques a lo de abajo: un toque que ya
+                                 venía no cae en su botón
+     TOQUE.aparecer(el,ms=600) → el.hidden=false + proteger(el)
+   Los avisos automáticos (carteles «Nuevo», toasts, hojas que se abren solas) deberían salir con TOQUE.cuando y/o
+   TOQUE.proteger. Lo que abre el usuario con su propio toque no necesita nada. */
+(function(){
+'use strict';
+if(window.TOQUE)return;
+const T={t:0,abajo:new Set()};
+const ahora=()=>Date.now();
+try{
+  addEventListener('pointerdown',e=>{T.t=ahora();T.abajo.add(e.pointerId);},true);
+  const fin=e=>{T.t=ahora();T.abajo.delete(e.pointerId);};
+  addEventListener('pointerup',fin,true);addEventListener('pointercancel',fin,true);
+  addEventListener('keydown',()=>{T.t=ahora();},true);
+  addEventListener('wheel',()=>{T.t=ahora();},{capture:true,passive:true});
+  addEventListener('blur',()=>{T.abajo.clear();});
+}catch(_){}
+let css=false;
+function estilo(){if(css)return;css=true;try{const s=document.createElement('style');s.textContent='.tq-prot,.tq-prot *{pointer-events:none!important}';(document.head||document.documentElement).appendChild(s);}catch(_){}}
+window.TOQUE={
+  libre(ms=1500){return !T.abajo.size&&ahora()-T.t>=ms;},
+  ultimo(){return T.t;},
+  cuando(fn,ms=1500,max=12000){const t0=ahora();const f=()=>{if(window.TOQUE.libre(ms)||ahora()-t0>=max){try{fn();}catch(e){console.error(e);}}else setTimeout(f,200);};f();},
+  proteger(el,ms=600){if(!el)return el;estilo();el.classList.add('tq-prot');clearTimeout(el._tqT);el._tqT=setTimeout(()=>el.classList.remove('tq-prot'),ms);return el;},
+  aparecer(el,ms=600){if(!el)return el;el.hidden=false;return window.TOQUE.proteger(el,ms);}
 };
 })();
 
@@ -981,7 +1022,7 @@ window.GESTOS={salida,deslizar};
 const TIERS=[
   {id:'hierro',n:'Hierro',c:'#9aa3ad',e:'⚙️'},{id:'bronce',n:'Bronce',c:'#c98b5a',e:'🥉'},{id:'plata',n:'Plata',c:'#cfd8e3',e:'🥈'},
   {id:'oro',n:'Oro',c:'#f2c14e',e:'🥇'},{id:'platino',n:'Platino',c:'#6fe0d0',e:'💠'},{id:'diamante',n:'Diamante',c:'#8ab8ff',e:'💎'},{id:'maestro',n:'Maestro',c:'#d9a6ff',e:'👑'}];
-const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR'};
+const GAMES={bloquear:'BloqueAR',poblar:'PoblAR',estancia:'EstanciAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',invasores:'InvasorAR',marcar:'MarcAR',fortinar:'FortinAR'};   // v88: FortinAR con XP, nivel y tabla como los demás
 // Solitarios (v62): no tienen rango (no son competitivos), pero su XP suma al nivel general.
 const SOLOS={sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',laberinto:'LaberintAR'};   // v73: LaberintAR (arcade para uno solo, sin rango)
 const DIV=100,PER=3,MAX=(TIERS.length-1)*DIV*PER; // Maestro arranca en 1800 PR y no tiene techo
@@ -1022,7 +1063,8 @@ function apply(g,res){
 function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100][t];}
 // XP por juego. La de BloqueAR vive en su progreso; la de los demás, acá.
 function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
-function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]||0)+Math.max(0,Math.round(n));o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}
+const XP_MAX=100;
+function addXp(g,n){if(g==='bloquear')return;n=Math.min(XP_MAX,Math.max(0,Math.round(Number(n)||0)));const o=ls.json(XKEY,{});o[g]=(o[g]||0)+n;o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}   // v88: hasta 100 de XP por partida
 // Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
 // ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 // v70: «info» (opcional) dice cómo fue la partida, para que las leguas dependan del rival y del resultado, para los
@@ -1030,7 +1072,7 @@ function addXp(g,n){if(g==='bloquear')return;const o=ls.json(XKEY,{});o[g]=(o[g]
 //   info = {j: 'truco' (id del juego), res: 'g' ganó | 'e' empate | 'p' perdió, rival: 'p' personas | 'c' compu | 's' solo,
 //           dif: 'facil'|'normal'|'dificil'|'maestro', esf: true si la partida tuvo «esfuerzo» (cada juego dice cuánto
 //           es: perder en 20 segundos no cuenta), key (para no anotarla dos veces), x: {…datos para las tablas}}
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar'};
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar',FortinAR:'fortinar'};
 const ACT_DE={bloquear:'b',poblar:'p',truco:'t',uno:'u',ajedrez:'a',pool:'l',ludo:'k',invasores:'v'};
 function premio(de,xp,ranked,info,extra){
   const n=Math.max(0,Math.round(xp||0));
@@ -1042,13 +1084,17 @@ function premio(de,xp,ranked,info,extra){
   if(info&&j&&info.rival!=='s')try{contar(j,info);}catch(_){}          // (el Maratón ranked sólo da leguas: no es una partida contra nadie)
   if(info&&j&&info.rival!=='s')try{ganchoAnotar(j,info);}catch(_){}     // v81: rachas y «hoy» para el cartel final
   if(info&&j&&ranked&&info.rival!=='s')try{anotarPartida(j,info);}catch(_){}
+  // v88: FortinAR no anotaba XP (no tenía nivel, títulos ni cofres): si el juego no lo hace, lo anota acá
+  if(j==='fortinar'&&n>0&&!(info&&info.xpHecho))try{addXp('fortinar',n);}catch(_){}
   if(!n)return null;
   // v70 (dos monedas): lo que dan los juegos es ORO (ORO.premio, con su tabla y su tope del día). Para la estancia queda «un
   // poquito» de pesos: un décimo de la XP (mínimo 2), hasta 30 por partida y hasta 150 por día. Iguales a ECO.premio de EstanciAR.
-  const d=new Date(Date.now()),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya=PD.d===dia?PD.n||0:0;
+  // v88: el tope de 150 por día es POR CUENTA (ORO.pesosHoy suma todos tus dispositivos)
+  const d=new Date(Date.now()),dia=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,PD=ls.json('estancia-premios-dia',{}),ya0=PD.d===dia?PD.n||0:0;
+  let ya=ya0;try{if(window.ORO&&ORO.pesosHoy)ya=Math.max(ya0,ORO.pesosHoy());}catch(_){}
   const pesos=Math.max(0,Math.min(30,Math.max(2,Math.round(n*.1)),150-ya));
   const p={de,trigo:0,pesos,t:Date.now()};
-  if(pesos){ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya+pesos}));const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));}
+  if(pesos){ls.set('estancia-premios-dia',JSON.stringify({d:dia,n:ya0+pesos}));try{window.ORO&&ORO.pesosSumar&&ORO.pesosSumar(pesos);}catch(_){}const L=ls.json('estancia-premios',[]);L.push(p);ls.set('estancia-premios',JSON.stringify(L.slice(-40)));}
   let oro=0;try{if(window.ORO)oro=ORO.premio(de,info,extra);}catch(_){}
   let leguas=0,nota='';
   if(ranked){const q=ACT_DE[j]||(de==='PoblAR'?'p':de==='TrucAR'?'t':de==='UnoAR'?'u':de==='AjedrezAR'?'a':'b');
@@ -1344,9 +1390,9 @@ window.MEDALLAS=(function(){
 /* ───────── ORO (v70): la moneda de los juegos ─────────
    Dos monedas (pedido del 24/10): los PESOS salen de la estancia y sirven para lo común; el ORO sale de jugar cualquier juego
    y sirve para lo lindo (apariencias, ropa y caballos especiales, adornos únicos, gestos y marcos). Las mejoras grandes de
-   la estancia piden las dos. En la pulpería se puede cambiar oro por pesos (1 → 8, hasta 50 de oro por día); al revés no.
+   la estancia piden las dos. En la pulpería se puede cambiar oro por pesos (1 → 8, hasta 50 de oro por día) y, desde la v88, pesos por oro (1.000 → 8, hasta 80 por semana).
    · Cuánto da cada juego: ORO_TABLA (abajo), por partida ganada contra la compu; contra personas ×2, empate ×0,6, perder con
-     esfuerzo ×0,4, abandonar 0; contra la compu en Fácil ×0,5 y en Difícil ×1,5 (la misma regla que las leguas: RANGOS.cuenta). Tope del día: 150 enteros, hasta 300 a la mitad, después un cuarto.
+     esfuerzo ×0,5, abandonar 0; contra la compu en Fácil ×0,5 y en Difícil ×1,3, personas ×1,6 (v88). Tope del día por cuenta: 120 enteros, hasta 240 a la mitad, después un cuarto.
    · Se guarda en «bloques-oro-v1» y viaja con la cuenta dentro de RANGOS.exportData() («o»). Para que dos dispositivos no se
      pisen, el saldo no se guarda: se CALCULA. Cada dispositivo anota lo suyo (d[dev] = {g ganado suelto, s gastado suelto}) y lo
      que tiene nombre va aparte: k = premios con clave (cofres de nivel, puestos de La Gran Pampa…: cuentan una sola vez aunque
@@ -1367,33 +1413,38 @@ const diaAR=(t=Date.now())=>new Date(t-3*3600e3).toISOString().slice(0,10);
 
 /* ── Cuánto da cada juego (partida ganada contra la compu, duración normal) ── */
 const NIVEL_DIF=s=>({facil:1,principiante:1,normal:2,medio:2,intermedio:2,dificil:3,experto:3,maestro:3})[s]||2;
+// v88 (economía unificada): el oro sale de los MINUTOS jugados con esfuerzo, ≈0,6 de oro por minuto ganándole a la compu
+// Normal, parecido en todos los juegos (antes iba de 0,2 a 1,6 por minuto). Cada número = minutos típicos × 0,6.
 const ORO_TABLA={
-  poblar:12,
-  truco:i=>((i.x&&i.x.a)||15)>=30?10:6,          // a 30: 10 · a 15: 6
-  ajedrez:i=>i.x&&i.x.ritmo==='bala'?4:8,         // bala: 4
-  uno:6,ludo:6,
-  pool:4,                                          // por mesa de Bola 8
+  poblar:13,                                       // ~22 min
+  truco:i=>((i.x&&i.x.a)||15)>=30?10:5,           // a 30 (~18 min): 10 · a 15 (~9 min): 5
+  ajedrez:i=>i.x&&i.x.ritmo==='bala'?2:8,         // ~14 min · bala ~3 min
+  uno:4,                                           // ~6 min
+  ludo:8,                                          // ~14 min
+  pool:4,                                          // por mesa de Bola 8 (~6 min)
   bloquear:(i,ex)=>Math.min(10,Math.floor(((ex&&ex.lin)||(i.x&&i.x.lin)||0)/10)),   // 1 cada 10 líneas, hasta 10
   sudoku:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
   solitario:i=>i.extra&&i.extra.delDia?6:(i.extra&&i.extra.dificultad==='dificil'?3:2),
   buscaminas:i=>i.extra&&i.extra.delDia?6:NIVEL_DIF(i.extra&&i.extra.dificultad),
-  laberinto:i=>i.extra&&i.extra.delDia?6:Math.min(10,4+2*Math.min(3,(i.extra&&i.extra.mapas)||0)),   // v73: 4 por participar, +2 por mapa limpio (hasta 10); el del día 6
-  invasores:i=>{const x=i.x||i.extra||{};if(x.modo==='duelo')return 6;if(x.modo==='dia')return 6;return Math.min(10,2+(x.olas||0))*(x.dif==='tranquila'?.6:1);},   // v73: 2 + 1 por oleada limpia (hasta 10); duelo y del día 6
-  marcar:i=>{const x=i.x||i.extra||{};return x.modo==='carrera'?6:8;},   // v83: MarcAR (Bomba 8, Carrera 6)
+  laberinto:i=>i.extra&&i.extra.delDia?6:Math.min(6,3+Math.min(3,(i.extra&&i.extra.mapas)||0)),   // ~5 min: 3, +1 por mapa limpio (hasta 6); el del día 6
+  invasores:i=>{const x=i.x||i.extra||{};if(x.modo==='dia')return 6;if(x.modo==='duelo')return 4;return Math.min(6,2+Math.floor((x.olas||0)/2))*(x.dif==='tranquila'?.6:1);},   // ~7 min
+  marcar:i=>{const x=i.x||i.extra||{};return x.modo==='carrera'?5:x.modo==='zombis'?Math.min(14,4+Math.floor((x.ronda||0)/2)):11;},   // Bomba ~18 min
+  fortinar:i=>{const x=i.x||i.extra||{};return x.modo==='conquista'?14:x.modo==='express'?12:8;},   // Asalto ~13 · Express ~20 · Conquista 25–45 min
   reto:5                                           // cada reto de la semana cumplido
 };
 const ORO_DEF=4;   // un juego que todavía no está en la tabla
-const MULT_RES={g:1,e:.6,p:.4,a:0},MULT_RIVAL={p:2,c:1,s:1};
-const MULT_DIF=d=>d==='facil'?.5:(d==='dificil'||d==='maestro')?1.5:1;
-const TOPE=[150,300];   // del día: hasta 150 enteros, hasta 300 a la mitad, después un cuarto
+const MULT_RES={g:1,e:.7,p:.5,a:0},MULT_RIVAL={p:1.6,c:1,s:1};   // v88: empate ×0,7, perder peleando ×0,5; personas ×1,6
+const MULT_DIF=d=>d==='facil'?.5:(d==='dificil'||d==='maestro')?1.3:1;   // v88: Difícil ×1,3
+const ORO_MAX=20;   // v88: lo más que da una partida
+const TOPE=[120,240];   // v88: del día, POR CUENTA (todos tus dispositivos juntos): hasta 120 enteros, hasta 240 a la mitad, después un cuarto
 const CAMBIO={tasa:8,dia:50};
-const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar'};
+const NOM_ID={BloqueAR:'bloquear',PoblAR:'poblar',TrucAR:'truco',UnoAR:'uno',AjedrezAR:'ajedrez',PoolAR:'pool',LudAR:'ludo',SudokAR:'sudoku',SolitARio:'solitario',BuscaminAR:'buscaminas',LaberintAR:'laberinto',InvasorAR:'invasores',MarcAR:'marcar',FortinAR:'fortinar'};
 const SOLOS=new Set(['sudoku','solitario','buscaminas','laberinto']);
 
 // «info» de cada juego, en la forma corta que usa RANGOS ({res:'g'|'e'|'p'|'a', rival:'p'|'c'|'s', esf}); también acepta la larga
 // ({rival:'compu'|'personas', res:'gana'|'empata'|'pierde'|'abandona', ok, extra}). Los solitarios van como «solo».
 function norm(info,de){if(!info||typeof info!=='object')return info;const o={...info};
-  const R={compu:'c',personas:'p',amigos:'p',solo:'s'},S={gana:'g',empata:'e',pierde:'p',abandona:'a'};
+  const R={compu:'c',personas:'p',amigos:'p',solo:'s',h:'p',humano:'p'},S={gana:'g',empata:'e',pierde:'p',abandona:'a'};   // v88: «h» (FortinAR en línea) = personas
   if(R[o.rival])o.rival=R[o.rival];if(S[o.res])o.res=S[o.res];if(o.esf===undefined&&o.ok!==undefined)o.esf=!!o.ok;
   if(!o.j&&de)o.j=NOM_ID[de]||NOM_ID[String(de).replace(/ \(reto\)$/,'')]||'';
   if(SOLOS.has(o.j))o.rival='s';
@@ -1407,8 +1458,9 @@ function calc(de,info,extra){
   if(!info)return Math.round(base);
   const res=i.res||'g';if(res==='a'||i.esf===false)return 0;   // sin esfuerzo (perder en 20 segundos, ganar sin jugar) no da
   // contra quién: la misma regla que las leguas (RANGOS.cuenta: personas 2, compu Difícil 1,5, Normal 1, Fácil 0,5, solo 1)
-  let rv=1;try{rv=SOLOS.has(j)?1:window.RANGOS&&RANGOS.cuenta?RANGOS.cuenta(j,{rival:i.rival||'c',res,dif:i.dif}).mult||1:(MULT_RIVAL[i.rival]||1)*(i.rival==='c'?MULT_DIF(i.dif):1);}catch(_){}
-  return Math.round(base*(MULT_RES[res]??1)*rv);}
+  // v88: contra quién, propio del oro: personas ×1,6, compu Fácil ×0,5 / Normal ×1 / Difícil ×1,3, solo ×1
+  const rv=SOLOS.has(j)?1:(i.rival==='p'?MULT_RIVAL.p:(i.rival||'c')==='c'?MULT_DIF(i.dif):1);
+  return Math.min(ORO_MAX,Math.round(base*(MULT_RES[res]??1)*rv));}
 
 /* ── Datos ── */
 function load(){const o=ls.json(K,{});o.d=o.d&&typeof o.d==='object'?o.d:{};o.k=o.k&&typeof o.k==='object'?o.k:{};o.p=o.p&&typeof o.p==='object'?o.p:{};o.h=Array.isArray(o.h)?o.h:[];return o;}
@@ -1432,34 +1484,66 @@ function gastar(n,que){n=Math.max(0,Math.round(Number(n)||0));const o=load();if(
 // v81 · Administración: multiplicadores globales que pone el admin (bloques-cfg-v1, lo trae chat/admin.js). Por defecto 1.
 function admMul(k){try{const c=JSON.parse(localStorage.getItem('bloques-cfg-v1')||'null'),v=Number(c&&c.eco&&c.eco[k]);return v>=.1&&v<=10?v:1;}catch(_){return 1;}}
 function cambioDia(){return Math.max(0,Math.round(CAMBIO.dia*admMul('cambio')));}
-function cambioHoy(){const o=load(),c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;return Math.max(0,cambioDia()-c);}
+/* v88 · Contadores POR CUENTA (antes cada dispositivo tenía su tope y con dos se duplicaba). Cada contador del día (o de la
+   semana) guarda lo de cada dispositivo: {d: día, n: {dispositivo: cuánto}}; viaja con la cuenta (exportData) y al juntar
+   queda, de cada dispositivo, lo mayor. Lo que «llevás hoy» es la suma de todos. */
+function cuentaDe(c,per){return c&&c.d===per?Object.values(c.n||{}).reduce((a,v)=>a+(typeof v==='number'?v:0),0):0;}
+function cuentaSumar(o,campo,per,n){const d=dev();if(!o[campo]||o[campo].d!==per)o[campo]={d:per,n:{}};o[campo].n[d]=(Number(o[campo].n[d])||0)+n;}
+// de cada juego (tope propio, como MarcAR): {d, n: {dispositivo: {juego: cuánto}}}
+function cuentaJDe(c,per,j){return c&&c.d===per?Object.values(c.n||{}).reduce((a,v)=>a+(v&&typeof v==='object'?Number(v[j])||0:0),0):0;}
+function cuentaJSumar(o,campo,per,j,n){const d=dev();if(!o[campo]||o[campo].d!==per)o[campo]={d:per,n:{}};const m=o[campo].n[d]=o[campo].n[d]||{};m[j]=(Number(m[j])||0)+n;}
+function juntarCont(a,b){if(!b||typeof b!=='object'||!b.d)return a;if(!a||!a.d||b.d>a.d)return JSON.parse(JSON.stringify(b));if(b.d<a.d)return a;
+  const r={d:a.d,n:{...(a.n||{})}};for(const [dv,v] of Object.entries(b.n||{})){const y=r.n[dv];
+    if(typeof v==='number')r.n[dv]=Math.max(Number(y)||0,v);else if(v&&typeof v==='object'){const m={...(y&&typeof y==='object'?y:{})};for(const [j,x] of Object.entries(v))m[j]=Math.max(Number(m[j])||0,Number(x)||0);r.n[dv]=m;}}
+  return r;}
+// lo que había antes de la v88 (un solo número por dispositivo) cuenta como de este dispositivo
+function migrarCont(o){const hoy=diaAR(),sw=semAR();let ch=false;
+  if(o.dia&&o.dia.d===hoy&&!(o.dd&&o.dd.d===hoy)){o.dd={d:hoy,n:{[dev()]:o.dia.n|0}};ch=true;}
+  if(o.cam&&o.cam.d===hoy&&!(o.cd&&o.cd.d===hoy)){o.cd={d:hoy,n:{[dev()]:o.cam.n|0}};ch=true;}
+  if(o.tj&&o.tj.d===hoy&&!(o.tjd&&o.tjd.d===hoy)){o.tjd={d:hoy,n:{[dev()]:{...(o.tj.n||{})}}};ch=true;}
+  if(o.tw&&o.tw.s===sw&&!(o.twd&&o.twd.d===sw)){o.twd={d:sw,n:{[dev()]:{...(o.tw.n||{})}}};ch=true;}
+  return ch;}
+function cambioHoy(){const o=load();migrarCont(o);return Math.max(0,cambioDia()-cuentaDe(o.cd,diaAR()));}
 // v81 · Un ajuste del admin: suma (o resta) oro una sola vez aunque se aplique en dos dispositivos (va como premio o compra con nombre).
 function ajustar(key,delta,de){key=String(key);delta=Math.round(Number(delta)||0);const o=load();if(o.k[key]||o.p[key])return 0;
   if(delta>0)o.k[key]=[delta,Date.now()];else if(delta<0)o.p[key]=[-delta,Date.now()];else o.k[key]=[0,Date.now()];
   if(delta)hist(o,delta,de||'Ajuste de la administración');save(o);return delta;}
 function cambiar(n){n=Math.floor(Number(n)||0);if(n<=0||n>cambioHoy())return 0;const o=load();if(saldoDe(o)<n)return 0;
-  mio(o).s+=n;const c=o.cam&&o.cam.d===diaAR()?o.cam.n|0:0;o.cam={d:diaAR(),n:c+n};hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
+  mio(o).s+=n;cuentaSumar(o,'cd',diaAR(),n);hist(o,-n,'Cambio en la pulpería');save(o);return n*CAMBIO.tasa;}
+/* v88 · Al revés: pesos → oro en la pulpería (para que los pesos de sobra tengan destino y el que juega sólo la estancia
+   pueda juntar oro). 1.000 pesos → 8 de oro, hasta 80 de oro por semana (por cuenta). Los pesos los descuenta la estancia:
+   esto sólo anota el oro. Devuelve el oro que entró (0 si no se pudo). */
+const COMPRA={pesos:1000,oro:8,semana:80};
+function compraSemana(){return Math.max(0,Math.round(COMPRA.semana*admMul('cambio')));}
+function compraHoy(){const o=load();migrarCont(o);return Math.max(0,compraSemana()-cuentaDe(o.co,semAR()));}
+function comprarOro(n){n=Math.floor(Number(n)||0);if(n<=0||n%COMPRA.oro||n>compraHoy())return 0;const o=load();
+  cuentaSumar(o,'co',semAR(),n);o.k['pc:'+dev()+':'+Date.now()]=[n,Date.now()];hist(o,n,'Compra en la pulpería');save(o);anim(n);return n;}
+/* v88 · Los pesos que dan los juegos para la estancia (hasta 150 por día), también por cuenta. */
+const PESOS_DIA=150;
+function pesosHoy(){const o=load();return cuentaDe(o.pd,diaAR());}
+function pesosSumar(n){n=Math.max(0,Math.round(Number(n)||0));if(!n)return;const o=load();cuentaSumar(o,'pd',diaAR(),n);save(o);}
 
 /* ── Lo que da una partida (lo llama RANGOS.premio): con el tope del día ── */
 // v85: tope propio de algunos juegos (MarcAR: 50 de oro por día y 200 por semana, biblia de MarcAR cap. 25), además del tope general
-const TOPE_J={marcar:[50,200]};
+const TOPE_J={marcar:[60,240]};   // v88: 60 por día y 240 por semana (MarcAR paga por minuto como los demás)
 const semAR=(t=Date.now())=>{const d=new Date(t-3*3600e3);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10);};
-function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load(),h=o.tj&&o.tj.d===diaAR()?o.tj.n||{}:{},w=o.tw&&o.tw.s===semAR()?o.tw.n||{}:{};
-  return {dia:T[0],semana:T[1],hoy:h[j]|0,sem:w[j]|0,queda:Math.max(0,Math.min(T[0]-(h[j]|0),T[1]-(w[j]|0)))};}
+function topeJuego(j){const T=TOPE_J[j];if(!T)return null;const o=load();migrarCont(o);const h=cuentaJDe(o.tjd,diaAR(),j),w=cuentaJDe(o.twd,semAR(),j);
+  return {dia:T[0],semana:T[1],hoy:h,sem:w,queda:Math.max(0,Math.min(T[0]-h,T[1]-w))};}
 function premio(de,info,extra){
   let v=calc(de,info,extra);if(v<=0)return 0;v=Math.max(1,Math.round(v*admMul('oro')));   // v81: multiplicador del admin
-  const o=load(),hoy=diaAR(),ya=o.dia&&o.dia.d===hoy?o.dia.n|0:0;
+  const o=load(),hoy=diaAR();migrarCont(o);const ya=cuentaDe(o.dd,hoy);   // v88: lo de todos tus dispositivos
   v=Math.max(1,Math.round(v*(ya<TOPE[0]?1:ya<TOPE[1]?.5:.25)));
   {const j=(norm(info||{},de)||{}).j||NOM_ID[de]||'',tj=topeJuego(j);if(tj){v=Math.min(v,tj.queda);if(v<=0)return 0;
-    const sw=semAR();o.tj=o.tj&&o.tj.d===hoy?o.tj:{d:hoy,n:{}};o.tw=o.tw&&o.tw.s===sw?o.tw:{s:sw,n:{}};o.tj.n[j]=(o.tj.n[j]|0)+v;o.tw.n[j]=(o.tw.n[j]|0)+v;}}
-  o.dia={d:hoy,n:ya+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
+    cuentaJSumar(o,'tjd',hoy,j,v);cuentaJSumar(o,'twd',semAR(),j,v);}}
+  cuentaSumar(o,'dd',hoy,v);o.dia={d:hoy,n:(o.dia&&o.dia.d===hoy?o.dia.n|0:0)+v};mio(o).g+=v;hist(o,v,String(de||'').replace(/ \(reto\)$/,' · reto'));save(o);
   anim(v);
   try{setTimeout(()=>niveles(true),1600);}catch(_){}
   return v;}
-function hoy(){const o=load();return o.dia&&o.dia.d===diaAR()?o.dia.n|0:0;}
+function hoy(){const o=load();migrarCont(o);return cuentaDe(o.dd,diaAR());}
 
 /* ── Cuenta: viaja dentro de RANGOS.exportData() como «o» ── */
-function exportData(){const o=load();return {d:o.d,k:o.k,p:o.p,ti:o.ti||null,mc:o.mc||null,r70:o.r70||0,at:o.at||0};}
+const CONT=['dd','cd','tjd','twd','pd','co'];   // v88: contadores por cuenta (ver cuentaDe)
+function exportData(){const o=load();migrarCont(o);const r={d:o.d,k:o.k,p:o.p,ti:o.ti||null,mc:o.mc||null,r70:o.r70||0,at:o.at||0};for(const c of CONT)if(o[c])r[c]=o[c];return r;}
 function importData(d){if(!d||typeof d!=='object')return false;const o=load();let ch=false;
   for(const [dv,x] of Object.entries(d.d||{})){if(!x||typeof x!=='object')continue;const y=o.d[dv]||{g:0,s:0},g=Math.max(Number(y.g)||0,Number(x.g)||0),s=Math.max(Number(y.s)||0,Number(x.s)||0);if(g!==(y.g||0)||s!==(y.s||0)||!o.d[dv]){o.d[dv]={g,s};ch=true;}}
   for(const M of ['k','p'])for(const [key,x] of Object.entries(d[M]||{})){if(!Array.isArray(x))continue;const y=o[M][key];
@@ -1467,6 +1551,7 @@ function importData(d){if(!d||typeof d!=='object')return false;const o=load();le
   if(Array.isArray(d.ti)&&(!Array.isArray(o.ti)||(Number(d.ti[2])||0)>(Number(o.ti[2])||0))){o.ti=d.ti;ch=true;}
   if(Array.isArray(d.mc)&&(!Array.isArray(o.mc)||(Number(d.mc[1])||0)>(Number(o.mc[1])||0))){o.mc=d.mc;ch=true;}
   if(d.r70&&!o.r70){o.r70=d.r70;ch=true;}
+  for(const c of CONT)if(d[c]){const x=juntarCont(o[c],d[c]);if(JSON.stringify(x)!==JSON.stringify(o[c]||null)){o[c]=x;ch=true;}}
   if(ch){const at=o.at;ls.set(K,JSON.stringify({...o,at:Math.max(at||0,d.at||0)}));aviso();}
   return ch;}
 
@@ -1533,12 +1618,12 @@ const TIT_GEN={5:'Peón de campo',10:'Puestero',15:'Baqueano',20:'Rastreador',25
 const ADORNO_GEN={5:['farol_bronce','Farol de bronce'],10:['banco_tallado','Banco tallado'],15:['aljibe_azulejos','Aljibe de azulejos'],20:['carreta_pintada','Carreta pintada'],25:['fuente_plata','Fuente de plata'],
   30:['ombu_otono','Ombú de otoño'],35:['estatua_bronce','Estatua de bronce'],40:['glorieta_nevada','Glorieta blanca'],45:['molino_plata','Molino de plata'],50:['calesita_oro','Calesita de oro'],55:['capilla_rosa','Capilla rosada'],60:['estatua_oro','Estatua de oro']};
 const ROPA_GEN={10:['ropa:gala','Poncho de gala'],20:['som:dorado','Chambergo dorado'],30:['ropa:patrio','Poncho celeste y blanco'],40:['ropa:caudillo','Saco de caudillo'],50:['ropa:vicuna','Poncho de vicuña']};
-const cofreGen=L=>20+5*L;
+const cofreGen=L=>20+5*Math.min(L,20);   // v88: crece hasta el nivel 20 (120) y después queda en 120 (antes crecía sin tope)
 // Nivel de cada juego: 5/10/20/30 una apariencia exclusiva (las declara LOGROS con lv); 10 y 30, un título.
 const TIT_J={bloquear:['Apilador','Gran arquitecto'],poblar:['Colono','Fundador de pueblos'],truco:['Gaucho del truco','Mano de oro del truco'],uno:['Cantor del uno','Rey de la mesa'],
   ajedrez:['Alfil del pago','Gran maestro'],ludo:['Fichero','Patrón del ludo'],pool:['Taquero','Mago del paño'],sudoku:['Numerero','Sabio de los números'],solitario:['Paciente','Maestro del solitario'],
-  buscaminas:['Rastreador de minas','Desactivador'],invasores:['Defensor de la llanura','Azote de la Nodriza'],marcar:['Recluta de la Estación','Leyenda del Mercado'],estancia:['Chacarero','Gran estanciero']};
-const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',invasores:'InvasorAR',marcar:'MarcAR',estancia:'EstanciAR'};
+  buscaminas:['Rastreador de minas','Desactivador'],invasores:['Defensor de la llanura','Azote de la Nodriza'],marcar:['Recluta de la Estación','Leyenda del Mercado'],fortinar:['Comandante de posta','Señor de la frontera'],estancia:['Chacarero','Gran estanciero']};
+const JNOM={bloquear:'BloqueAR',poblar:'PoblAR',truco:'TrucAR',uno:'UnoAR',ajedrez:'AjedrezAR',ludo:'LudAR',pool:'PoolAR',sudoku:'SudokAR',solitario:'SolitARio',buscaminas:'BuscaminAR',invasores:'InvasorAR',marcar:'MarcAR',fortinar:'FortinAR',estancia:'EstanciAR'};
 const cofreEst=L=>L>=8?10+2*L:0;   // EstanciAR: desde el nivel 8, un cofre chico por nivel (lo cobra la estancia)
 function R(){return window.RANGOS||null;}
 function lvGen(){try{return R().general().level.lv;}catch(_){return 1;}}
@@ -1625,14 +1710,14 @@ function pampaPuesto(pr){if(!pr||!pr.semana)return 0;return cobrar('pm:'+pr.sema
 
 /* ── Hoja «¿Cómo gano oro?» ── */
 function hojaHtml(){css();const o=load(),h=o.h.slice(0,8),y=hoy();
-  const filas=[['🏘️','PoblAR, partida ganada','12'],['🃏','TrucAR a 30 (a 15: 6)','10'],['♟️','AjedrezAR (bala: 4)','8'],['🎴','UnoAR · 🎲 LudAR','6'],['🎱','PoolAR, por mesa','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],['👾','InvasorAR (duelo y del día: 6)','2 + 1 por oleada, hasta 10'],
-    ['🧩','Sudoku, Solitario o Buscaminas del día','6'],['🧩','Sudoku, Solitario o Buscaminas común','1 a 3'],['🎯','Cada reto de la semana','5'],['⭐','Cada nivel general','20 + 5 × nivel'],['🗺️','La Gran Pampa: 1.º / 2.º / 3.º','300 / 200 / 120'],['🗺️','Terminar la semana de La Gran Pampa jugando','40']];
+  const filas=[['🏘️','PoblAR (~22 min)','13'],['🏰','FortinAR: Asalto / Express / Conquista','8 / 12 / 14'],['🎯','MarcAR: Bomba (Carrera 5)','11'],['🃏','TrucAR a 30 (a 15: 5)','10'],['♟️','AjedrezAR (bala: 2)','8'],['🎲','LudAR','8'],['🎴','UnoAR · 🎱 PoolAR (por mesa)','4'],['🧱','BloqueAR','1 cada 10 líneas, hasta 10'],['👾','InvasorAR (del día: 6)','2 + 1 cada 2 oleadas, hasta 6'],['🌀','LaberintAR (del día: 6)','3 + 1 por mapa limpio, hasta 6'],
+    ['🧩','Sudoku, Solitario o Buscaminas del día','6'],['🧩','Sudoku, Solitario o Buscaminas común','1 a 3'],['🎯','Cada reto de la semana','5'],['⭐','Cada nivel general','20 + 5 × nivel (hasta 120)'],['🗺️','La Gran Pampa: 1.º / 2.º / 3.º','300 / 200 / 120'],['🗺️','Terminar la semana de La Gran Pampa jugando','40']];
   return `<div class="oro-hoja"><p class="oro-saldo">${ico()}<b data-oro-saldo>${fmt(saldoDe(o))}</b><span>de oro</span></p>
   <p>El <b>oro</b> sale de jugar cualquier juego y sirve para lo lindo: apariencias de los juegos, ropa y caballos especiales, adornos únicos para la estancia, gestos y marcos. Los <b>pesos</b> salen de la estancia y sirven para lo de todos los días. Las mejoras grandes de la estancia piden las dos.</p>
-  <h4>Cuánto da cada juego</h4><p class="note">Por partida ganada contra la compu. Contra personas, el doble. Empatar da algo y perder peleando, un poco; abandonar no da nada.</p>
+  <h4>Cuánto da cada juego</h4><p class="note">Por partida ganada contra la compu en Normal: cada juego da parecido por minuto jugado (unos 0,6 de oro por minuto). En Fácil, la mitad; en Difícil, un 30 % más; contra personas, un 60 % más. Empatar da el 70 % y perder peleando, la mitad; abandonar no da nada.</p>
   <div class="oro-tabla">${filas.map(f=>`<div><i>${f[0]}</i><span>${f[1]}</span><b>${f[2]}</b></div>`).join('')}</div>
-  <p class="note">Hoy juntaste ${fmt(y)} jugando. Los primeros 150 del día van enteros; hasta 300, a la mitad; después, un cuarto.</p>
-  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${cambioDia()} de oro por día). Al revés no se puede.</p>
+  <p class="note">Hoy juntaste ${fmt(y)} jugando (contando todos tus dispositivos). Los primeros ${TOPE[0]} del día van enteros; hasta ${TOPE[1]}, a la mitad; después, un cuarto.</p>
+  <h4>En la pulpería</h4><p class="note">En tu estancia podés cambiar oro por pesos (1 de oro = ${CAMBIO.tasa} pesos, hasta ${cambioDia()} de oro por día) y también pesos por oro (${fmt(COMPRA.pesos)} pesos = ${COMPRA.oro} de oro, hasta ${compraSemana()} de oro por semana).</p>
   ${h.length?`<h4>Últimos movimientos</h4><div class="oro-tabla">${h.map(x=>`<div><i>${x.n>0?'＋':'－'}</i><span>${esc(x.de||'')}</span><b>${x.n>0?'+':''}${fmt(x.n)}</b></div>`).join('')}</div>`:''}</div>`;}
 const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:left}.oro-hoja p{margin:0}.oro-hoja h4{margin:8px 0 0;font-size:14px}
 .oro-saldo{display:flex;align-items:center;gap:8px;font-size:15px}.oro-saldo .oro-i{width:30px;height:30px}.oro-saldo b{font-size:28px;color:#f5c94c}
@@ -1641,7 +1726,7 @@ const HOJA_CSS=`.oro-hoja{display:flex;flex-direction:column;gap:8px;text-align:
 .oro-tabla i{font-style:normal;text-align:center}.oro-tabla b{color:#f5c94c;text-align:right}`;
 function hojaCss(){css();if(document.getElementById('oro-hoja-css'))return;const s=document.createElement('style');s.id='oro-hoja-css';s.textContent=HOJA_CSS;(document.head||document.documentElement).appendChild(s);}
 
-return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
+return {ORO_TABLA,MULT_RES,MULT_RIVAL,TOPE,TOPE_J,topeJuego,CAMBIO,COMPRA,compraSemana,compraHoy,comprarOro,PESOS_DIA,pesosHoy,pesosSumar,juntarCont,cuentaDe,norm,calc,premio,saldo,ganar,cobrar,cobrado,tiene,comprar,gastar,cambiar,cambioHoy,cambioDia,ajustar,admMul,hoy,exportData,importData,
   MARCOS,GESTOS_ORO,marco,ponerMarco,gestos,subirPerfil,
   ico,txt,premioTxt,anim,css,niveles,cartel,titulos,titulo,ponerTitulo,TIT_GEN,TIT_J,ADORNO_GEN,ROPA_GEN,cofreGen,cofreEst,PAMPA_ORO,pampaPuesto,hojaHtml,hojaCss,
   sub(f){SUB.add(f);},_load:load,_K:K};
@@ -3418,6 +3503,14 @@ async function mePrendo(mid){
 // v70.1: la planilla 19 no conoce LudAR ni PoolAR: su tarjeta dice «BloqueAR · Duelo en línea». Se mira esa invitación
 // (una sola vez por tarjeta) y se corrige el juego que muestra la tarjeta y adónde lleva «Entrar».
 const INV_PREF={TRUCO:'truco',UNO:'uno',POBLAR:'poblar',AJEDREZ:'ajedrez',LUDO:'ludo',POOL:'pool',INVASOR:'invasores',MARCAR:'marcar',FORTINAR:'fortinar'};
+// v88: UNA sola tabla de juegos para las invitaciones (prefijo de la oferta, página, nombre, emoji). La usan los carteles
+// «Te invitan» de todos los juegos (antes cada uno tenía su lista y no conocían MarcAR/FortinAR: decían «BloqueAR»).
+// Al aceptar se va DIRECTO a la página del juego con «<pag>-accept» (sin pasar por el menú).
+window.BLQ_JUEGOS_INV=[['TRUCO:','truco','TrucAR','🃏'],['UNO:','uno','UnoAR','🎴'],['LUDO:','ludo','LudAR','🎲'],['POOL:','pool','PoolAR','🎱'],
+  ['AJEDREZ:','ajedrez','AjedrezAR','♟️'],['POBLAR:','poblar','PoblAR','🏘️'],['INVASOR:','invasores','InvasorAR','👾'],['MARCAR:','marcar','MarcAR','🎯'],['FORTINAR:','fortinar','FortinAR','🏰']];
+window.BLQ_invInfo=function(oferta){const of=String(oferta||'');for(const r of window.BLQ_JUEGOS_INV)if(of.startsWith(r[0]))return{pref:r[0],pag:r[1],nom:r[2],emo:r[3],html:'<b>'+r[2]+'</b> '+r[3]};
+  return{pref:'',pag:'',nom:'BloqueAR',emo:'🧱',html:'<b>BloqueAR</b> 🧱'};};
+window.BLQ_invIr=function(inv){const i=window.BLQ_invInfo(inv&&inv.oferta);try{sessionStorage.setItem(i.pag?i.pag+'-accept':'blq-accept',inv.id);}catch(_){}location.href=i.pag?i.pag+'.html':'./';};
 async function invCorregir(){
   if(!(S.ver&&S.ver<20))return;S.invFix=S.invFix||{};
   for(const m of S.msgs.slice(-40)){const c=invCard(m);
@@ -4196,6 +4289,13 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:88,grande:true,titulo:'Novedades',items:[
+    ['🧹','Gran revisión: arreglamos más de cien cosas en todos los juegos, sobre todo en el celular. Los avisos ya no te roban el toque.'],
+    ['🌾','Tu estancia se ve como un solo campo: pasto de verdad, pampa alrededor, luciérnagas de noche y anda más fluida con todo puesto.'],
+    ['💰','Economía pareja: el oro se gana igual en todos los juegos, los topes son por cuenta, hay obras del pueblo para invertir y se puede cambiar pesos por oro.'],
+    ['🏰','FortinAR: la compu ahora tumba fortines y respeta el nivel, ya no se gana quedándose quieto, y aparece en Tablas y Logros.'],
+    ['🎯','MarcAR: volver a una partida en línea funciona, cambio de lado a la mitad, ayuda corta y partidas en «Normal» por defecto.'],
+    ['🌀','LaberintAR estrena 5 laberintos propios.']]},
   {v:87,grande:true,titulo:'Novedades',items:[
     ['🏰','FortinAR: cuatro facciones nuevas (Guardias de la Frontera, Milicias de la Confederación, Montoneras del Interior y Comerciantes del Litoral), el modo Express y partidas de 3 y 4 jugadores, todos contra todos o 2 contra 2, también en línea.'],
     ['🗺️','La Gran Pampa cambia cada semana: forma del mapa distinta, parajes nuevos (pueblo, pulpería, tapera, vado), una regla de la semana, tres objetivos y la Gaceta del día.'],
@@ -5168,7 +5268,7 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto,efecto
 <div class="app" id="app">
   <div class="top">
     <a class="icon-btn games-btn" id="btn-games" href="./#juegos" aria-label="Menú de juegos" title="Menú de juegos"><i></i><i></i><i></i><i></i><b>Juegos</b></a>
-    <div class="brand">UNO<span>AR</span><em class="beta" title="Todavía lo estamos armando">Beta</em></div>
+    <div class="brand">UNO<span>AR</span></div>
     <button class="icon-btn" id="btn-mesa" aria-label="Chat de la mesa" title="Chat de la mesa" hidden>💭<span class="badge" id="mesa-badge"></span></button>
     <button class="icon-btn" id="btn-chat" aria-label="Chat" title="Chat" data-chat-btn>💬</button>
     <button class="icon-btn" id="btn-menu" aria-label="Menú">☰</button>
@@ -5726,7 +5826,7 @@ document.addEventListener('pointerdown',e=>{const p=$('pick');if(!p.hidden&&!p.c
 // Lo que dice cada uno (un globo arriba de su lugar o arriba de tu mano)
 function dicho(q,txt,ms=1600){DICHOS[q]=txt;if(q===0){toast(esc(txt));return;}renderSeats();setTimeout(()=>{if(DICHOS[q]===txt){delete DICHOS[q];if(E)renderSeats();}},FAST?10:ms);}
 let toastT=0;function toast(t){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.innerHTML=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),FAST?10:2400);}
-function over(html){document.querySelectorAll('.toast').forEach(x=>x.remove());const el=$('over');el.innerHTML=`<div class="ccard">${html}</div>`;el.hidden=false;return el;}
+function over(html){document.querySelectorAll('.toast').forEach(x=>x.remove());const el=$('over');el.innerHTML=`<div class="ccard">${html}</div>`;el.hidden=false;if(window.TOQUE)TOQUE.proteger(el);return el;}   // v88: el cartel aparece solo (fin de mano/partida): no se come el toque que venía
 function hideOver(){$('over').hidden=true;}
 // Una carta que vuela desde la mano (o el lugar de alguien) hasta el pozo (v67: antes la buscaba con :last-of-type y nunca la encontraba)
 function origen(q,c){const el=q===0?document.querySelector(`#hand .card[data-c="${c}"]`):document.querySelector(`.seat[data-q="${q}"] .fan .card:last-of-type`)||document.querySelector(`.seat[data-q="${q}"] .av`);return el?el.getBoundingClientRect():null;}
@@ -5850,7 +5950,7 @@ function mostrarFinMano(){
   const F=E.finMano,gane=F.gano===0&&MODO!=='local';sfx(gane||MODO==='local'?'gano':'pierdo');clearInterval(TMR);if(MODO!=='local')lgMano();
   over(`<div class="ic">${gane?'🏆':'🃏'}</div><h3>${gane?'¡Te quedaste sin cartas!':esc(E.nombres[F.gano])+' se quedó sin cartas'}</h3>
     <p>Suma <b>${fmt(F.pts)}</b> ${F.pts===1?'punto':'puntos'} con lo que les quedaba a los demás.</p>
-    <div class="lines">${lineas()}</div><p class="cap">Gana el primero que llega a ${E.meta}.</p>
+    <div class="lines">${lineas()}</div><p class="cap">Gana el primero que llega a ${E.meta}.${(()=>{const mx=Math.max(...E.puntos),q=E.puntos.indexOf(mx),f=E.meta-mx;return f>0?` A ${q===0&&MODO!=='local'?'vos te':esc(E.nombres[q])+' le'} ${f===1?'falta':'faltan'} ${fmt(f)}.`:'';})()}</p>
     <button class="btn go" id="fm-ok">${MODO==='guest'?'Listo':'Repartir'}</button>`);
   $('fm-ok').onclick=siguienteMano;
   if(AUTO)setTimeout(siguienteMano,FAST?0:300);
@@ -5993,7 +6093,7 @@ function openMenu(){
     <button id="m-new">🃏 Partida nueva</button><button id="m-friend">👥 Jugar en línea con amigos</button>${enPartida()?'<button id="m-salir">🚪 Salir de la partida</button>':''}<button id="m-log">📜 Lo que pasó</button>
     <button id="m-help">❓ Cómo se juega</button><button id="m-snd">${SND?'🔊 Sonido: prendido':'🔇 Sonido: apagado'}</button><button id="m-anim">${VUELO.etiqueta()}</button><button id="m-share">📲 Pasar el juego</button>
     ${window.LOGROS?'<button id="m-logros">🏅 Logros y retos</button>':''}<a href="./#tablas=uno">🏆 Tabla</a>
-    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 87</p>`);
+    <a href="estancia.html">🏡 Mi estancia</a><a href="./#cuenta">👤 Mi cuenta</a><a href="./#juegos">🎮 Menú de juegos</a></div><p class="note" style="margin-top:auto;text-align:center">UnoAR · versión 88</p>`);
   const go=f=>()=>{closeSide();f();};
   $('m-x').onclick=closeSide;
   $('m-new').onclick=go(()=>{if(MODO!=='compu'&&ON&&ON.state==='juego'&&!(E&&E.fin)){if(!confirm('¿Dejar la mesa en línea?'))return;netLeave();}openNew();});
@@ -6465,15 +6565,16 @@ async function pollInbox(force=false){
 }
 function showInvite(inv){
   UIQ.dismissed.add(inv.id);const sola=mesaSola();if(sola)LOBBY=false;const of=String(inv.oferta||''),uno=of.startsWith('UNO:'),tru=of.startsWith('TRUCO:'),pob=of.startsWith('POBLAR:'),aj=of.startsWith('AJEDREZ:');
-  const juego=uno?'<b>UnoAR</b> 🃏 en su mesa':tru?'<b>TrucAR</b> 🃏':pob?'<b>PoblAR</b> 🏘️':aj?'<b>AjedrezAR</b> ♟️':of.startsWith('LUDO:')?'<b>LudAR</b> 🎲':of.startsWith('POOL:')?'<b>PoolAR</b> 🎱':of.startsWith('INVASOR:')?'<b>InvasorAR</b> 👾':'<b>BloqueAR</b> 🧱';
+  const juego=uno?'<b>UnoAR</b> 🎴 en su mesa':tru?'<b>TrucAR</b> 🃏':pob?'<b>PoblAR</b> 🏘️':aj?'<b>AjedrezAR</b> ♟️':(window.BLQ_invInfo?BLQ_invInfo(of).html:'<b>BloqueAR</b> 🧱');   // v88: tabla común (MarcAR, FortinAR…)
   sheet('Te invitan',`<div style="display:flex;align-items:center;gap:12px">${avHtml(inv.avatar,inv.color)}<div><b style="font:700 18px var(--serif)">${esc(inv.de)}</b><div class="note">te invita a jugar ${juego}</div></div></div>
     ${uno&&E&&!E.fin&&MODO==='compu'?'<p class="note">Tu partida contra la compu queda guardada.</p>':''}${sola?'<p class="note">Si aceptás, se cierra la mesa que abriste (todavía no había nadie).</p>':''}<div class="row"><button class="btn" id="iv-no">Ahora no</button><button class="btn go" id="iv-yes">Aceptar</button></div>`);
+  if(window.TOQUE)TOQUE.proteger($('modal'));   // v88: la invitación llega sola: un toque que ya venía no cae en sus botones
   $('iv-no').onclick=()=>{closeSheet();const a=acct();if(a)lbCall({accion:'rechazar',usuario:a.usuario,token:a.token,id:inv.id}).catch(()=>{});if(sola&&mesaSola()){LOBBY=true;drawLobby();}};
   $('iv-yes').onclick=()=>{closeSheet();if(uno)acceptInvite(inv);
     else if(tru){try{sessionStorage.setItem('truco-accept',inv.id);}catch(_){}location.href='truco.html';}
     else if(pob){try{sessionStorage.setItem('poblar-accept',inv.id);}catch(_){}location.href='poblar.html';}
     else if(aj){try{sessionStorage.setItem('ajedrez-accept',inv.id);}catch(_){}location.href='ajedrez.html';}
-    else{const pg=of.startsWith('LUDO:')?'ludo':of.startsWith('POOL:')?'pool':of.startsWith('INVASOR:')?'invasores':'';try{sessionStorage.setItem(pg?pg+'-accept':'blq-accept',inv.id);}catch(_){}location.href=pg?pg+'.html':'./';}};
+    else if(window.BLQ_invIr)BLQ_invIr(inv);else{try{sessionStorage.setItem('blq-accept',inv.id);}catch(_){}location.href='./';}};
 }
 window.addEventListener('pagehide',()=>{if(ON)netSend({t:'bye',corte:1});});   // se cerró la app: puede volver (v63)
 
