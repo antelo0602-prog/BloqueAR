@@ -501,6 +501,86 @@ html.blq-sin-anim .bq-velo,html.blq-sin-anim .bq-hoja,html.blq-sin-anim .bq-avis
 /* v90 · C1: el aviso de la primera vez de los solitarios y LaberintAR («Listo») sigue el color de la app */
 html.bq-piel .tip1 .btn.go{background:var(--maiz)!important;border-color:var(--maiz)!important;color:var(--maiz-osc)!important}
 
+/* ───────── v92 · Configuración de los juegos (BLQ_UI.config) ─────────
+   Grupos con título, controles grandes con el valor a la vista, lo avanzado plegado y el botón fijo abajo.
+   Va igual dentro de la hoja propia de cada juego (#sheet) y en la hoja común. */
+.bq-cfg{font-family:var(--f-texto);color:var(--cal);display:flex;flex-direction:column;gap:12px;text-align:left}
+.bq-cfg h3{font:700 var(--t-4)/1.2 var(--f-titulo);letter-spacing:.02em;color:var(--pasto-seco);margin:0 0 8px}
+.bq-cfg-res{display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:var(--r-m);background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--maiz)}
+.bq-cfg-res span{font-size:var(--t-4);color:var(--pasto-seco)}
+.bq-cfg-res b{font:800 var(--t-3)/1.3 var(--f-titulo);color:var(--cal)}
+.bq-cfg-g{background:var(--mate-claro-t);border-radius:var(--r-m);padding:12px;box-shadow:inset 0 0 0 1px var(--linea)}
+.bq-cfg-c+.bq-cfg-c{margin-top:14px}
+.bq-cfg-et{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 2px 7px;font-size:var(--t-4);color:var(--pasto-seco)}
+.bq-cfg-et span{font-weight:700}
+.bq-cfg-val{font-weight:700;color:var(--maiz);text-align:right}
+.bq-cfg-ay{margin:7px 2px 0;font-size:var(--t-4);line-height:1.35;color:var(--pasto-seco)}
+/* Segmentos: todas las opciones a la vista, del mismo ancho */
+.bq-cfg-seg{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--hondo);box-shadow:inset 0 0 0 1px var(--linea)}
+.bq-cfg-seg button,.bq-cfg-chips button{appearance:none;border:0;margin:0;font:700 15px/1.15 var(--f-texto);color:var(--cal);background:transparent;border-radius:11px;min-height:46px;padding:7px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:background .15s,color .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.bq-cfg-seg button small,.bq-cfg-chips button small,.bq-cfg-lista button small,.bq-cfg-sw small,.bq-cfg-pie small{display:block;font-weight:400;font-size:12px;line-height:1.2;color:var(--pasto-seco)}
+.bq-cfg-seg button.on{background:var(--maiz);color:var(--maiz-osc);box-shadow:0 2px 8px var(--sombra-c)}
+:root .bq-cfg .bq-cfg-seg button.on small,:root .bq-cfg .bq-cfg-chips button.on small,:root .bq-cfg .bq-cfg-jugar small{color:var(--maiz-osc)!important;opacity:.78!important}
+.bq-cfg-ic{font-size:18px;line-height:1}
+/* Chips: muchas opciones cortas, se acomodan en renglones */
+.bq-cfg-chips{display:flex;flex-wrap:wrap;gap:8px}
+.bq-cfg-chips button{flex:1 1 auto;min-width:64px;min-height:44px;padding:8px 14px;background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--linea);border-radius:999px;flex-direction:row}
+.bq-cfg-chips button.on{background:var(--maiz);color:var(--maiz-osc);box-shadow:none}
+/* Lista: opciones con explicación, una por renglón */
+.bq-cfg-lista{display:flex;flex-direction:column;gap:6px}
+.bq-cfg-lista button{appearance:none;border:0;margin:0;text-align:left;font:700 15px/1.2 var(--f-texto);color:var(--cal);background:var(--hondo);border-radius:12px;min-height:52px;padding:9px 44px 9px 14px;position:relative;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--linea);touch-action:manipulation}
+.bq-cfg-lista button.on{box-shadow:inset 0 0 0 2px var(--maiz)}
+.bq-cfg-rd{position:absolute;right:14px;top:50%;width:20px;height:20px;margin-top:-10px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--alambre)}
+.bq-cfg-lista button.on .bq-cfg-rd{box-shadow:inset 0 0 0 6px var(--maiz)}
+.bq-cfg-lista .bq-cfg-ic{margin-right:6px}
+/* Interruptor: renglón entero tocable */
+.bq-cfg-sw{appearance:none;border:0;margin:0;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:transparent;color:var(--cal);font:700 15px/1.25 var(--f-texto);min-height:48px;padding:4px 2px;cursor:pointer;touch-action:manipulation}
+.bq-cfg-sw-t{display:flex;flex-direction:column;gap:2px}
+.bq-cfg-sw-k{flex:0 0 auto;width:50px;height:30px;border-radius:999px;background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--alambre);position:relative;transition:background .18s}
+.bq-cfg-sw-k i{position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:var(--pasto-seco);transition:transform .18s,background .18s}
+.bq-cfg-sw.on .bq-cfg-sw-k{background:var(--maiz);box-shadow:none}
+.bq-cfg-sw.on .bq-cfg-sw-k i{transform:translateX(20px);background:var(--maiz-osc)}
+/* Deslizador */
+.bq-cfg-rg input{width:100%;accent-color:var(--maiz);height:36px}
+/* Lo avanzado, plegado */
+.bq-cfg-mas{padding:0}
+.bq-cfg-mas summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:13px 44px 13px 14px;position:relative;min-height:48px;justify-content:center}
+.bq-cfg-mas summary::-webkit-details-marker{display:none}
+.bq-cfg-mas summary::after{content:'';position:absolute;right:18px;top:50%;width:9px;height:9px;margin-top:-7px;border-right:2px solid var(--pasto-seco);border-bottom:2px solid var(--pasto-seco);transform:rotate(45deg);transition:transform .18s}
+.bq-cfg-mas[open] summary::after{transform:rotate(225deg);margin-top:-2px}
+.bq-cfg-mas-t{font:700 15px/1.2 var(--f-titulo);color:var(--cal)}
+.bq-cfg-mas summary small{font-size:12px;color:var(--pasto-seco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bq-cfg-mas>.bq-cfg-c{padding:0 12px}
+.bq-cfg-mas>.bq-cfg-c:last-child,.bq-cfg-mas>.bq-cfg-ay:last-child{padding-bottom:12px}
+.bq-cfg-mas>.bq-cfg-ay{padding:0 12px}
+/* Pie fijo: el botón principal siempre a mano */
+.bq-cfg-pie{position:sticky;bottom:-16px;z-index:2;display:flex;flex-direction:column;gap:8px;margin:2px -4px -16px;padding:12px 4px calc(18px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--mate) 12px)}
+.bq-cfg-jugar{min-height:54px;font:800 17px/1.1 var(--f-titulo)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.bq-cfg-otros{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.bq-cfg-otros .bq-btn{min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:700}
+.bq-cfg button:focus-visible,.bq-cfg summary:focus-visible,.bq-cfg input:focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.bq-cfg *{transition:none!important}}
+/* Acostado: dos columnas para los grupos, el resumen y el pie ocupan todo el ancho */
+@media (orientation:landscape) and (max-height:520px){
+  .bq-cfg{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:10px}
+  .bq-cfg-res,.bq-cfg-pie{grid-column:1/-1}
+  .bq-cfg-pie{flex-direction:row;align-items:center;padding-top:8px}.bq-cfg-pie .bq-cfg-jugar{flex:1.2;min-height:46px}
+  .bq-cfg-pie .bq-cfg-otros{flex:1.5;display:flex;gap:6px}.bq-cfg-pie .bq-cfg-otros .bq-btn{flex:1;min-height:42px;font-size:13px;padding:4px 8px}
+  .bq-cfg-pie .bq-cfg-otros small{display:none}
+  .bq-cfg-res{padding:7px 12px}.bq-cfg-res span{display:none}
+  .bq-cfg-seg button,.bq-cfg-chips button{min-height:40px}.bq-cfg-lista button{min-height:44px}
+}
+/* PC: dos columnas cuando la ventana es ancha */
+@media (min-width:1024px) and (hover:hover){
+  .bq-cfg{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:12px}
+  .bq-cfg-res,.bq-cfg-pie{grid-column:1/-1}
+  .bq-cfg-pie{flex-direction:row;align-items:center}.bq-cfg-pie .bq-cfg-jugar{flex:1.2}.bq-cfg-pie .bq-cfg-otros{flex:1.4;display:flex;gap:8px}.bq-cfg-pie .bq-cfg-otros .bq-btn{flex:1}
+  .bq-cfg-seg button:hover:not(.on),.bq-cfg-chips button:hover:not(.on),.bq-cfg-lista button:hover{background:var(--mate-claro)}
+}
+/* La hoja de configuración más ancha donde sobra lugar (acostado y PC), para las dos columnas */
+@media (orientation:landscape) and (max-height:520px){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(820px,96vw)!important;max-width:none!important}}
+@media (min-width:1024px) and (hover:hover){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(780px,92vw)!important;max-width:none!important}}
+.bq-cfg-pinta{display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--k,#888);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 0 0 1.5px rgba(255,255,255,.35);vertical-align:-3px}
 </style>
 <script>
 /* ───────── v89 · Lo común de toda la app (interfaz «A · Pampa al atardecer») ─────────
@@ -658,6 +738,10 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&HOJAS.length){e.stopPropagat
 
 /* ── Cómo se juega ── */
 function comoSeJuega(o){o=o||{};const j=o.juego||JUEGO,a=AY[j]||{p:[],r:[]},pasos=o.pasos||a.p,reglas=o.reglas||a.r;
+  /* v92 (pedido del 11/11): «Cómo se juega» ya no se abre solo la primera vez. Los juegos que lo abrían al entrar
+     (con alCerrar = seguir a «Partida nueva») ahora siguen directo; las reglas quedan detrás del «?» y en la entrada.
+     El punto del «?» sigue avisando que hay algo para leer. Para forzarlo: o.forzar=true. */
+  if(o.alCerrar&&!o.forzar){setTimeout(()=>{try{o.alCerrar();}catch(err){console.error(err);}},0);return null;}
   marcarVisto(j);
   const fn=o.completas||o.alCompletas||(()=>{for(const n of (a.f?[a.f]:COMPLETAS))if(typeof window[n]==='function'&&window[n]!==comoSeJuega)return window[n];return null;})();
   const html=`<ol class="bq-tres">${pasos.map(t=>`<li><span>${esc(t)}</span></li>`).join('')}</ol>
@@ -1024,6 +1108,103 @@ if(/^estancia/.test(pag))estarUnRato('estancia',()=>{if(/visitar=/.test(hash0)||
 if(/^pampa/.test(pag))estarUnRato('pampa',()=>true);
 })();
 
+
+/* ───────── v92 · Configuración de los juegos: BLQ_UI.config ─────────
+   Pedido del 11/11: «el menú que aparece al inicio de cada juego está bien, pero la configuración también tiene que
+   mejorar! No es solo cuestión de ocultarlo». Una sola pieza para «Cambiar ›», «Más opciones» y «Partida nueva» de
+   todos los juegos: arriba una línea con lo elegido («Vas a jugar: …»), grupos con título, controles grandes
+   (segmentos, chips, interruptores, deslizador o lista) con el valor a la vista, lo avanzado plegado y un botón fijo
+   abajo («Jugar así»). Usa la piel común (azul/verde) y en PC va en ventana centrada (la hoja común ya lo hace).
+
+   API · window.BLQ_UI.config(o) → {el, pintar(), cerrar(), valor(id)}
+     o.juego       'truco', 'uno'… (para recordar qué grupos plegados abriste)
+     o.titulo      título si se abre como hoja propia (sin o.en). Por defecto «Partida nueva».
+     o.en          elemento donde dibujarla (p. ej. un <div> dentro de la hoja #sheet del juego). Sin o.en, abre BLQ_UI.hoja.
+     o.grupos      [{titulo, nota?, plegado?:true (va en «Más reglas…», cerrado), visible?:fn, campos:[campo…]}]
+     campo         {id, etiqueta?, tipo:'seg'|'chips'|'switch'|'rango'|'lista',
+                    opciones:[{v, t, sub?, icono?}]   (seg/chips/lista; para switch no hace falta: v true/false)
+                    valor: valor o fn() → valor actual (los juegos guardan su estado en sus variables),
+                    alCambiar(v): guardá ahí (ls.set…). Después la pieza se vuelve a pintar sola.
+                    ayuda?: texto o fn(v) → una línea debajo (sólo si hace falta),
+                    dato?: 'np' → cada botón lleva data-np="valor" (compatibilidad con pruebas viejas),
+                    visible?:fn, min/max/paso/unidad (rango), textoSi/textoNo (switch)}
+     o.resumen     fn() → texto de la línea de arriba («Mano a mano · Normal · a 30»)
+     o.jugar       {texto:'Jugar así', sub?, id?, fn}   botón principal fijo abajo
+     o.otros       [{texto, sub?, id?, icono?, fn}]    botones secundarios (Con amigos, En este aparato…)
+     o.alCerrar    fn (sólo hoja propia)
+   Todo lo que la pieza dibuja usa clases .bq-cfg*; los botones de opción llevan .on y aria-checked. */
+(function(){'use strict';
+if(!window.BLQ_UI||BLQ_UI.config)return;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ABIERTOS={};   // juego → {grupo:true} plegados que la persona abrió (sólo mientras dura la página)
+const val=c=>typeof c.valor==='function'?c.valor():c.valor;
+const vis=x=>!x.visible||!!x.visible();
+const tx=x=>typeof x==='function'?x():x;   // textos que pueden depender del estado (p. ej. «En línea» / «Con amigos»)
+const ops=c=>(typeof c.opciones==='function'?c.opciones():c.opciones)||[];   // las opciones pueden depender de otra elección
+const igual=(a,b)=>a===b||String(a)===String(b);
+function textoDe(c){const v=val(c);
+  if(c.tipo==='switch')return v?(c.textoSi||'Sí'):(c.textoNo||'No');
+  if(c.tipo==='rango')return v+(c.unidad?' '+c.unidad:'');
+  const o=ops(c).find(o=>igual(o.v,v));return o?o.t:'';}
+function campoHtml(c,k){
+  const v=val(c),dato=c.dato?` data-${c.dato}`:'';const ay=typeof c.ayuda==='function'?c.ayuda(v):c.ayuda;
+  const et=c.etiqueta?`<div class="bq-cfg-et"><span>${esc(c.etiqueta)}</span>${c.tipo==='switch'?'':`<b class="bq-cfg-val">${esc(textoDe(c))}</b>`}</div>`:'';
+  let ctl='';
+  if(c.tipo==='switch'){
+    ctl=`<button type="button" class="bq-cfg-sw${v?' on':''}" role="switch" aria-checked="${!!v}" data-cfg="${k}" data-v="${v?0:1}"${dato?`${dato}="${v?0:1}"`:''}><span class="bq-cfg-sw-t"><b>${esc(c.etiqueta||'')}</b>${c.sub?`<small>${esc(c.sub)}</small>`:''}</span><span class="bq-cfg-sw-k" aria-hidden="true"><i></i></span></button>`;
+    return `<div class="bq-cfg-c" data-c="${esc(c.id)}">${ctl}${ay?`<p class="bq-cfg-ay">${esc(ay)}</p>`:''}</div>`;}
+  if(c.tipo==='rango'){
+    ctl=`<div class="bq-cfg-rg"><input type="range" min="${c.min}" max="${c.max}" step="${c.paso||1}" value="${esc(v)}" data-cfg="${k}" aria-label="${esc(c.etiqueta||c.id)}"></div>`;}
+  else{
+    const cls=c.tipo==='chips'?'bq-cfg-chips':c.tipo==='lista'?'bq-cfg-lista':'bq-cfg-seg';
+    ctl=`<div class="${cls}" role="radiogroup"${c.etiqueta?` aria-label="${esc(c.etiqueta)}"`:''}${c.tipo==='seg'?` style="--n:${ops(c).length}"`:''}>${ops(c).map((o,i)=>{const on=igual(o.v,v);
+      return `<button type="button" role="radio" aria-checked="${on}" class="${on?'on':''}" data-cfg="${k}" data-i="${i}"${dato?`${dato}="${esc(o.v)}"`:''}>${o.icono?`<span class="bq-cfg-ic" aria-hidden="true">${o.icono}</span>`:''}<span class="bq-cfg-t">${esc(o.t)}</span>${o.sub?`<small>${esc(o.sub)}</small>`:''}${c.tipo==='lista'?'<i class="bq-cfg-rd" aria-hidden="true"></i>':''}</button>`;}).join('')}</div>`;}
+  return `<div class="bq-cfg-c" data-c="${esc(c.id)}">${et}${ctl}${ay?`<p class="bq-cfg-ay">${esc(ay)}</p>`:''}</div>`;}
+function config(o){o=o||{};const juego=o.juego||'juego';ABIERTOS[juego]=ABIERTOS[juego]||{};
+  let H=null,root;
+  // o.hojaJuego: usa la hoja propia del juego (sheet(título, html) → #sheet), así siguen andando sus ids y su cierre.
+  if(!o.en&&o.hojaJuego&&typeof window.sheet==='function'){window.sheet(esc(o.titulo||'Partida nueva'),'<div class="bq-cfg-raiz"></div>');o.en=document.querySelector('#sheet .bq-cfg-raiz');}
+  if(o.en){root=o.en;}else{H=BLQ_UI.hoja({titulo:o.titulo||'Partida nueva',html:'',clase:'bq-cfg-hoja',alCerrar:o.alCerrar});root=H.cuerpo;}
+  root.classList.add('bq-cfg');
+  const CAMPOS=[];
+  function pintar(){
+    const sc=(root.closest('.body')||root.closest('#sheet')||root.closest('.bq-hoja')||root),top=sc.scrollTop;
+    const act=document.activeElement&&root.contains(document.activeElement)?document.activeElement:null;
+    const foco=act&&act.dataset.cfg!=null?[act.dataset.cfg,act.dataset.i||act.dataset.v]:null;
+    CAMPOS.length=0;let h='';
+    const res=o.resumen?o.resumen():'';
+    if(res)h+=`<div class="bq-cfg-res" aria-live="polite"><span>Vas a jugar</span><b>${esc(res)}</b></div>`;
+    const normales=[],plegados=[];(o.grupos||[]).filter(vis).forEach(g=>(g.plegado?plegados:normales).push(g));
+    const grupo=g=>{const cs=(g.campos||[]).filter(vis);if(!cs.length)return '';
+      return cs.map(c=>{CAMPOS.push(c);return campoHtml(c,CAMPOS.length-1);}).join('')+(g.nota?`<p class="bq-cfg-ay">${esc(typeof g.nota==='function'?g.nota():g.nota)}</p>`:'');};
+    normales.forEach((g,gi)=>{const c=grupo(g);if(c)h+=`<section class="bq-cfg-g">${g.titulo?`<h3>${esc(g.titulo)}</h3>`:''}${c}</section>`;});
+    plegados.forEach(g=>{const c=grupo(g);if(!c)return;const k=g.titulo||'Más';
+      const vals=(g.campos||[]).filter(vis).map(textoDe).filter(Boolean).join(' · ');
+      h+=`<details class="bq-cfg-g bq-cfg-mas" data-g="${esc(k)}"${ABIERTOS[juego][k]?' open':''}><summary><span class="bq-cfg-mas-t">${esc(k)}</span><small>${esc(vals)}</small></summary>${c}</details>`;});
+    const otros=(o.otros||[]).filter(vis);
+    h+=`<div class="bq-cfg-pie">${o.jugar?`<button type="button" class="bq-btn prim ancho bq-cfg-jugar"${o.jugar.id?` id="${esc(o.jugar.id)}"`:''} data-cfgj="1">${esc(tx(o.jugar.texto)||'Jugar así')}${o.jugar.sub?`<small>${esc(tx(o.jugar.sub))}</small>`:''}</button>`:''}${otros.length?`<div class="bq-cfg-otros">${otros.map((b,i)=>`<button type="button" class="bq-btn borde"${b.id?` id="${esc(b.id)}"`:''} data-cfgo="${i}">${b.icono?`<span aria-hidden="true">${b.icono}</span> `:''}${esc(tx(b.texto))}${b.sub?`<small>${esc(tx(b.sub))}</small>`:''}</button>`).join('')}</div>`:''}</div>`;
+    root.innerHTML=h;sc.scrollTop=top;
+    if(foco){const b=root.querySelector(`[data-cfg="${foco[0]}"]${foco[1]!=null?(act.dataset.i!=null?`[data-i="${foco[1]}"]`:''):''}`);try{b&&b.focus({preventScroll:true});}catch(_){}}
+  }
+  function cambiar(c,v){try{c.alCambiar&&c.alCambiar(v);}catch(e){console.error(e);}pintar();}
+  root.addEventListener('click',e=>{
+    const j=e.target.closest('[data-cfgj]');if(j&&root.contains(j)){if(o.jugar&&o.jugar.fn){if(H)H.cerrar();o.jugar.fn();}return;}
+    const ot=e.target.closest('[data-cfgo]');if(ot&&root.contains(ot)){const b=(o.otros||[]).filter(vis)[Number(ot.dataset.cfgo)];if(b&&b.fn){if(H)H.cerrar();b.fn();}return;}
+    const b=e.target.closest('button[data-cfg]');if(!b||!root.contains(b))return;const c=CAMPOS[Number(b.dataset.cfg)];if(!c)return;
+    if(c.tipo==='switch')cambiar(c,!val(c));else{const op=ops(c)[Number(b.dataset.i)];if(op&&!igual(op.v,val(c)))cambiar(c,op.v);}});
+  root.addEventListener('input',e=>{const r=e.target.closest('input[type=range][data-cfg]');if(!r)return;const c=CAMPOS[Number(r.dataset.cfg)];if(!c)return;
+    const v=Number(r.value);const et=r.closest('.bq-cfg-c').querySelector('.bq-cfg-val');if(et)et.textContent=v+(c.unidad?' '+c.unidad:'');});
+  root.addEventListener('change',e=>{const r=e.target.closest('input[type=range][data-cfg]');if(!r)return;const c=CAMPOS[Number(r.dataset.cfg)];if(c)cambiar(c,Number(r.value));});
+  root.addEventListener('toggle',e=>{const d=e.target.closest&&e.target.closest('details[data-g]');if(d)ABIERTOS[juego][d.dataset.g]=d.open;},true);
+  // Flechas para moverse entre las opciones de un mismo grupo (teclado).
+  root.addEventListener('keydown',e=>{if(!/^Arrow(Left|Right|Up|Down)$/.test(e.key))return;const b=e.target.closest('[role=radio]');if(!b)return;
+    const hs=[...b.parentNode.querySelectorAll('[role=radio]')],i=hs.indexOf(b),d=/Right|Down/.test(e.key)?1:-1,n=hs[(i+d+hs.length)%hs.length];
+    if(n){e.preventDefault();n.focus();n.click();}});
+  pintar();
+  return {el:root,pintar,cerrar:()=>{if(H)H.cerrar();},valor:id=>{const c=(o.grupos||[]).flatMap(g=>g.campos||[]).find(c=>c.id===id);return c?val(c):undefined;}};
+}
+BLQ_UI.config=config;
+})();
 </script>
 <script>
 /* ───────── Latido (v76): UNA sola consulta periódica a la planilla para toda la página ─────────
@@ -1365,11 +1546,14 @@ function engancharMenu(){if(!acct())return;
 
 /* ── El ciclo: traer, juntar, subir ── */
 const SUC={busy:false,again:false,dirty:new Set(),timer:0,last:0,pullT:0,primero:true};
-function marcar(n){if(!n||pruebas)return;SUC.dirty.add(n);clearTimeout(SUC.timer);
-  const espera=Math.max(4000,20000-(Date.now()-SUC.last));SUC.timer=setTimeout(()=>ahora(false),espera);}
+// v91: antes cada guardado reiniciaba la espera; si algo guardaba seguido (la partida de BloqueAR cada 2 s detrás del
+// Inicio), la subida no llegaba nunca y los favoritos, rangos, etc. no pasaban al otro aparato hasta volver a abrir.
+// Ahora la primera marca programa la subida y las siguientes se suman a esa misma.
+function marcar(n){if(!n||pruebas)return;SUC.dirty.add(n);if(SUC.timer)return;
+  const espera=Math.max(4000,20000-(Date.now()-SUC.last));SUC.timer=setTimeout(()=>{SUC.timer=0;ahora(false);},espera);}
 async function ahora(bajar=true,keep=false){
   const a=acct();if(!a||pruebas)return;
-  if(SUC.busy){SUC.again=true;return;}SUC.busy=true;clearTimeout(SUC.timer);setSt('busy');
+  if(SUC.busy){SUC.again=true;return;}SUC.busy=true;clearTimeout(SUC.timer);SUC.timer=0;setSt('busy');
   try{
     let traidos=[],partes=[];const ajena=!!META.ajena;
     if(bajar||SUC.primero){
@@ -1407,7 +1591,8 @@ if(ST&&!pruebas){
     if(this===ST&&k==='estancia-premios'){   // lo que desaparece de la cola es lo que la estancia ya cobró
       try{const antes=J(ST.getItem(k))||[],ahoraL=J(String(v))||[],quedan=new Set(ahoraL.map(idP)),cob=antes.filter(x=>!quedan.has(idP(x))).map(idP);
         if(cob.length){const c=ls.json(PRC,[]);for(const x of cob)if(!c.includes(x))c.push(x);rawSet.call(ST,PRC,JSON.stringify(c.slice(-200)));}}catch(_){}}
-    rawSet.call(this,k,v);if(this===ST){const n=parteDe(k);if(n)marcar(n);}};
+    const igual=this===ST&&ST.getItem(k)===String(v);   // v91: guardar lo mismo no programa una subida
+    rawSet.call(this,k,v);if(this===ST&&!igual){const n=parteDe(k);if(n)marcar(n);}};
   Storage.prototype.removeItem=function(k){rawDel.call(this,k);if(this===ST){const n=parteDe(k);if(n)marcar(n);}};
 }
 function arrancar(){
@@ -1416,6 +1601,7 @@ function arrancar(){
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){if(SUC.dirty.size)ahora(true,true);}
     else if(Date.now()-SUC.pullT>15000)ahora(true);});
+  window.addEventListener('focus',()=>{if(!document.hidden&&Date.now()-SUC.pullT>15000)ahora(true);});   // v91: en la PC, volver a la ventana (sin cambiar de pestaña) también trae lo de la cuenta
   window.addEventListener('pagehide',()=>{if(!SUC.dirty.size||SUC.primero)return;const a=acct();if(!a)return;   // al cerrar: se manda lo que falta, sin esperar · v81: sólo si ya se trajo lo de la cuenta (si no, un aparato con datos viejos o vacíos podía pisar tu progreso)
     const subir=[...SUC.dirty].map(n=>{const d=datosDe(n);return d?{n,d:JSON.stringify(d),t:Date.now()}:null;}).filter(Boolean);
     for(let i=0;i<subir.length;i+=10)try{fetch(lbUrl(),{method:'POST',body:JSON.stringify({accion:'sync',usuario:a.usuario,token:a.token,subir:subir.slice(i,i+10)}),headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true});}catch(_){}});
@@ -1723,7 +1909,11 @@ function scrollHoriz(t,panel){for(let n=t;n&&n!==panel;n=n.parentElement){const 
 function deslizar(panel,op={}){
   if(!panel||panel.dataset.gxDesliza)return;panel.dataset.gxDesliza='1';
   const dir=op.dir||'derecha',umbral=op.umbral||70;
-  panel.style.touchAction=dir==='derecha'?'pan-y':(panel.scrollHeight>panel.clientHeight+4?'pan-y':'none');
+  // v91: se recalcula cuando cambia el contenido. Antes se decidía una sola vez al engancharlo: una hoja que nacía vacía
+  // (el Inicio arma la hoja y después la llena) quedaba en «none» para siempre y su lista larga no se podía desplazar.
+  const ta=()=>{panel.style.touchAction=dir==='derecha'?'pan-y':(panel.scrollHeight>panel.clientHeight+4?'pan-y':'none');};ta();
+  try{new MutationObserver(ta).observe(panel,{childList:true,subtree:true});}catch(_){}
+  try{new ResizeObserver(ta).observe(panel);}catch(_){}
   let G=null;
   panel.addEventListener('pointerdown',e=>{
     if(e.button>0||(e.pointerType==='mouse'&&!op.mouse))return;
@@ -3794,6 +3984,7 @@ function verAmigos(){S.tab='amigos';ls.set('bloques-chat-tab','amigos');S.view='
 setInterval(()=>{if(S.open)return;   // con el chat abierto (que pausa el juego) no cuenta como «terminó la partida»
   let b=false;try{b=!!H.busy();}catch(_){}if(FP.busy&&!b)finPartida();FP.busy=b;if(!b)soltarConexiones();},1500);
 function toast(who,txt,openWho=who){
+  if(S.open)return;   // v91: con el chat abierto el mensaje ya se ve en la lista; no se encima el aviso «te escribieron»
   if(porCola()){const u=esGK(openWho)?{avatar:'👥'}:userOf(who),av=u&&typeof u.avatar==='string'&&u.avatar.length<=4?u.avatar:'💬';
     BLQ_UI.aviso({icono:av,titulo:who,texto:String(txt||'').slice(0,140),tipo:'amigo',accion:{texto:'Abrir',fn:()=>open(openWho||undefined)}});return;}
   const box=$('.cx-toasts');if(!box)return;const u=esGK(openWho)?{avatar:'👥',color:'#8b7cff'}:userOf(who);
@@ -3862,10 +4053,12 @@ function render(){
   p.dataset.sig='list:'+tab;
   const a2=acct(),mine=userOf(S.me)||{},canAsk='Notification' in window&&Notification.permission==='default'&&!/iPhone|iPad/.test(navigator.userAgent);
   const nIn=S.am.in.length;
-  p.innerHTML=head('Chat')+`<div class="cx-me">${avatar({avatar:a2.avatar,color:a2.color})}<div class="cx-me-r"><b>${esc(S.me)}</b>
+  // v91 · piel A: tu fila compacta (cara, nombre, «● estado · frase»); al tocarla se abren la frase y los tres estados.
+  p.innerHTML=head('Charlas')+`<div class="cx-yo${S.yoOn?' on':''}"><button type="button" class="cx-yo-b" data-a="yo" aria-expanded="${!!S.yoOn}" aria-label="Tu estado y tu frase">${avatar({avatar:a2.avatar,color:a2.color})}<span class="cx-yo-t"><b>${esc(S.me)}</b><small>${yoTxt(mine)}</small></span><span class="cx-yo-c" aria-hidden="true">▾</span></button>
+    <div class="cx-yo-x"><div class="cx-me"><div class="cx-me-r">
       <input id="cx-frase" maxlength="60" placeholder="Tu frase (la ven tus amigos)" value="${esc(ST.frase??mine.frase??'')}"></div></div>
-    <div class="cx-modes" role="group" aria-label="Mi estado"><button type="button" data-a="modo" data-m="on">🟢 Conectado</button><button type="button" data-a="modo" data-m="aus">🌙 Ausente</button><button type="button" data-a="modo" data-m="dnd">⛔ No molestar</button></div>`+
-    `<div class="cx-tabs" role="tablist" aria-label="Listas">${[['charlas','💬 Charlas'],['amigos','🤝 Amigos'],['global','🌎 Global']].map(([k,t])=>`<button type="button" role="tab" data-a="tab" data-t="${k}" aria-selected="${k===tab}" class="${k===tab?'on':''}">${t}${k==='amigos'&&nIn?` <span class="cx-n">${nIn}</span>`:''}</button>`).join('')}</div>`+
+    <div class="cx-modes" role="group" aria-label="Mi estado"><button type="button" data-a="modo" data-m="on">🟢 Conectado</button><button type="button" data-a="modo" data-m="aus">🌙 Ausente</button><button type="button" data-a="modo" data-m="dnd">⛔ No molestar</button></div></div></div>`+
+    `<div class="cx-tabs" role="tablist" aria-label="Listas">${[['charlas','Charlas'],['amigos','Amigos'],['global','Buscar']].map(([k,t])=>`<button type="button" role="tab" data-a="tab" data-t="${k}" aria-selected="${k===tab}" class="${k===tab?'on':''}">${t}${k==='amigos'&&nIn?` <span class="cx-n">${nIn}</span>`:''}</button>`).join('')}</div>`+
     (S.err?`<p class="cx-err cx-pad">${esc(S.err)}</p>`:'')+(tab!=='global'&&a2?`<button type="button" class="cx-ask cx-citab" data-a="citaPick">🔗 Invitar con un link <small>para WhatsApp, sin abrir un juego</small></button>`:'')+(tab==='charlas'?`<button type="button" class="cx-ask cx-gnew" data-a="gnuevo">👥 Armar un grupo</button>`+(canAsk?`<button type="button" class="cx-ask" data-a="permiso">🔔 Avisarme en la compu cuando me escriben</button>`:''):'')+
     (tab==='amigos'&&S.am.a.length>3?`<div class="cx-pad cx-gqw"><input id="cx-aq" type="search" placeholder="Buscar entre tus amigos" value="${esc(S.aq||'')}" autocomplete="off"></div>`:'')+
     (tab==='global'?`<div class="cx-pad cx-gqw"><input id="cx-gq" type="search" placeholder="Buscar a alguien por su nombre" value="${esc(S.gq)}" autocomplete="off"></div>`:'')+
@@ -3930,9 +4123,11 @@ function filasGlobal(){
   const on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me).length;
   return `<p class="cx-sec-t">${on} ${on===1?'persona conectada':'personas conectadas'} · ${S.users.filter(u=>lc(u.usuario)!==me).length} con cuenta</p>`+(L.map(u=>filaUsuario(u,null,amBoton(u.usuario))).join('')||'<p class="cx-dim cx-pad">Nadie con ese nombre.</p>');
 }
-function modeBtns(){document.querySelectorAll('.cx-modes [data-m]').forEach(b=>{const on=b.dataset.m===ST.m;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});}
+function modeBtns(){document.querySelectorAll('.cx-modes [data-m]').forEach(b=>{const on=b.dataset.m===ST.m;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});const t=document.querySelector('.cx-yo-t small');if(t)t.innerHTML=yoTxt(userOf(S.me)||{});}
+// v91: el renglón de tu estado dentro de tu fila compacta
+function yoTxt(mine){const m=ST.m||'on',e=m==='aus'?['aus','Ausente']:m==='dnd'?['dnd','No molestar']:['on','Conectado'],fr=String(ST.frase??(mine&&mine.frase)??'').trim();return `<i class="cx-yo-d ${e[0]}" aria-hidden="true"></i>${e[1]}${fr?' · '+esc(fr):''}`;}
 function previewOwn(m){const o=S.plain[m.id];if(o&&o.sys)return o.sys;if(o&&o.card&&o.card.am)return o.card.am==='si'?'🤝 Ahora son amigos':lc(m.de)===lc(S.me)?'🤝 Le mandaste una solicitud de amistad':'🤝 Te mandó una solicitud de amistad';if(o&&o.card&&o.card.ll)return '📣 '+(o.card.t||'¿Quién se prende?');if(o&&o.card&&o.card.inv)return '🎮 Lo invitaste a '+(GAMES[o.card.j]||'jugar');if(o&&o.card&&o.card.cita)return lc(m.de)===lc(S.me)?'🔗 Entraste por su link':(o.card.t||'🔗 Entró por tu link');if(o&&o.card)return '🃏 '+(o.card.t||'Partida');return o&&o.x||'💬 Mensaje de antes';}
-async function saveFrase(v){v=String(v||'').replace(/\s+/g,' ').trim().slice(0,60);if(v===(ST.frase??'')&&ST.saved)return;ST.frase=v;ls.set('bloques-chat-frase',v);
+async function saveFrase(v){v=String(v||'').replace(/\s+/g,' ').trim().slice(0,60);if(v===(ST.frase??'')&&ST.saved)return;ST.frase=v;ls.set('bloques-chat-frase',v);modeBtns();
   try{await call(auth({accion:'perfil',frase:v}));ST.saved=true;const me=userOf(S.me);if(me)me.frase=v;}catch(e){S.err=String(e.message||e);}}
 /* Perfil de un jugador: nivel, rangos, medallas y récords. */
 async function openProfile(name){S.view='perfil';S.prof=name;S.profData=null;render();
@@ -4025,6 +4220,7 @@ async function onClick(e){
   if(a==='cerrar')close();
   else if(a==='volver'){S.delFor=null;if(S.view==='gop'&&S.con){S.view='conv';}else if(S.view==='perfil'&&S.con){S.view='conv';}else{S.view='list';S.con=null;}S.pickFor=null;S.invFor=null;S.card=null;render();}
   else if(a==='modo'){ST.m=b.dataset.m;ls.set('bloques-chat-modo',ST.m);modeBtns();poll();}
+  else if(a==='yo'){S.yoOn=!S.yoOn;const w=document.querySelector('.cx-yo');if(w){w.classList.toggle('on',S.yoOn);b.setAttribute('aria-expanded',String(S.yoOn));if(S.yoOn){const i=document.getElementById('cx-frase');if(i&&matchMedia('(hover:hover)').matches)i.focus();}}}
   else if(a==='perfil')openProfile(b.dataset.u);
   else if(a==='invitar'){S.invFor=b.dataset.u;$('.cx-panel').dataset.sig='';render();}
   else if(a==='invx'){S.invFor=null;$('.cx-panel').dataset.sig='';render();}
@@ -4476,6 +4672,80 @@ html.zn-on.zn-bajo .cx-toast,html.zn-on.zn-bajo .lg-aviso,html.zn-on.zn-bajo.zn-
 .cx-shake{animation:cxShake .7s cubic-bezier(.36,.07,.19,.97)}
 @keyframes cxShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}
 @media (min-width:900px){.cx-msg{max-width:72%}}
+
+/* ───────── v91 · piel A: el chat igual en todos lados (Inicio y juegos), con el color de Vos › Ajustes › Color ───────── */
+#cx-root{--cx-f:var(--f-texto,'Atkinson Hyperlegible',system-ui,sans-serif);--cx-t:var(--f-titulo,'Bricolage Grotesque',system-ui,sans-serif);
+  --cx-bg:var(--monte,#0E1626);--cx-m:var(--mate,#16233A);--cx-mc:var(--mate-claro,#1F2F4A);--cx-al:var(--alambre,#3B5280);--cx-cal:var(--cal,#F2F4FA);
+  --cx-ps:var(--pasto-seco,#A9B6CD);--cx-mz:var(--maiz,#F2C14E);--cx-mzo:var(--maiz-osc,#3A2E0A);--cx-ln:var(--mate-claro,#1F2F4A);font-family:var(--cx-f);color:var(--cx-cal)}
+#cx-root button,#cx-root input,#cx-root textarea{font-family:var(--cx-f)}
+#cx-root .cx-panel{background:var(--cx-bg);border-left:1px solid var(--cx-ln);color:var(--cx-cal);font-family:var(--cx-f)}
+#cx-root .cx-scrim{background:var(--velo,rgba(3,7,16,.6))}
+#cx-root .cx-head{border-bottom:0;padding:14px 14px 8px 18px}
+#cx-root .cx-head h2{font-family:var(--cx-t);font-weight:800;font-size:24px;letter-spacing:-.01em}
+#cx-root .cx-x{width:40px;height:40px;border-radius:50%;border:1px solid var(--cx-ln);background:var(--cx-m);color:var(--cx-cal)}
+/* tu fila compacta */
+#cx-root .cx-yo{margin:2px 12px 6px;border-radius:var(--r-m,16px);background:var(--cx-m);flex:none}
+#cx-root .cx-yo-b{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 12px;border:0;background:none;color:inherit;text-align:left;border-radius:inherit}
+#cx-root .cx-yo-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+#cx-root .cx-yo-t b{font-size:15px}
+#cx-root .cx-yo-t small{color:var(--cx-ps);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cx-root .cx-yo-d{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px;background:#5fd38a}
+#cx-root .cx-yo-d.aus{background:var(--cx-mz)}#cx-root .cx-yo-d.dnd{background:var(--ceibo,#E8606A)}
+#cx-root .cx-yo-c{color:var(--cx-ps);transition:transform .2s}
+#cx-root .cx-yo.on .cx-yo-c{transform:rotate(180deg)}
+#cx-root .cx-yo-x{display:none;padding:0 12px 12px}
+#cx-root .cx-yo.on .cx-yo-x{display:block}
+#cx-root .cx-yo .cx-me{padding:0;border:0;background:none}
+#cx-root .cx-yo .cx-me-r{flex:1}
+#cx-root #cx-frase{width:100%;box-sizing:border-box;min-height:44px;border-radius:999px;border:1px solid var(--cx-ln);background:var(--cx-bg);color:var(--cx-cal);padding:0 16px;font-size:15px}
+#cx-root .cx-yo .cx-modes{padding:8px 0 0;gap:6px}
+#cx-root .cx-modes button{border-radius:999px;border:1px solid var(--cx-ln);background:var(--cx-bg);color:var(--cx-ps);min-height:40px}
+#cx-root .cx-modes button.on{background:var(--cx-cal);color:var(--cx-bg);border-color:var(--cx-cal)}
+/* pestañas como las de Gente */
+#cx-root .cx-tabs{gap:6px;padding:6px 12px 8px}
+#cx-root .cx-tabs button{border-radius:999px;border:1px solid var(--cx-ln);background:transparent;color:var(--cx-ps);min-height:40px;font-size:14px}
+#cx-root .cx-tabs button.on{background:var(--cx-cal);color:var(--cx-bg);border-color:var(--cx-cal)}
+#cx-root .cx-n{background:var(--cx-mz);color:var(--cx-mzo)}
+/* filas en tarjetas */
+#cx-root .cx-list{padding:0 12px 16px}
+#cx-root .cx-row{border:0;border-radius:var(--r-m,16px);background:var(--cx-m);margin:0 0 6px;padding:10px 12px;color:inherit}
+#cx-root .cx-rw{display:flex;align-items:stretch;gap:6px;margin:0 0 6px}
+#cx-root .cx-rw>.cx-row{margin:0;flex:1}
+#cx-root .cx-row:active{background:var(--cx-mc)}
+#cx-root .cx-mid small{color:var(--cx-ps)}
+#cx-root .cx-row.unread .cx-mid small{color:var(--cx-cal)}
+#cx-root .cx-more{border-radius:var(--r-m,16px);background:var(--cx-m);border:0;color:var(--cx-ps);min-width:44px}
+#cx-root .cx-sec-t{margin:14px 4px 6px;color:var(--cx-ps);font-family:var(--cx-t);font-size:13px}
+#cx-root .cx-panel>.cx-ask{margin:4px 12px;width:calc(100% - 24px)}
+#cx-root .cx-ask{margin:6px 0;width:100%;border-radius:var(--r-m,16px);border:1px dashed var(--cx-al);color:var(--cx-cal)!important;background:none}
+#cx-root .cx-gqw input,#cx-root .cx-gqw input:focus{border-radius:999px;border:1px solid var(--cx-ln);background:var(--cx-m);color:var(--cx-cal)}
+#cx-root .cx-gqw{padding:0 12px 6px}
+#cx-root .cx-av{border-color:var(--avc,var(--cx-mz))}
+/* botones */
+#cx-root .cx-primary{border-radius:999px;background:var(--cx-mz);color:var(--cx-mzo)!important}
+#cx-root .cx-seg button{border-radius:999px;border-color:var(--cx-ln);background:var(--cx-m);color:var(--cx-ps)}
+#cx-root .cx-seg button.on{background:var(--cx-cal);color:var(--cx-bg);border-color:var(--cx-cal)}
+/* la charla */
+#cx-root .cx-msg .cx-bub{background:var(--cx-mc);color:var(--cx-cal);border-radius:18px 18px 18px 6px}
+#cx-root .cx-msg.me .cx-bub{background:var(--cx-mz);color:var(--cx-mzo);border-radius:18px 18px 6px 18px}
+#cx-root .cx-bar{border-top:1px solid var(--cx-ln);background:var(--cx-bg)}
+#cx-root .cx-bar textarea{border-radius:22px;border:1px solid var(--cx-ln);background:var(--cx-m);color:var(--cx-cal);font-family:var(--cx-f)}
+#cx-root .cx-bar textarea:focus{border-color:var(--cx-mz);outline:0}
+#cx-root .cx-send{background:var(--cx-mz);color:var(--cx-mzo)!important}
+#cx-root .cx-emob{background:var(--cx-m)}
+#cx-root .cx-emo{background:var(--cx-bg);border-top:1px solid var(--cx-ln)}
+#cx-root .cx-card,#cx-root .cx-inv{border-color:var(--cx-ln)!important;background:var(--cx-m)}
+#cx-root .cx-toast{background:var(--mate-t,rgba(22,35,58,.92));border-color:var(--cx-ln)}
+#cx-root :focus-visible{outline:3px solid var(--cx-mz);outline-offset:2px}
+/* celular parado: pantalla completa · acostado: lo de arriba se desplaza con la lista */
+@media (max-width:640px){#cx-root .cx-panel{width:100vw;border-left:0}}
+@media (max-height:500px){#cx-root .cx-panel{overflow-y:auto}#cx-root .cx-panel .cx-list{overflow:visible;flex:none}}
+/* PC: panel a la derecha, redondeado y separado del borde */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  #cx-root .cx-panel{top:12px;right:12px;bottom:12px;width:440px;border:1px solid var(--cx-ln);border-radius:var(--r-l,24px);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  #cx-root .cx-row:hover{background:var(--cx-mc)}
+  #cx-root .cx-tabs button:hover:not(.on){border-color:var(--cx-al);color:var(--cx-cal)}}
+@media (prefers-reduced-motion:reduce){#cx-root .cx-yo-c{transition:none}}
 `;
 function injectCss(){if($('#cx-css'))return;const s=document.createElement('style');s.id='cx-css';s.textContent=CSS;document.head.appendChild(s);}
 
@@ -4764,7 +5034,29 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-mburb{position:fixed;z-index:59;max-width:min(260px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;border:1px solid #33404d;background:#141b22f2;color:#e6ece6;font:13.5px/1.3 system-ui,sans-serif;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.4);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
 .mc-mburb.izq{border-radius:14px 14px 14px 4px}.mc-mburb.abajo{border-radius:4px 14px 14px 14px;transform:translateY(-6px)}.mc-mburb.abajo.izq{border-radius:14px 4px 14px 14px}
 .mc-mburb.on{opacity:1;transform:none;pointer-events:auto}.mc-mburb b{color:#f3dc9a;margin-right:4px}
-@media (prefers-reduced-motion:reduce){.mc-burb,.mc-mburb{transition:none}}`;document.head.appendChild(s);}
+@media (prefers-reduced-motion:reduce){.mc-burb,.mc-mburb{transition:none}}
+/* ───────── v91 · piel A: el chat de la mesa con las mismas piezas que el chat (color de Vos › Ajustes › Color) ───────── */
+.mc-inl,.mc-panel,.mc-flot,.mc-burb,.mc-pick-in{--mc-bg:var(--monte,#0E1626);--mc-m:var(--mate,#16233A);--mc-mc:var(--mate-claro,#1F2F4A);--mc-ln:var(--mate-claro,#1F2F4A);
+  --mc-cal:var(--cal,#F2F4FA);--mc-ps:var(--pasto-seco,#A9B6CD);--mc-mz:var(--maiz,#F2C14E);--mc-mzo:var(--maiz-osc,#3A2E0A);font-family:var(--f-texto,'Atkinson Hyperlegible',system-ui,sans-serif)}
+.mc-inl,.mc-panel{background:var(--mc-bg)!important;color:var(--mc-cal)!important;border:1px solid var(--mc-ln)!important;border-radius:var(--r-l,24px)!important}
+.mc-inl header,.mc-panel header{border-bottom:0!important}
+.mc-inl header b,.mc-panel header b{font-family:var(--f-titulo,'Bricolage Grotesque',system-ui,sans-serif);font-weight:800}
+.mc-panel header button,.mc-rst{border-radius:50%!important;background:var(--mc-m)!important;color:var(--mc-cal)!important;border:1px solid var(--mc-ln)!important}
+.mc-m b,.mc-frb{color:var(--mc-mz)!important}
+.mc-vacio,.mc-pn{color:var(--mc-ps)!important}
+.mc-rap button{border-radius:999px!important;border:1px solid var(--mc-ln)!important;background:var(--mc-m)!important;color:var(--mc-cal)!important}
+.mc-f input{border-radius:999px!important;border:1px solid var(--mc-ln)!important;background:var(--mc-m)!important;color:var(--mc-cal)!important;font-family:inherit!important}
+.mc-f input:focus{border-color:var(--mc-mz)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--mc-mz) 30%,transparent)!important}
+.mc-f input::placeholder{color:var(--mc-ps)!important}
+.mc-f button[type=submit],.mc-pchat{border-radius:999px!important;background:var(--mc-mz)!important;color:var(--mc-mzo)!important;font-family:inherit!important}
+.mc-f .mc-eb,.mc-eb{background:var(--mc-m)!important;border-radius:50%!important}
+.mc-emo{border-top:1px solid var(--mc-ln)!important}
+.mc-flot{border-radius:50%!important;border:1px solid var(--mc-ln)!important;background:var(--mc-m)!important;color:var(--mc-cal)!important}
+.mc-badge{background:var(--mc-mz)!important;color:var(--mc-mzo)!important}
+.mc-burb{background:var(--mate-t,rgba(22,35,58,.92))!important;color:var(--mc-cal)!important;border:1px solid var(--mc-ln)!important;border-radius:18px 18px 18px 6px!important}
+.mc-pick-in{background:var(--mc-bg)!important;color:var(--mc-cal)!important;border-color:var(--mc-ln)!important;border-radius:var(--r-hoja,28px) var(--r-hoja,28px) 0 0!important}
+.mc-eq{color:var(--mc-mz)!important;border-color:color-mix(in srgb,var(--mc-mz) 40%,transparent)!important}
+.mc-inl :focus-visible,.mc-panel :focus-visible{outline:3px solid var(--mc-mz);outline-offset:2px}`;document.head.appendChild(s);}
 function boton(){
   if(S.btn&&S.btn.isConnected)return S.btn;
   const b=document.createElement('button');b.type='button';b.className='icon-btn mc-btn';b.id='mc-btn';b.hidden=true;
@@ -5087,6 +5379,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:92,grande:true,titulo:'Novedades',items:[
+    ['💬','El chat es igual en todos lados, con la cara nueva: en el Inicio, en cada juego y en la mesa.'],
+    ['🎚️','Configuración de cada juego rediseñada: todo agrupado, a la vista y con «Jugar así». «Cómo se juega» queda en el «?».'],
+    ['🤠','EstanciAR: los gestos ahora se ven (saludar, bailar, mate…), tocar a alguien responde, y todo se mueve más fluido.'],
+    ['🎯','MarcAR: tu vida y tus balas van alrededor de tu personaje (se cambia en Ajustes).']]},
+  {v:91,titulo:'Novedades',items:[
+    ['⭐','Tus favoritos y lo que cambiás pasan enseguida a tus otros aparatos (antes podía tardar hasta que volvías a abrir la app).'],
+    ['👆','Arreglado: en el celular ya se puede deslizar la lista para elegir tus juegos favoritos.']]},
   {v:90,grande:true,titulo:'Novedades',items:[
     ['💙','Vuelve el azul: es el color de la app. Si te gustaba el verde, lo elegís en Vos › Ajustes › Color.'],
     ['▶️','Los juegos abren simple: un «Jugar» grande con lo último que elegiste. Todo lo demás está en «Más opciones».'],
@@ -6075,6 +6375,17 @@ window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto,efecto
 })();
 
 </script>
+<style>/* v92 · E1 · carteles y hojas que entran más lindo: desde transparente, con un pequeño rebote, y salen sin cortes */
+@keyframes up{0%{transform:translate(-50%,14px) scale(.97);opacity:0}70%{opacity:1}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+@keyframes sheetIn{0%{transform:translateY(56px);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes sideIn{0%{transform:translateX(44px);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes tin{0%{transform:translate(-50%,14px) scale(.96);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+.pop{animation-duration:.28s!important;animation-timing-function:cubic-bezier(.2,.9,.28,1.12)!important}
+.sheet{animation-duration:.32s!important;animation-timing-function:cubic-bezier(.16,1,.3,1)!important}
+.side-panel{animation-duration:.3s!important;animation-timing-function:cubic-bezier(.16,1,.3,1)!important}
+.toast{animation-duration:.3s!important;animation-timing-function:cubic-bezier(.2,.9,.28,1.15)!important}
+@media (prefers-reduced-motion:reduce){.pop,.sheet,.side-panel,.toast{animation-duration:.01s!important}}
+</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -7949,13 +8260,81 @@ let SEL=null,MODE='farm',GHOST=null,VISIT=null,FLOATS=[];
 let VIENTO=0;
 const CIELO={key:-1,llueve:false,ventoso:false,gotas:[],rafagas:[],last:0};
 const REDUCIR=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}})();
+/* ───────── v92 · E1 · Movimiento más fluido en EstanciAR ─────────
+   Pedido del 11/11: «Mejorar todas las animaciones de la estancia, hacerlas más fluidas y bonitas».
+   · Se dibuja a 60 cuadros cuando el aparato da (antes, fuera del malón, siempre uno de cada dos). Si un cuadro tarda mucho, vuelve solo a la mitad.
+   · Cada caminante (vos, las mascotas, la visita y la gente en línea) se DIBUJA en una posición suavizada que sigue a la real: las
+     esquinas de la grilla se redondean y los saltos de la red (o el «snap» al llegar) no teletransportan. La lógica y los toques usan la real.
+   · Las piernas siguen la distancia recorrida y entran y salen suave (antes el paso era a ritmo fijo y se cortaba en seco).
+   · Las cosas «saltan» al aparecer, se aplastan un poquito al cambiar (mejorar, sembrar, cosechar) y la cosecha suelta unas chispas.
+   · La cámara sigue deslizándose al soltar el dedo (inercia) y la rueda del mouse acerca suave.
+   · Entrar y salir de la casa, de una visita o del malón hace un fundido corto.
+   · Con «reducir movimiento» no hay inercia, ni rebotes, ni fundidos, ni suavizado. */
+const MOV=(()=>{
+  const REG=new Map(),PASO=new Map(),SEEN=new Map(),POPS=new Map(),PART=[];let swapped=[],escena='',escT=0,fundT=-1e9,ema=8,medio=false,cuenta=0;
+  const redu=()=>{try{return REDUCIR||matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}};
+  const key=(x,y)=>Math.round(x*1000)+','+Math.round(y*1000);
+  function reg(w){if(w)REG.set(w,performance.now());}
+  function suavizar(dt){const now=performance.now(),k=1-Math.exp(-Math.min(.1,dt)/.075),r=redu();
+    for(const [w,t] of REG){if(now-t>1500){REG.delete(w);continue;}
+      if(w.rx==null||r||Math.hypot(w.x-w.rx,w.y-w.ry)>2.5){w.rx=w.x;w.ry=w.y;continue;}
+      w.rx+=(w.x-w.rx)*k;w.ry+=(w.y-w.ry)*k;if(Math.abs(w.x-w.rx)<1e-4&&Math.abs(w.y-w.ry)<1e-4){w.rx=w.x;w.ry=w.y;}}}
+  function antes(){swapped=[];PASO.clear();
+    for(const [w] of REG){if(w.rx==null)continue;const o={w,x:w.x,y:w.y,walk:w.walk};
+      w.x=w.rx;w.y=w.ry;if(!w.walk&&w.ak>.04&&!w.s&&!(w.path&&w.path.length))w.walk=true;swapped.push(o);
+      PASO.set(key(w.x,w.y),{fase:w.fase||0,ak:w.ak==null?1:Math.max(.0001,w.ak)});}}
+  function despues(){for(const o of swapped){const w=o.w;if(w.x===w.rx&&w.y===w.ry){w.x=o.x;w.y=o.y;}w.walk=o.walk;}swapped=[];}
+  function paso(x,y){return PASO.size?PASO.get(key(x,y))||null:null;}
+  // Cuándo dibujar: siempre, salvo que el dibujo venga tardando (entonces uno de cada dos, como antes).
+  function dibujarAhora(){if(!medio)return true;return (cuenta++%2)===0;}
+  function medido(ms){ema=ema*.92+ms*.08;if(!medio&&ema>11)medio=true;else if(medio&&ema<7.5)medio=false;}
+  // «Pop» de las cosas del campo.
+  const firma=it=>it.k+'|'+(it.crop?it.crop.k:'')+'|'+(it.n||0)+'|'+(it.lv||0)+'|'+(it.hp!=null&&it.hp<=0?'x':'');
+  function verEscena(){let e='e';try{e=(BAT?'b':'')+(VISIT?'v'+VISIT.name:'')+(document.body.classList.contains('en-casa')?'c':'');}catch(_){}
+    if(e!==escena){const habia=escena!=='';escena=e;escT=performance.now();SEEN.clear();POPS.clear();PART.length=0;if(habia&&!redu())fundT=escT;}}
+  function pop(it,list){if(it.id==null)return null;const now=performance.now(),f=firma(it),a=SEEN.get(it.id);
+    if(a===undefined){SEEN.set(it.id,f);if(now-escT>900&&!redu())POPS.set(it.id,{t0:now,tipo:'nuevo'});}
+    else if(a!==f){SEEN.set(it.id,f);if(!redu()){POPS.set(it.id,{t0:now,tipo:'cambio'});
+      if(a.split('|')[1]&&!it.crop)chispas(it,'#f2c14e',9);else if(!a.split('|')[1]&&it.crop)chispas(it,'#9bbf5a',5);}}
+    const p=POPS.get(it.id);if(!p)return null;const c=CAT[it.k]||{w:1,h:1},q=P(it.x+c.w/2,it.y+c.h/2);
+    if(p.tipo==='nuevo'){const k=(now-p.t0)/460;if(k>=1){POPS.delete(it.id);return null;}
+      const b=1+2.2*Math.pow(k-1,3)+1.2*Math.pow(k-1,2);   // «back out»: crece pasándose un poco y vuelve
+      return {x:q[0],y:q[1],sx:.55+.45*b,sy:.35+.65*b};}
+    const k=(now-p.t0)/380;if(k>=1){POPS.delete(it.id);return null;}const s=Math.sin(Math.PI*k)*(1-k);
+    return {x:q[0],y:q[1],sx:1+.09*s,sy:1-.13*s};}
+  function chispas(it,col,n){const c=CAT[it.k]||{w:1,h:1},now=performance.now();
+    for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2;PART.push({x:it.x+c.w/2+(Math.random()-.5)*c.w*.6,y:it.y+c.h/2+(Math.random()-.5)*c.h*.6,z:8,vz:38+Math.random()*30,va:Math.cos(a)*18,vb:Math.sin(a)*9,t0:now,col,r:1.6+Math.random()*1.4});}
+    if(PART.length>120)PART.splice(0,PART.length-120);}
+  function particulas(g){if(!PART.length)return;const now=performance.now();
+    for(let i=PART.length-1;i>=0;i--){const p=PART[i],k=(now-p.t0)/700;if(k>=1){PART.splice(i,1);continue;}
+      const tt=k*.7,z=p.z+p.vz*tt-60*tt*tt,q=P(p.x,p.y,Math.max(0,z));g.globalAlpha=1-k*k;g.fillStyle=p.col;g.beginPath();g.arc(q[0]+p.va*tt,q[1]+p.vb*tt,p.r*(1-k*.5),0,7);g.fill();}
+    g.globalAlpha=1;}
+  // Fundido corto al cambiar de escena (casa, visita, malón).
+  function fundido(g){const k=(performance.now()-fundT)/300;if(k>=1||k<0)return;g.save();g.setTransform(1,0,0,1,0,0);g.globalAlpha=.55*(1-k)*(1-k);g.fillStyle='#120d08';g.fillRect(0,0,g.canvas.width,g.canvas.height);g.restore();}
+  // Cámara: inercia al soltar y zoom suave con la rueda.
+  const PAN=[];let glide=null,zoom=null;
+  function panMov(x,y){const t=performance.now();PAN.push({x,y,t});while(PAN.length&&t-PAN[0].t>100)PAN.shift();glide=null;}
+  function parar(){glide=null;zoom=null;PAN.length=0;}
+  function soltar(){if(redu()||PAN.length<2){PAN.length=0;return;}const a=PAN[0],b=PAN[PAN.length-1],dt=b.t-a.t;PAN.length=0;
+    if(dt<16||performance.now()-b.t>60)return;const vx=(b.x-a.x)/dt,vy=(b.y-a.y)/dt;if(Math.hypot(vx,vy)<.25)return;
+    glide={vx:-vx/cam.z,vy:-vy/cam.z};}
+  function rueda(cx,cy,f){if(redu()){const before=toTile(cx,cy);cam.z=clamp(cam.z*f,.22,1.8);const after=toTile(cx,cy);cam.x+=before.wx-after.wx;cam.y+=before.wy-after.wy;clampCam();return;}
+    glide=null;zoom={zt:clamp((zoom?zoom.zt:cam.z)*f,.22,1.8),cx,cy};}
+  function camara(dt){const ms=Math.min(100,dt*1000);
+    if(glide){const x0=cam.x,y0=cam.y;cam.x+=glide.vx*ms;cam.y+=glide.vy*ms;clampCam();const d=Math.exp(-ms/320);glide.vx*=d;glide.vy*=d;
+      if(Math.hypot(glide.vx,glide.vy)*cam.z<.02||(Math.abs(cam.x-x0)<.01&&Math.abs(cam.y-y0)<.01))glide=null;}
+    if(zoom){const before=toTile(zoom.cx,zoom.cy),k=1-Math.exp(-ms/70);cam.z+=(zoom.zt-cam.z)*k;if(Math.abs(zoom.zt-cam.z)<.002){cam.z=zoom.zt;}
+      const after=toTile(zoom.cx,zoom.cy);cam.x+=before.wx-after.wx;cam.y+=before.wy-after.wy;clampCam();if(cam.z===zoom.zt)zoom=null;}}
+  return {reg,suavizar,antes,despues,paso,dibujarAhora,medido,verEscena,pop,particulas,fundido,panMov,parar,soltar,rueda,camara,redu,
+    get estado(){return {ema:Math.round(ema*10)/10,medio,caminantes:REG.size,pops:POPS.size,part:PART.length,glide:!!glide,zoom:!!zoom};}};
+})();
 const LIVIANO=(()=>{try{const o=JSON.parse(localStorage.getItem('bloques-gfx-v1')||'null');return !!(o&&o.mode==='liviano'&&o.chosen)||(navigator.deviceMemory&&navigator.deviceMemory<=2);}catch(_){return false;}})();
 function clima(now=Date.now()){const f=(()=>{try{return JSON.parse(localStorage.getItem('estancia-clima')||'null');}catch(_){return null;}})();   // para probar: {"llueve":true,"ventoso":true}
   const b=Math.floor(now/(3*HOUR));if(CIELO.key!==b||f){CIELO.key=b;const R=rnd(b*7919+13);const r1=R(),r2=R();CIELO.llueve=f&&'llueve' in f?!!f.llueve:r1<.16;CIELO.ventoso=f&&'ventoso' in f?!!f.ventoso:(r2<.26||(CIELO.llueve&&r2<.6));}
   return CIELO;}
 // Cuánta noche hay (0 de día, 1 de noche) y el tinte del momento.
 function horaReal(){const f=Number(localStorage.getItem('estancia-hora'));if(f>=0&&f<24&&localStorage.getItem('estancia-hora')!==null&&localStorage.getItem('estancia-hora')!=='')return f;const d=new Date();return d.getHours()+d.getMinutes()/60;}
-function luzDelDia(){const h=horaReal();let n;if(h>=7.5&&h<19)n=0;else if(h>=20.5||h<6)n=1;else if(h<7.5)n=1-(h-6)/1.5;else n=(h-19)/1.5;
+function luzDelDia(){const h=horaReal();let n;if(h>=7.5&&h<19)n=0;else if(h>=20.5||h<6)n=1;else if(h<7.5)n=1-(h-6)/1.5;else n=(h-19)/1.5;n=n*n*(3-2*n);   // v92: amanecer y atardecer con curva suave (antes, una recta que arrancaba y frenaba de golpe)
   const dorado=h>=6&&h<8.5?1-Math.abs(h-7)/1.5:h>=17.5&&h<20.5?1-Math.abs(h-19.2)/1.6:0;return {n:Math.max(0,Math.min(1,n)),dorado:Math.max(0,Math.min(1,dorado)),h};}
 /* v74 (pedido del 25/10: «que los elementos que dan luz iluminen un poco el espacio alrededor»):
    un mapa de luz chiquito (¼ de la pantalla) que arranca con el color de la noche y suma, con 'lighter', un halo cálido por
@@ -8103,15 +8482,16 @@ function draw(){
     if(o.w||o.chest){drawWalkerObj(ctx,o,t);continue;}
     const it=o.it;if(!o.ghost&&fueraDeVista(it,VV))continue;   // v88: lo que no se ve no se dibuja
     if(it.hp!=null&&it.hp<=0){drawRubble(ctx,it);continue;}
-    if(o.ghost)ctx.globalAlpha=.75;else if(o.alpha!=null&&o.alpha<.995)ctx.globalAlpha=o.alpha;ART[it.k](ctx,it,t,list);ctx.globalAlpha=1;
+    if(o.ghost)ctx.globalAlpha=.75;else if(o.alpha!=null&&o.alpha<.995)ctx.globalAlpha=o.alpha;const pop=o.ghost?null:MOV.pop(it,list);if(pop){ctx.save();ctx.translate(pop.x,pop.y);ctx.scale(pop.sx,pop.sy);ctx.translate(-pop.x,-pop.y);}ART[it.k](ctx,it,t,list);if(pop)ctx.restore();ctx.globalAlpha=1;   // v92: pop al aparecer, mejorar o cosechar
     if(it.hp!=null&&it.hp<it.max)hpBar(ctx,it);
   }
-  drawBorderPosts(ctx,own);
+  MOV.particulas(ctx);drawBorderPosts(ctx,own);
   if(!BAT&&!VISIT&&MODE==='farm'){const now=Date.now();for(const it of E.items){const c=CAT[it.k];if(c.prod&&now>=(it.at||0)+prodEvery(it))bubble(ctx,it,c.prod.e,t);else if(c.galpon&&window.GALPON&&GALPON.lleno(it))bubble(ctx,it,'💰',t,GALPON.guardado(it)>=GALPON.tope(it)?'#f6d77a':'#f2ead8');}try{window.EST83_marcas&&EST83_marcas(ctx,t);}catch(_){}}   // v83: tandas de los talleres
   if(BAT){for(const s of BAT.shots){const k=(BAT.t-s.t)/.25;ctx.globalAlpha=Math.max(0,1-k);line(ctx,P(s.x1,s.y1,s.z1||10),P(s.x2,s.y2,10),s.c,2);ctx.globalAlpha=1;}}
-  const now=performance.now();FLOATS=FLOATS.filter(f=>now-f.t<1300);for(const f of FLOATS){const k=(now-f.t)/1300,p=P(f.x,f.y,40+k*40),coin=f.txt.includes('🪙'),txt=f.txt.replace(/\s*🪙/,'');ctx.globalAlpha=1-k*k;ctx.font='800 17px system-ui,-apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=4;ctx.lineJoin='round';
+  const now=performance.now();FLOATS=FLOATS.filter(f=>now-f.t<1300);for(const f of FLOATS){const k=(now-f.t)/1300,e=1-Math.pow(1-k,3),p=P(f.x,f.y,34+e*48),coin=f.txt.includes('🪙'),txt=f.txt.replace(/\s*🪙/,'');ctx.globalAlpha=k<.08?k/.08:k>.72?Math.max(0,(1-k)/.28):1;const ps=MOV.redu()?1:1+.32*Math.max(0,1-k/.16)*Math.sin(Math.min(1,k/.16)*Math.PI);ctx.save();ctx.translate(p[0],p[1]);ctx.scale(ps,ps);ctx.translate(-p[0],-p[1]);   // v92: sube frenando, con un golpecito al aparecer
+    ctx.font='800 17px system-ui,-apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=4;ctx.lineJoin='round';
     const w=txt?ctx.measureText(txt).width:0,x0=p[0]-(coin?9:0);if(txt){ctx.strokeStyle='#2a2118';ctx.strokeText(txt,x0,p[1]);ctx.fillStyle=f.col||'#f2ead8';ctx.fillText(txt,x0,p[1]);}
-    if(coin){const cx=x0+w/2+(txt?10:0),r=7;circle(ctx,cx,p[1],r+1.6,'#2a2118');const gr=ctx.createRadialGradient(cx-2.4,p[1]-2.4,.5,cx,p[1],r);gr.addColorStop(0,'#ffffff');gr.addColorStop(.5,'#c3cad3');gr.addColorStop(1,'#7d8792');circle(ctx,cx,p[1],r,gr);}ctx.globalAlpha=1;}
+    if(coin){const cx=x0+w/2+(txt?10:0),r=7;circle(ctx,cx,p[1],r+1.6,'#2a2118');const gr=ctx.createRadialGradient(cx-2.4,p[1]-2.4,.5,cx,p[1],r);gr.addColorStop(0,'#ffffff');gr.addColorStop(.5,'#c3cad3');gr.addColorStop(1,'#7d8792');circle(ctx,cx,p[1],r,gr);}ctx.restore();ctx.globalAlpha=1;}
   try{pombeDibujar(ctx,t);}catch(e){POMBE.on=null;}
   dibujarCielo(ctx,list);
   try{pombeOjos(ctx,t);}catch(_){}
@@ -8201,7 +8581,7 @@ cv.addEventListener('pointerdown',e=>{
   if(PTR.size&&(e.isPrimary||e.pointerType==='mouse'))gestReset();   // dedos viejos que nunca se soltaron
   else if(PTR.size){const now=performance.now();for(const [id,q] of PTR)if(now-(q.t||0)>700)PTR.delete(id);if(!PTR.size)gest=null;}   // v73: y los que llevan rato quietos sin soltarse
   if(PTR.size>=2)return;                                               // un tercer dedo no cambia nada
-  try{cv.setPointerCapture(e.pointerId);}catch(_){}PTR.set(e.pointerId,{x:e.clientX,y:e.clientY,t:performance.now()});
+  MOV.parar();try{cv.setPointerCapture(e.pointerId);}catch(_){}PTR.set(e.pointerId,{x:e.clientX,y:e.clientY,t:performance.now()});
   if(PTR.size===1){gest={sx:e.clientX,sy:e.clientY,cx:cam.x,cy:cam.y,moved:false,drag:null,t0:performance.now()};
     if(GHOST){const h=toTile(e.clientX,e.clientY),c=CAT[GHOST.k];if(h.x>=GHOST.x-.6&&h.x<GHOST.x+c.w+.6&&h.y>=GHOST.y-.6&&h.y<GHOST.y+c.h+.6)gest.drag='ghost';}}
   else if(PTR.size===2){const [a,b]=[...PTR.values()];gest={pinch:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),z:cam.z,mx:(a.x+b.x)/2,my:(a.y+b.y)/2,cx:cam.x,cy:cam.y,moved:true};}
@@ -8210,11 +8590,11 @@ cv.addEventListener('pointermove',e=>{if(!PTR.has(e.pointerId)||!gest)return;PTR
   if(gest.pinch){if(PTR.size<2)return;const [a,b]=[...PTR.values()],d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;cam.z=clamp(gest.z*d/gest.pinch,.22,1.8);cam.x=gest.cx-(mx-gest.mx)/cam.z;cam.y=gest.cy-(my-gest.my)/cam.z;clampCam();return;}
   const dx=e.clientX-gest.sx,dy=e.clientY-gest.sy;if(Math.hypot(dx,dy)>TAP_MOV)gest.moved=true;
   if(gest.drag==='ghost'){const h=toTile(e.clientX,e.clientY),c=CAT[GHOST.k];GHOST.x=Math.round(h.x-c.w/2);GHOST.y=Math.round(h.y-c.h/2);renderPlace();return;}
-  if(gest.moved){cam.x=gest.cx-dx/cam.z;cam.y=gest.cy-dy/cam.z;clampCam();}
+  if(gest.moved){cam.x=gest.cx-dx/cam.z;cam.y=gest.cy-dy/cam.z;clampCam();MOV.panMov(e.clientX,e.clientY);}
 });
 function ptrEnd(e,cancel){if(!PTR.has(e.pointerId))return;PTR.delete(e.pointerId);
   if(gest&&gest.pinch&&PTR.size===1){gest=panDesde([...PTR.values()][0]);return;}   // de dos dedos a uno: sigue el mapa
-  if(PTR.size===0&&gest){const g=gest;gest=null;if(cancel||g.moved||g.pinch||g.drag)return;
+  if(PTR.size===0&&gest){const g=gest;gest=null;if(!cancel&&g.moved&&!g.pinch&&!g.drag&&!BAT)MOV.soltar();if(cancel||g.moved||g.pinch||g.drag)return;   // v92: inercia al soltar
     if(BAT){if(!BAT.over&&performance.now()-g.t0<TAP_MS)deployAt(e.clientX,e.clientY);return;}   // malón: sólo un toque corto pone un gaucho
     tap(e.clientX,e.clientY);}}
 cv.addEventListener('pointerup',e=>ptrEnd(e,false));cv.addEventListener('pointercancel',e=>ptrEnd(e,true));
@@ -8226,7 +8606,7 @@ cv.addEventListener('lostpointercapture',e=>{if(PTR.has(e.pointerId))ptrEnd(e,tr
 document.addEventListener('visibilitychange',()=>{if(document.hidden)gestReset();});addEventListener('blur',gestReset);addEventListener('pagehide',gestReset);
 // Safari de iPhone: el pellizco sobre los carteles o la barra no agranda toda la página (el del mapa ya lo maneja el juego).
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
-cv.addEventListener('wheel',e=>{e.preventDefault();const before=toTile(e.clientX,e.clientY);cam.z=clamp(cam.z*(e.deltaY<0?1.12:1/1.12),.22,1.8);const after=toTile(e.clientX,e.clientY);cam.x+=before.wx-after.wx;cam.y+=before.wy-after.wy;clampCam();},{passive:false});
+cv.addEventListener('wheel',e=>{e.preventDefault();MOV.rueda(e.clientX,e.clientY,e.deltaY<0?1.12:1/1.12);},{passive:false});   // v92: zoom suave
 
 /* ───────── Tocar ───────── */
 function tap(cx,cy){
@@ -9353,8 +9733,25 @@ function walkerInit(){const cas=E.items.find(i=>i.k==='casco')||{x:CEN-1.5,y:CEN
   WK.pj={x:sp.x+.5,y:sp.y+.5,path:[],idle:performance.now()+6000,face:1,walk:false,sp:1.25};
   WK.pets={};for(const pt of E.pets)WK.pets[pt.id]={x:WK.pj.x+.6,y:WK.pj.y+.4,path:[],idle:0,face:1,walk:false,sp:1.5};
   if(E.vis.cur)WK.vis={x:E.vis.cur.x,y:E.vis.cur.y,path:[],idle:performance.now()+4000,face:1,walk:false,sp:.8};}
-function stepWalker(w,dt){if(!w.path.length){w.walk=false;return;}const t=w.path[0],dx=t.x-w.x,dy=t.y-w.y,d=Math.hypot(dx,dy),st=w.sp*dt;
-  w.artDir=Math.abs(dx-dy)>Math.abs(dx+dy)*.7?(dx-dy>0?'right':'left'):(dx+dy<0?'back':'front');const sx=(w.x-w.y);if(d<=st){w.x=t.x;w.y=t.y;w.path.shift();}else{w.x+=dx/d*st;w.y+=dy/d*st;}w.walk=true;const nx=w.x-w.y;if(Math.abs(nx-sx)>.0005)w.face=nx>sx?-1:1;}
+function stepWalker(w,dt){MOV.reg(w);
+  // v92 (E1): antes iba a velocidad fija, frenaba en seco y, al pasar por cada baldosa, perdía lo que sobraba del paso (un tironcito
+  // por baldosa). Ahora arranca y frena suave, consume varias baldosas en un mismo cuadro si hace falta, y la fase de las piernas
+  // sigue a la distancia recorrida (los pies no «patinan» cuando va más lento).
+  if(w.v==null){w.v=0;w.fase=Math.random()*6.3;w.ak=0;}
+  if(!w.path.length){w.walk=false;w.v=0;w.ak=Math.max(0,w.ak-dt*7);return;}
+  const vmax=w.sp;let vt=vmax;
+  if(w.path.length<=2){const L=w.path[w.path.length-1];let rest=Math.hypot(w.path[0].x-w.x,w.path[0].y-w.y);if(w.path.length===2)rest+=Math.hypot(L.x-w.path[0].x,L.y-w.path[0].y);
+    vt=Math.min(vmax,Math.max(vmax*.32,rest*3.2));}               // llegando: frena en el último medio paso
+  if(w.v<vmax*.38)w.v=vmax*.38;                                    // el primer paso ya se ve
+  w.v+=(vt-w.v)*Math.min(1,dt*9);
+  let st=w.v*dt,mov=0,dx=0,dy=0;const sx=w.x-w.y;
+  while(st>1e-6&&w.path.length){const t=w.path[0];dx=t.x-w.x;dy=t.y-w.y;const d=Math.hypot(dx,dy);
+    if(d<=st){w.x=t.x;w.y=t.y;w.path.shift();st-=d;mov+=d;continue;}
+    w.x+=dx/d*st;w.y+=dy/d*st;mov+=st;st=0;}
+  w.fase=(w.fase+mov*4.6)%(Math.PI*200);w.ak=Math.min(1,w.ak+dt*8);w.walk=true;
+  if(dx||dy){const nd=Math.abs(dx-dy)>Math.abs(dx+dy)*.7?(dx-dy>0?'right':'left'):(dx+dy<0?'back':'front');
+    if(nd!==w.artDir){const now=performance.now();if(w.dirPend!==nd){w.dirPend=nd;w.dirT=now;}if(!w.artDir||now-w.dirT>70||!w.path.length)w.artDir=nd;}else w.dirPend=null;}
+  const nx=w.x-w.y;if(Math.abs(nx-sx)>.0005)w.face=nx>sx?-1:1;}
 function walkers(dt,now){if(!E||BAT)return;salaWalk(dt,now);if(VISIT)return;if(!WK.pj)walkerInit();const pj=WK.pj;
   if(!pj.path.length&&now>pj.idle&&MODE==='farm'){const pool=E.items.filter(i=>!CAT[i.k].flat);const tgt=pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
     const sp=freeNear(land(),E.items,tgt?{x:tgt.x+CAT[tgt.k].w/2,y:tgt.y+CAT[tgt.k].h+.5}:pj);if(sp){const pa=camino(pj,{x:sp.x+.5,y:sp.y+.5});if(pa){pj.path=pa.slice(0,24);pj.s='';pj.snap=null;salaMovi();}}pj.idle=now+5000+Math.random()*7000;}
@@ -9675,12 +10072,12 @@ function drawCampoPrev(){const c=$('campo-prev');if(!c)return;const g=c.getConte
   for(const it of E.items){const cc=CAT[it.k];poly(g,[P(it.x,it.y),P(it.x+cc.w,it.y),P(it.x+cc.w,it.y+cc.h),P(it.x,it.y+cc.h)],cc.cat==='defensa'?'#a3482f':cc.cat==='deco'?'#c9a3c4':cc.k==='casco'||it.k==='casco'?'#efe6d0':'#c4a265');}}
 
 /* ───────── Arranque ───────── */
-let FRAME=0;
+let FRAME=0;const PERF={n:0,ms:0};   // v92: cuántos cuadros se dibujan y cuánto tarda cada uno (lo leen las pruebas)
 function loop(now){
   if(BAT&&!BAT.over){const dt=Math.min(.1,(now-lastFrame)/1000)*(BAT.x2?2:1);lastFrame=now;const n=Math.ceil(dt/.05);for(let i=0;i<n;i++)if(BAT&&!BAT.over)step(dt/n);if(BAT)renderHud();}
-  else{const dt=Math.min(.1,(now-(lastFrame||now))/1000);lastFrame=now;if(!PETUI)walkers(dt,now);}
+  else{const dt=Math.min(.1,(now-(lastFrame||now))/1000);lastFrame=now;if(!PETUI)walkers(dt,now);MOV.suavizar(dt);MOV.camara(dt);}   // v92: posición dibujada suave y cámara con inercia
   if(PETUI&&!BAT){requestAnimationFrame(loop);return;}
-  if(BAT||(FRAME++%2===0)){draw();if(!BAT)dprMedir(now);}
+  FRAME++;if(BAT||MOV.dibujarAhora()){MOV.verEscena();const t0=performance.now();MOV.antes();try{draw();}finally{MOV.despues();}const ms=performance.now()-t0;PERF.n++;PERF.ms+=ms;MOV.medido(ms);MOV.fundido(ctx);if(!BAT)dprMedir(now);}   // v92: a 60 cuadros si el aparato da
   requestAnimationFrame(loop);
 }
 /* ───────── Tu estancia en todos tus dispositivos (v62) ─────────
@@ -10274,10 +10671,11 @@ function persona(g,x,y,t,L,walk,face=1,s=1.45,sit=false,dir=null){
  const key='person:'+JSON.stringify(L)+':'+dir+':'+(sit?1:0),a=patioCache.get(key)||patioImage(key,patioPersonSVG(L,dir,sit));
  if(!a.ready)return;
  const p=P(x,y),scale=.61*s/1.45;g.save();g.translate(p[0],p[1]);g.scale(scale,scale);
- const bob=walk?Math.abs(Math.sin(t*8))*1.5:0;
+ const PZ=MOV.paso(x,y),ph=PZ?PZ.fase:t*8,ak=PZ?PZ.ak:1;   // v92: la fase y la intensidad del paso de cada caminante
+ const bob=walk?Math.abs(Math.sin(ph))*1.9*ak:0;
  // Animate legs separately so the saved identity and garment do not change while walking.
  if(walk&&!sit){const [vx,vy,vw,vh]=a.vb,cut=73,den=a.im.naturalWidth/vw;
-  for(const [x0,x1,sgn]of [[vx,36,1],[36,vx+vw,-1]]){g.save();g.translate(0,-25);g.rotate(Math.sin(t*8)*.10*sgn);g.translate(0,25);g.drawImage(a.im,(x0-vx)*den,(cut-vy)*den,(x1-x0)*den,(vy+vh-cut)*den,x0-36,cut-99,x1-x0,vy+vh-cut);g.restore();}
+  for(const [x0,x1,sgn]of [[vx,36,1],[36,vx+vw,-1]]){g.save();g.translate(0,-25);g.rotate(Math.sin(ph)*.17*ak*sgn);g.translate(0,25);g.drawImage(a.im,(x0-vx)*den,(cut-vy)*den,(x1-x0)*den,(vy+vh-cut)*den,x0-36,cut-99,x1-x0,vy+vh-cut);g.restore();}
   g.translate(0,-bob);g.drawImage(a.im,0,0,vw*den,(cut-vy)*den,vx-36,vy-99,vw,cut-vy);
  }else patioStamp(g,a,-36,-99);
  g.restore();
@@ -15652,7 +16050,7 @@ if(!habia&&!ls.get(SKEY)){SY.virgen=true;SY.dirty=false;}readCopas();fitScreen()
   const pm=/^#pampa-malon=([^&]+)(?:&duelo=([A-Za-z0-9_-]+))?/.exec(location.hash),first=!ls.get(KEY+'-ayuda');tick();tickPedidos();tickVisita();if(!acct())takePremios();save(true);   // con cuenta, los regalos se cobran después de traer la estancia
   resize();focusLand();renderAll();
   if(pm){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}ls.set(KEY+'-ayuda','1');let q='';try{q=decodeURIComponent(pm[1]);}catch(_){q=pm[1];}setTimeout(()=>pampaMalon(q,pm[2]||''),300);}
-  else if(first){ls.set(KEY+'-ayuda','1');let guia=false;try{guia=E.tut<3&&!localStorage.getItem('estancia-guia89');}catch(_){}if(!guia)setTimeout(openHelp,400);}   // v90: si arranca la guía corta del primer día, no se suma el texto largo (queda en ☰ › Cómo se juega)
+  else if(first){ls.set(KEY+'-ayuda','1');let guia=false;try{guia=E.tut<3&&!localStorage.getItem('estancia-guia89');}catch(_){}}   // v92: «Cómo se juega» ya no se abre solo (queda en ☰ › Cómo se juega, pedido del 11/11) · v90: si arranca la guía corta del primer día, no se suma el texto largo (queda en ☰ › Cómo se juega)
   else if(E.ecoAviso&&ls.get('estancia-eco'+ECO.ver)!=='1')setTimeout(avisoEco,500);
   if(first)ls.set('estancia-visitar-v66','1');   // los nuevos ya lo ven en la ayuda y en la barra
   else if(!pm&&!/^#visitar=/.test(location.hash)&&ls.get('estancia-visitar-v66')!=='1'&&(!navigator.webdriver||ls.get('estancia-visitar-force')==='1'))setTimeout(avisoVisitar,1400);   // (en las pruebas automáticas no sale, salvo que se pida)
@@ -15689,8 +16087,169 @@ function ajustarPesos(n,modo,motivo){if(!E||VISIT)return null;const antes=Math.m
   return E.pesos-antes;}
 window.ESTANCIA={RANGO,ajustarPesos,malonTope,llevar,llevarHtml,espacioDe,rangoAro,petCheck,petMorir,petMuereEn,petCritDesde,petAca,enterrar,tumbaEtapa,openPop,openMalon,clima,luzDelDia,CIELO,get VIENTO(){return VIENTO;},AMB,ambStart,ambTick,ECO,get SEL(){return SEL;},set SEL(v){SEL=v;},get GHOST(){return GHOST;},get MODE(){return MODE;},sfx,get SX(){return SX;},openSeeds,openJuegos,startMini,closeMini,get MINI(){return MINI;},openHist,histDe,caraPj,ocupadoEn,CASCO_UP,MINIS,miniTerminar,get OTRA_PEST(){return OTRA_PEST;},get WK(){return WK;},get SALA(){return SALA;},get SY(){return SY;},get SYNC(){return SYNC;},get VISIT(){return VISIT;},BUBS,pull,sync,juntarE,packE,unpackE,salaDecir,salaPoll,usar,caminarA,visitar,endVisit,openLibro,poseDe,enTablado,gentePos,rtcCerrar,visZ,get PETUI(){return PETUI;},PETS,PJ_OPTS,VISITAS,DESP,openPet,closePet,petBuy,petStats,petMood,petAct,openPersonaje,openPedidos,abrirCofre,cofreListo,tickPedidos,tickVisita,atenderVisita,nuevoPedido,gainMul,lindura,buffOf,feriaOn,feriaHoy,camino,irA,hitWalker,walkerInit,openShop,startPlace,migrar,destroyed,pampaMalon,nivelar,poderDef,robarCosechas,perderRobado,fetchFriend,deployAt,CAT,simulate(sec){for(let i=0;i<sec*20&&BAT&&!BAT.over;i++)step(.05);},get E(){return E;},get BAT(){return BAT;},get cam(){return cam;},P,toTile,startBattle,npcBase,endBattle,sync,takePremios,tick,save,renderAll,focusLand,draw,
   screenOf(x,y,z=0){const p=P(x,y,z),r=cv.getBoundingClientRect();return {x:r.left+W/2+(p[0]-cam.x)*cam.z,y:r.top+Hh/2+(p[1]-cam.y)*cam.z};}};
-Object.assign(window.ESTANCIA,{m3,juntarE,baseGet,baseSet,subirAlIrse,HIDE,prePack,ctNow,harvest,collectProd,nubeEspera,plataSana});   // v74 (pruebas de la sincronización)
+Object.assign(window.ESTANCIA,{MOV,PERF,m3,juntarE,baseGet,baseSet,subirAlIrse,HIDE,prePack,ctNow,harvest,collectProd,nubeEspera,plataSana});   // v74 (pruebas de la sincronización)
 Object.assign(window.ESTANCIA,{pombe:{forzar(){if(!pombePuede())return false;POMBE.wait=0;pombeEmpezar();return true;},estado(){const o=POMBE.on;return {fase:o?o.fase:null,x:o&&o.x,y:o&&o.y,noche:nocheId(),hoy:pombeNoche(nocheId()),guardado:E.pombe||null};},pantalla(){const o=POMBE.on;if(!o||o.x==null)return null;const p=P(o.x,o.y,18),r=cv.getBoundingClientRect();return {x:r.left+W/2+(p[0]-cam.x)*cam.z,y:r.top+Hh/2+(p[1]-cam.y)*cam.z};},apurar(){if(POMBE.on)POMBE.on.t0-=1900;},puede:()=>pombePuede(),noches:(a,n)=>{let c=0;for(let i=0;i<n;i++){const d=new Date(a);d.setDate(d.getDate()+i);if(rnd((d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate())*31+7)()<.2)c++;}return c;}}});   // v74 (pruebas del Pomberito)
+</script>
+<script>
+/* ───────── EstanciAR v92 · Gestos que se ven y cosas que responden ─────────
+   Pedido del 11/11: «Los emotes y animaciones de los personajes no existen! Tocás algo y no pasa nada».
+   Qué pasaba (diagnóstico con capturas, ver doc claude/v92-estancia-emotes.md):
+   · Los gestos SÍ se dibujaban (v83/v85), pero a la distancia normal de la cámara el personaje mide unos 25 px: el
+     movimiento era de 1–3 px, los brazos un hilo de 2 px y casi siempre quedaba tapado por el gallinero o la casa. Visto
+     en el celular: no pasaba nada.
+   · Sin cuenta (invitado) no se dibujaban nunca: el gesto se busca por el nombre y el nombre vacío se tomaba como «nadie».
+   · Tocar tu personaje abría un cartel sin gestos; tocar a otra persona en tu estancia (o en la de un amigo) no hacía nada.
+   Qué hace ahora:
+   · Los gestos se dibujan acá (reemplaza el dibujo de v83/v85, que se apaga mientras dura el gesto): el personaje crece un
+     poco al arrancar (un «saltito» de 0,25 s), los movimientos son 2–3 veces más amplios, los brazos más gruesos, aparece un
+     aro dorado en el piso (se ve aunque una casa tape el cuerpo) y un globito chico con el gesto que dura poco.
+   · Si el personaje está chico en pantalla o fuera de cuadro, la cámara va suave hasta él (sin «reducir movimiento»).
+   · Anda sin cuenta. A los demás les viaja igual que antes (salaDecir con emoji): los que tienen la app nueva lo ven así.
+   · Tocar tu personaje: da un saltito y el cartel trae 4 gestos a mano (y «Más gestos»).
+   · Tocar a otra persona: se da vuelta y te saluda; el cartel ofrece Saludar / Tirar un beso / Convidar un mate.
+   No guarda datos nuevos y no agrega consultas. */
+(()=>{'use strict';
+const S83=window.SOCIAL83;if(!S83||!S83.gesto||typeof personaEn!=='function')return;
+const ANIM={'👋':'ola','😂':'risa','💃':'baile','🧉':'mate','👏':'aplauso','🙌':'festejo','😠':'enojo','😴':'dormir','👉':'senalar','❤️':'amor','🤔':'pensar','😱':'susto'};
+const NOM={ola:'Saludar',risa:'Reírse',baile:'Bailar',mate:'Convidar un mate',aplauso:'Aplaudir',festejo:'Festejar',enojo:'Enojarse',dormir:'Dormirse',senalar:'Señalar',amor:'Tirar un beso',pensar:'Pensar',susto:'Asustarse'};
+const DUR={ola:2.4,risa:2.2,baile:4.4,mate:3,aplauso:2.4,festejo:2.6,enojo:2,dormir:4.6,senalar:2.4,amor:2.8,pensar:3,susto:2,hop:.45,mira:1.2};
+const red=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}};
+const YO='\u0000yo';
+const G92={yo:null,otros:new Map(),ultimo:0};window.GESTOS92=G92;   // otros: w → {a,t0}
+// quién es cada caminante (para buscar su gesto en BUBS)
+let QUIEN=new Map();
+const dw=drawWalkers;drawWalkers=function(){QUIEN=new Map();try{for(const e of SALA.gente.values())if(e.w)QUIEN.set(e.w,lc(e.u));const y=yoW();if(y)QUIEN.set(y,YO);if(WK.pj)QUIEN.set(WK.pj,YO);}catch(_){}return dw.apply(this,arguments);};
+const esGesto=b=>b&&b.e&&ANIM[b.txt];
+function gestoDe(w){const u=QUIEN.get(w),now=performance.now();if(u===undefined)return null;
+  if(u===YO){const g=G92.yo;if(g&&(now-g.t0)/1000<DUR[g.a])return {a:g.a,k:(now-g.t0)/1000,e:g.e};return null;}
+  const o=G92.otros.get(w);if(o&&(now-o.t0)/1000<DUR[o.a])return {a:o.a,k:(now-o.t0)/1000};
+  for(let i=BUBS.length-1;i>=0;i--){const b=BUBS[i];if(b.u!==u)continue;if(!esGesto(b))return null;const a=ANIM[b.txt],k=(now-b.t)/1000;return k<DUR[a]?{a,k,e:b.txt}:null;}
+  return null;}
+const piel=L=>{try{return PIEL[(L.piel||0)%PIEL.length];}catch(_){return '#c99a72';}},manga=L=>{try{return COLS[(L.ropac||0)%COLS.length];}catch(_){return '#9a4a33';}};
+function brazo(g,x0,y0,x1,y1,L){if(brazo.no)return;g.save();g.lineCap='round';g.strokeStyle='rgba(40,25,15,.9)';g.lineWidth=5.2;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+  g.strokeStyle=manga(L);g.lineWidth=3.4;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();g.fillStyle=piel(L);g.strokeStyle='rgba(40,25,15,.9)';g.lineWidth=1;g.beginPath();g.arc(x1,y1,2.4,0,7);g.fill();g.stroke();g.restore();}
+function corazon(g,x,y,s,a){g.save();g.globalAlpha=a;g.fillStyle='#d8324a';g.beginPath();g.moveTo(x,y+s*.9);g.bezierCurveTo(x-s*1.4,y-s*.2,x-s*.6,y-s*1.2,x,y-s*.35);g.bezierCurveTo(x+s*.6,y-s*1.2,x+s*1.4,y-s*.2,x,y+s*.9);g.fill();g.restore();}
+const ease=x=>1-Math.pow(1-Math.min(1,Math.max(0,x)),3);
+// El personaje con el gesto de verdad (el estudio de personajes ya trae saludar, reír, aplaudir, festejar, pensar y bailar:
+// la mano sube, saluda y baja, sin brazos de más). Se arma la imagen por cuadros y se guarda en el mismo caché del dibujo.
+const ARTE={ola:{emote:'saludar',expression:'contento',n:12,d:1.3},risa:{emote:'reir',expression:'risa',n:10,d:1.5},aplauso:{emote:'aplaudir',expression:'contento',n:12,d:1.5},
+  festejo:{emote:'festejar',expression:'contento',n:12,d:1.4},pensar:{emote:'pensar',expression:'pensativo',n:10,d:1.9},baile:{emote:'bailar',expression:'contento',n:14,d:2.2},
+  mate:{pose:'mate',expression:'contento',n:1},senalar:{pose:'saludo',expression:'habitual',n:1},amor:{emote:'saludar',expression:'contento',n:12,d:1.3},
+  enojo:{expression:'enojito',n:1},susto:{expression:'asombro',n:1},dormir:{expression:'sueno',n:1}};
+function svgGesto(L,mo){const V=PATIO,O=V&&V.old;if(!O||!O.characterSVG||typeof patioPersonSVG!=='function')return null;const op=V.person,oc=O.characterSVG;
+  try{V.person=(look)=>oc({...look,pose:mo.pose||'quieto'},mo);O.characterSVG=(look)=>oc({...look,pose:mo.pose||'quieto'},mo);return patioPersonSVG(L,'front',false);}
+  catch(_){return null;}finally{V.person=op;O.characterSVG=oc;}}
+function cuadro(L,a,k){const A=ARTE[a];if(!A||typeof patioImage!=='function')return null;
+  const i=A.n>1?Math.floor(((k/A.d)%1)*A.n):0,t=A.n>1?(i+.5)/A.n:.5,key='g92:'+JSON.stringify(L)+':'+a+':'+i;
+  let im=patioCache.get(key);if(!im){const sv=svgGesto(L,{emote:A.emote,pose:A.pose,expression:A.expression,t});if(!sv)return null;im=patioImage(key,sv);}
+  return im&&im.ready?im:null;}
+function precargar(L,a){const A=ARTE[a];if(!A)return;for(let i=0;i<A.n;i++)cuadro(L,a,(i+.5)/A.n*(A.d||1));}
+
+const pe=personaEn;
+personaEn=function(g,w,L,t){const m=gestoDe(w);if(!m)return pe.apply(this,arguments);
+  // los dibujos viejos de gestos (v83/v85) se apagan mientras dura este
+  const sv=BUBS.slice();BUBS.length=0;for(const b of sv)if(!esGesto(b))BUBS.push(b);
+  try{const R=red(),k=m.k,p=P(w.x,w.y),sit=!!(typeof poseDe==='function'&&poseDe(w)),dur=DUR[m.a];
+    let dx=0,dy=0,r=0,sc=1,face=w.face;
+    // arranque: saltito y un poco más grande (se nota aunque esté lejos)
+    if(!R){const a=Math.min(1,k/.25);sc=1+.18*Math.sin(Math.PI*a)+(k<dur-.3?.06:.06*Math.max(0,(dur-k)/.3));if(k<.25)dy-=Math.sin(Math.PI*a)*7;}
+    if(!R)switch(m.a){
+      case 'baile':{const beat=Math.floor(k*2.4);face=beat%2?-1:1;dy+=-Math.abs(Math.sin(k*7.5))*7;r=Math.sin(k*7.5)*.22;dx=Math.sin(k*3.75)*6;break;}
+      case 'festejo':dy+=-Math.abs(Math.sin(k*8))*14;break;
+      case 'risa':dy+=-Math.abs(Math.sin(k*18))*3;r=Math.sin(k*9)*.09;break;
+      case 'enojo':dx=Math.sin(k*46)*2.6*Math.max(0,1-k/1.6);break;
+      case 'susto':dy+=k<.35?-Math.sin(k/.35*Math.PI)*16:0;dx=k>.35&&k<1.2?Math.sin(k*55)*2:0;break;
+      case 'dormir':r=Math.min(.22,k*.35);dy+=Math.min(3,k*4);break;
+      case 'hop':dy+=-Math.sin(Math.min(1,k/DUR.hop)*Math.PI)*9;break;
+      case 'mira':break;
+      case 'aplauso':case 'ola':case 'senalar':case 'amor':dy+=-Math.abs(Math.sin(k*6))*2.4;break;
+      default:dy+=Math.sin(k*4)*1.2;}
+    // el aro dorado en el piso: se ve aunque algo tape el cuerpo
+    if(m.a!=='mira'){const q=Math.min(1,k/.6),al=(1-q)*.85+(k<dur-.4?.25:.25*Math.max(0,(dur-k)/.4));g.save();g.globalAlpha=Math.max(0,al);g.strokeStyle='#f2c14e';g.lineWidth=2.4;
+      g.beginPath();g.ellipse(p[0],p[1]+1,10+q*14,(10+q*14)*.5,0,0,7);g.stroke();g.globalAlpha=Math.max(0,al*.35);g.fillStyle='#f2c14e';g.beginPath();g.ellipse(p[0],p[1]+1,10,5,0,0,7);g.fill();g.restore();}
+    const w2=face===w.face?w:Object.assign(Object.create(Object.getPrototypeOf(w)),w,{face});
+    const im=sit||(w.path&&w.path.length)?null:cuadro(L,m.a,k);
+    g.save();g.translate(p[0]+dx,p[1]+dy);g.rotate(r);g.scale(sc,sc);g.translate(-p[0],-p[1]);
+    if(im){g.save();g.translate(p[0],p[1]);g.scale(.61,.61);patioStamp(g,im,-36,-99);g.restore();}else pe.call(this,g,w2,L,t);
+    const conBrazos=!im;
+    const f=face===-1?-1:1,top=p[1]-(sit?36:47),sh=[p[0]+f*6,top+19],sh2=[p[0]-f*6,top+19];
+    try{if(w===yoW()&&!(w.path&&w.path.length)&&w.idle!==Infinity)w.idle=Math.max(w.idle||0,performance.now()+1500);}catch(_){}
+    brazo.no=!conBrazos;
+    switch(m.a){
+      case 'ola':{const a=-1.25+Math.sin(k*12)*.55;brazo(g,...sh,sh[0]+f*Math.cos(a)*15,sh[1]+Math.sin(a)*15,L);break;}
+      case 'senalar':{brazo(g,...sh,sh[0]+f*18,sh[1]-3+Math.sin(k*7)*1,L);break;}
+      case 'aplauso':{const a=Math.abs(Math.sin(k*12));const cx=p[0]+f*2,cy=top+16;brazo(g,...sh,cx+f*(1+a*4),cy,L);brazo(g,...sh2,cx-f*(1+a*4),cy,L);
+        if(a<.25){g.save();g.strokeStyle='#f2c14e';g.lineWidth=1.6;for(let i=-1;i<=1;i++){g.beginPath();g.moveTo(cx+i*4,cy-6);g.lineTo(cx+i*6,cy-11);g.stroke();}g.restore();}break;}
+      case 'festejo':{const a=Math.sin(k*8)*.25;brazo(g,...sh,sh[0]+f*7,sh[1]-17+a*4,L);brazo(g,...sh2,sh2[0]-f*7,sh2[1]-17-a*4,L);
+        for(let i=0;i<7;i++){const q=(k*1.3+i/7)%1;g.save();g.globalAlpha=1-q;g.fillStyle=['#e8b92a','#d0392b','#3a9a4a','#2f6fc4','#f4f0de'][i%5];g.translate(p[0]-16+i*5.5+Math.sin(q*9+i)*5,top-8-q*26);g.rotate(q*6+i);g.fillRect(-1.6,-2.6,3.2,5.2);g.restore();}break;}
+      case 'baile':{const a=Math.sin(k*7.5);brazo(g,...sh,sh[0]+f*9,sh[1]-10+a*5,L);brazo(g,...sh2,sh2[0]-f*9,sh2[1]-10-a*5,L);
+        for(let i=0;i<2;i++){const q=(k*.8+i*.5)%1;g.save();g.globalAlpha=(1-q)*.9;g.fillStyle='#f4f0de';g.font='800 11px system-ui';g.textAlign='center';g.fillText('♪',p[0]+f*(12+q*6)+i*-26*f,top-4-q*18);g.restore();}break;}
+      case 'mate':{const hx=sh[0]+f*7,hy=sh[1]+(k>.5&&k<2.2?-8:2);brazo(g,...sh,hx,hy,L);g.save();g.fillStyle='#7a4a24';g.strokeStyle='rgba(40,25,15,.9)';g.lineWidth=.9;g.beginPath();g.ellipse(hx,hy-2.5,3.6,4.2,0,0,7);g.fill();g.stroke();
+        g.strokeStyle='#c9c4b8';g.lineWidth=1.2;g.beginPath();g.moveTo(hx,hy-6);g.lineTo(hx+f*2.5,hy-11);g.stroke();
+        if(k>.8){const q=(k*.9)%1;g.globalAlpha=(1-q)*.7;g.fillStyle='#f4f0de';g.beginPath();g.arc(hx+f*3,hy-13-q*10,1.8+q*2,0,7);g.fill();}g.restore();break;}
+      case 'amor':{brazo(g,...sh,p[0]+f*3,top+8,L);for(let i=0;i<3;i++){const q=(k*.9+i*.33)%1;corazon(g,p[0]+f*(9+q*10)+Math.sin(q*6+i)*3,top-2-q*24,3.4,1-q);}break;}
+      case 'pensar':{brazo(g,...sh,p[0]+f*3,top+10,L);g.save();g.fillStyle='rgba(244,240,222,.92)';for(const [x,y,rr] of [[p[0]+f*10,top-2,1.8],[p[0]+f*14,top-8,2.6]]){g.beginPath();g.arc(x,y,rr,0,7);g.fill();}
+        g.beginPath();g.ellipse(p[0]+f*20,top-17+Math.sin(k*3)*1,8,5.5,0,0,7);g.fill();g.fillStyle='#4a3a2a';g.font='800 8px system-ui';g.textAlign='center';g.fillText('?',p[0]+f*20,top-14+Math.sin(k*3)*1);g.restore();break;}
+      case 'enojo':{brazo(g,...sh,sh[0]+f*4,sh[1]+9,L);brazo(g,...sh2,sh2[0]-f*4,sh2[1]+9,L);if(k<1.6){g.save();g.strokeStyle='#d0392b';g.lineWidth=1.8;g.lineCap='round';const x=p[0]+f*10,y=top-4;
+        for(const [a,b,c,d] of [[-3,-3,-1,-1],[3,-3,1,-1],[-3,3,-1,1],[3,3,1,1]]){g.beginPath();g.moveTo(x+a,y+b);g.lineTo(x+c,y+d);g.stroke();}g.restore();}break;}
+      case 'susto':{brazo(g,...sh,sh[0]+f*8,sh[1]-12,L);brazo(g,...sh2,sh2[0]-f*8,sh2[1]-12,L);if(k<1.5){g.save();g.fillStyle='#fff';g.strokeStyle='rgba(40,25,15,.9)';g.lineWidth=2.4;g.font='900 15px system-ui';g.textAlign='center';g.strokeText('!',p[0]+f*11,top-6);g.fillText('!',p[0]+f*11,top-6);g.restore();}break;}
+      case 'dormir':{g.save();g.fillStyle='rgba(244,240,222,.95)';g.strokeStyle='rgba(40,25,15,.6)';g.lineWidth=2;g.textAlign='center';for(let i=0;i<3;i++){const q=(k*.6+i/3)%1;g.globalAlpha=1-q;g.font=`900 ${8+q*6}px system-ui`;g.strokeText('z',p[0]+8+q*10,top-4-q*20);g.fillText('z',p[0]+8+q*10,top-4-q*20);}g.restore();break;}
+      case 'risa':{g.save();g.fillStyle='#f4f0de';g.strokeStyle='rgba(40,25,15,.7)';g.lineWidth=2;g.font='900 9px system-ui';g.textAlign='center';const o=Math.sin(k*18)*1.5;g.strokeText('ja ja',p[0]+f*14,top-6+o);g.fillText('ja ja',p[0]+f*14,top-6+o);g.restore();break;}}
+    brazo.no=false;g.restore();
+    // globito chico con el gesto al empezar (1,1 s): dice qué hizo, sin el emoji grande de antes
+    if(m.e&&k<1.1&&m.a!=='hop'&&m.a!=='mira'){const a=k<.15?k/.15:k>.85?Math.max(0,(1.1-k)/.25):1;g.save();g.globalAlpha=a;const bx=p[0],by=top-24-(R?0:ease(k/.3)*4);
+      g.fillStyle='rgba(30,26,20,.9)';g.beginPath();g.ellipse(bx,by,9,8,0,0,7);g.fill();g.beginPath();g.moveTo(bx-3,by+6);g.lineTo(bx,by+11);g.lineTo(bx+3,by+6);g.fill();try{emoji(g,m.e,bx,by+.5,10);}catch(_){}g.restore();}
+  }finally{BUBS.length=0;BUBS.push(...sv);}};
+
+// la cámara va suave hasta tu personaje si está chico o fuera de cuadro
+let camT=null;
+function enfocar(w){if(!w||red())return;try{try{MOV.parar();}catch(_){}   /* v92 E1: que no pelee con la inercia */if(typeof VISIT!=='undefined'&&VISIT&&w!==yoW())return;const p=P(w.x,w.y),r=cv.getBoundingClientRect();
+  const sx=W/2+(p[0]-cam.x)*cam.z,sy=Hh/2+(p[1]-cam.y)*cam.z,fuera=sx<40||sx>W-40||sy<90||sy>Hh-150,chico=cam.z<.85;if(!fuera&&!chico)return;
+  const z0=cam.z,x0=cam.x,y0=cam.y,z1=chico?Math.min(1.1,Math.max(cam.z,.95)):cam.z,x1=p[0],y1=p[1]-30,t0=performance.now(),D=520;
+  cancelAnimationFrame(camT);const paso=()=>{const q=ease((performance.now()-t0)/D);cam.z=z0+(z1-z0)*q;cam.x=x0+(x1-x0)*q;cam.y=y0+(y1-y0)*q;try{clampCam();}catch(_){}if(q<1)camT=requestAnimationFrame(paso);};camT=requestAnimationFrame(paso);}catch(_){}}
+// cada gesto propio queda anotado acá (anda también sin cuenta) y sigue viajando como antes
+const g0=S83.gesto;
+function gesto(e){const a=ANIM[e];if(!a)return g0(e);const now=performance.now();if(now-G92.ultimo<650)return;G92.ultimo=now;
+  G92.yo={a,t0:now,e};try{precargar(E.pj.look,a);}catch(_){}g0(e);try{S83.emoT=0;}catch(_){}enfocar(yoW()||WK.pj);try{navigator.vibrate&&navigator.vibrate(12);}catch(_){}}
+S83.gesto=gesto;
+document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.closest('#emo83')){try{for(const a of ['ola','baile','aplauso','festejo'])precargar(E.pj.look,a);}catch(_){}}},true);
+// el menú de gestos (botón abajo a la izquierda) llama a S83.gesto por su onclick viejo: lo redirigimos
+document.addEventListener('click',e=>{const x=e.target&&e.target.closest&&e.target.closest('#emo83-g [data-g83]');if(!x)return;e.stopImmediatePropagation();e.preventDefault();
+  gesto(x.dataset.g83);const g=$('emo83-g'),b=$('emo83');if(g)g.hidden=true;if(b)b.setAttribute('aria-expanded','false');},true);
+
+// tocar tu personaje: saltito y gestos a mano
+const RAP=[['👋','Saludar'],['💃','Bailar'],['🧉','Mate'],['🙌','Festejar']];
+const op0=window.openPjPop;
+if(typeof op0==='function'){openPjPop=function(){const r=op0.apply(this,arguments);try{if(!red())G92.yo={a:'hop',t0:performance.now()};
+  const pop=$('pop');if(pop&&!pop.querySelector('.g92')){const d=document.createElement('div');d.className='g92';
+    d.innerHTML=RAP.map(([e,n])=>`<button type="button" class="g92b" data-g92="${e}" aria-label="${n}"><span>${e}</span><small>${n}</small></button>`).join('')+`<button type="button" class="g92b mas" data-g92="mas" aria-label="Más gestos"><span>⋯</span><small>Más</small></button>`;
+    const row=pop.querySelector('.row');pop.insertBefore(d,row||null);
+    d.addEventListener('click',e=>{const b=e.target.closest('[data-g92]');if(!b)return;e.stopPropagation();closePop();
+      if(b.dataset.g92==='mas'){const m=$('emo83');if(m)setTimeout(()=>m.click(),60);}else gesto(b.dataset.g92);});}}catch(_){}return r;};window.openPjPop=openPjPop;}
+
+// tocar a otra persona: se da vuelta, te saluda y te deja contestar
+function personaEnPunto(cx,cy){try{if(!SALA||!SALA.gente||!SALA.gente.size)return null;const p=toTile(cx,cy),R=Math.max(14,20/cam.z);let best=null,bd=1e9;
+  for(const e of SALA.gente.values()){if(!e.w)continue;if(lc(e.u)===lc(yoNom()))continue;for(const z of [12,28,44]){const q=P(e.w.x,e.w.y,z),d=Math.hypot(p.wx-q[0],p.wy-q[1]);if(d<R&&d<bd){bd=d;best=e;}}}
+  return best;}catch(_){return null;}}
+function abrirPersona(e){try{const w=e.w,yo=yoW();if(yo)w.face=yo.x+yo.y>w.x+w.y?1:-1;G92.otros.set(w,{a:'mira',t0:performance.now()});
+  if(yo){yo.face=w.x+w.y>yo.x+yo.y?1:-1;}
+  SEL=null;closePop();const nom=e.u||'Alguien';
+  $('pop').innerHTML=`<button class="x" data-a="x" aria-label="Cerrar">✕</button><h3>${esc(nom)}</h3><p>Está en la estancia con vos.</p>
+    <div class="g92">${[['👋','Saludar'],['❤️','Un beso'],['🧉','Un mate'],['👏','Aplaudir']].map(([em,n])=>`<button type="button" class="g92b" data-g92="${em}" aria-label="${n} a ${esc(nom)}"><span>${em}</span><small>${n}</small></button>`).join('')}</div>`;
+  $('pop').hidden=false;$('tools').style.visibility='hidden';
+  $('pop').onclick=ev=>{const b=ev.target.closest('[data-g92],[data-a]');if(!b)return;closePop();if(b.dataset.g92)gesto(b.dataset.g92);};}catch(_){}}
+const tap0=tap;tap=function(cx,cy){try{if(!BAT&&(typeof MODE==='undefined'||MODE==='farm'||VISIT)){const e=personaEnPunto(cx,cy);if(e){abrirPersona(e);return;}}}catch(_){}return tap0.apply(this,arguments);};
+
+const css=document.createElement('style');css.textContent=`
+#pop .g92{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:8px;margin:10px 0 4px}
+#pop .g92b{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:58px;padding:8px 4px;border-radius:14px;border:1px solid rgba(90,70,40,.25);background:rgba(255,255,255,.55);font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+#pop .g92b span{font-size:22px;line-height:1}
+#pop .g92b small{font-size:12px;font-weight:700;opacity:.85}
+#pop .g92b:active{transform:scale(.94)}
+#pop .g92b:focus-visible{outline:3px solid #f2c14e;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#pop .g92b:active{transform:none}}
+`;document.head.appendChild(css);
+})();
 </script>
 </body>
 </html>

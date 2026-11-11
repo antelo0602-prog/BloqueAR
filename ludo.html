@@ -498,6 +498,86 @@ html.blq-sin-anim .bq-velo,html.blq-sin-anim .bq-hoja,html.blq-sin-anim .bq-avis
 /* v90 · C1: el aviso de la primera vez de los solitarios y LaberintAR («Listo») sigue el color de la app */
 html.bq-piel .tip1 .btn.go{background:var(--maiz)!important;border-color:var(--maiz)!important;color:var(--maiz-osc)!important}
 
+/* ───────── v92 · Configuración de los juegos (BLQ_UI.config) ─────────
+   Grupos con título, controles grandes con el valor a la vista, lo avanzado plegado y el botón fijo abajo.
+   Va igual dentro de la hoja propia de cada juego (#sheet) y en la hoja común. */
+.bq-cfg{font-family:var(--f-texto);color:var(--cal);display:flex;flex-direction:column;gap:12px;text-align:left}
+.bq-cfg h3{font:700 var(--t-4)/1.2 var(--f-titulo);letter-spacing:.02em;color:var(--pasto-seco);margin:0 0 8px}
+.bq-cfg-res{display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:var(--r-m);background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--maiz)}
+.bq-cfg-res span{font-size:var(--t-4);color:var(--pasto-seco)}
+.bq-cfg-res b{font:800 var(--t-3)/1.3 var(--f-titulo);color:var(--cal)}
+.bq-cfg-g{background:var(--mate-claro-t);border-radius:var(--r-m);padding:12px;box-shadow:inset 0 0 0 1px var(--linea)}
+.bq-cfg-c+.bq-cfg-c{margin-top:14px}
+.bq-cfg-et{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 2px 7px;font-size:var(--t-4);color:var(--pasto-seco)}
+.bq-cfg-et span{font-weight:700}
+.bq-cfg-val{font-weight:700;color:var(--maiz);text-align:right}
+.bq-cfg-ay{margin:7px 2px 0;font-size:var(--t-4);line-height:1.35;color:var(--pasto-seco)}
+/* Segmentos: todas las opciones a la vista, del mismo ancho */
+.bq-cfg-seg{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--hondo);box-shadow:inset 0 0 0 1px var(--linea)}
+.bq-cfg-seg button,.bq-cfg-chips button{appearance:none;border:0;margin:0;font:700 15px/1.15 var(--f-texto);color:var(--cal);background:transparent;border-radius:11px;min-height:46px;padding:7px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:background .15s,color .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.bq-cfg-seg button small,.bq-cfg-chips button small,.bq-cfg-lista button small,.bq-cfg-sw small,.bq-cfg-pie small{display:block;font-weight:400;font-size:12px;line-height:1.2;color:var(--pasto-seco)}
+.bq-cfg-seg button.on{background:var(--maiz);color:var(--maiz-osc);box-shadow:0 2px 8px var(--sombra-c)}
+:root .bq-cfg .bq-cfg-seg button.on small,:root .bq-cfg .bq-cfg-chips button.on small,:root .bq-cfg .bq-cfg-jugar small{color:var(--maiz-osc)!important;opacity:.78!important}
+.bq-cfg-ic{font-size:18px;line-height:1}
+/* Chips: muchas opciones cortas, se acomodan en renglones */
+.bq-cfg-chips{display:flex;flex-wrap:wrap;gap:8px}
+.bq-cfg-chips button{flex:1 1 auto;min-width:64px;min-height:44px;padding:8px 14px;background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--linea);border-radius:999px;flex-direction:row}
+.bq-cfg-chips button.on{background:var(--maiz);color:var(--maiz-osc);box-shadow:none}
+/* Lista: opciones con explicación, una por renglón */
+.bq-cfg-lista{display:flex;flex-direction:column;gap:6px}
+.bq-cfg-lista button{appearance:none;border:0;margin:0;text-align:left;font:700 15px/1.2 var(--f-texto);color:var(--cal);background:var(--hondo);border-radius:12px;min-height:52px;padding:9px 44px 9px 14px;position:relative;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--linea);touch-action:manipulation}
+.bq-cfg-lista button.on{box-shadow:inset 0 0 0 2px var(--maiz)}
+.bq-cfg-rd{position:absolute;right:14px;top:50%;width:20px;height:20px;margin-top:-10px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--alambre)}
+.bq-cfg-lista button.on .bq-cfg-rd{box-shadow:inset 0 0 0 6px var(--maiz)}
+.bq-cfg-lista .bq-cfg-ic{margin-right:6px}
+/* Interruptor: renglón entero tocable */
+.bq-cfg-sw{appearance:none;border:0;margin:0;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:transparent;color:var(--cal);font:700 15px/1.25 var(--f-texto);min-height:48px;padding:4px 2px;cursor:pointer;touch-action:manipulation}
+.bq-cfg-sw-t{display:flex;flex-direction:column;gap:2px}
+.bq-cfg-sw-k{flex:0 0 auto;width:50px;height:30px;border-radius:999px;background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--alambre);position:relative;transition:background .18s}
+.bq-cfg-sw-k i{position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:var(--pasto-seco);transition:transform .18s,background .18s}
+.bq-cfg-sw.on .bq-cfg-sw-k{background:var(--maiz);box-shadow:none}
+.bq-cfg-sw.on .bq-cfg-sw-k i{transform:translateX(20px);background:var(--maiz-osc)}
+/* Deslizador */
+.bq-cfg-rg input{width:100%;accent-color:var(--maiz);height:36px}
+/* Lo avanzado, plegado */
+.bq-cfg-mas{padding:0}
+.bq-cfg-mas summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:13px 44px 13px 14px;position:relative;min-height:48px;justify-content:center}
+.bq-cfg-mas summary::-webkit-details-marker{display:none}
+.bq-cfg-mas summary::after{content:'';position:absolute;right:18px;top:50%;width:9px;height:9px;margin-top:-7px;border-right:2px solid var(--pasto-seco);border-bottom:2px solid var(--pasto-seco);transform:rotate(45deg);transition:transform .18s}
+.bq-cfg-mas[open] summary::after{transform:rotate(225deg);margin-top:-2px}
+.bq-cfg-mas-t{font:700 15px/1.2 var(--f-titulo);color:var(--cal)}
+.bq-cfg-mas summary small{font-size:12px;color:var(--pasto-seco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bq-cfg-mas>.bq-cfg-c{padding:0 12px}
+.bq-cfg-mas>.bq-cfg-c:last-child,.bq-cfg-mas>.bq-cfg-ay:last-child{padding-bottom:12px}
+.bq-cfg-mas>.bq-cfg-ay{padding:0 12px}
+/* Pie fijo: el botón principal siempre a mano */
+.bq-cfg-pie{position:sticky;bottom:-16px;z-index:2;display:flex;flex-direction:column;gap:8px;margin:2px -4px -16px;padding:12px 4px calc(18px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--mate) 12px)}
+.bq-cfg-jugar{min-height:54px;font:800 17px/1.1 var(--f-titulo)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.bq-cfg-otros{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.bq-cfg-otros .bq-btn{min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:700}
+.bq-cfg button:focus-visible,.bq-cfg summary:focus-visible,.bq-cfg input:focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.bq-cfg *{transition:none!important}}
+/* Acostado: dos columnas para los grupos, el resumen y el pie ocupan todo el ancho */
+@media (orientation:landscape) and (max-height:520px){
+  .bq-cfg{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:10px}
+  .bq-cfg-res,.bq-cfg-pie{grid-column:1/-1}
+  .bq-cfg-pie{flex-direction:row;align-items:center;padding-top:8px}.bq-cfg-pie .bq-cfg-jugar{flex:1.2;min-height:46px}
+  .bq-cfg-pie .bq-cfg-otros{flex:1.5;display:flex;gap:6px}.bq-cfg-pie .bq-cfg-otros .bq-btn{flex:1;min-height:42px;font-size:13px;padding:4px 8px}
+  .bq-cfg-pie .bq-cfg-otros small{display:none}
+  .bq-cfg-res{padding:7px 12px}.bq-cfg-res span{display:none}
+  .bq-cfg-seg button,.bq-cfg-chips button{min-height:40px}.bq-cfg-lista button{min-height:44px}
+}
+/* PC: dos columnas cuando la ventana es ancha */
+@media (min-width:1024px) and (hover:hover){
+  .bq-cfg{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:12px}
+  .bq-cfg-res,.bq-cfg-pie{grid-column:1/-1}
+  .bq-cfg-pie{flex-direction:row;align-items:center}.bq-cfg-pie .bq-cfg-jugar{flex:1.2}.bq-cfg-pie .bq-cfg-otros{flex:1.4;display:flex;gap:8px}.bq-cfg-pie .bq-cfg-otros .bq-btn{flex:1}
+  .bq-cfg-seg button:hover:not(.on),.bq-cfg-chips button:hover:not(.on),.bq-cfg-lista button:hover{background:var(--mate-claro)}
+}
+/* La hoja de configuración más ancha donde sobra lugar (acostado y PC), para las dos columnas */
+@media (orientation:landscape) and (max-height:520px){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(820px,96vw)!important;max-width:none!important}}
+@media (min-width:1024px) and (hover:hover){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(780px,92vw)!important;max-width:none!important}}
+.bq-cfg-pinta{display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--k,#888);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 0 0 1.5px rgba(255,255,255,.35);vertical-align:-3px}
 </style>
 <script>
 /* ───────── v89 · Lo común de toda la app (interfaz «A · Pampa al atardecer») ─────────
@@ -655,6 +735,10 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&HOJAS.length){e.stopPropagat
 
 /* ── Cómo se juega ── */
 function comoSeJuega(o){o=o||{};const j=o.juego||JUEGO,a=AY[j]||{p:[],r:[]},pasos=o.pasos||a.p,reglas=o.reglas||a.r;
+  /* v92 (pedido del 11/11): «Cómo se juega» ya no se abre solo la primera vez. Los juegos que lo abrían al entrar
+     (con alCerrar = seguir a «Partida nueva») ahora siguen directo; las reglas quedan detrás del «?» y en la entrada.
+     El punto del «?» sigue avisando que hay algo para leer. Para forzarlo: o.forzar=true. */
+  if(o.alCerrar&&!o.forzar){setTimeout(()=>{try{o.alCerrar();}catch(err){console.error(err);}},0);return null;}
   marcarVisto(j);
   const fn=o.completas||o.alCompletas||(()=>{for(const n of (a.f?[a.f]:COMPLETAS))if(typeof window[n]==='function'&&window[n]!==comoSeJuega)return window[n];return null;})();
   const html=`<ol class="bq-tres">${pasos.map(t=>`<li><span>${esc(t)}</span></li>`).join('')}</ol>
@@ -1021,6 +1105,103 @@ if(/^estancia/.test(pag))estarUnRato('estancia',()=>{if(/visitar=/.test(hash0)||
 if(/^pampa/.test(pag))estarUnRato('pampa',()=>true);
 })();
 
+
+/* ───────── v92 · Configuración de los juegos: BLQ_UI.config ─────────
+   Pedido del 11/11: «el menú que aparece al inicio de cada juego está bien, pero la configuración también tiene que
+   mejorar! No es solo cuestión de ocultarlo». Una sola pieza para «Cambiar ›», «Más opciones» y «Partida nueva» de
+   todos los juegos: arriba una línea con lo elegido («Vas a jugar: …»), grupos con título, controles grandes
+   (segmentos, chips, interruptores, deslizador o lista) con el valor a la vista, lo avanzado plegado y un botón fijo
+   abajo («Jugar así»). Usa la piel común (azul/verde) y en PC va en ventana centrada (la hoja común ya lo hace).
+
+   API · window.BLQ_UI.config(o) → {el, pintar(), cerrar(), valor(id)}
+     o.juego       'truco', 'uno'… (para recordar qué grupos plegados abriste)
+     o.titulo      título si se abre como hoja propia (sin o.en). Por defecto «Partida nueva».
+     o.en          elemento donde dibujarla (p. ej. un <div> dentro de la hoja #sheet del juego). Sin o.en, abre BLQ_UI.hoja.
+     o.grupos      [{titulo, nota?, plegado?:true (va en «Más reglas…», cerrado), visible?:fn, campos:[campo…]}]
+     campo         {id, etiqueta?, tipo:'seg'|'chips'|'switch'|'rango'|'lista',
+                    opciones:[{v, t, sub?, icono?}]   (seg/chips/lista; para switch no hace falta: v true/false)
+                    valor: valor o fn() → valor actual (los juegos guardan su estado en sus variables),
+                    alCambiar(v): guardá ahí (ls.set…). Después la pieza se vuelve a pintar sola.
+                    ayuda?: texto o fn(v) → una línea debajo (sólo si hace falta),
+                    dato?: 'np' → cada botón lleva data-np="valor" (compatibilidad con pruebas viejas),
+                    visible?:fn, min/max/paso/unidad (rango), textoSi/textoNo (switch)}
+     o.resumen     fn() → texto de la línea de arriba («Mano a mano · Normal · a 30»)
+     o.jugar       {texto:'Jugar así', sub?, id?, fn}   botón principal fijo abajo
+     o.otros       [{texto, sub?, id?, icono?, fn}]    botones secundarios (Con amigos, En este aparato…)
+     o.alCerrar    fn (sólo hoja propia)
+   Todo lo que la pieza dibuja usa clases .bq-cfg*; los botones de opción llevan .on y aria-checked. */
+(function(){'use strict';
+if(!window.BLQ_UI||BLQ_UI.config)return;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ABIERTOS={};   // juego → {grupo:true} plegados que la persona abrió (sólo mientras dura la página)
+const val=c=>typeof c.valor==='function'?c.valor():c.valor;
+const vis=x=>!x.visible||!!x.visible();
+const tx=x=>typeof x==='function'?x():x;   // textos que pueden depender del estado (p. ej. «En línea» / «Con amigos»)
+const ops=c=>(typeof c.opciones==='function'?c.opciones():c.opciones)||[];   // las opciones pueden depender de otra elección
+const igual=(a,b)=>a===b||String(a)===String(b);
+function textoDe(c){const v=val(c);
+  if(c.tipo==='switch')return v?(c.textoSi||'Sí'):(c.textoNo||'No');
+  if(c.tipo==='rango')return v+(c.unidad?' '+c.unidad:'');
+  const o=ops(c).find(o=>igual(o.v,v));return o?o.t:'';}
+function campoHtml(c,k){
+  const v=val(c),dato=c.dato?` data-${c.dato}`:'';const ay=typeof c.ayuda==='function'?c.ayuda(v):c.ayuda;
+  const et=c.etiqueta?`<div class="bq-cfg-et"><span>${esc(c.etiqueta)}</span>${c.tipo==='switch'?'':`<b class="bq-cfg-val">${esc(textoDe(c))}</b>`}</div>`:'';
+  let ctl='';
+  if(c.tipo==='switch'){
+    ctl=`<button type="button" class="bq-cfg-sw${v?' on':''}" role="switch" aria-checked="${!!v}" data-cfg="${k}" data-v="${v?0:1}"${dato?`${dato}="${v?0:1}"`:''}><span class="bq-cfg-sw-t"><b>${esc(c.etiqueta||'')}</b>${c.sub?`<small>${esc(c.sub)}</small>`:''}</span><span class="bq-cfg-sw-k" aria-hidden="true"><i></i></span></button>`;
+    return `<div class="bq-cfg-c" data-c="${esc(c.id)}">${ctl}${ay?`<p class="bq-cfg-ay">${esc(ay)}</p>`:''}</div>`;}
+  if(c.tipo==='rango'){
+    ctl=`<div class="bq-cfg-rg"><input type="range" min="${c.min}" max="${c.max}" step="${c.paso||1}" value="${esc(v)}" data-cfg="${k}" aria-label="${esc(c.etiqueta||c.id)}"></div>`;}
+  else{
+    const cls=c.tipo==='chips'?'bq-cfg-chips':c.tipo==='lista'?'bq-cfg-lista':'bq-cfg-seg';
+    ctl=`<div class="${cls}" role="radiogroup"${c.etiqueta?` aria-label="${esc(c.etiqueta)}"`:''}${c.tipo==='seg'?` style="--n:${ops(c).length}"`:''}>${ops(c).map((o,i)=>{const on=igual(o.v,v);
+      return `<button type="button" role="radio" aria-checked="${on}" class="${on?'on':''}" data-cfg="${k}" data-i="${i}"${dato?`${dato}="${esc(o.v)}"`:''}>${o.icono?`<span class="bq-cfg-ic" aria-hidden="true">${o.icono}</span>`:''}<span class="bq-cfg-t">${esc(o.t)}</span>${o.sub?`<small>${esc(o.sub)}</small>`:''}${c.tipo==='lista'?'<i class="bq-cfg-rd" aria-hidden="true"></i>':''}</button>`;}).join('')}</div>`;}
+  return `<div class="bq-cfg-c" data-c="${esc(c.id)}">${et}${ctl}${ay?`<p class="bq-cfg-ay">${esc(ay)}</p>`:''}</div>`;}
+function config(o){o=o||{};const juego=o.juego||'juego';ABIERTOS[juego]=ABIERTOS[juego]||{};
+  let H=null,root;
+  // o.hojaJuego: usa la hoja propia del juego (sheet(título, html) → #sheet), así siguen andando sus ids y su cierre.
+  if(!o.en&&o.hojaJuego&&typeof window.sheet==='function'){window.sheet(esc(o.titulo||'Partida nueva'),'<div class="bq-cfg-raiz"></div>');o.en=document.querySelector('#sheet .bq-cfg-raiz');}
+  if(o.en){root=o.en;}else{H=BLQ_UI.hoja({titulo:o.titulo||'Partida nueva',html:'',clase:'bq-cfg-hoja',alCerrar:o.alCerrar});root=H.cuerpo;}
+  root.classList.add('bq-cfg');
+  const CAMPOS=[];
+  function pintar(){
+    const sc=(root.closest('.body')||root.closest('#sheet')||root.closest('.bq-hoja')||root),top=sc.scrollTop;
+    const act=document.activeElement&&root.contains(document.activeElement)?document.activeElement:null;
+    const foco=act&&act.dataset.cfg!=null?[act.dataset.cfg,act.dataset.i||act.dataset.v]:null;
+    CAMPOS.length=0;let h='';
+    const res=o.resumen?o.resumen():'';
+    if(res)h+=`<div class="bq-cfg-res" aria-live="polite"><span>Vas a jugar</span><b>${esc(res)}</b></div>`;
+    const normales=[],plegados=[];(o.grupos||[]).filter(vis).forEach(g=>(g.plegado?plegados:normales).push(g));
+    const grupo=g=>{const cs=(g.campos||[]).filter(vis);if(!cs.length)return '';
+      return cs.map(c=>{CAMPOS.push(c);return campoHtml(c,CAMPOS.length-1);}).join('')+(g.nota?`<p class="bq-cfg-ay">${esc(typeof g.nota==='function'?g.nota():g.nota)}</p>`:'');};
+    normales.forEach((g,gi)=>{const c=grupo(g);if(c)h+=`<section class="bq-cfg-g">${g.titulo?`<h3>${esc(g.titulo)}</h3>`:''}${c}</section>`;});
+    plegados.forEach(g=>{const c=grupo(g);if(!c)return;const k=g.titulo||'Más';
+      const vals=(g.campos||[]).filter(vis).map(textoDe).filter(Boolean).join(' · ');
+      h+=`<details class="bq-cfg-g bq-cfg-mas" data-g="${esc(k)}"${ABIERTOS[juego][k]?' open':''}><summary><span class="bq-cfg-mas-t">${esc(k)}</span><small>${esc(vals)}</small></summary>${c}</details>`;});
+    const otros=(o.otros||[]).filter(vis);
+    h+=`<div class="bq-cfg-pie">${o.jugar?`<button type="button" class="bq-btn prim ancho bq-cfg-jugar"${o.jugar.id?` id="${esc(o.jugar.id)}"`:''} data-cfgj="1">${esc(tx(o.jugar.texto)||'Jugar así')}${o.jugar.sub?`<small>${esc(tx(o.jugar.sub))}</small>`:''}</button>`:''}${otros.length?`<div class="bq-cfg-otros">${otros.map((b,i)=>`<button type="button" class="bq-btn borde"${b.id?` id="${esc(b.id)}"`:''} data-cfgo="${i}">${b.icono?`<span aria-hidden="true">${b.icono}</span> `:''}${esc(tx(b.texto))}${b.sub?`<small>${esc(tx(b.sub))}</small>`:''}</button>`).join('')}</div>`:''}</div>`;
+    root.innerHTML=h;sc.scrollTop=top;
+    if(foco){const b=root.querySelector(`[data-cfg="${foco[0]}"]${foco[1]!=null?(act.dataset.i!=null?`[data-i="${foco[1]}"]`:''):''}`);try{b&&b.focus({preventScroll:true});}catch(_){}}
+  }
+  function cambiar(c,v){try{c.alCambiar&&c.alCambiar(v);}catch(e){console.error(e);}pintar();}
+  root.addEventListener('click',e=>{
+    const j=e.target.closest('[data-cfgj]');if(j&&root.contains(j)){if(o.jugar&&o.jugar.fn){if(H)H.cerrar();o.jugar.fn();}return;}
+    const ot=e.target.closest('[data-cfgo]');if(ot&&root.contains(ot)){const b=(o.otros||[]).filter(vis)[Number(ot.dataset.cfgo)];if(b&&b.fn){if(H)H.cerrar();b.fn();}return;}
+    const b=e.target.closest('button[data-cfg]');if(!b||!root.contains(b))return;const c=CAMPOS[Number(b.dataset.cfg)];if(!c)return;
+    if(c.tipo==='switch')cambiar(c,!val(c));else{const op=ops(c)[Number(b.dataset.i)];if(op&&!igual(op.v,val(c)))cambiar(c,op.v);}});
+  root.addEventListener('input',e=>{const r=e.target.closest('input[type=range][data-cfg]');if(!r)return;const c=CAMPOS[Number(r.dataset.cfg)];if(!c)return;
+    const v=Number(r.value);const et=r.closest('.bq-cfg-c').querySelector('.bq-cfg-val');if(et)et.textContent=v+(c.unidad?' '+c.unidad:'');});
+  root.addEventListener('change',e=>{const r=e.target.closest('input[type=range][data-cfg]');if(!r)return;const c=CAMPOS[Number(r.dataset.cfg)];if(c)cambiar(c,Number(r.value));});
+  root.addEventListener('toggle',e=>{const d=e.target.closest&&e.target.closest('details[data-g]');if(d)ABIERTOS[juego][d.dataset.g]=d.open;},true);
+  // Flechas para moverse entre las opciones de un mismo grupo (teclado).
+  root.addEventListener('keydown',e=>{if(!/^Arrow(Left|Right|Up|Down)$/.test(e.key))return;const b=e.target.closest('[role=radio]');if(!b)return;
+    const hs=[...b.parentNode.querySelectorAll('[role=radio]')],i=hs.indexOf(b),d=/Right|Down/.test(e.key)?1:-1,n=hs[(i+d+hs.length)%hs.length];
+    if(n){e.preventDefault();n.focus();n.click();}});
+  pintar();
+  return {el:root,pintar,cerrar:()=>{if(H)H.cerrar();},valor:id=>{const c=(o.grupos||[]).flatMap(g=>g.campos||[]).find(c=>c.id===id);return c?val(c):undefined;}};
+}
+BLQ_UI.config=config;
+})();
 </script>
 <script>
 /* ───────── Latido (v76): UNA sola consulta periódica a la planilla para toda la página ─────────
@@ -1362,11 +1543,14 @@ function engancharMenu(){if(!acct())return;
 
 /* ── El ciclo: traer, juntar, subir ── */
 const SUC={busy:false,again:false,dirty:new Set(),timer:0,last:0,pullT:0,primero:true};
-function marcar(n){if(!n||pruebas)return;SUC.dirty.add(n);clearTimeout(SUC.timer);
-  const espera=Math.max(4000,20000-(Date.now()-SUC.last));SUC.timer=setTimeout(()=>ahora(false),espera);}
+// v91: antes cada guardado reiniciaba la espera; si algo guardaba seguido (la partida de BloqueAR cada 2 s detrás del
+// Inicio), la subida no llegaba nunca y los favoritos, rangos, etc. no pasaban al otro aparato hasta volver a abrir.
+// Ahora la primera marca programa la subida y las siguientes se suman a esa misma.
+function marcar(n){if(!n||pruebas)return;SUC.dirty.add(n);if(SUC.timer)return;
+  const espera=Math.max(4000,20000-(Date.now()-SUC.last));SUC.timer=setTimeout(()=>{SUC.timer=0;ahora(false);},espera);}
 async function ahora(bajar=true,keep=false){
   const a=acct();if(!a||pruebas)return;
-  if(SUC.busy){SUC.again=true;return;}SUC.busy=true;clearTimeout(SUC.timer);setSt('busy');
+  if(SUC.busy){SUC.again=true;return;}SUC.busy=true;clearTimeout(SUC.timer);SUC.timer=0;setSt('busy');
   try{
     let traidos=[],partes=[];const ajena=!!META.ajena;
     if(bajar||SUC.primero){
@@ -1404,7 +1588,8 @@ if(ST&&!pruebas){
     if(this===ST&&k==='estancia-premios'){   // lo que desaparece de la cola es lo que la estancia ya cobró
       try{const antes=J(ST.getItem(k))||[],ahoraL=J(String(v))||[],quedan=new Set(ahoraL.map(idP)),cob=antes.filter(x=>!quedan.has(idP(x))).map(idP);
         if(cob.length){const c=ls.json(PRC,[]);for(const x of cob)if(!c.includes(x))c.push(x);rawSet.call(ST,PRC,JSON.stringify(c.slice(-200)));}}catch(_){}}
-    rawSet.call(this,k,v);if(this===ST){const n=parteDe(k);if(n)marcar(n);}};
+    const igual=this===ST&&ST.getItem(k)===String(v);   // v91: guardar lo mismo no programa una subida
+    rawSet.call(this,k,v);if(this===ST&&!igual){const n=parteDe(k);if(n)marcar(n);}};
   Storage.prototype.removeItem=function(k){rawDel.call(this,k);if(this===ST){const n=parteDe(k);if(n)marcar(n);}};
 }
 function arrancar(){
@@ -1413,6 +1598,7 @@ function arrancar(){
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){if(SUC.dirty.size)ahora(true,true);}
     else if(Date.now()-SUC.pullT>15000)ahora(true);});
+  window.addEventListener('focus',()=>{if(!document.hidden&&Date.now()-SUC.pullT>15000)ahora(true);});   // v91: en la PC, volver a la ventana (sin cambiar de pestaña) también trae lo de la cuenta
   window.addEventListener('pagehide',()=>{if(!SUC.dirty.size||SUC.primero)return;const a=acct();if(!a)return;   // al cerrar: se manda lo que falta, sin esperar · v81: sólo si ya se trajo lo de la cuenta (si no, un aparato con datos viejos o vacíos podía pisar tu progreso)
     const subir=[...SUC.dirty].map(n=>{const d=datosDe(n);return d?{n,d:JSON.stringify(d),t:Date.now()}:null;}).filter(Boolean);
     for(let i=0;i<subir.length;i+=10)try{fetch(lbUrl(),{method:'POST',body:JSON.stringify({accion:'sync',usuario:a.usuario,token:a.token,subir:subir.slice(i,i+10)}),headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true});}catch(_){}});
@@ -1720,7 +1906,11 @@ function scrollHoriz(t,panel){for(let n=t;n&&n!==panel;n=n.parentElement){const 
 function deslizar(panel,op={}){
   if(!panel||panel.dataset.gxDesliza)return;panel.dataset.gxDesliza='1';
   const dir=op.dir||'derecha',umbral=op.umbral||70;
-  panel.style.touchAction=dir==='derecha'?'pan-y':(panel.scrollHeight>panel.clientHeight+4?'pan-y':'none');
+  // v91: se recalcula cuando cambia el contenido. Antes se decidía una sola vez al engancharlo: una hoja que nacía vacía
+  // (el Inicio arma la hoja y después la llena) quedaba en «none» para siempre y su lista larga no se podía desplazar.
+  const ta=()=>{panel.style.touchAction=dir==='derecha'?'pan-y':(panel.scrollHeight>panel.clientHeight+4?'pan-y':'none');};ta();
+  try{new MutationObserver(ta).observe(panel,{childList:true,subtree:true});}catch(_){}
+  try{new ResizeObserver(ta).observe(panel);}catch(_){}
   let G=null;
   panel.addEventListener('pointerdown',e=>{
     if(e.button>0||(e.pointerType==='mouse'&&!op.mouse))return;
@@ -3791,6 +3981,7 @@ function verAmigos(){S.tab='amigos';ls.set('bloques-chat-tab','amigos');S.view='
 setInterval(()=>{if(S.open)return;   // con el chat abierto (que pausa el juego) no cuenta como «terminó la partida»
   let b=false;try{b=!!H.busy();}catch(_){}if(FP.busy&&!b)finPartida();FP.busy=b;if(!b)soltarConexiones();},1500);
 function toast(who,txt,openWho=who){
+  if(S.open)return;   // v91: con el chat abierto el mensaje ya se ve en la lista; no se encima el aviso «te escribieron»
   if(porCola()){const u=esGK(openWho)?{avatar:'👥'}:userOf(who),av=u&&typeof u.avatar==='string'&&u.avatar.length<=4?u.avatar:'💬';
     BLQ_UI.aviso({icono:av,titulo:who,texto:String(txt||'').slice(0,140),tipo:'amigo',accion:{texto:'Abrir',fn:()=>open(openWho||undefined)}});return;}
   const box=$('.cx-toasts');if(!box)return;const u=esGK(openWho)?{avatar:'👥',color:'#8b7cff'}:userOf(who);
@@ -3859,10 +4050,12 @@ function render(){
   p.dataset.sig='list:'+tab;
   const a2=acct(),mine=userOf(S.me)||{},canAsk='Notification' in window&&Notification.permission==='default'&&!/iPhone|iPad/.test(navigator.userAgent);
   const nIn=S.am.in.length;
-  p.innerHTML=head('Chat')+`<div class="cx-me">${avatar({avatar:a2.avatar,color:a2.color})}<div class="cx-me-r"><b>${esc(S.me)}</b>
+  // v91 · piel A: tu fila compacta (cara, nombre, «● estado · frase»); al tocarla se abren la frase y los tres estados.
+  p.innerHTML=head('Charlas')+`<div class="cx-yo${S.yoOn?' on':''}"><button type="button" class="cx-yo-b" data-a="yo" aria-expanded="${!!S.yoOn}" aria-label="Tu estado y tu frase">${avatar({avatar:a2.avatar,color:a2.color})}<span class="cx-yo-t"><b>${esc(S.me)}</b><small>${yoTxt(mine)}</small></span><span class="cx-yo-c" aria-hidden="true">▾</span></button>
+    <div class="cx-yo-x"><div class="cx-me"><div class="cx-me-r">
       <input id="cx-frase" maxlength="60" placeholder="Tu frase (la ven tus amigos)" value="${esc(ST.frase??mine.frase??'')}"></div></div>
-    <div class="cx-modes" role="group" aria-label="Mi estado"><button type="button" data-a="modo" data-m="on">🟢 Conectado</button><button type="button" data-a="modo" data-m="aus">🌙 Ausente</button><button type="button" data-a="modo" data-m="dnd">⛔ No molestar</button></div>`+
-    `<div class="cx-tabs" role="tablist" aria-label="Listas">${[['charlas','💬 Charlas'],['amigos','🤝 Amigos'],['global','🌎 Global']].map(([k,t])=>`<button type="button" role="tab" data-a="tab" data-t="${k}" aria-selected="${k===tab}" class="${k===tab?'on':''}">${t}${k==='amigos'&&nIn?` <span class="cx-n">${nIn}</span>`:''}</button>`).join('')}</div>`+
+    <div class="cx-modes" role="group" aria-label="Mi estado"><button type="button" data-a="modo" data-m="on">🟢 Conectado</button><button type="button" data-a="modo" data-m="aus">🌙 Ausente</button><button type="button" data-a="modo" data-m="dnd">⛔ No molestar</button></div></div></div>`+
+    `<div class="cx-tabs" role="tablist" aria-label="Listas">${[['charlas','Charlas'],['amigos','Amigos'],['global','Buscar']].map(([k,t])=>`<button type="button" role="tab" data-a="tab" data-t="${k}" aria-selected="${k===tab}" class="${k===tab?'on':''}">${t}${k==='amigos'&&nIn?` <span class="cx-n">${nIn}</span>`:''}</button>`).join('')}</div>`+
     (S.err?`<p class="cx-err cx-pad">${esc(S.err)}</p>`:'')+(tab!=='global'&&a2?`<button type="button" class="cx-ask cx-citab" data-a="citaPick">🔗 Invitar con un link <small>para WhatsApp, sin abrir un juego</small></button>`:'')+(tab==='charlas'?`<button type="button" class="cx-ask cx-gnew" data-a="gnuevo">👥 Armar un grupo</button>`+(canAsk?`<button type="button" class="cx-ask" data-a="permiso">🔔 Avisarme en la compu cuando me escriben</button>`:''):'')+
     (tab==='amigos'&&S.am.a.length>3?`<div class="cx-pad cx-gqw"><input id="cx-aq" type="search" placeholder="Buscar entre tus amigos" value="${esc(S.aq||'')}" autocomplete="off"></div>`:'')+
     (tab==='global'?`<div class="cx-pad cx-gqw"><input id="cx-gq" type="search" placeholder="Buscar a alguien por su nombre" value="${esc(S.gq)}" autocomplete="off"></div>`:'')+
@@ -3927,9 +4120,11 @@ function filasGlobal(){
   const on=S.users.filter(u=>u.enLinea&&lc(u.usuario)!==me).length;
   return `<p class="cx-sec-t">${on} ${on===1?'persona conectada':'personas conectadas'} · ${S.users.filter(u=>lc(u.usuario)!==me).length} con cuenta</p>`+(L.map(u=>filaUsuario(u,null,amBoton(u.usuario))).join('')||'<p class="cx-dim cx-pad">Nadie con ese nombre.</p>');
 }
-function modeBtns(){document.querySelectorAll('.cx-modes [data-m]').forEach(b=>{const on=b.dataset.m===ST.m;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});}
+function modeBtns(){document.querySelectorAll('.cx-modes [data-m]').forEach(b=>{const on=b.dataset.m===ST.m;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});const t=document.querySelector('.cx-yo-t small');if(t)t.innerHTML=yoTxt(userOf(S.me)||{});}
+// v91: el renglón de tu estado dentro de tu fila compacta
+function yoTxt(mine){const m=ST.m||'on',e=m==='aus'?['aus','Ausente']:m==='dnd'?['dnd','No molestar']:['on','Conectado'],fr=String(ST.frase??(mine&&mine.frase)??'').trim();return `<i class="cx-yo-d ${e[0]}" aria-hidden="true"></i>${e[1]}${fr?' · '+esc(fr):''}`;}
 function previewOwn(m){const o=S.plain[m.id];if(o&&o.sys)return o.sys;if(o&&o.card&&o.card.am)return o.card.am==='si'?'🤝 Ahora son amigos':lc(m.de)===lc(S.me)?'🤝 Le mandaste una solicitud de amistad':'🤝 Te mandó una solicitud de amistad';if(o&&o.card&&o.card.ll)return '📣 '+(o.card.t||'¿Quién se prende?');if(o&&o.card&&o.card.inv)return '🎮 Lo invitaste a '+(GAMES[o.card.j]||'jugar');if(o&&o.card&&o.card.cita)return lc(m.de)===lc(S.me)?'🔗 Entraste por su link':(o.card.t||'🔗 Entró por tu link');if(o&&o.card)return '🃏 '+(o.card.t||'Partida');return o&&o.x||'💬 Mensaje de antes';}
-async function saveFrase(v){v=String(v||'').replace(/\s+/g,' ').trim().slice(0,60);if(v===(ST.frase??'')&&ST.saved)return;ST.frase=v;ls.set('bloques-chat-frase',v);
+async function saveFrase(v){v=String(v||'').replace(/\s+/g,' ').trim().slice(0,60);if(v===(ST.frase??'')&&ST.saved)return;ST.frase=v;ls.set('bloques-chat-frase',v);modeBtns();
   try{await call(auth({accion:'perfil',frase:v}));ST.saved=true;const me=userOf(S.me);if(me)me.frase=v;}catch(e){S.err=String(e.message||e);}}
 /* Perfil de un jugador: nivel, rangos, medallas y récords. */
 async function openProfile(name){S.view='perfil';S.prof=name;S.profData=null;render();
@@ -4022,6 +4217,7 @@ async function onClick(e){
   if(a==='cerrar')close();
   else if(a==='volver'){S.delFor=null;if(S.view==='gop'&&S.con){S.view='conv';}else if(S.view==='perfil'&&S.con){S.view='conv';}else{S.view='list';S.con=null;}S.pickFor=null;S.invFor=null;S.card=null;render();}
   else if(a==='modo'){ST.m=b.dataset.m;ls.set('bloques-chat-modo',ST.m);modeBtns();poll();}
+  else if(a==='yo'){S.yoOn=!S.yoOn;const w=document.querySelector('.cx-yo');if(w){w.classList.toggle('on',S.yoOn);b.setAttribute('aria-expanded',String(S.yoOn));if(S.yoOn){const i=document.getElementById('cx-frase');if(i&&matchMedia('(hover:hover)').matches)i.focus();}}}
   else if(a==='perfil')openProfile(b.dataset.u);
   else if(a==='invitar'){S.invFor=b.dataset.u;$('.cx-panel').dataset.sig='';render();}
   else if(a==='invx'){S.invFor=null;$('.cx-panel').dataset.sig='';render();}
@@ -4473,6 +4669,80 @@ html.zn-on.zn-bajo .cx-toast,html.zn-on.zn-bajo .lg-aviso,html.zn-on.zn-bajo.zn-
 .cx-shake{animation:cxShake .7s cubic-bezier(.36,.07,.19,.97)}
 @keyframes cxShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}
 @media (min-width:900px){.cx-msg{max-width:72%}}
+
+/* ───────── v91 · piel A: el chat igual en todos lados (Inicio y juegos), con el color de Vos › Ajustes › Color ───────── */
+#cx-root{--cx-f:var(--f-texto,'Atkinson Hyperlegible',system-ui,sans-serif);--cx-t:var(--f-titulo,'Bricolage Grotesque',system-ui,sans-serif);
+  --cx-bg:var(--monte,#0E1626);--cx-m:var(--mate,#16233A);--cx-mc:var(--mate-claro,#1F2F4A);--cx-al:var(--alambre,#3B5280);--cx-cal:var(--cal,#F2F4FA);
+  --cx-ps:var(--pasto-seco,#A9B6CD);--cx-mz:var(--maiz,#F2C14E);--cx-mzo:var(--maiz-osc,#3A2E0A);--cx-ln:var(--mate-claro,#1F2F4A);font-family:var(--cx-f);color:var(--cx-cal)}
+#cx-root button,#cx-root input,#cx-root textarea{font-family:var(--cx-f)}
+#cx-root .cx-panel{background:var(--cx-bg);border-left:1px solid var(--cx-ln);color:var(--cx-cal);font-family:var(--cx-f)}
+#cx-root .cx-scrim{background:var(--velo,rgba(3,7,16,.6))}
+#cx-root .cx-head{border-bottom:0;padding:14px 14px 8px 18px}
+#cx-root .cx-head h2{font-family:var(--cx-t);font-weight:800;font-size:24px;letter-spacing:-.01em}
+#cx-root .cx-x{width:40px;height:40px;border-radius:50%;border:1px solid var(--cx-ln);background:var(--cx-m);color:var(--cx-cal)}
+/* tu fila compacta */
+#cx-root .cx-yo{margin:2px 12px 6px;border-radius:var(--r-m,16px);background:var(--cx-m);flex:none}
+#cx-root .cx-yo-b{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 12px;border:0;background:none;color:inherit;text-align:left;border-radius:inherit}
+#cx-root .cx-yo-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+#cx-root .cx-yo-t b{font-size:15px}
+#cx-root .cx-yo-t small{color:var(--cx-ps);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cx-root .cx-yo-d{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px;background:#5fd38a}
+#cx-root .cx-yo-d.aus{background:var(--cx-mz)}#cx-root .cx-yo-d.dnd{background:var(--ceibo,#E8606A)}
+#cx-root .cx-yo-c{color:var(--cx-ps);transition:transform .2s}
+#cx-root .cx-yo.on .cx-yo-c{transform:rotate(180deg)}
+#cx-root .cx-yo-x{display:none;padding:0 12px 12px}
+#cx-root .cx-yo.on .cx-yo-x{display:block}
+#cx-root .cx-yo .cx-me{padding:0;border:0;background:none}
+#cx-root .cx-yo .cx-me-r{flex:1}
+#cx-root #cx-frase{width:100%;box-sizing:border-box;min-height:44px;border-radius:999px;border:1px solid var(--cx-ln);background:var(--cx-bg);color:var(--cx-cal);padding:0 16px;font-size:15px}
+#cx-root .cx-yo .cx-modes{padding:8px 0 0;gap:6px}
+#cx-root .cx-modes button{border-radius:999px;border:1px solid var(--cx-ln);background:var(--cx-bg);color:var(--cx-ps);min-height:40px}
+#cx-root .cx-modes button.on{background:var(--cx-cal);color:var(--cx-bg);border-color:var(--cx-cal)}
+/* pestañas como las de Gente */
+#cx-root .cx-tabs{gap:6px;padding:6px 12px 8px}
+#cx-root .cx-tabs button{border-radius:999px;border:1px solid var(--cx-ln);background:transparent;color:var(--cx-ps);min-height:40px;font-size:14px}
+#cx-root .cx-tabs button.on{background:var(--cx-cal);color:var(--cx-bg);border-color:var(--cx-cal)}
+#cx-root .cx-n{background:var(--cx-mz);color:var(--cx-mzo)}
+/* filas en tarjetas */
+#cx-root .cx-list{padding:0 12px 16px}
+#cx-root .cx-row{border:0;border-radius:var(--r-m,16px);background:var(--cx-m);margin:0 0 6px;padding:10px 12px;color:inherit}
+#cx-root .cx-rw{display:flex;align-items:stretch;gap:6px;margin:0 0 6px}
+#cx-root .cx-rw>.cx-row{margin:0;flex:1}
+#cx-root .cx-row:active{background:var(--cx-mc)}
+#cx-root .cx-mid small{color:var(--cx-ps)}
+#cx-root .cx-row.unread .cx-mid small{color:var(--cx-cal)}
+#cx-root .cx-more{border-radius:var(--r-m,16px);background:var(--cx-m);border:0;color:var(--cx-ps);min-width:44px}
+#cx-root .cx-sec-t{margin:14px 4px 6px;color:var(--cx-ps);font-family:var(--cx-t);font-size:13px}
+#cx-root .cx-panel>.cx-ask{margin:4px 12px;width:calc(100% - 24px)}
+#cx-root .cx-ask{margin:6px 0;width:100%;border-radius:var(--r-m,16px);border:1px dashed var(--cx-al);color:var(--cx-cal)!important;background:none}
+#cx-root .cx-gqw input,#cx-root .cx-gqw input:focus{border-radius:999px;border:1px solid var(--cx-ln);background:var(--cx-m);color:var(--cx-cal)}
+#cx-root .cx-gqw{padding:0 12px 6px}
+#cx-root .cx-av{border-color:var(--avc,var(--cx-mz))}
+/* botones */
+#cx-root .cx-primary{border-radius:999px;background:var(--cx-mz);color:var(--cx-mzo)!important}
+#cx-root .cx-seg button{border-radius:999px;border-color:var(--cx-ln);background:var(--cx-m);color:var(--cx-ps)}
+#cx-root .cx-seg button.on{background:var(--cx-cal);color:var(--cx-bg);border-color:var(--cx-cal)}
+/* la charla */
+#cx-root .cx-msg .cx-bub{background:var(--cx-mc);color:var(--cx-cal);border-radius:18px 18px 18px 6px}
+#cx-root .cx-msg.me .cx-bub{background:var(--cx-mz);color:var(--cx-mzo);border-radius:18px 18px 6px 18px}
+#cx-root .cx-bar{border-top:1px solid var(--cx-ln);background:var(--cx-bg)}
+#cx-root .cx-bar textarea{border-radius:22px;border:1px solid var(--cx-ln);background:var(--cx-m);color:var(--cx-cal);font-family:var(--cx-f)}
+#cx-root .cx-bar textarea:focus{border-color:var(--cx-mz);outline:0}
+#cx-root .cx-send{background:var(--cx-mz);color:var(--cx-mzo)!important}
+#cx-root .cx-emob{background:var(--cx-m)}
+#cx-root .cx-emo{background:var(--cx-bg);border-top:1px solid var(--cx-ln)}
+#cx-root .cx-card,#cx-root .cx-inv{border-color:var(--cx-ln)!important;background:var(--cx-m)}
+#cx-root .cx-toast{background:var(--mate-t,rgba(22,35,58,.92));border-color:var(--cx-ln)}
+#cx-root :focus-visible{outline:3px solid var(--cx-mz);outline-offset:2px}
+/* celular parado: pantalla completa · acostado: lo de arriba se desplaza con la lista */
+@media (max-width:640px){#cx-root .cx-panel{width:100vw;border-left:0}}
+@media (max-height:500px){#cx-root .cx-panel{overflow-y:auto}#cx-root .cx-panel .cx-list{overflow:visible;flex:none}}
+/* PC: panel a la derecha, redondeado y separado del borde */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  #cx-root .cx-panel{top:12px;right:12px;bottom:12px;width:440px;border:1px solid var(--cx-ln);border-radius:var(--r-l,24px);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  #cx-root .cx-row:hover{background:var(--cx-mc)}
+  #cx-root .cx-tabs button:hover:not(.on){border-color:var(--cx-al);color:var(--cx-cal)}}
+@media (prefers-reduced-motion:reduce){#cx-root .cx-yo-c{transition:none}}
 `;
 function injectCss(){if($('#cx-css'))return;const s=document.createElement('style');s.id='cx-css';s.textContent=CSS;document.head.appendChild(s);}
 
@@ -4761,7 +5031,29 @@ function css(){if(document.getElementById('mc-css'))return;const s=document.crea
 .mc-mburb{position:fixed;z-index:59;max-width:min(260px,calc(100% - 20px));padding:8px 12px;border-radius:14px 14px 4px 14px;border:1px solid #33404d;background:#141b22f2;color:#e6ece6;font:13.5px/1.3 system-ui,sans-serif;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.4);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
 .mc-mburb.izq{border-radius:14px 14px 14px 4px}.mc-mburb.abajo{border-radius:4px 14px 14px 14px;transform:translateY(-6px)}.mc-mburb.abajo.izq{border-radius:14px 4px 14px 14px}
 .mc-mburb.on{opacity:1;transform:none;pointer-events:auto}.mc-mburb b{color:#f3dc9a;margin-right:4px}
-@media (prefers-reduced-motion:reduce){.mc-burb,.mc-mburb{transition:none}}`;document.head.appendChild(s);}
+@media (prefers-reduced-motion:reduce){.mc-burb,.mc-mburb{transition:none}}
+/* ───────── v91 · piel A: el chat de la mesa con las mismas piezas que el chat (color de Vos › Ajustes › Color) ───────── */
+.mc-inl,.mc-panel,.mc-flot,.mc-burb,.mc-pick-in{--mc-bg:var(--monte,#0E1626);--mc-m:var(--mate,#16233A);--mc-mc:var(--mate-claro,#1F2F4A);--mc-ln:var(--mate-claro,#1F2F4A);
+  --mc-cal:var(--cal,#F2F4FA);--mc-ps:var(--pasto-seco,#A9B6CD);--mc-mz:var(--maiz,#F2C14E);--mc-mzo:var(--maiz-osc,#3A2E0A);font-family:var(--f-texto,'Atkinson Hyperlegible',system-ui,sans-serif)}
+.mc-inl,.mc-panel{background:var(--mc-bg)!important;color:var(--mc-cal)!important;border:1px solid var(--mc-ln)!important;border-radius:var(--r-l,24px)!important}
+.mc-inl header,.mc-panel header{border-bottom:0!important}
+.mc-inl header b,.mc-panel header b{font-family:var(--f-titulo,'Bricolage Grotesque',system-ui,sans-serif);font-weight:800}
+.mc-panel header button,.mc-rst{border-radius:50%!important;background:var(--mc-m)!important;color:var(--mc-cal)!important;border:1px solid var(--mc-ln)!important}
+.mc-m b,.mc-frb{color:var(--mc-mz)!important}
+.mc-vacio,.mc-pn{color:var(--mc-ps)!important}
+.mc-rap button{border-radius:999px!important;border:1px solid var(--mc-ln)!important;background:var(--mc-m)!important;color:var(--mc-cal)!important}
+.mc-f input{border-radius:999px!important;border:1px solid var(--mc-ln)!important;background:var(--mc-m)!important;color:var(--mc-cal)!important;font-family:inherit!important}
+.mc-f input:focus{border-color:var(--mc-mz)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--mc-mz) 30%,transparent)!important}
+.mc-f input::placeholder{color:var(--mc-ps)!important}
+.mc-f button[type=submit],.mc-pchat{border-radius:999px!important;background:var(--mc-mz)!important;color:var(--mc-mzo)!important;font-family:inherit!important}
+.mc-f .mc-eb,.mc-eb{background:var(--mc-m)!important;border-radius:50%!important}
+.mc-emo{border-top:1px solid var(--mc-ln)!important}
+.mc-flot{border-radius:50%!important;border:1px solid var(--mc-ln)!important;background:var(--mc-m)!important;color:var(--mc-cal)!important}
+.mc-badge{background:var(--mc-mz)!important;color:var(--mc-mzo)!important}
+.mc-burb{background:var(--mate-t,rgba(22,35,58,.92))!important;color:var(--mc-cal)!important;border:1px solid var(--mc-ln)!important;border-radius:18px 18px 18px 6px!important}
+.mc-pick-in{background:var(--mc-bg)!important;color:var(--mc-cal)!important;border-color:var(--mc-ln)!important;border-radius:var(--r-hoja,28px) var(--r-hoja,28px) 0 0!important}
+.mc-eq{color:var(--mc-mz)!important;border-color:color-mix(in srgb,var(--mc-mz) 40%,transparent)!important}
+.mc-inl :focus-visible,.mc-panel :focus-visible{outline:3px solid var(--mc-mz);outline-offset:2px}`;document.head.appendChild(s);}
 function boton(){
   if(S.btn&&S.btn.isConnected)return S.btn;
   const b=document.createElement('button');b.type='button';b.className='icon-btn mc-btn';b.id='mc-btn';b.hidden=true;
@@ -5084,6 +5376,14 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:92,grande:true,titulo:'Novedades',items:[
+    ['💬','El chat es igual en todos lados, con la cara nueva: en el Inicio, en cada juego y en la mesa.'],
+    ['🎚️','Configuración de cada juego rediseñada: todo agrupado, a la vista y con «Jugar así». «Cómo se juega» queda en el «?».'],
+    ['🤠','EstanciAR: los gestos ahora se ven (saludar, bailar, mate…), tocar a alguien responde, y todo se mueve más fluido.'],
+    ['🎯','MarcAR: tu vida y tus balas van alrededor de tu personaje (se cambia en Ajustes).']]},
+  {v:91,titulo:'Novedades',items:[
+    ['⭐','Tus favoritos y lo que cambiás pasan enseguida a tus otros aparatos (antes podía tardar hasta que volvías a abrir la app).'],
+    ['👆','Arreglado: en el celular ya se puede deslizar la lista para elegir tus juegos favoritos.']]},
   {v:90,grande:true,titulo:'Novedades',items:[
     ['💙','Vuelve el azul: es el color de la app. Si te gustaba el verde, lo elegís en Vos › Ajustes › Color.'],
     ['▶️','Los juegos abren simple: un «Jugar» grande con lo último que elegiste. Todo lo demás está en «Más opciones».'],
@@ -6705,7 +7005,35 @@ function openNew(){
     jugar:nuevaCompu,amigos:openMesa,cambiar:openNewFull,
     mas:[{texto:'👥 En este aparato',sub:'De 2 a 4, pasándose el celular',fn:openLocal}]}))openNewFull();
 }
+/* v92 · Configuración nueva (BLQ_UI.config). Mismas claves (ludo-bots, ludo-eq, ludo-color, ludo-dif, ludo-reglas). */
 function openNewFull(){
+  if(!window.BLQ_UI||!BLQ_UI.config){openNewFull0();return;}
+  const rk=()=>window.RANGOS?RANGOS.isRanked('ludo'):null,R=()=>reglasDe(CFG.reglas);
+  const setR=(k,v)=>{const r={...R()};r[k]=v;CFG.reglas=reglasDe(r);ls.set('ludo-reglas',JSON.stringify(CFG.reglas));};
+  BLQ_UI.config({juego:'ludo',titulo:'Partida nueva',hojaJuego:true,
+    resumen:()=>[(CFG.bots+1)+' jugadores',CFG.bots===3&&CFG.eq?'2 contra 2':'',CNOM[CFG.color],'compu '+(DIFN[CFG.dif]||CFG.dif).toLowerCase(),esClasica(R())?'reglas clásicas':'reglas propias',rk()===null?'':rk()?'ranked':'amistosa'].filter(Boolean).join(' · '),
+    grupos:[
+      {titulo:'La mesa',campos:[
+        {id:'n',etiqueta:'Jugadores',tipo:'seg',dato:'n',valor:()=>CFG.bots+1,opciones:[2,3,4].map(k=>({v:k,t:String(k)})),
+          alCambiar:v=>{CFG.bots=v-1;ls.set('ludo-bots',String(CFG.bots));}},
+        {id:'eq',etiqueta:'Cómo se juega de a 4',tipo:'seg',dato:'eq',visible:()=>CFG.bots===3,valor:()=>CFG.eq?1:0,opciones:[{v:0,t:'Todos contra todos'},{v:1,t:'2 contra 2'}],
+          alCambiar:v=>{CFG.eq=v===1;ls.set('ludo-eq',CFG.eq?'1':'0');},ayuda:v=>v?'Tu compañero es el de enfrente: no se comen entre ustedes. Ganan cuando entran las ocho.':''},
+        {id:'col',etiqueta:'Tu color',tipo:'seg',dato:'col',valor:()=>CFG.color,opciones:COLS.map(c=>({v:c,t:CNOM[c],icono:`<i class="bq-cfg-pinta c-${c}"></i>`})),
+          alCambiar:v=>{CFG.color=v;ls.set('ludo-color',v);}},
+        {id:'dif',etiqueta:'Nivel de la compu',tipo:'seg',dato:'dif',valor:()=>CFG.dif,opciones:['facil','normal','dificil'].map(d=>({v:d,t:DIFN[d]})),
+          alCambiar:v=>{CFG.dif=v;ls.set('ludo-dif',v);},
+          ayuda:v=>v==='facil'?'Para aprender. No mueve el rango ni da leguas.':v==='normal'?'Come cuando puede y se cuida, pero a veces se distrae.':'Cuenta el peligro de cada casilla y te persigue.'}]},
+      {titulo:'Reglas',plegado:true,nota:()=>(R().dado==='parejo'?'Dado parejo: en cada seis tiradas tuyas sale una vez cada número.':'Dado justo: cada tirada es al azar de verdad.')+(R().barrera?' Dos fichas del mismo color juntas forman una barrera.':''),
+        campos:OPC_REGLAS.map(([k,t,ops])=>({id:'rg-'+k,etiqueta:t,tipo:'seg',valor:()=>R()[k],opciones:ops.map(([v,n])=>({v,t:n})),alCambiar:v=>setR(k,v)}))
+          .concat([{id:'clasicas',tipo:'switch',etiqueta:'Reglas clásicas',sub:'vuelve todo a como se juega siempre',valor:()=>esClasica(R()),alCambiar:v=>{if(v){CFG.reglas=reglasDe({});ls.set('ludo-reglas',JSON.stringify(CFG.reglas));}}}])},
+      {titulo:'Partida',plegado:true,visible:()=>rk()!==null,campos:[
+        {id:'rk',etiqueta:'Partida',tipo:'seg',dato:'rk',valor:()=>rk()?1:0,opciones:[{v:1,t:'Ranked',sub:'mueve tu rango'},{v:0,t:'Amistosa',sub:'sin rango'}],
+          alCambiar:v=>{RANGOS.setRanked('ludo',v===1);}}]}],
+    jugar:{texto:'Jugar así',sub:'contra la compu',id:'nw-go',fn:()=>{closeSheet();nuevaCompu();}},
+    otros:[{texto:'En línea',icono:'🌐',id:'nw-amigo',fn:()=>{closeSheet();openMesa();}},
+      {texto:'En este aparato',icono:'👥',id:'nw-local',fn:()=>openLocal()}]});
+}
+function openNewFull0(){
   // v85 (pedido del 1/11: menús más simples): arriba contra quién, cuántos, tu color y el nivel; reglas y tipo, plegados.
   const paint=()=>{const n=CFG.bots+1,rk=window.RANGOS?RANGOS.isRanked('ludo'):null,r=reglasDe(CFG.reglas);
     const mas=`${reglasHtml(CFG.reglas)}
