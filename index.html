@@ -6054,6 +6054,10 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:93,grande:true,titulo:'Novedades',items:[
+    ['🎮','Inicio nuevo: los juegos primero. «Seguí jugando» con el dibujo grande, tus juegos y todos los juegos con filtros.'],
+    ['💬','Amigos y charlas, en el botón de charla de arriba (con un puntito cuando te escriben).'],
+    ['🧭','Abajo quedan tres lugares: Juegos, Estancia y Vos.']]},
   {v:92,grande:true,titulo:'Novedades',items:[
     ['💬','El chat es igual en todos lados, con la cara nueva: en el Inicio, en cada juego y en la mesa.'],
     ['🎚️','Configuración de cada juego rediseñada: todo agrupado, a la vista y con «Jugar así». «Cómo se juega» queda en el «?».'],
@@ -9235,6 +9239,233 @@ window.BLQ_panelVos=panel;
   <button type="button" class="primary" id="a2hs-install" hidden>Instalar</button>
   <button type="button" class="a2hs-x" id="a2hs-close" aria-label="Cerrar">✕</button>
 </div>
+<style>/* ═════ v93 · «Vitrina»: los juegos primero (pedido del 11/11: «parece muy red social; los juegos tienen que seguir siendo lo principal») ═════
+   El Inicio pasa a ser la vitrina de juegos: barra (🔥 racha · 🪙 oro · charla · cara), «Seguí jugando» con el dibujo grande,
+   «Hoy» en una línea, «Tus juegos» en fila y «Todos los juegos» en grilla con filtros. Abajo: Juegos · Estancia · Vos.
+   Gente deja de ser pestaña: amigos y charlas van en el botón de charla de arriba (el chat común). */
+.vt{padding:0 16px 110px;max-width:1240px;margin:0 auto}
+.vt-barra{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(12px + env(safe-area-inset-top,0px)) 0 10px;background:linear-gradient(var(--monte) 72%,transparent)}
+.vt-marca{font:800 22px/1 var(--f-titulo);letter-spacing:-.02em;margin-right:auto;color:var(--cal)}
+.vt-marca b{color:var(--maiz)}
+.vt-chip{display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 11px;border-radius:999px;background:var(--mate);color:var(--cal);font:700 14px/1 var(--f-texto);border:0}
+.vt-chip.fuego{color:#ffd2b0}.vt-chip.fuego.apagado{color:var(--pasto-seco)}
+.vt-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--mate);color:var(--cal);border:0;position:relative;flex:none}
+.vt-ic svg{width:20px;height:20px}
+.vt-ic .vt-punto{position:absolute;top:6px;right:6px;width:10px;height:10px;border-radius:50%;background:var(--maiz);box-shadow:0 0 0 2px var(--mate)}
+.vt-cara{width:40px;height:40px;border-radius:50%;border:0;background:var(--mate-claro);display:grid;place-items:center;overflow:hidden;padding:0;flex:none}
+.vt-cara .av{transform:scale(.9)}
+.vt-arriba{display:block}
+.vt-heroe{position:relative;border-radius:22px;overflow:hidden;min-height:228px;display:flex;align-items:flex-end;background:#000;isolation:isolate;width:100%;text-align:left;border:0;color:var(--cal);padding:0}
+.vt-heroe>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;transform:scale(1.04)}
+.vt-heroe::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(8,14,26,.05) 10%,rgba(8,14,26,.55) 45%,rgba(8,14,26,.95) 85%)}
+.vt-heroe .tx{padding:18px;width:100%;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.vt-etq{font:700 13px/1.2 var(--f-texto);color:#cfd7e3}
+.vt-heroe h2{font:800 34px/1 var(--f-titulo);letter-spacing:-.02em;margin:3px 0 4px}
+.vt-heroe .det{color:#d6dde8;font-size:14px}
+.vt-fila-btn{display:flex;align-items:center;gap:10px;margin-top:14px}
+.vt-jugar{height:52px;padding:0 26px;border-radius:999px;background:var(--maiz);color:var(--maiz-osc);font:800 19px/1 var(--f-titulo);display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 0 #b5861d;border:0;text-shadow:none}
+.vt-jugar:active{transform:translateY(3px);box-shadow:0 3px 0 #b5861d}
+.vt-racha-j{margin-left:auto;font-weight:700;color:#ffd2b0;font-size:14px}
+.vt-hoy{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;border-radius:16px;background:var(--mate);font-size:14px;width:100%;border:0;color:var(--cal);text-align:left}
+.vt-hoy.alerta{background:color-mix(in srgb,var(--ceibo) 22%,var(--mate))}
+.vt-hoy .ico{font-size:18px;flex:none}
+.vt-hoy .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vt-hoy b{font-weight:700}
+.vt-hoy .ir{margin-left:auto;font-weight:700;color:var(--maiz);flex:none}
+.vt-temp:empty,.vt-temp[hidden]{display:none}
+.vt-temp{margin-top:10px}
+.vt-sec{display:flex;align-items:baseline;margin:22px 0 10px}
+.vt-sec h2{font:800 20px/1 var(--f-titulo);letter-spacing:-.01em;margin:0;color:var(--cal)}
+.vt-sec .mas{margin-left:auto;color:var(--pasto-seco);font:700 14px/1 var(--f-texto);background:none;border:0;padding:8px 0}
+.vt-tus{display:grid;grid-auto-flow:column;grid-auto-columns:118px;gap:12px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 4px}
+.vt-tus::-webkit-scrollbar{display:none}
+.vt-vacio{color:var(--pasto-seco);font-size:14px;padding:6px 0}
+.vt-tj{position:relative;display:block;min-width:0}
+.vt-tj .arte{display:block;width:100%;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--mate-claro);position:relative;border:0;padding:0}
+.vt-tj img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+@media (hover:hover){.vt-tj .arte:hover img{transform:scale(1.05)}}
+.vt-tj .nom{font:800 15px/1.1 var(--f-titulo);margin:7px 2px 0;color:var(--cal)}
+.vt-tj .sub{font-size:12.5px;color:var(--pasto-seco);margin:2px 2px 0;line-height:1.25}
+.vt-tj .fuego{position:absolute;left:7px;top:7px;padding:3px 7px;border-radius:999px;background:rgba(8,14,26,.8);font:700 12px/1.2 var(--f-texto);color:#ffd2b0;pointer-events:none}
+.vt-tj .fuego.off{color:#c9d2df}
+.vt-tj .est{position:absolute;right:6px;top:6px;width:34px;height:34px;border-radius:50%;background:rgba(8,14,26,.72);display:grid;place-items:center;font-size:16px;color:#c9d2df;border:0;padding:0}
+.vt-tj .est[aria-pressed=true]{color:var(--maiz)}
+.vt-tj .listo{position:absolute;left:7px;bottom:7px;padding:3px 8px;border-radius:999px;background:#5BD68A;color:#06210f;font:700 12px/1.2 var(--f-texto);pointer-events:none}
+.vt-tj .live{position:absolute;right:7px;bottom:7px;padding:3px 8px;border-radius:999px;background:rgba(8,14,26,.8);color:#9be8b7;font:700 12px/1.2 var(--f-texto);pointer-events:none}
+.vt-filtros{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:0 16px}
+.vt-filtros::-webkit-scrollbar{display:none}
+.vt-filtros button{flex:none;height:38px;padding:0 15px;border-radius:999px;background:var(--mate);font:700 14px/1 var(--f-texto);color:#d6dde8;border:0}
+.vt-filtros button[aria-pressed=true]{background:var(--cal);color:var(--monte)}
+.vt-grilla{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+.vt-lado{display:none}
+.vt-caja{background:var(--mate);border-radius:22px;padding:16px;border:0;color:var(--cal);text-align:left;width:100%}
+.vt-caja h3{font:800 17px/1 var(--f-titulo);margin:0 0 10px}
+.vt-est{display:flex;gap:12px;align-items:center}
+.vt-est img{width:72px;height:72px;border-radius:14px;object-fit:cover;flex:none}
+.vt-est small{color:var(--pasto-seco);display:block}
+.vt-caras{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.vt-caras .av-w{display:inline-block}
+.vt-caras span.tx{color:var(--pasto-seco);font-size:14px;margin-left:4px}
+#ini .vt :focus-visible{outline:3px solid var(--maiz);outline-offset:2px}
+/* el Inicio viejo (horizonte, favoritos, Hoy grande, estancia viva, amigos) queda guardado sin mostrarse */
+#ini-p-inicio>.vt-viejo{display:none!important}
+/* Abajo, sólo Juegos · Estancia · Vos */
+#ini-t-juegos,#ini-t-gente{display:none!important}
+#ini .ini-tabs{grid-template-columns:repeat(3,1fr)!important}
+/* la Estancia es un lugar más: sin el disco maíz grande (los juegos son lo principal) */
+#ini .ini-tabs .ini-centro{margin:0!important}
+#ini .ini-tabs .ini-centro .ini-disco{width:auto!important;height:auto!important;background:none!important;color:inherit!important;box-shadow:none!important;margin:0!important;border-radius:0!important}
+#ini .ini-tabs .ini-centro .ini-disco svg{width:22px!important;height:22px!important}
+@media (min-width:700px){.vt-grilla{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (orientation:landscape) and (max-height:600px){.vt-grilla{grid-template-columns:repeat(3,minmax(0,1fr))}.vt-heroe{min-height:190px}}
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  .vt{padding:0 28px 40px}
+  .vt-barra .vt-marca{visibility:hidden}
+  .vt-arriba{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px}
+  .vt-heroe{min-height:330px}.vt-heroe h2{font-size:48px}
+  .vt-lado{display:flex;flex-direction:column;gap:14px}
+  .vt-lado .vt-hoy{margin:0}
+  .vt-arriba~.vt-hoy.solo-cel,.vt-solo-cel{display:none!important}
+  .vt-tus{grid-auto-columns:150px;margin:0;padding:0 0 4px}
+  .vt-grilla{grid-template-columns:repeat(6,minmax(0,1fr));gap:18px 16px}
+  .vt-filtros{margin:0 0 14px;padding:0}
+}
+@media (prefers-reduced-motion:reduce){.vt-tj img{transition:none}}
+</style>
+<script>
+/* ── v93 · «Vitrina» ── (ver el <style> de arriba). Se engancha a INI (inicio.js) sin tocarlo: arma su propio contenido dentro
+   de #ini-p-inicio y esconde el Inicio viejo; las pestañas Juegos y Gente quedan escondidas y sus caminos llevan a la vitrina
+   (Juegos) o al chat en «Amigos» (Gente). Todo lo guardado sigue igual: favoritos (bloques-favoritos-v1), rachas, recientes. */
+(function(){
+'use strict';
+if(!window.INI)return;
+const INI=window.INI,HB=()=>window.BLQ_HUB||{},$=id=>document.getElementById(id);
+const esc=INI.esc,num=INI.num,jsn=INI.jsn,lsg=INI.lsg,N=INI.NOMBRES;
+const ORDEN=['bloquear','truco','estancia','uno','marcar','laberinto','fortinar','pampa','poblar','invasores','ludo','ajedrez','pool','solitario','sudoku','buscaminas'];
+const CAT={bloquear:'accion',marcar:'accion',laberinto:'accion',invasores:'accion',truco:'mesa',uno:'mesa',ludo:'mesa',ajedrez:'mesa',pool:'mesa',
+  fortinar:'estrategia',pampa:'estrategia',poblar:'estrategia',solitario:'solos',sudoku:'solos',buscaminas:'solos',estancia:'campo'};
+const SUB={bloquear:'Bloques que caen',truco:'Truco con la compu o amigos',estancia:'Tu campo',uno:'Cartas de colores',marcar:'Policías y terroristas',
+  laberinto:'Comé todas las semillas',fortinar:'Estrategia en la pampa',pampa:'El mapa de todos',poblar:'Poblá la pampa',invasores:'Arcade de naves',
+  ludo:'El ludo de siempre',ajedrez:'En vivo o a distancia',pool:'Bola 8, Bola 9',solitario:'La paciencia',sudoku:'Uno nuevo cada día',buscaminas:'Contra reloj'};
+const FILTROS=[['todos','Todos'],['mesa','Cartas y mesa'],['accion','Acción'],['estrategia','Estrategia'],['solos','Solitarios'],['campo','Tu campo']];
+let filtro='todos';try{filtro=sessionStorage.getItem('vt-filtro')||'todos';}catch(_){}
+const IC={chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>'};
+const img=g=>{const im=document.querySelector(`.hub-game[data-game="${g}"] img`);return im?(im.currentSrc||im.src):'';};
+const rachaJ=g=>{try{const r=window.BLQ_rachaJuego&&BLQ_rachaJuego(g);return r||{dias:0,hoy:false};}catch(_){return {dias:0,hoy:false};}};
+const pend=()=>(jsn('blq_estancia_pend',[])||[]).filter(p=>p&&p.texto);
+function enVivo(g){try{const b=document.querySelector(`.hub-game[data-game="${g}"] .hub-live`);return b&&b.textContent.trim()?b.textContent.trim():'';}catch(_){return '';}}
+
+function tarjeta(g){
+  const r=rachaJ(g),fav=INI.esFav(g),p=g==='estancia'?pend().length:0,lv=enVivo(g);
+  return `<div class="vt-tj" role="listitem"><button type="button" class="arte" data-vt-juego="${g}" aria-label="${esc(N[g])}${r.dias?`, racha de ${r.dias} ${r.dias===1?'día':'días'}`:''}${p?`, ${p} ${p===1?'cosa lista':'cosas listas'}`:''}"><img alt="" decoding="async" src="${esc(img(g))}">${r.dias?`<span class="fuego${r.hoy?'':' off'}" aria-hidden="true">🔥 ${r.dias}</span>`:''}${p?`<span class="listo" aria-hidden="true">${p} ${p===1?'lista':'listas'}</span>`:''}${lv&&!p?`<span class="live" aria-hidden="true">${esc(lv)}</span>`:''}</button>
+    <button type="button" class="est" data-vt-fav="${g}" aria-pressed="${fav}" aria-label="${fav?'Sacar':'Fijar'} ${esc(N[g])} ${fav?'de':'en'} Tus juegos">${fav?'★':'☆'}</button>
+    <div class="nom">${esc(N[g])}</div><div class="sub">${esc(SUB[g]||'')}</div></div>`;
+}
+// El juego del héroe: el último que abriste (sin contar la estancia); si no hay, el primer favorito; si no, BloqueAR.
+function juegoHeroe(){const R=INI.recientes().filter(x=>x.j!=='estancia');if(R.length)return {g:R[0].j,seguir:true};const F=INI.favs().filter(g=>g!=='estancia');return {g:F[0]||'bloquear',seguir:false};}
+function detalle(g){let d='';try{d=(window.INI_J&&INI_J.corto&&INI_J.corto(g))||'';}catch(_){}
+  try{const P=window.RANGOS?RANGOS.partidas():{};const p=P[g];if(p&&p.n)d=`Ganaste ${num(p.w)} de ${num(p.n)}`+(d?' · '+d:'');}catch(_){}return d||SUB[g]||'';}
+function lineaHoy(){let I=[];try{I=(window.INI_HOY&&INI_HOY.items())||[];}catch(_){}
+  const x=I.find(i=>i.cls!=='hecha')||I[0];if(!x)return '';
+  return {html:`<span class="ico" aria-hidden="true">${x.ico||'☀️'}</span><span class="t"><b>Hoy:</b> ${esc(x.t)}</span>${x.fn?`<span class="ir">${esc(x.btn||'Jugar')}</span>`:''}`,cls:x.cls==='alerta'?' alerta':'',fn:x.fn};}
+
+let hoyFn=null;
+function armar(){
+  const p=$('ini-p-inicio');if(!p||$('vt'))return;
+  [...p.children].forEach(c=>c.classList.add('vt-viejo'));
+  const v=document.createElement('div');v.id='vt';v.className='vt';
+  v.innerHTML=`<header class="vt-barra">
+      <div class="vt-marca" aria-hidden="true">Bloque<b>AR</b></div>
+      <button type="button" class="vt-chip fuego" id="vt-racha"></button>
+      <button type="button" class="vt-chip" id="vt-oro"></button>
+      <button type="button" class="vt-ic" id="vt-chat" aria-label="Charlas y amigos">${IC.chat}<span class="vt-punto" id="vt-punto" hidden></span></button>
+      <button type="button" class="vt-cara" id="vt-cara" aria-label="Vos"></button>
+    </header>
+    <div class="vt-arriba">
+      <div><button type="button" class="vt-heroe" id="vt-heroe"></button></div>
+      <div class="vt-lado"><button type="button" class="vt-hoy" id="vt-hoy-pc"></button><button type="button" class="vt-caja" id="vt-estancia"></button><div class="vt-caja" id="vt-linea"></div></div>
+    </div>
+    <button type="button" class="vt-hoy vt-solo-cel" id="vt-hoy"></button>
+    <div class="vt-temp"><button type="button" class="ini-temp" id="vt-temp"></button></div>
+    <div class="vt-sec"><h2 id="vt-tus-t">Tus juegos</h2><button type="button" class="mas" id="vt-editar">Editar</button></div>
+    <div class="vt-tus" id="vt-tus" role="list" aria-labelledby="vt-tus-t"></div>
+    <div class="vt-sec" id="vt-todos-sec"><h2 id="vt-todos-t">Todos los juegos</h2></div>
+    <div class="vt-filtros" role="group" aria-label="Tipo de juego">${FILTROS.map(([k,n])=>`<button type="button" data-vt-f="${k}" aria-pressed="${k===filtro}">${n}</button>`).join('')}</div>
+    <div class="vt-grilla" id="vt-grilla" role="list" aria-labelledby="vt-todos-t"></div>
+    <p class="ini-sr" id="vt-aviso" role="status" aria-live="polite"></p>`;
+  p.insertBefore(v,p.firstChild);
+  v.addEventListener('click',e=>{
+    const fav=e.target.closest('[data-vt-fav]');
+    if(fav){e.stopPropagation();const g=fav.dataset.vtFav,on=INI.favSet(g);try{if(navigator.vibrate)navigator.vibrate(15);}catch(_){}$('vt-aviso').textContent=on?`${N[g]} quedó en Tus juegos`:`${N[g]} salió de Tus juegos`;render();return;}
+    const f=e.target.closest('[data-vt-f]');
+    if(f){filtro=f.dataset.vtF;try{sessionStorage.setItem('vt-filtro',filtro);}catch(_){}v.querySelectorAll('[data-vt-f]').forEach(b=>b.setAttribute('aria-pressed',String(b===f)));grilla();return;}
+    const j=e.target.closest('[data-vt-juego]');
+    if(j){e.stopPropagation();const g=j.dataset.vtJuego;if(g==='estancia'){INI.ir('estancia');return;}INI.hojaJuego(g);return;}
+  });
+  $('vt-heroe').onclick=e=>{const g=$('vt-heroe').dataset.g;if(!g)return;try{HB().hubPlay(g);}catch(_){}};
+  for(const id of ['vt-hoy','vt-hoy-pc'])$(id).onclick=()=>{try{if(hoyFn)hoyFn();}catch(_){}};
+  $('vt-editar').onclick=()=>INI.elegirFavs();
+  $('vt-oro').onclick=()=>{try{HB().hubOro(true);}catch(_){}};
+  $('vt-racha').onclick=()=>{try{const r=window.BLQ_racha?BLQ_racha.dias():0;$('vt-aviso').textContent='';
+    INI.hoja(`<h3 id="ini-hoja-t">🔥 ${r} ${r===1?'día':'días'} seguidos</h3><p>Tu racha de la app: cada día que jugás algo (cualquier juego o tu estancia) suma uno. Si un día no jugás, vuelve a cero.</p><div class="ini-botones"><button type="button" class="ini-btn prim" data-vt-ok>Listo</button></div>`,h=>{const b=h.querySelector('[data-vt-ok]');if(b)b.onclick=()=>INI.cerrarHoja();});}catch(_){}};
+  $('vt-chat').onclick=()=>{try{if(window.CHAT)CHAT.open();}catch(_){}};
+  $('vt-cara').onclick=()=>INI.ir('vos',true);
+  $('vt-estancia').onclick=()=>INI.ir('estancia');
+  // el puntito de charla: mismo origen que el de Gente (mensajes sin leer y solicitudes)
+  try{const cb=$('hub-chat');if(cb&&window.MutationObserver)new MutationObserver(()=>punto()).observe(cb,{childList:true,subtree:true,characterData:true});}catch(_){}
+}
+function punto(){const p=$('vt-punto');if(!p)return;let n=0;try{if(window.CHAT)n+=Number(CHAT.unread)||0;}catch(_){}
+  if(!n)try{const x=document.querySelector('#hub-chat .cx-badge');if(x)n+=parseInt(x.textContent,10)||1;}catch(_){}
+  try{const s=window.CHAT&&CHAT.solicitudes&&CHAT.solicitudes();if(s&&s.in)n+=s.in.length;}catch(_){}
+  p.hidden=!n;$('vt-chat').setAttribute('aria-label',n?`Charlas y amigos, ${n} ${n===1?'novedad':'novedades'}`:'Charlas y amigos');}
+function grilla(){const box=$('vt-grilla');if(!box)return;box.innerHTML=ORDEN.filter(g=>N[g]&&(filtro==='todos'||CAT[g]===filtro)).map(tarjeta).join('');}
+function render(){
+  if(!$('vt'))armar();if(!$('vt'))return;
+  // barra
+  let r=0,hoy=false;try{r=BLQ_racha.dias();hoy=BLQ_racha.hoy();}catch(_){}
+  const rb=$('vt-racha');rb.textContent=`🔥 ${r}`;rb.classList.toggle('apagado',!hoy);rb.setAttribute('aria-label',`Racha de la app: ${r} ${r===1?'día':'días'}${hoy?'':', jugá algo hoy para seguirla'}`);
+  let oro=0;try{oro=window.ORO?ORO.saldo():0;}catch(_){}
+  const ob=$('vt-oro');ob.innerHTML=`${(()=>{try{return ORO.ico();}catch(_){return '🪙';}})()}<span data-oro-saldo>${num(oro)}</span>`;ob.setAttribute('aria-label',`Tu oro: ${num(oro)}. Cómo se gana`);
+  const a=INI.cuenta();let av='<span aria-hidden="true">👤</span>';try{if(a)av=HB().avHtml(a.avatar,a.color,false,false,'',a.usuario);}catch(_){}
+  $('vt-cara').innerHTML=av;
+  // héroe
+  const H=juegoHeroe(),hg=H.g,rj=rachaJ(hg),he=$('vt-heroe');he.dataset.g=hg;
+  he.setAttribute('aria-label',`${H.seguir?'Seguí jugando':'Para jugar'} ${N[hg]}`);
+  he.innerHTML=`<img alt="" decoding="async" src="${esc(img(hg))}"><div class="tx"><div class="vt-etq">${H.seguir?'Seguí jugando':'Para jugar ahora'}</div><h2>${esc(N[hg])}</h2><div class="det">${esc(detalle(hg))}</div>
+    <div class="vt-fila-btn"><span class="vt-jugar" aria-hidden="true">▶ Jugar</span>${rj.dias?`<span class="vt-racha-j">🔥 ${rj.dias} ${rj.dias===1?'día':'días'}</span>`:''}</div></div>`;
+  // hoy en una línea
+  const L=lineaHoy();hoyFn=L&&L.fn||null;
+  for(const id of ['vt-hoy','vt-hoy-pc']){const b=$(id);if(!L){b.hidden=true;continue;}b.hidden=false;b.className='vt-hoy'+(id==='vt-hoy'?' vt-solo-cel':'')+L.cls;b.innerHTML=L.html;}
+  // Navidad (se sigue viendo, chica)
+  try{if(window.BLQ_temporada)BLQ_temporada.tarjeta($('vt-temp'));}catch(_){}
+  // PC: estancia y en línea
+  const P=pend(),est=$('vt-estancia');
+  est.innerHTML=`<h3>Tu estancia</h3><div class="vt-est"><img alt="" decoding="async" src="${esc(lsg('blq_estancia_foto')&&/^data:image\//.test(lsg('blq_estancia_foto'))?lsg('blq_estancia_foto'):img('estancia'))}"><div><b>${P.length?(P.length===1?'1 cosa lista':P.length+' cosas listas'):'Todo tranquilo'}</b><small>${esc(P.slice(0,2).map(x=>x.texto).join(' · ')||'Entrá a ver tu campo')}</small></div></div>`;
+  let U=[],A=null;try{U=(HB().AM&&HB().AM.users)||[];const l=window.CHAT&&CHAT.amigos&&CHAT.amigos();if(Array.isArray(l))A=new Set(l.map(x=>String(x&&x.usuario||x).toLowerCase()));}catch(_){}
+  const me=a?String(a.usuario).toLowerCase():'';const on=U.filter(u=>u.enLinea&&String(u.usuario).toLowerCase()!==me&&(!A||A.has(String(u.usuario).toLowerCase()))).slice(0,6);
+  const ln=$('vt-linea');ln.innerHTML=`<h3>En línea ahora</h3><div class="vt-caras">${on.length?on.map(u=>{try{return `<span class="av-w on" title="${esc(u.usuario)}">${HB().avHtml(u.avatar,u.color,false,false,'',u.usuario)}</span>`;}catch(_){return '';}}).join('')+`<span class="tx">${esc(on.slice(0,3).map(u=>u.usuario).join(', '))}${on.length>3?' y más':''}</span>`:`<span class="tx">${a?'Ninguno de tus amigos ahora.':'Con una cuenta ves quién está jugando.'}</span>`}</div>`;
+  ln.onclick=()=>{try{if(window.CHAT)CHAT.verAmigos?CHAT.verAmigos():CHAT.open();}catch(_){}};
+  // tus juegos
+  const F=INI.favs();$('vt-tus').innerHTML=F.length?F.map(tarjeta).join(''):`<div class="vt-vacio">Tocá la ☆ de un juego para tenerlo acá, a un toque.</div>`;
+  $('vt-editar').textContent=F.length?'Editar':'Elegir';
+  grilla();punto();
+}
+INI.vitrina={render,armar};
+
+// Enganches: después de cada render del Inicio, la vitrina; «Juegos» y «Gente» ya no son pestañas.
+const r0=INI.render;INI.render=function(){r0.apply(this,arguments);try{if(INI.listo)render();}catch(e){console.error(e);}};
+const ir0=INI.ir;INI.ir=function(tab,porToque){
+  if(tab==='juegos'){ir0.call(this,'inicio',porToque);setTimeout(()=>{const s=$('vt-todos-sec');if(s&&porToque)try{s.scrollIntoView({block:'start',behavior:'smooth'});}catch(_){}},60);return;}
+  if(tab==='gente'){ir0.call(this,'inicio',false);if(porToque)try{if(window.CHAT)(CHAT.verAmigos||CHAT.open)();}catch(_){}return;}   // al volver a abrir la app (pestaña guardada) no se abre el chat solo
+  return ir0.apply(this,arguments);};
+const init0=INI.init;INI.init=function(){init0.apply(this,arguments);try{
+  // la pestaña de abajo «Inicio» pasa a llamarse «Juegos» (con el ícono de la grilla)
+  const t=$('ini-t-inicio');if(t){t.innerHTML=INI.ICO.juegos+'<span>Juegos</span>';t.setAttribute('aria-label','Juegos');}
+  render();}catch(e){console.error(e);}};
+addEventListener('blq-favoritos',()=>{try{if(INI.listo)render();}catch(_){}});
+})();
+</script>
+
 <div class="stage-banner" id="stage-banner" hidden aria-live="polite"><b></b><span></span></div>
 <button type="button" id="fullscreen-exit" hidden>↙ Salir de pantalla completa</button>
 <script>
