@@ -353,6 +353,21 @@ html.bq-piel:not(.bq-sin-cartel) .ccard input:not([type=range]):not([type=checkb
 html.bq-piel .sheet input[type=range],html.bq-piel:not(.bq-sin-cartel) .ccard input[type=range]{accent-color:var(--maiz)}
 html.bq-piel:not(.bq-sin-cartel) .ccard .lines,html.bq-piel .sheet .lines{background:var(--mate-claro)!important;border:0!important;border-radius:var(--r-m)!important}
 html.bq-piel:not(.bq-sin-cartel) .ccard .lines .win,html.bq-piel .sheet .lines .win{color:#8FD6A6!important}
+/* v94 · Casillas del resultado y tablas dentro de un cartel u hoja oscuros: antes quedaban crema con la letra clara encima
+   (no se leía el tiempo, las pistas, las movidas ni los puestos de LudAR). Ahora son del mismo material que el cartel. */
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats>div,html.bq-piel .sheet .stats>div,
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi,html.bq-piel .sheet .posi,
+html.bq-piel:not(.bq-sin-cartel) .ccard .recs,html.bq-piel .sheet .recs{background:var(--mate-claro)!important;border:0!important;border-radius:var(--r-m)!important;color:var(--cal)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats b,html.bq-piel .sheet .stats b{color:var(--cal)!important;font-family:var(--f-titulo)!important;font-size:20px!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats small,html.bq-piel .sheet .stats small{color:var(--pasto-seco)!important;font-size:12px!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats .rec b,html.bq-piel .sheet .stats .rec b,
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats .rec small,html.bq-piel .sheet .stats .rec small{color:var(--maiz)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi div,html.bq-piel .sheet .posi div,
+html.bq-piel:not(.bq-sin-cartel) .ccard .recs div,html.bq-piel .sheet .recs div{color:var(--cal)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi b,html.bq-piel .sheet .posi b,
+html.bq-piel:not(.bq-sin-cartel) .ccard .recs b,html.bq-piel .sheet .recs b{color:var(--cal)!important;font-family:var(--f-titulo)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi .win,html.bq-piel .sheet .posi .win,
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi .win b,html.bq-piel .sheet .posi .win b{color:var(--maiz)!important}
 html.bq-piel .mreg{background:var(--mate-claro-t)!important;border-color:var(--alambre)!important}
 html.bq-piel .side-panel{background:var(--monte)!important;border-left:1px solid var(--linea)!important}
 html.bq-piel .side-panel button:not(.btn):not(.bq-btn):not(.bq-x),html.bq-piel .side-panel>a{font-family:var(--f-texto)}
@@ -364,6 +379,13 @@ html.bq-piel .side .note{color:var(--pasto-seco)!important}
 html.bq-piel .side-panel .rk-mine{background:var(--mate)!important;border-color:transparent!important;color:var(--cal)}html.bq-piel .side-panel .rk-mine small{color:var(--pasto-seco)!important}
 html.bq-piel .toast{font-family:var(--f-texto)}
 
+/* v94 · un cartel nunca queda cortado: si no entra de alto (celular acostado), se desplaza por dentro y se achica un poco */
+html.bq-piel:not(.bq-sin-cartel) .ccard{max-height:calc(100vh - 68px);max-height:calc(100dvh - 68px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media (max-height:500px) and (orientation:landscape){
+  html.bq-piel:not(.bq-sin-cartel) .ccard{padding:12px 16px 12px!important;gap:7px!important;max-height:calc(100vh - 56px);max-height:calc(100dvh - 56px)}
+  html.bq-piel:not(.bq-sin-cartel) .ccard h3,html.bq-piel:not(.bq-sin-cartel) .ccard h2{font-size:22px!important}
+  html.bq-piel:not(.bq-sin-cartel) .ccard .ic{font-size:26px!important;line-height:1!important}
+}
 /* ── Acostado (poca altura): cabecera más baja ── */
 @media (max-height:500px) and (orientation:landscape){
   :root{--bq-cab-h:44px}
@@ -490,6 +512,23 @@ html.bq-piel .tip1 .btn.go{background:var(--maiz)!important;border-color:var(--m
 @media (orientation:landscape) and (max-height:520px){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(820px,96vw)!important;max-width:none!important}}
 @media (min-width:1024px) and (hover:hover){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(780px,92vw)!important;max-width:none!important}}
 .bq-cfg-pinta{display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--k,#888);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 0 0 1.5px rgba(255,255,255,.35);vertical-align:-3px}
+
+/* v95 · Letra mínima de 11 px en toda la app (antes había rótulos de 8 a 10,5: marcadores de BloqueAR, barra de EstanciAR,
+   PoblAR, MarcAR, PoolAR, FortinAR). Quedan afuera los rótulos dibujados sobre el mapa de PoblAR, que se agrandan con el zoom. */
+html body .games-btn b,html body .games b{font-size:11px!important;letter-spacing:0!important}
+html body .eyebrow,html body .mini-stats span,html body .record,html body .top-rail #solo-area #card-stats .mini-stats span{font-size:11px!important}
+html body .tool small,html body .ph83{font-size:11px!important}
+html body .mano-tag{font-size:11px!important}
+html body .fuerza .lbl small,html body .tirar small,html body .efx small{font-size:11px!important}
+html body .mc-reloj small,html body .armabox .nom,html body .tb{font-size:11px!important}html body .mc-lbl{font-size:13.5px!important}
+html body .app.immersive #score .pl small,html body .app.immersive .status small,html body .app.immersive .total-hand span,html body .app.immersive .dev-shortcuts .dev-empty,
+html body .app.immersive .dev-shortcuts .dev-x,html body .app.immersive .act b,html body .act .act-n,html body .app.immersive .activity-head{font-size:11px!important}
+html body .marca em{font-size:11px!important}
+html body .pt-titulo small{font-size:11px!important}
+/* BloqueAR en el celular: con la letra de 11, los tres rótulos del marcador entran sin cortarse («PU…») */
+@media (max-width:700px){html body .top-rail .eyebrow,html body .top-rail .mini-stats span{letter-spacing:0!important;white-space:nowrap}
+  html body .top-rail #solo-area #card-stats{grid-template-columns:max-content max-content max-content!important;justify-content:space-between!important;column-gap:4px!important}
+  html body .top-rail #solo-area #card-stats .eyebrow{overflow:visible!important;text-overflow:clip!important}}
 </style>
 <script>
 /* ───────── v89 · Lo común de toda la app (interfaz «A · Pampa al atardecer») ─────────
@@ -1147,10 +1186,10 @@ async function call(p,ms=15000){
   try{
     const r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
     const j=await r.json();
-    if(!j||!j.ok){const e=new Error(j&&j.error||'La planilla respondió con un error.');e.planilla=true;throw e;}
+    if(!j||!j.ok){const e=new Error(j&&j.error||'No se pudo conectar. Probá de nuevo en un rato.');e.planilla=true;throw e;}
     return j;
   }catch(e){
-    if(e.name==='AbortError')throw new Error('La planilla tardó demasiado.');
+    if(e.name==='AbortError')throw new Error('La conexión tardó demasiado.');
     if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');
     throw e;
   }finally{clearTimeout(to);}
@@ -1433,7 +1472,7 @@ function datosDe(n){return ESPECIALES[n]?ESPECIALES[n].exportar():exportar(n);}
 async function call(p,ms=15000,keep=false){
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
   try{const r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow',keepalive:keep});
-    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');return j;}
+    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'No se pudo conectar. Probá de nuevo en un rato.');return j;}
   finally{clearTimeout(to);}
 }
 
@@ -1489,7 +1528,7 @@ async function ahora(bajar=true,keep=false){
   }catch(e){
     const m=String(e&&e.message||e);
     if(/sesión venció/i.test(m)){setSt('err','Tu sesión venció.');}
-    else if(m==='vieja'||/Acción desconocida/.test(m)){setSt('err','La planilla todavía no tiene la versión nueva.');}
+    else if(m==='vieja'||/Acción desconocida/.test(m)){setSt('err','Falta una actualización del juego.');}
     else{setSt(navigator.onLine===false||e instanceof TypeError||e.name==='AbortError'?'off':'err',m);for(const n of TODAS)if(n)SUC.dirty.add(n);}
   }finally{SUC.busy=false;if(SUC.again){SUC.again=false;setTimeout(()=>ahora(true),300);}}
 }
@@ -1658,7 +1697,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function call(p,ms=12000){
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
   try{const r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
-    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');return j;}
+    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'No se pudo conectar. Probá de nuevo en un rato.');return j;}
   finally{clearTimeout(to);}
 }
 /* ── La mesa en la que estás ── */
@@ -1912,14 +1951,14 @@ function apply(g,res){
   const after=info(nv);
   return {delta:nv-before.v,before,after,up:after.tier>before.tier||(after.tier===before.tier&&after.div!==before.div&&nv>before.v),down:nv<before.v&&(after.tier<before.tier||after.div!==before.div)};
 }
-// Meta de líneas en Maratón ranked según tu rango (Hierro 10 … Maestro 100).
+// Meta de líneas en Maratón por el rango según tu rango (Hierro 10 … Maestro 100).
 function soloTarget(g){const t=info(get(g).v).tier;return [10,20,30,45,60,80,100][t];}
 // XP por juego. La de BloqueAR vive en su progreso; la de los demás, acá.
 function xp(g){if(g==='bloquear'){const p=ls.json(PKEY,{});return p.xp||0;}return (ls.json(XKEY,{})[g])||0;}
 const XP_MAX=100;
 function addXp(g,n){if(g==='bloquear')return;n=Math.min(XP_MAX,Math.max(0,Math.round(Number(n)||0)));const o=ls.json(XKEY,{});o[g]=(o[g]||0)+n;o.at=Date.now();ls.set(XKEY,JSON.stringify(o));}   // v88: hasta 100 de XP por partida
 // Premios para EstanciAR: jugar los otros juegos deja trigo y pesos para la estancia.
-// ranked: sólo las partidas ranked (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
+// ranked: sólo las partidas por el rango (las que mueven el rango) dan leguas para La Gran Pampa (pedido del usuario, v56).
 // v70: «info» (opcional) dice cómo fue la partida, para que las leguas dependan del rival y del resultado, para los
 // contadores del perfil y para las tablas de cada juego:
 //   info = {j: 'truco' (id del juego), res: 'g' ganó | 'e' empate | 'p' perdió, rival: 'p' personas | 'c' compu | 's' solo,
@@ -1934,7 +1973,7 @@ function premio(de,xp,ranked,info,extra){
   if(info){info={...info};if(info.esf===undefined&&info.ok!==undefined)info.esf=!!info.ok;if(!info.x&&info.extra&&typeof info.extra==='object')info.x=info.extra;
     if(info.esf===undefined)info.esf=cuenta(info.j||NOM_ID[de],info).ok;}
   const j=(info&&info.j)||NOM_ID[de];
-  if(info&&j&&info.rival!=='s')try{contar(j,info);}catch(_){}          // (el Maratón ranked sólo da leguas: no es una partida contra nadie)
+  if(info&&j&&info.rival!=='s')try{contar(j,info);}catch(_){}          // (el Maratón por el rango sólo da leguas: no es una partida contra nadie)
   if(info&&j&&info.rival!=='s')try{ganchoAnotar(j,info);}catch(_){}     // v81: rachas y «hoy» para el cartel final
   if(info&&j&&ranked&&info.rival!=='s')try{anotarPartida(j,info);}catch(_){}
   // v88: FortinAR no anotaba XP (no tenía nivel, títulos ni cofres): si el juego no lo hace, lo anota acá
@@ -1958,13 +1997,13 @@ function premio(de,xp,ranked,info,extra){
   return {...p,oro,ranked:!!ranked,leguas,nota};
 }
 /* ── Leguas de La Gran Pampa (v70) ──
-   Cuánto da una partida ranked, según contra quién y cómo terminó. Sin «esfuerzo» (perder en 20 segundos, abandonar
+   Cuánto da una partida por el rango, según contra quién y cómo terminó. Sin «esfuerzo» (perder en 20 segundos, abandonar
    enseguida) no da nada. Contra personas da más que contra la compu.
                      compu Normal   compu Difícil   personas
      Ganar                1               2             3
      Empate (ajedrez)     0               1             2
      Perder peleando      0               0             1
-   Solo (Maratón ranked de BloqueAR): 1 si llegás a la meta. En Fácil y en las amistosas: nada.
+   Solo (Maratón por el rango de BloqueAR): 1 si llegás a la meta. En Fácil y en las amistosas: nada.
    Topes por día: cada juego hasta 4 leguas (y de esas, hasta 2 contra la compu); EstanciAR 1 por cosecha (hasta 4);
    Sudoku del día 1; Partida del día de SolitARio 1; los 3 retos de la semana de un juego, 1 (una vez por semana cada juego).
    Entre todo, hasta 12 por día (más las 3 de entrar al mapa). La planilla pone los mismos topes. */
@@ -2084,7 +2123,7 @@ function exportData(){const o={r:ls.json(RKEY,{}),x:ls.json(XKEY,{}),pt:ls.json(
 function importData(d){
   if(!d||typeof d!=='object')return false;let ch=false;
   // Rangos (v63): juego por juego, para no perder lo que jugaste en el otro dispositivo: queda el que tiene más
-  // partidas ranked; si empatan, el de la última partida más nueva.
+  // partidas por el rango; si empatan, el de la última partida más nueva.
   const r=ls.json(RKEY,{});
   if(d.r&&typeof d.r==='object'){const L=r.j||{},R=d.r.j||{},J={...L};let rc=false;
     const ult=x=>{const h=(x&&x.hist)||[];return h.length?Number(h[h.length-1].t||0):0;};
@@ -2119,7 +2158,7 @@ const CSS=`.rk-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 
 .rk-pj-n{flex:none;font-weight:700}.rk-pj-v{text-align:right;min-width:0}.rk-pj-v small{display:block;color:#93a1b6;font-size:11.5px}`;
 // El rango de un juego, para el menú de ese juego.
 function mine(g){if(!GAMES[g])return '';const r=get(g),i=info(r.v),L=levelInfo(xp(g));
-  return `<div class="rk-mine" style="--rk:${i.t.c}"><div><b>Tu rango en ${GAMES[g]}</b><small>Nivel ${L.lv}${r.n?` · ${r.n} ${r.n===1?'partida ranked':'partidas ranked'}`:' · todavía sin partidas ranked'}</small>${i.next!=null?`<div class="rk-bar"><i style="width:${i.pct*100}%"></i></div>`:''}</div>${badge(r.v)}</div>`;}
+  return `<div class="rk-mine" style="--rk:${i.t.c}"><div><b>Tu rango en ${GAMES[g]}</b><small>Nivel ${L.lv}${r.n?` · ${r.n} ${r.n===1?'partida por el rango':'partidas por el rango'}`:' · todavía sin partidas por el rango'}</small>${i.next!=null?`<div class="rk-bar"><i style="width:${i.pct*100}%"></i></div>`:''}</div>${badge(r.v)}</div>`;}
 function css(){if(document.getElementById('rk-css'))return;const s=document.createElement('style');s.id='rk-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
 function resultHtml(r){if(!r)return '';const sign=r.delta>0?'+':'';return `<div class="rk-res">${badge(r.after.v)}<span class="rk-d ${r.delta>=0?'up':'down'}">${sign}${r.delta} PR</span>${r.up?'<span>¡Subiste!</span>':r.down?'<span>Bajaste</span>':''}</div>`;}
 /* ── v81 · GANCHOS de los juegos contra alguien (lo que engancha de BloqueAR, adaptado): la racha de ganadas seguidas
@@ -3527,10 +3566,10 @@ async function call(p,post=true,ms=15000){
     if(post)r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
     else{const u=new URL(lbUrl());for(const [k,v] of Object.entries(p))u.searchParams.set(k,String(v));u.searchParams.set('_',Date.now());r=await fetch(u,{cache:'no-store',signal:ctl.signal,redirect:'follow'});}
     const j=await r.json();
-    if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');
+    if(!j||!j.ok)throw new Error(j&&j.error||'No se pudo conectar. Probá de nuevo en un rato.');
     return j;
   }catch(e){
-    if(e.name==='AbortError')throw new Error('La planilla tardó demasiado.');
+    if(e.name==='AbortError')throw new Error('La conexión tardó demasiado.');
     if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');
     throw e;
   }finally{clearTimeout(to);}
@@ -3604,7 +3643,7 @@ async function borrarChat(name){
   if(t>(S.borr[k]||0)){S.borr[k]=t;ls.set(kBorr(),JSON.stringify(S.borr));}S.msgs=S.msgs.filter(m=>!(conv(m)===k&&m.tmp)&&!borradoLocal(m));saveMsgs();
   S.delFor=null;if(lc(S.con)===k){S.con=null;S.view='list';}$('.cx-panel').dataset.sig='';render();badges();
   try{const j=await call(auth({accion:'chatBorrar',con:name}));if(j.hasta)aplicarBorrados({[k]:j.hasta});}
-  catch(e){S.err=/desconocida/i.test(String(e.message))?'Para borrar chats en todos tus dispositivos hay que actualizar la planilla (versión nueva). En este quedó borrado.':String(e.message||e);render();}
+  catch(e){S.err=/desconocida/i.test(String(e.message))?'En este dispositivo quedó borrado. Para borrarlo en los demás falta una actualización del juego.':String(e.message||e);render();}
 }
 const lastAny=n=>{let t=0;for(const m of S.msgs)if(conv(m)===lc(n)&&m.t>t)t=m.t;return t;};
 function saveMsgs(){ls.set(kMsgs(),JSON.stringify({last:S.last,list:S.msgs}));}
@@ -3631,7 +3670,7 @@ function guardarAmigos(o,primera){
   avisarAmigos();return true;}
 async function amAccion(accion,p,ok){
   try{const j=await call(auth({accion,...p}));if(j.amigos)guardarAmigos(j.amigos);if(ok)S.err='';poll();return j;}
-  catch(e){S.err=/desconocida/i.test(String(e.message))?'Para agregar amigos hay que pegar el código nuevo de la planilla.':String(e.message||e);}
+  catch(e){S.err=/desconocida/i.test(String(e.message))?'Agregar amigos todavía no está disponible: falta una actualización del juego.':String(e.message||e);}
   finally{p0().dataset.sig='';render();}
 }
 const pedirAmistad=n=>amAccion('amigoPedir',{para:n},true);
@@ -3693,7 +3732,7 @@ async function recibirChat(j){
 }
 function errorChat(e){
     const m=String(e&&e.message||e);
-    if(/desconocida/i.test(m)){if(conLatido()||(window.LATIDO&&LATIDO.viejo&&/latido/.test(m)))return;S.unsupported=true;S.err='Para usar el chat hay que actualizar el código de la planilla a la versión 5.';}
+    if(/desconocida/i.test(m)){if(conLatido()||(window.LATIDO&&LATIDO.viejo&&/latido/.test(m)))return;S.unsupported=true;S.err='El chat todavía no está disponible: falta una actualización del juego.';}
     else if(/sesión venció/i.test(m)){S.err='Tu sesión venció: volvé a entrar con tu usuario y PIN.';}
     else S.err=m;
     if(S.open)render();
@@ -4000,7 +4039,7 @@ function filasCharlas(){
   if(otros.length&&otros.length<=40)h+=`<p class="cx-sec-t">${prim.length||L.length?'Los demás':'Gente con cuenta'}</p>`+otros.map(u=>filaUsuario(u,null,'',false)).join('');
   else if(otros.length)h+=`<button type="button" class="cx-ask" data-a="tab" data-t="global">🌎 Ver a todos (${otros.length+prim.length})</button>`;
   if(arch.length)h+=`<button type="button" class="cx-ask cx-arch" data-a="verarch" aria-expanded="${S.verArch}">🗄️ Grupos archivados (${arch.length}) ${S.verArch?'▴':'▾'}</button>`+(S.verArch?arch.map(fila).join(''):'');
-  return h||`<p class="cx-dim cx-pad">Todavía no hay otras cuentas. Cuando tus amigos se creen una, aparecen acá.</p><p class="cx-dim cx-pad">Todavía no hablaste con nadie. Buscá a tus amigos en 🤝 Amigos o a cualquiera en 🌎 Global.</p><p class="cx-dim cx-pad">Para chatear alcanza con tu cuenta. Los mensajes se guardan protegidos en la planilla del juego y se borran a los 30 días. No mandes contraseñas ni datos de tarjetas.</p>`;
+  return h||`<p class="cx-dim cx-pad">Todavía no hay otras cuentas. Cuando tus amigos se creen una, aparecen acá.</p><p class="cx-dim cx-pad">Todavía no hablaste con nadie. Buscá a tus amigos en 🤝 Amigos o a cualquiera en 🌎 Global.</p><p class="cx-dim cx-pad">Para chatear alcanza con tu cuenta. Los mensajes se guardan protegidos en el juego y se borran a los 30 días. No mandes contraseñas ni datos de tarjetas.</p>`;
 }
 function filasAmigos(){
   const last={};for(const m of S.msgs){if(esG(m))continue;const o=lc(other(m));if(!last[o]||m.t>last[o].t)last[o]=m;}
@@ -4045,7 +4084,7 @@ async function openProfile(name){S.view='perfil';S.prof=name;S.profData=null;ren
 function renderProfile(p){
   const u=userOf(S.prof)||{usuario:S.prof},d=S.profData,R=window.RANGOS,me=lc(S.prof)===lc(S.me);
   let body='<p class="cx-dim cx-pad">Cargando…</p>';
-  if(d&&d.error)body=`<p class="cx-err cx-pad">${esc(/desconocida|existe/i.test(d.error)?'Para ver perfiles hay que actualizar la planilla a la versión 6.':d.error)}</p>`;
+  if(d&&d.error)body=`<p class="cx-err cx-pad">${esc(/desconocida|existe/i.test(d.error)?'Los perfiles todavía no están disponibles: falta una actualización del juego.':d.error)}</p>`;
   else if(d){
     const g=R?R.generalFrom(d):null,fmt=n=>Number(n||0).toLocaleString('es-AR'),sp=ms=>ms?`${Math.floor(ms/60000)}:${String(Math.floor(ms/1000)%60).padStart(2,'0')}.${Math.floor(ms%1000/100)}`:'—';
     body=`<div class="cx-prof">${avatar(d,true)}<b class="cx-pn">${esc(d.usuario)}</b>${(()=>{if(!window.TITULOS)return '';if(d.titulo!==undefined)TITULOS.poner(d.usuario,d.titulo);const h=TITULOS.html(d.usuario);return h?`<p class="cx-pf" style="margin-top:2px">${h}</p>`:'';})()}${d.frase?`<p class="cx-pf">“${esc(d.frase)}”</p>`:''}<p class="cx-ps">${esc(estTxt({...u,...d}))}</p></div>
@@ -4289,9 +4328,9 @@ async function grupoCrearAcc(){
   guardarNombreG();const nombre=S.gnom.trim(),miembros=Object.values(S.gsel);
   if(!nombre){S.err='Ponele un nombre al grupo.';p0().dataset.sig='';render();return;}
   if(!miembros.length){S.err='Elegí al menos a una persona.';p0().dataset.sig='';render();return;}
-  try{const j=await call(auth({accion:'grupoCrear',nombre,miembros,tipo:S.gtipo||'',dias:S.gdias||0}));S.gtipo='';S.gdias=0;if(!j.grupo)throw new Error('Para armar grupos hay que pegar el código nuevo de la planilla.');
+  try{const j=await call(auth({accion:'grupoCrear',nombre,miembros,tipo:S.gtipo||'',dias:S.gdias||0}));S.gtipo='';S.gdias=0;if(!j.grupo)throw new Error('Los grupos todavía no están disponibles: falta una actualización del juego.');
     guardarGrupos(S.grupos.filter(g=>g.id!==j.grupo.id).concat([j.grupo]));S.con='g:'+j.grupo.id;S.view='conv';S.err='';S.gsel={};S.gnom='';p0().dataset.sig='';render();poll();}
-  catch(e){S.err=/desconocida/i.test(String(e.message))?'Para armar grupos hay que pegar el código nuevo de la planilla.':String(e.message||e);p0().dataset.sig='';render();}
+  catch(e){S.err=/desconocida/i.test(String(e.message))?'Los grupos todavía no están disponibles: falta una actualización del juego.':String(e.message||e);p0().dataset.sig='';render();}
 }
 function renderGrupoOp(p){
   const g=grupoDe(S.con),me=lc(S.me),soyC=lc(g.c)===me,n=Object.keys(S.gsel).length;
@@ -4537,8 +4576,13 @@ html.zn-on .cx-toast span{flex-direction:row;align-items:baseline;gap:6px;min-wi
 html.zn-on .cx-toast b{font-size:13px;flex:none}html.zn-on .cx-toast small{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 html.zn-on .cx-toast.cx-mini{padding:5px 14px;align-self:center;max-width:100%}html.zn-on .cx-mini span{flex-direction:row;justify-content:center}
 html.zn-on .lg-aviso{top:var(--zn-top)!important;left:var(--zn-c)!important;max-width:var(--zn-w)!important;min-height:42px;padding:4px 12px 4px 8px!important;gap:8px!important;z-index:91!important;box-sizing:border-box}
-html.zn-on .lg-aviso>i{font-size:18px!important}html.zn-on .lg-aviso span{flex-direction:row!important;align-items:baseline;gap:6px;white-space:nowrap;overflow:hidden}
-html.zn-on .lg-aviso b{flex:none;font-size:13px!important}html.zn-on .lg-aviso small{overflow:hidden;text-overflow:ellipsis;min-width:0}
+html.zn-on .lg-aviso>i{font-size:18px!important}html.zn-on .lg-aviso span{flex-direction:column!important;align-items:flex-start;gap:0;white-space:nowrap;overflow:hidden;min-width:0;line-height:1.15}
+html.zn-on .lg-aviso b{font-size:12.5px!important;max-width:100%;overflow:hidden;text-overflow:ellipsis}html.zn-on .lg-aviso small{font-size:11px!important;max-width:100%;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* v94: en la barra, el aviso de logro va en dos renglones (antes el detalle quedaba cortado: «Logro: Primera cosecha C…»),
+   y mientras hay un aviso el título del juego se desvanece en vez de quedar pisado a medias. */
+html.zn-on:not(.zn-bajo) .top .brand{transition:opacity .18s ease}
+html.zn-on:not(.zn-bajo) body:has(.lg-aviso.on,.oro-fly.on:not(.off),.oro-lvp,.cx-toasts .cx-toast:not(.out)) .top .brand{opacity:0!important}
+@media (prefers-reduced-motion:reduce){html.zn-on:not(.zn-bajo) .top .brand{transition:none}}
 html.zn-on .mc-burb.mc-zona{top:var(--zn-top)!important;right:auto!important;left:var(--zn-c)!important;max-width:var(--zn-w)!important;transform:translate(-50%,-6px)!important;border-radius:14px!important;overflow:hidden;box-sizing:border-box;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;padding:6px 14px!important;line-height:1.3!important;z-index:89!important}
 html.zn-on .mc-burb.mc-zona.on{transform:translate(-50%,0)!important}
 html.zn-on.zn-juego .toast{top:var(--zn-top)!important;bottom:auto!important;left:var(--zn-c)!important;transform:translateX(-50%)!important;max-width:var(--zn-w)!important;width:max-content;min-height:42px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:7px 14px!important;font-size:13.5px!important;line-height:1.25!important;border-radius:14px!important;z-index:92!important;pointer-events:none!important;box-shadow:0 6px 18px rgba(0,0,0,.5)!important}
@@ -4749,7 +4793,7 @@ function citaUrl(id,j){const a=acct(),base=location.href.replace(/[#?].*$/,'').r
 async function citaArmar(j){
   if(!acct()||!GAMES[j])return;S.citaPick=false;S.err='';render();
   let r=null;try{r=await call(auth({accion:'citaCrear',j}));}
-  catch(e){S.err=/desconocida/i.test(String(e.message||e))?'Para invitar con un link desde el chat hay que actualizar la planilla.':String(e.message||e);if(S.open){p0().dataset.sig='';render();}return;}
+  catch(e){S.err=/desconocida/i.test(String(e.message||e))?'Invitar con un link todavía no está disponible: falta una actualización del juego.':String(e.message||e);if(S.open){p0().dataset.sig='';render();}return;}
   const url=citaUrl(r.id,j),nom=GAMES[j],txt=`¡Vení a jugar ${nom} conmigo! Entrá con este link: ${url}`;
   linkCss();linkCerrar();const el=document.createElement('div');el.id='cx-lk';el.className='cx-lk';el.setAttribute('role','dialog');el.setAttribute('aria-label','Invitar con un link');
   el.innerHTML=`<div class="cx-lk-c"><h3>🔗 Link para jugar ${esc(nom)}</h3><p>Mandalo a quien quieras. No hace falta que esperes: cuando alguien entre, te llega un aviso para ir a la mesa. Lo usa una sola persona y vale 6 horas.</p>
@@ -5288,6 +5332,16 @@ window.MESA_CHAT={movible,llamar,montar,espera,recibir,sistema,cargar,vaciar,abr
 (function(){
 'use strict';
 const LISTA=[
+  {v:96,grande:true,titulo:'Novedades',items:[
+    ['🏆','Fin de partida nuevo: el resultado a pantalla completa, igual en todos los juegos.'],
+    ['📤','«Compartir» arma una imagen con tu resultado para mandar por donde quieras.'],
+    ['🏁','SudokAR y SolitARio: el link desafía a un amigo a jugar lo mismo y compara los tiempos.']]},
+  {v:95,titulo:'Novedades',items:[
+    ['🔎','Letra más grande en los marcadores y rótulos chicos de toda la app.'],
+    ['💬','Mensajes más claros cuando algo no conecta, y «por el rango» en lugar de «ranked».']]},
+  {v:94,titulo:'Novedades',items:[
+    ['👓','Arreglado: al terminar SudokAR, BuscaminAR, SolitARio y LudAR ya se leen el tiempo, los récords y los puestos.'],
+    ['🗺️','EstanciAR: el botón del mapa ya no tapa la tienda ni los pedidos, y en las visitas nada se encima.']]},
   {v:93,grande:true,titulo:'Novedades',items:[
     ['🎮','Inicio nuevo: los juegos primero. «Seguí jugando» con el dibujo grande, tus juegos y todos los juegos con filtros.'],
     ['💬','Amigos y charlas, en el botón de charla de arriba (con un puntito cuando te escriben).'],
@@ -5798,8 +5852,8 @@ const CFG_K='bloques-cfg-v1',ADM_K='bloques-admin',AN_K='bloques-anuncio-visto',
 async function call(p,ms=20000){
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),ms);
   try{const r=await fetch(lbUrl(),{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain;charset=utf-8'},cache:'no-store',signal:ctl.signal,redirect:'follow'});
-    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'La planilla respondió con un error.');return j;}
-  catch(e){if(e.name==='AbortError')throw new Error('La planilla tardó demasiado.');if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');throw e;}
+    const j=await r.json();if(!j||!j.ok)throw new Error(j&&j.error||'No se pudo conectar. Probá de nuevo en un rato.');return j;}
+  catch(e){if(e.name==='AbortError')throw new Error('La conexión tardó demasiado.');if(e instanceof TypeError)throw new Error('Sin conexión. ¿Hay internet?');throw e;}
   finally{clearTimeout(to);}
 }
 const auth=o=>{const a=acct();return Object.assign({usuario:a&&a.usuario,token:a&&a.token},o);};
@@ -6287,6 +6341,171 @@ function ev(g,k,x){try{if(document.hidden)return;const f=H[g];if(f)f(k,x);}catch
 window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto,efectos,setEfectos};
 })();
 
+
+/* ───────── v96 · Fin de partida común (opción B, elegida el 12/11): el resultado a pantalla completa ─────────
+   Cada juego sigue armando su cartel como siempre (over()/center() con .ccard). Al entrar a su función de fin avisa con
+   BLQ_FIN.pend(); cuando el cartel aparece, acá se reacomoda: arriba el festejo (ícono, título, detalle), en el medio lo
+   demás (casillas, premios, logros) y abajo, fijos, los botones del juego más «Compartir» y «Ver el tablero».
+   No cambia qué botones hay ni lo que hacen, ni nada de lo que se guarda. Llave de emergencia: localStorage 'bloques-fin-b'='0'. */
+(function(){
+'use strict';
+if(window.BLQ_FIN)return;
+const ls=k=>{try{return localStorage.getItem(k);}catch(_){return null;}};
+const N={truco:'TrucAR',uno:'UnoAR',ludo:'LudAR',ajedrez:'AjedrezAR',pool:'PoolAR',sudoku:'SudokAR',buscaminas:'BuscaminAR',solitario:'SolitARio',laberinto:'LaberintAR',invasores:'InvasorAR',marcar:'MarcAR',poblar:'PoblAR',fortinar:'FortinAR',bloquear:'BloqueAR'};
+const ARTE={estancia:'webp',pampa:'webp',marcar:'webp',fortinar:'webp'};   // el resto son .svg (los arma armar.py desde el Inicio)
+const COLOR={truco:['#2d6a4a','#10231a'],uno:['#1f5a66','#0c2026'],ludo:['#5a3b1f','#1c130a'],ajedrez:['#5a4630','#1a140d'],pool:['#1f6a4a','#0c2219'],sudoku:['#1d3a63','#0E1626'],buscaminas:['#3f6a2a','#12200c'],
+  solitario:['#1f6a4a','#0c2219'],laberinto:['#1a2f7a','#070b1c'],invasores:['#3a1f6a','#0d0720'],marcar:['#5a3b1f','#140d06'],poblar:['#1f5a66','#0a1c22'],fortinar:['#4a5a1f','#12160a'],bloquear:['#1d3a63','#0E1626']};
+let PEND=0,OBS=null;
+const juego=()=>{try{return (window.BLQ_UI&&BLQ_UI.juego&&BLQ_UI.juego())||(location.pathname.match(/(\w+)\.html$/)||[])[1]||'bloquear';}catch(_){return 'bloquear';}};
+function css(){if(document.getElementById('bq-fin-css'))return;const s=document.createElement('style');s.id='bq-fin-css';s.textContent=`
+.bq-fin-on{position:fixed!important;inset:0!important;z-index:60!important;padding:0!important;display:block!important;background:var(--monte,#0E1626)!important;transition:opacity .2s ease}
+.bq-fin-on[hidden]{display:none!important}
+.bq-fin-on.bq-fin-mira{opacity:0;pointer-events:none}
+html body .bq-fin-on .ccard.bq-fin,html.bq-piel:not(.bq-sin-cartel) .bq-fin-on .ccard.bq-fin{position:absolute!important;inset:0!important;width:auto!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;transform:none!important;display:flex!important;flex-direction:column!important;gap:0!important;overflow:hidden!important;text-align:center;background:linear-gradient(180deg,var(--mate-claro,#1F2F4A),var(--monte,#0E1626) 46%)!important;color:var(--cal,#F2F4FA)!important;animation:bqFinIn .3s ease both}
+@keyframes bqFinIn{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+.bq-fin-arte{position:relative;flex:none;padding:calc(env(safe-area-inset-top,0px) + 30px) 20px 10px;overflow:hidden}
+.bq-fin.bq-gane .bq-fin-arte{background:radial-gradient(80% 95% at 50% 0%,rgba(242,193,78,.42),transparent 72%)}
+.bq-fin.bq-empate .bq-fin-arte{background:radial-gradient(80% 95% at 50% 0%,rgba(140,200,240,.26),transparent 72%)}
+.bq-fin-rayos{position:absolute;left:50%;top:86px;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;pointer-events:none;background:repeating-conic-gradient(rgba(255,255,255,.075) 0 8deg,transparent 8deg 20deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 68%);mask:radial-gradient(circle,#000 18%,transparent 68%);animation:bqFinGira 28s linear infinite}
+.bq-fin:not(.bq-gane) .bq-fin-rayos{display:none}
+@keyframes bqFinGira{to{transform:rotate(360deg)}}
+html body .bq-fin .bq-fin-arte .ic{position:relative;font-size:84px!important;line-height:1.05!important;margin:0 0 6px!important;width:auto!important;height:auto!important;background:none!important;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));animation:bqFinPop .5s cubic-bezier(.2,.9,.3,1.3) .08s both}
+@keyframes bqFinPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+html body .bq-fin .bq-fin-arte h3,html body .bq-fin .bq-fin-arte h2,html.bq-piel:not(.bq-sin-cartel) .ccard.bq-fin .bq-fin-arte h3,html.bq-piel:not(.bq-sin-cartel) .ccard.bq-fin .bq-fin-arte h2{position:relative;font:800 38px/1.05 var(--f-titulo,system-ui)!important;margin:0!important;color:var(--cal,#F2F4FA)!important;letter-spacing:-.3px}
+html body .bq-fin .bq-fin-arte p{position:relative;margin:6px 0 0!important;font-size:16px!important;color:var(--pasto-seco,#A9B6CD)!important}
+html body .bq-fin .bq-fin-arte p.bq-fin-marcador{font:800 46px/1.1 var(--f-titulo,system-ui)!important;color:var(--cal,#F2F4FA)!important;margin-top:10px!important}
+.bq-fin-cuerpo .lg-apb,.bq-fin-cuerpo>*:has(>.lg-apb){align-self:center}
+.bq-fin-cuerpo{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px 18px 10px;display:flex;flex-direction:column;gap:12px;width:100%;max-width:560px;margin:0 auto;box-sizing:border-box}
+.bq-fin-cuerpo>*{flex:none;margin-top:0!important;margin-bottom:0!important}
+.bq-fin-pie{flex:none;display:flex;flex-direction:column;gap:8px;padding:10px 18px calc(14px + env(safe-area-inset-bottom,0px));width:100%;max-width:560px;margin:0 auto;box-sizing:border-box;background:linear-gradient(transparent,var(--monte,#0E1626) 22%)}
+.bq-fin-pie .btn,.bq-fin-pie a.btn{width:100%;margin:0!important;box-sizing:border-box}
+.bq-fin-pie .row,.bq-fin-fila{display:flex!important;gap:8px;margin:0!important}.bq-fin-pie .row>*,.bq-fin-fila>*{flex:1 1 0;min-width:0}
+html body .bq-fin .bq-fin-pie .btn.go{min-height:54px;font-size:16.5px;box-shadow:0 4px 0 rgba(0,0,0,.28)}
+.bq-fin-volver{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:61;min-height:48px;padding:0 20px;border-radius:999px;border:0;background:var(--maiz,#F2C14E);color:var(--maiz-osc,#3A2E0A);font:700 15px/1 var(--f-texto,system-ui);box-shadow:0 8px 22px rgba(0,0,0,.45);cursor:pointer}
+/* lo de adentro, con el mismo material en todos los juegos (también en los que tienen su propia piel, como InvasorAR) */
+html body .ccard.bq-fin .btn,html body .ccard.bq-fin a.btn{min-height:48px!important;border-radius:999px!important;border:0!important;background:var(--mate-claro,#1F2F4A)!important;color:var(--cal,#F2F4FA)!important;box-shadow:none!important;font:700 15.5px/1.1 var(--f-texto,system-ui)!important;text-decoration:none!important;display:inline-flex!important;align-items:center;justify-content:center;gap:6px;padding:0 14px!important}
+html body .ccard.bq-fin .btn.go{background:var(--maiz,#F2C14E)!important;color:var(--maiz-osc,#3A2E0A)!important}
+html body .ccard.bq-fin .btn:disabled{opacity:.5}
+html body .ccard.bq-fin .lines,html body .ccard.bq-fin .stats>div,html body .ccard.bq-fin .posi,html body .ccard.bq-fin .recs{background:var(--mate-claro,#1F2F4A)!important;border:0!important;border-radius:var(--r-m,16px)!important;color:var(--cal,#F2F4FA)!important}
+html body .ccard.bq-fin .lines div,html body .ccard.bq-fin .lines span,html body .ccard.bq-fin .lines b{color:var(--cal,#F2F4FA)!important}
+html body .ccard.bq-fin .bq-fin-cuerpo>p,html body .ccard.bq-fin .bq-fin-cuerpo small,html body .ccard.bq-fin .cap{color:var(--pasto-seco,#A9B6CD)!important}
+html body .ccard.bq-fin .bq-fin-cuerpo>p.cap,html body .ccard.bq-fin .bq-fin-cuerpo>.cap,html body .ccard.bq-fin .bq-fin-cuerpo>.note{background:transparent!important;border:0!important;padding:0!important;font-size:13.5px}
+html body .ccard.bq-fin .rs-pts{color:var(--cal,#F2F4FA)!important;font-family:var(--f-titulo,system-ui)!important}html body .ccard.bq-fin .rs-pts small{color:var(--pasto-seco,#A9B6CD)!important}
+html body .ccard.bq-fin .rs-rec{color:var(--pasto-seco,#A9B6CD)!important}html body .ccard.bq-fin .rs-rec b,html body .ccard.bq-fin .rs-rec.nuevo{color:var(--maiz,#F2C14E)!important}
+html body .ccard.bq-fin .pd-h{color:var(--cal,#F2F4FA)!important}html body .ccard.bq-fin .pd-msg{color:var(--pasto-seco,#A9B6CD)!important}html body .ccard.bq-fin .pd-msg a,html body .ccard.bq-fin .bq-fin-cuerpo a:not(.btn){color:var(--cielo,#8CC8F0)!important}
+html body .ccard.bq-fin .premios{background:transparent!important;border:0!important;padding:0!important}html body .ccard.bq-fin .premios>div,html body .ccard.bq-fin .premios span{color:var(--pasto-seco,#A9B6CD)!important}
+.bq-fin-reto{background:rgba(242,193,78,.14);border:1px solid rgba(242,193,78,.45);border-radius:16px;padding:10px 14px;font:700 15px/1.3 var(--f-texto,system-ui);color:var(--cal,#F2F4FA)}.bq-fin-reto small{display:block;font-weight:400;color:var(--pasto-seco,#A9B6CD)}
+/* con el cartel abierto, los avisos («+N de oro», logros) van arriba de todo y no pisan el festejo */
+html.bq-fin-abierto .oro-fly,html.bq-fin-abierto .lg-aviso,html.bq-fin-abierto .oro-lvp{top:calc(env(safe-area-inset-top,0px) + 6px)!important;left:50%!important;z-index:95!important}
+@media (min-height:700px){.bq-fin-arte{padding-top:calc(env(safe-area-inset-top,0px) + 58px)}.bq-fin-rayos{top:118px}}
+@media (max-height:500px) and (orientation:landscape){
+  html body .bq-fin-on .ccard.bq-fin,html.bq-piel:not(.bq-sin-cartel) .bq-fin-on .ccard.bq-fin{display:grid!important;grid-template-columns:minmax(0,40%) minmax(0,60%);grid-template-rows:minmax(0,1fr) auto}
+  .bq-fin-arte{grid-row:1/3;display:flex;flex-direction:column;justify-content:center;padding:14px 16px}
+  html body .bq-fin .bq-fin-arte .ic{font-size:56px!important}html body .bq-fin .bq-fin-arte h3,html.bq-piel:not(.bq-sin-cartel) .ccard.bq-fin .bq-fin-arte h3{font-size:26px!important}
+  .bq-fin-rayos{top:50%}.bq-fin-cuerpo{padding:10px 14px 4px;gap:8px}
+  .bq-fin-pie{padding:6px 14px 8px;display:grid!important;grid-template-columns:1fr 1fr;gap:6px;background:none}.bq-fin-pie .row,.bq-fin-pie .bq-fin-fila{display:contents!important}
+  html body .ccard.bq-fin .bq-fin-pie .btn,html body .ccard.bq-fin .bq-fin-pie a.btn{min-height:40px!important;font-size:14.5px!important}html body .bq-fin .bq-fin-pie .btn.go{min-height:40px;box-shadow:none}
+  html.bq-fin-abierto .oro-fly,html.bq-fin-abierto .lg-aviso,html.bq-fin-abierto .oro-lvp{left:20%!important}
+}
+@media (prefers-reduced-motion:reduce){.bq-fin-rayos,html body .bq-fin .bq-fin-arte .ic,html body .bq-fin-on .ccard.bq-fin{animation:none!important}}
+html.sin-anim .bq-fin-rayos,html.blq-sin-anim .bq-fin-rayos{animation:none!important}`;
+  (document.head||document.documentElement).appendChild(s);}
+function resultado(card){const ic=((card.querySelector('.ic')||{}).textContent||''),t=((card.querySelector('h3,h2')||{}).textContent||'');
+  if(/🤝/.test(ic)||/Tablas|Empate/i.test(t))return 'empate';
+  if(/[🏆🌟🎉😎🤠🎓]/u.test(ic)||/Ganaste|Impecable|limpio|resuelto|Aguantaste|Le ganaste|Te quedaste sin cartas|Ganaron con/i.test(t))return 'gane';
+  return 'perdi';}
+function conts(){return ['over','center'].map(id=>document.getElementById(id)).filter(Boolean);}
+function vigilar(){if(OBS)return;OBS=new MutationObserver(mirar);for(const c of conts())OBS.observe(c,{childList:true,attributes:true,attributeFilter:['hidden']});}
+function limpiar(c){c._finTit='';document.documentElement.classList.remove('bq-fin-abierto');c.classList.remove('bq-fin-on','bq-fin-mira');document.querySelectorAll('.bq-fin-volver').forEach(b=>b.remove());}
+function mirar(){for(const c of conts()){const card=c.querySelector(':scope>.ccard');
+  if(c.hidden||!card){if(c.classList.contains('bq-fin-on'))limpiar(c);continue;}
+  if(card.classList.contains('bq-fin')||card===c._finViejo)continue;   // un cartel que ya estaba antes del fin no es el del fin
+  // el juego volvió a dibujar el mismo cartel (p. ej. al llegar la tabla): se reacomoda de nuevo; si es otro (p. ej. «Revancha»), no
+  const h=card.querySelector(':scope>h3,:scope>h2'),mismo=!!(h&&c._finTit&&h.textContent.trim()===c._finTit&&Date.now()-c._finT<60000);
+  if(c.classList.contains('bq-fin-on')&&!mismo)limpiar(c);
+  if(mismo||(PEND&&Date.now()-PEND<9000))try{armar(c,card);}catch(_){}}}
+function armar(c,card){
+  const h=card.querySelector(':scope>h3,:scope>h2');if(!h||ls('bloques-fin-b')==='0')return;
+  PEND=0;css();c._finTit=h.textContent.trim();c._finT=Date.now();
+  const res=resultado(card),ic=card.querySelector(':scope>.ic');
+  const arte=document.createElement('div');arte.className='bq-fin-arte';arte.innerHTML='<div class="bq-fin-rayos" aria-hidden="true"></div>';
+  const cuerpo=document.createElement('div');cuerpo.className='bq-fin-cuerpo';
+  const pie=document.createElement('div');pie.className='bq-fin-pie';
+  let p1=h.nextElementSibling;if(!(p1&&p1.tagName==='P'&&!p1.classList.contains('cap')&&!p1.querySelector('button,a.btn')))p1=null;
+  const esBoton=e=>e.matches('button,a.btn,.btn,.row,.btns,.acts')&&!e.matches('.lg-apb')||(e.children.length>0&&[...e.children].every(x=>x.matches('button,a.btn,.btn')));
+  const hijos=[...card.children];
+  if(ic)arte.appendChild(ic);arte.appendChild(h);if(p1)arte.appendChild(p1);
+  if(p1&&/font/.test(p1.getAttribute('style')||'')){p1.removeAttribute('style');p1.classList.add('bq-fin-marcador');}   // el tanteador (TrucAR): grande
+  for(const e of hijos){if(e===ic||e===h||e===p1)continue;(esBoton(e)&&!e.querySelector('.lg-apb')&&!e.classList.contains('lg-apb')?pie:cuerpo).appendChild(e);}
+  // orden del pie: primero el botón principal; «Menú de juegos» va al final, al lado de «Ver el tablero»
+  const go=pie.querySelector('.btn.go');if(go){const top=go.parentElement===pie?go:go.closest('.bq-fin-pie>*');if(top&&top!==pie.firstElementChild)pie.insertBefore(top,pie.firstElementChild);}
+  const menu=[...pie.querySelectorAll('a,button')].find(e=>/^(Men[uú] de juegos|Volver a BloqueAR)/i.test(e.textContent.trim()));
+  const chat=[...pie.querySelectorAll('button')].find(e=>/Compartir/i.test(e.textContent));
+  // v96: si venías de un desafío («superá mi puntaje»), el juego dice cómo te fue contra el que te desafió
+  try{const r=window.BLQ_FIN_RETO_TXT&&window.BLQ_FIN_RETO_TXT();if(r){const d=document.createElement('div');d.className='bq-fin-reto';d.innerHTML=r;cuerpo.insertBefore(d,cuerpo.firstChild);}}catch(_){}
+  const titulo=h.textContent.trim(),detalle=p1?p1.textContent.trim():'';
+  const stats=[...cuerpo.querySelectorAll('.stats>div')].slice(0,3).map(d=>[(d.querySelector('b')||{}).textContent||'',(d.querySelector('small')||{}).textContent||'']);
+  const fila=document.createElement('div');fila.className='bq-fin-fila';
+  const bc=document.createElement('button');bc.type='button';bc.className='btn';bc.dataset.fin='compartir';bc.textContent='Compartir';
+  bc.onclick=()=>compartir({juego:juego(),res,titulo,detalle,stats},bc);fila.appendChild(bc);
+  if(chat){chat.textContent='💬 Al chat';chat.setAttribute('aria-label','Compartir con un amigo por el chat');fila.appendChild(chat);}
+  const fila2=document.createElement('div');fila2.className='bq-fin-fila';
+  if(![...pie.querySelectorAll('button,a')].some(b=>/^\s*Ver (la|el|cómo)/i.test(b.textContent))){
+    const bv=document.createElement('button');bv.type='button';bv.className='btn';bv.dataset.fin='ver';bv.textContent='Ver el tablero';
+    bv.onclick=()=>{c.classList.add('bq-fin-mira');const v=document.createElement('button');v.type='button';v.className='bq-fin-volver';v.textContent='Volver al resultado';
+      v.onclick=()=>{v.remove();c.classList.remove('bq-fin-mira');};document.body.appendChild(v);};fila2.appendChild(bv);}
+  if(menu)fila2.appendChild(menu);
+  if(menu)menu.textContent='Menú de juegos';
+  pie.appendChild(fila);if(fila2.children.length)pie.appendChild(fila2);
+  for(const e of [...pie.children])if(e!==fila&&e!==fila2&&e.matches('.row,.btns,.acts,div')&&!e.querySelector('button,a'))e.remove();   // filas que quedaron vacías
+  card.append(arte,cuerpo,pie);card.classList.add('bq-fin','bq-'+res);c.classList.add('bq-fin-on');document.documentElement.classList.add('bq-fin-abierto');c.classList.remove('bq-fin-mira');
+  try{card.setAttribute('role','dialog');card.setAttribute('aria-label',titulo);const go=pie.querySelector('.btn.go');if(go&&matchMedia('(pointer:fine)').matches)go.focus({preventScroll:true});}catch(_){}
+}
+function pend(){if(ls('bloques-fin-b')==='0')return;PEND=Date.now();try{vigilar();for(const c of conts()){const k=c.querySelector(':scope>.ccard');c._finViejo=(k&&!c.hidden&&!k.classList.contains('bq-fin'))?k:null;}}catch(_){}for(const ms of [0,60,300,900,2000,4000,7000])setTimeout(mirar,ms);}
+
+/* ── Imagen para compartir: se dibuja en el celular (sin servidores) y sale por el menú de compartir del teléfono ── */
+function cuenta(){try{const a=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');return a&&a.usuario?a:null;}catch(_){return null;}}
+function cargar(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src;setTimeout(()=>r(null),2500);});}
+function partir(g,t,w){const out=[];let l='';for(const p of String(t).split(/\s+/)){const x=l?l+' '+p:p;if(g.measureText(x).width>w&&l){out.push(l);l=p;}else l=x;}if(l)out.push(l);return out;}
+async function imagen(o){
+  const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  const col=COLOR[o.juego]||COLOR.bloquear,ft=getComputedStyle(document.documentElement).getPropertyValue('--f-titulo').trim()||'system-ui',fx=getComputedStyle(document.documentElement).getPropertyValue('--f-texto').trim()||'system-ui';
+  try{await Promise.all([document.fonts.load('800 80px '+ft),document.fonts.load('700 40px '+fx)]);}catch(_){}
+  let G=g.createLinearGradient(0,0,W*.4,H);G.addColorStop(0,col[0]);G.addColorStop(.62,col[1]);g.fillStyle=G;g.fillRect(0,0,W,H);
+  const im=await cargar('juegos_arte/'+o.juego+'.'+(ARTE[o.juego]||'svg'));
+  if(im){const s=Math.max(W/im.width,760/im.height),w=im.width*s,h=im.height*s;g.save();g.globalAlpha=.92;g.drawImage(im,(W-w)/2,0,w,h);g.restore();
+    G=g.createLinearGradient(0,300,0,800);G.addColorStop(0,'rgba(0,0,0,0)');G.addColorStop(1,col[1]);g.fillStyle=G;g.fillRect(0,300,W,500);g.fillStyle=col[1];g.fillRect(0,799,W,H-799);
+    G=g.createLinearGradient(0,0,0,220);G.addColorStop(0,'rgba(0,0,0,.55)');G.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=G;g.fillRect(0,0,W,220);}
+  g.textBaseline='alphabetic';g.fillStyle='#F2F4FA';g.font='800 56px '+ft;g.fillText('Bloque',64,112);const bw=g.measureText('Bloque').width;g.fillStyle='#F2C14E';g.fillText('AR',64+bw,112);
+  const a=cuenta();if(a){g.font='700 40px '+fx;const t=(a.avatar&&a.avatar.length<=4?a.avatar+' ':'')+a.usuario;const w=g.measureText(t).width;g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.roundRect(W-64-w-44,60,w+44,72,36);g.fill();g.fillStyle='#F2F4FA';g.fillText(t,W-64-w-22,110);}
+  let y=870;g.fillStyle=o.res==='gane'?'#F2C14E':'#8CC8F0';g.font='700 38px '+fx;g.fillText((N[o.juego]||'BloqueAR').toUpperCase(),64,y);y+=96;
+  g.fillStyle='#F2F4FA';let tam=104;g.font='800 '+tam+'px '+ft;let L=partir(g,o.titulo,W-128);while(L.length>2&&tam>60){tam-=10;g.font='800 '+tam+'px '+ft;L=partir(g,o.titulo,W-128);}
+  for(const l of L.slice(0,2)){g.fillText(l,64,y);y+=tam*1.08;}
+  y+=4;g.fillStyle='rgba(242,244,250,.78)';g.font='400 40px '+fx;for(const l of partir(g,o.detalle,W-128).slice(0,2)){g.fillText(l,64,y);y+=52;}
+  const st=(o.stats||[]).filter(s=>s[0]);if(st.length){y+=18;const n=st.length,gw=24,cw=(W-128-gw*(n-1))/n;st.forEach((s,i)=>{const x=64+i*(cw+gw);g.fillStyle='rgba(255,255,255,.1)';g.beginPath();g.roundRect(x,y,cw,132,28);g.fill();
+      g.textAlign='center';g.fillStyle=/récord/i.test(s[1])?'#F2C14E':'#F2F4FA';g.font='800 58px '+ft;g.fillText(s[0],x+cw/2,y+70);g.fillStyle='rgba(242,244,250,.7)';g.font='400 30px '+fx;g.fillText(s[1],x+cw/2,y+110);g.textAlign='left';});}
+  g.fillStyle='#F2C14E';g.beginPath();g.roundRect(64,H-196,W-128,132,36);g.fill();g.fillStyle='#3A2E0A';g.font='800 54px '+ft;g.fillText(o.reto||'¿Jugamos?',100,H-128);g.font='700 30px '+fx;g.fillText(o.retoSub||'Tocá el link y vení a jugar',100,H-88);
+  return cv;}
+async function compartir(o,boton){
+  const txt0=boton?boton.textContent:'';if(boton){boton.disabled=true;boton.textContent='Armando…';}
+  try{
+    let reto=null;try{reto=window.BLQ_FIN_RETO?window.BLQ_FIN_RETO(o):null;}catch(_){}
+    const url=location.origin+location.pathname+(reto&&reto.hash?reto.hash:'');
+    if(reto){o.reto=reto.titulo||'¿Me ganás?';o.retoSub=reto.sub||'Tocá el link y jugá lo mismo';}
+    const cv=await imagen(o),blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+    const texto=`${o.titulo} ${o.detalle?'· '+o.detalle+' ':''}· ${N[o.juego]||'BloqueAR'}`;
+    const file=blob?new File([blob],'bloquear-'+o.juego+'.png',{type:'image/png'}):null;
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:texto+'\n'+url});return 'compartido';}catch(e){if(e&&e.name==='AbortError')return 'cancelado';}}
+    if(navigator.share&&!file){try{await navigator.share({text:texto,url});return 'compartido';}catch(e){if(e&&e.name==='AbortError')return 'cancelado';}}
+    // sin menú de compartir (PC): se baja la imagen y se copia el link
+    if(blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bloquear-'+o.juego+'.png';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}
+    try{await navigator.clipboard.writeText(texto+'\n'+url);}catch(_){}
+    try{(window.toast||(()=>{}))('Imagen guardada y link copiado');}catch(_){}
+    return 'bajado';
+  }finally{if(boton){boton.disabled=false;boton.textContent=txt0;}}
+}
+window.BLQ_FIN={pend,mirar,imagen,compartir,resultado};
+})();
 </script>
 </head>
 <body>
@@ -6532,6 +6751,9 @@ function closeSheet(){$('modal').hidden=true;if(typeof alCerrarHoja==='function'
    «Cómo se juega» abre la hoja completa (también está en ☰). */
 function primeraAyuda(clave,html,verTodo){
   if(ls.get(clave))return;ls.set(clave,'1');
+  // v94: el cartel de la primera vez tapaba el tablero (en SolitARio, el mazo y las pilas). Como en los demás juegos desde la
+  // v92, «Cómo se juega» ya no aparece solo: queda en el «?» de arriba (con su puntito la primera vez) y en la entrada.
+  return null;
   document.querySelectorAll('.tip1').forEach(x=>x.remove());
   const d=document.createElement('div');d.className='tip1';d.setAttribute('role','status');
   d.innerHTML=`<p>${html}</p><div class="tip1-b"><button type="button" class="btn" data-t="todo">Cómo se juega</button><button type="button" class="btn go" data-t="ok">Listo</button></div>`;
@@ -6665,8 +6887,8 @@ window.cruceTerminar=()=>finCruce(false);
 function nuevo(dif,seed,fecha){
   if(P&&P.cruce)CFG.errores=ayudaOn('errores');   // v72: al dejar el cruce vuelven tus ajustes
   if(fecha){const s=diaEnCurso(fecha);if(s){P=s;P.undo=P.undo||[];P.pis=P.pis||[];SEL=-1;HL=0;NOTAS=false;ULT=Date.now();hideOver();guardar();render();if(s.t>0)try{toast(`Seguís el sudoku del día donde lo dejaste · ${reloj(s.t)}`);}catch(_){}return;}}
-  let p;if(fecha)p=delDia(fecha);else{dif=DIFS.includes(dif)?dif:'normal';p=seed!=null?delBanco(dif,Math.floor(seed/1e6),seed%1e6):alAzar(dif);}
-  P={v:1,dado:p.dado,sol:p.sol,cur:p.dado.slice(),notas:new Array(81).fill(0),pis:[],dif:p.dif,seed:p.seed,se:p.se||null,fecha:fecha||null,t:0,errores:0,undo:[],hecho:false,usoNotas:false,id:(fecha?'d'+fecha:p.dif+':'+p.seed)};
+  let p;if(fecha)p=delDia(fecha);else{dif=DIFS.includes(dif)?dif:'normal';p=seed!=null?(Array.isArray(seed)?delBanco(dif,seed[0],seed[1]):delBanco(dif,Math.floor(seed/1e6),seed%1e6)):alAzar(dif);}   /* v96: [tablero, disfraz] = el mismo sudoku exacto (desafío con link) */
+  P={v:1,dado:p.dado,sol:p.sol,cur:p.dado.slice(),notas:new Array(81).fill(0),pis:[],dif:p.dif,seed:p.seed,bz:(p.banco!=null&&p.disfraz!=null)?[p.banco,p.disfraz]:null,se:p.se||null,fecha:fecha||null,t:0,errores:0,undo:[],hecho:false,usoNotas:false,id:(fecha?'d'+fecha:p.dif+':'+p.seed)};
   SEL=-1;HL=0;NOTAS=false;ULT=Date.now();hideOver();guardar();render();
   if(!fecha&&dif)ls.set('sudoku-dif',dif);
 }
@@ -6749,7 +6971,7 @@ function revisarFin(){
   if(P.cur.some((v,i)=>v!==P.sol[i])){toast(CFG.errores?'Está todo lleno, pero hay números en rojo.':'Está todo lleno, pero algo no cierra. Si querés verlo, prendé «Marcar errores» en ☰ › Ajustes.',3200);return;}
   terminar();
 }
-function terminar(){
+function terminar(){try{window.BLQ_FIN&&BLQ_FIN.pend();}catch(_){}   /* v96: fin de partida común */
   if(P.cruce){finCruce(true);return;}
   P.hecho=true;SEL=-1;HL=0;guardar();render();sfx('gano');confeti();
   const ms=P.t,limpio=P.errores===0&&P.pis.length===0,R=ls.json(RECS,{}),antes=R[P.dif]||0,rec=!antes||ms<antes;
@@ -6861,13 +7083,23 @@ function acomodar(){
 }
 
 /* ───────── Arranque ───────── */
+/* v96 · Desafío con link (sale del botón «Compartir» del cartel de fin). No guarda nada nuevo fuera de la propia partida. */
+function retoLeer(){const m=/^#reto=([a-z]+)\.(\d+)\.(\d+)\.(\d+)\.?(.*)$/.exec(location.hash);if(!m||!DIFS.includes(m[1]))return null;let n='';try{n=decodeURIComponent(m[5]||'');}catch(_){}return {dif:m[1],bz:[Number(m[2]),Number(m[3])],t:Number(m[4]),n:n.slice(0,24)};}
+function retoEmpezar(r){nuevo(r.dif,r.bz);if(P&&!P.fecha){P.reto={n:r.n,t:r.t};guardar();}try{toast(`🏁 Desafío${r.n?' de '+esc(r.n):''}: resolvelo en menos de ${reloj(r.t)}`);}catch(_){}}
+window.BLQ_FIN_RETO=()=>{if(!P||!P.hecho||P.cruce)return null;if(P.fecha)return {hash:'#dia',titulo:'¿Me ganás?',sub:'Tocá el link y jugá el sudoku de hoy'};if(!P.bz)return null;
+  let u='';try{u=(JSON.parse(localStorage.getItem('bloques-acct-v1')||'null')||{}).usuario||'';}catch(_){}
+  return {hash:`#reto=${P.dif}.${P.bz[0]}.${P.bz[1]}.${Math.round(P.t)}.${encodeURIComponent(u)}`,titulo:'¿Me ganás?',sub:'Tocá el link y jugá el mismo sudoku'};};
+window.BLQ_FIN_RETO_TXT=()=>{const r=P&&P.hecho&&P.reto;if(!r)return '';const q=r.n?esc(r.n):'quien te desafió';
+  return (P.t<r.t?`🏁 ¡Le ganaste a ${q}!`:`🏁 Esta vez ganó ${q}`)+`<small>Tu tiempo: ${reloj(P.t)} · el suyo: ${reloj(r.t)}</small>`;};
 (function start(){
   iniciarComun(()=>!!(P&&!P.hecho&&enCurso()));
   const s=ls.json(SAVE,null);
   if(CRUCE)nuevoCruce();
-  else if(s&&s.v===1&&Array.isArray(s.cur)&&s.cur.length===81){P=s;P.undo=P.undo||[];P.pis=P.pis||[];ULT=Date.now();render();if(P.hecho)setTimeout(()=>{if(!$('modal').hidden||!$('side').hidden)return;over(`<div class="ic">🧩</div><h3>¿Otro sudoku?</h3><p>El último ya lo resolviste.</p><button class="btn go" id="o-new">Sudoku nuevo</button><button class="btn" id="o-dia">Sudoku del día</button>`);$('o-new').onclick=()=>{hideOver();openNew();};$('o-dia').onclick=()=>nuevo(null,null,fechaAR());},200);}
+  else if(s&&s.v===1&&Array.isArray(s.cur)&&s.cur.length===81){P=s;P.undo=P.undo||[];P.pis=P.pis||[];ULT=Date.now();render();if(P.hecho)setTimeout(()=>{if(!$('modal').hidden||!$('side').hidden||!P||!P.hecho)return;   /* v96: si mientras tanto empezó otra (del día, desafío), no aparece */over(`<div class="ic">🧩</div><h3>¿Otro sudoku?</h3><p>El último ya lo resolviste.</p><button class="btn go" id="o-new">Sudoku nuevo</button><button class="btn" id="o-dia">Sudoku del día</button>`);$('o-new').onclick=()=>{hideOver();openNew();};$('o-dia').onclick=()=>nuevo(null,null,fechaAR());},200);}
   else{nuevo(CFG.dif);try{window.SYNCRO&&SYNCRO.auto(SAVE);}catch(_){}primeraAyuda('sudoku-ayuda','Completá la grilla: cada fila, cada columna y cada caja de 3×3 lleva del 1 al 9, sin repetir. <b>Tocá una casilla y después un número.</b>',openHelp);}
   if(!CRUCE&&/^#dia/.test(location.hash))nuevo(null,null,fechaAR());
+  // v96 · «superá mi puntaje»: #reto=dificultad.tablero.tiempo.nombre abre el mismo sudoku y al terminar compara los tiempos
+  {const r=!CRUCE&&retoLeer();if(r){if(P&&!P.hecho&&P.t>15000&&!P.fecha){setTimeout(()=>{over(`<div class="ic">🏁</div><h3>Desafío${r.n?' de '+esc(r.n):''}</h3><p>Te pasaron un sudoku ${esc(DIFN[r.dif]||'')} resuelto en ${reloj(r.t)}. Tenés una partida empezada.</p><button class="btn go" id="rt-si">Jugar el desafío</button><button class="btn" id="rt-no">Seguir mi partida</button>`);$('rt-si').onclick=()=>{hideOver();retoEmpezar(r);};$('rt-no').onclick=hideOver;},300);}else retoEmpezar(r);}}
   if(location.hash){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
   acomodar();requestAnimationFrame(acomodar);
 })();
