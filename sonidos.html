@@ -1,0 +1,1121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0E1626">
+<title>Sonidos de la app · BloqueAR</title>
+<link rel="icon" href="icon-192.png">
+<script>
+/* ───────── v77 · El sonido de la app no corta la música del celular ─────────
+   Pedido del 25/10: «no se puede escuchar música en el celular mientras se juega».
+   · En iOS (Safari 16.4+ y la app instalada) el sonido de una página usa por defecto una «sesión de audio» que pausa a
+     Spotify/Apple Music. Con navigator.audioSession.type = 'ambient' la app SE MEZCLA con la música de otras apps.
+     Contra: en 'ambient' el sonido de la app respeta el interruptor de silencio (con el celu en silencio, la app no suena).
+   · Va antes que todo (es el primer script de cada página) y además envuelve AudioContext para volver a ponerlo justo antes
+     de crear cada contexto (iOS a veces lo resetea al volver de segundo plano).
+   · En Android y en la compu no hace falta: Chrome ya mezcla el audio de la página con el de otras apps.
+   · iOS más viejo (sin audioSession): no hay forma desde una página web de no pausar la otra música si la app suena;
+     ahí lo único que se puede hacer es no crear audio hasta que haga falta (los juegos ya lo crean recién con el primer
+     sonido) y bajar el sonido de la app desde sus menús. */
+(function(){
+'use strict';
+function ambient(){try{const s=navigator.audioSession;if(s&&s.type!=='ambient')s.type='ambient';}catch(_){}}
+ambient();
+for(const k of ['AudioContext','webkitAudioContext']){
+  const C=window[k];if(!C||C.__ambient)continue;
+  const W=function(...a){ambient();return new C(...a);};
+  W.prototype=C.prototype;W.__ambient=true;try{Object.setPrototypeOf(W,C);}catch(_){}
+  try{window[k]=W;}catch(_){}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)ambient();});
+window.addEventListener('pageshow',ambient);
+window.SONIDO={ambient,tipo:()=>{try{return navigator.audioSession?navigator.audioSession.type:null;}catch(_){return null;}}};
+})();
+
+</script>
+<style>
+/* ───────── v89 · Lo común de toda la app (interfaz «A · Pampa al atardecer») ─────────
+   Lo inyectan build.sh y package.sh en TODAS las páginas (antes que el resto). Va junto con comun/comun.js.
+   · Paleta, letras y medidas como variables (las usan también el inicio nuevo y los paneles de Gente y Vos).
+   · Componentes propios (prefijo .bq-): cabecera, hoja de abajo, «Cómo se juega», fin de partida, aviso, volumen.
+   · «Piel A» para lo que ya tienen los juegos (barra .top, hojas #modal, menú #side, carteles .ccard): sólo cuando
+     comun.js le pone html.bq-piel (los juegos de mesa, los solitarios, MarcAR, InvasorAR, LaberintAR, PoblAR y la Pampa).
+     No toca el tablero ni el dibujo de ningún juego. */
+@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:600 800;font-display:swap;src:url(fuentes/bricolage-800.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:400;font-display:swap;src:url(fuentes/atkinson-400.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:700;font-display:swap;src:url(fuentes/atkinson-700.woff2) format('woff2')}
+/* v90 · Color de la app: «Azul» (predeterminado, el de la app original) o «Verde» (el de la v89). Lo elige
+   Vos › Ajustes › Color; comun.js pone html[data-tema] antes de dibujar. Los nombres de las variables siguen
+   siendo los de la pampa (monte = fondo, mate = tarjeta…): sólo cambian los valores. */
+:root{
+  --monte:#0E1626;--mate:#16233A;--mate-claro:#1F2F4A;--alambre:#3B5280;--cal:#F2F4FA;--pasto-seco:#A9B6CD;
+  --maiz:#F2C14E;--maiz-osc:#3A2E0A;--cielo:#8CC8F0;--ceibo:#E8606A;--hondo:#111D31;
+  --linea:#26385A;--velo:rgba(3,7,16,.6);--mate-t:rgba(22,35,58,.92);--alambre-t:rgba(59,82,128,.55);--mate-claro-t:rgba(31,47,74,.6);
+  --tinta-suave:#47546C;--btn-on-tx:#3B4A66;--cab-act:rgba(242,244,250,.1);--sombra-c:rgba(2,6,16,.5);
+  --tabs-bg:rgba(11,18,32,.96);--monte-55:rgba(14,22,38,.55);--monte-88:rgba(14,22,38,.88);--monte-94:rgba(14,22,38,.94);--campo-1:#1D2D49;--campo-2:#0E1626;
+  --f-titulo:'Bricolage Grotesque','Avenir Next','Segoe UI',system-ui,sans-serif;
+  --f-texto:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r-s:10px;--r-m:16px;--r-l:24px;--r-hoja:28px;
+  --t-1:30px;--t-2:21px;--t-3:16px;--t-4:13px;
+  --bq-sombra:0 10px 30px var(--sombra-c);
+  --bq-cab-h:52px;
+}
+html[data-tema="verde"]{
+  --monte:#1B2E24;--mate:#243C2F;--mate-claro:#2E4A3A;--alambre:#456650;--cal:#F3EFE4;--pasto-seco:#B7C4AE;
+  --cielo:#9FD3EE;--ceibo:#E0565B;--hondo:#1D3527;
+  --linea:var(--linea);--velo:rgba(5,10,7,.55);--mate-t:rgba(36,60,47,.9);--alambre-t:rgba(69,102,80,.55);--mate-claro-t:rgba(46,74,58,.55);
+  --tinta-suave:#4B5F4F;--btn-on-tx:#3F5546;--cab-act:rgba(243,239,228,.1);--sombra-c:rgba(6,14,10,.45);
+  --tabs-bg:rgba(20,35,27,.95);--monte-55:rgba(16,28,22,.55);--monte-88:rgba(16,28,22,.88);--monte-94:rgba(16,28,22,.94);--campo-1:#2E4A3A;--campo-2:#1B2E24;
+}
+html[data-tema="azul"],html:not([data-tema]){color-scheme:dark}
+
+/* ── Íconos de línea ── */
+.bq-ico{width:22px;height:22px;display:block;flex:none;pointer-events:none}
+
+/* ── Botones (píldoras) ── */
+.bq-btn{min-height:48px;border-radius:999px;padding:0 20px;border:0;font:700 15.5px/1.15 var(--f-texto);display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;
+  background:var(--mate-claro);color:var(--cal);-webkit-tap-highlight-color:transparent;touch-action:manipulation;text-align:center}
+.bq-btn.prim{background:var(--maiz);color:var(--maiz-osc)}
+.bq-btn.borde{background:transparent;box-shadow:inset 0 0 0 1.5px var(--alambre)}
+.bq-btn.ancho{width:100%}
+.bq-btn:active{filter:brightness(.92)}
+.bq-btn:focus-visible,.bq-cab-b:focus-visible,.bq-hoja :focus-visible,.bq-aviso :focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+.bq-link{background:none;border:0;padding:0;min-height:44px;color:var(--cielo);font:700 15px var(--f-texto);cursor:pointer;text-align:left}
+
+/* ── Hoja de abajo (propia) ── */
+.bq-velo{position:fixed;inset:0;z-index:60;background:var(--velo);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s}
+.bq-velo.on{opacity:1}
+.bq-hoja{width:min(560px,100%);max-height:88%;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--mate);color:var(--cal);font:400 16px/1.42 var(--f-texto);
+  border-radius:var(--r-hoja) var(--r-hoja) 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.45);
+  transform:translateY(105%);transition:transform .26s cubic-bezier(.2,.8,.2,1);box-sizing:border-box;-webkit-text-size-adjust:100%}
+.bq-velo.on .bq-hoja{transform:none}
+.bq-asa{display:block;width:42px;height:5px;border-radius:5px;background:var(--alambre);margin:0 auto 6px;border:0;padding:0}
+.bq-hoja-cab{display:flex;align-items:center;gap:8px;margin:2px 0 4px}
+.bq-hoja-cab h2{flex:1;margin:0;font:800 26px/1.1 var(--f-titulo);letter-spacing:-.3px;color:var(--cal)}
+.bq-x{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--mate-claro);color:var(--cal);display:grid;place-items:center;cursor:pointer}
+.bq-hoja p{margin:6px 0;color:var(--pasto-seco)}
+.bq-hoja b,.bq-hoja strong{color:var(--cal)}
+.bq-tres{counter-reset:p;list-style:none;padding:0;margin:10px 0 6px}
+.bq-tres li{counter-increment:p;display:flex;gap:12px;align-items:flex-start;padding:7px 0;color:var(--cal)}
+.bq-tres li::before{content:counter(p);flex:none;width:28px;height:28px;border-radius:50%;background:var(--maiz);color:var(--maiz-osc);font-weight:700;display:grid;place-items:center;font-size:14px;margin-top:-2px}
+.bq-botones{display:grid;gap:10px;margin-top:14px}
+.bq-botones.dos{grid-template-columns:1fr 1fr}
+.bq-reglas{border-top:1px solid var(--alambre);margin-top:14px;padding-top:4px}
+.bq-reglas>summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--cielo);font-weight:700}
+.bq-reglas>summary::-webkit-details-marker{display:none}
+.bq-reglas>summary::after{content:'';width:7px;height:7px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);margin:-4px 0 0 10px;transition:transform .2s}
+.bq-reglas[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.bq-reglas ul{margin:4px 0 8px;padding-left:20px;color:var(--pasto-seco)}
+.bq-reglas li{margin:5px 0}
+
+/* ── Volumen general ── */
+.bq-vol{display:flex;align-items:center;gap:12px;min-height:56px;padding:4px 2px}
+.bq-vol .bq-ico{color:var(--pasto-seco)}
+.bq-vol label{flex:none;font:700 15px var(--f-texto);color:var(--cal)}
+.bq-vol input[type=range]{flex:1;min-width:0;height:32px;accent-color:var(--maiz);margin:0}
+.bq-vol output{flex:none;width:44px;text-align:right;font:700 14px var(--f-texto);color:var(--pasto-seco);font-variant-numeric:tabular-nums}
+.bq-vol-fila{margin:0 0 10px;padding:6px 12px;border-radius:var(--r-m);background:var(--mate-t);box-shadow:inset 0 0 0 1px var(--alambre-t)}
+
+/* ── Aviso de arriba (cola única) ── */
+.bq-aviso{position:fixed;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:2147483100;max-width:520px;margin:0 auto;visibility:hidden;
+  background:var(--cal);color:var(--monte);border-radius:16px;padding:10px 12px;display:flex;gap:10px;align-items:center;box-shadow:var(--bq-sombra);font:400 14.5px/1.3 var(--f-texto);
+  transform:translateY(calc(-100% - 40px));transition:transform .25s ease,visibility 0s .25s;pointer-events:none}
+.bq-aviso.on{transform:none;visibility:visible;transition:transform .25s ease}
+.bq-aviso.listo{pointer-events:auto}
+.bq-aviso .bq-av-i{font-size:24px;line-height:1;flex:none}
+.bq-aviso .bq-av-t{flex:1;min-width:0}
+.bq-aviso .bq-av-t b{display:block;font-weight:700}
+.bq-aviso.alerta{background:#F7DEDC;box-shadow:var(--bq-sombra),inset 4px 0 0 var(--ceibo)}
+.bq-aviso button{flex:none;min-height:40px;min-width:56px;padding:0 14px;border-radius:999px;border:0;background:var(--monte);color:var(--cal);font:700 14px var(--f-texto);cursor:pointer}
+.bq-aviso .bq-av-x{background:transparent;color:var(--tinta-suave);min-width:40px;padding:0;font-size:18px}
+
+/* ── Fin de partida (propio) ── */
+.bq-fin{text-align:center}
+.bq-fin .bq-fin-ico{font-size:52px;line-height:1;margin:6px 0 4px}
+.bq-fin .bq-res{font:800 40px/1 var(--f-titulo);letter-spacing:-1px;margin:6px 0 6px;color:var(--cal)}
+.bq-fin .bq-tanteo{color:var(--pasto-seco);font-variant-numeric:tabular-nums;margin:0}
+.bq-ganado{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:10px;margin:18px 0 6px}
+.bq-ganado div{background:var(--mate-claro);border-radius:var(--r-m);padding:12px 6px}
+.bq-ganado b{display:block;font:800 24px/1.1 var(--f-titulo);font-variant-numeric:tabular-nums;color:var(--cal)}
+.bq-ganado small{color:var(--pasto-seco);font-size:12.5px}
+.bq-objeto{display:flex;align-items:center;gap:12px;text-align:left;background:var(--mate-claro);border-radius:var(--r-m);padding:12px;margin-top:10px}
+.bq-objeto .bq-oi{width:48px;height:48px;border-radius:12px;background:#3A3218;display:grid;place-items:center;font-size:26px;flex:none}
+.bq-objeto small{display:block;color:var(--pasto-seco);font-size:13px}
+.bq-nivel{margin:16px 0 0;text-align:left}
+.bq-nivel small{color:var(--pasto-seco);font-size:13px;display:flex;justify-content:space-between;margin-bottom:6px}
+.bq-nivel .bq-barra{height:10px;background:var(--hondo);border-radius:6px;overflow:hidden}
+.bq-nivel .bq-barra i{display:block;height:100%;width:0;background:var(--maiz);border-radius:6px;transition:width 1s cubic-bezier(.2,.8,.2,1) .25s}
+
+/* ── Cabecera común (la .top de cada juego, rearmada) ── */
+.bq-cab-b{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:transparent;color:var(--cal);display:grid;place-items:center;position:relative;cursor:pointer;padding:0;text-decoration:none}
+.bq-cab-b:active{background:var(--cab-act)}
+.bq-punto{position:absolute;top:9px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--maiz);box-shadow:0 0 0 2px var(--monte)}
+html.bq-piel .app>.top,html.bq-cabz .app>.top.bq-cab,html:is(.bq-piel,.bq-cabz) .top.bq-cab{background:var(--monte)!important;border-bottom:1px solid var(--linea)!important;color:var(--cal);gap:2px!important;
+  min-height:var(--bq-cab-h);padding-top:max(2px,env(safe-area-inset-top))!important;padding-bottom:2px!important;padding-left:max(4px,env(safe-area-inset-left))!important;padding-right:max(4px,env(safe-area-inset-right))!important;box-sizing:border-box}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .brand{flex:1;min-width:0;display:block!important;justify-content:center;text-align:center;font:800 19px/1.1 var(--f-titulo)!important;letter-spacing:-.2px!important;color:var(--cal)!important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0!important;order:0}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .brand span,html:is(.bq-piel,.bq-cabz) .top.bq-cab .brand b,html:is(.bq-piel,.bq-cabz) .top.bq-cab .brand i{color:inherit!important;font:inherit!important;letter-spacing:inherit!important}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .brand .beta{display:none}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab.bq-angosta .brand{text-align:left;padding-left:2px}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .icon-btn{margin-left:0!important;min-width:44px!important;width:44px;height:44px!important;border-radius:50%!important;border:0!important;background:transparent!important;color:var(--cal)!important;box-shadow:none!important;
+  display:grid!important;place-items:center;padding:0!important;font-size:18px;position:relative}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .icon-btn[hidden]{display:none!important}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .icon-btn:active{background:var(--cab-act)!important}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .icon-btn:focus-visible{outline:3px solid var(--cielo);outline-offset:1px}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .games-btn{display:grid!important;width:48px;min-width:48px!important;height:48px!important}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .top-tools{display:flex;align-items:center;gap:0;margin:0}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .bq-der{display:flex;align-items:center;gap:0;flex:none}
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .badge,html:is(.bq-piel,.bq-cabz) .top.bq-cab .cx-badge{top:4px!important;right:2px!important}
+/* el título queda centrado aunque a la derecha haya más botones: a la izquierda se reserva lo mismo */
+html:is(.bq-piel,.bq-cabz) .top.bq-cab .bq-izq{display:flex;align-items:center;flex:none}
+
+/* ── Piel A para las hojas (#modal .sheet), el menú (#side .side-panel) y los carteles (.ccard) de los juegos ── */
+html.bq-piel .modal{background:var(--velo)!important}
+html.bq-piel .sheet,html.bq-piel .side-panel,html.bq-piel:not(.bq-sin-cartel) .ccard{background:var(--mate)!important;color:var(--cal)!important;border-color:var(--linea)!important;font-family:var(--f-texto)}
+html.bq-piel .sheet{border-radius:var(--r-hoja) var(--r-hoja) 0 0!important;border:0!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard{border-radius:var(--r-l)!important;border:0!important;box-shadow:var(--bq-sombra),0 0 0 1px var(--alambre-t)!important}
+html.bq-piel .sheet>header h2,html.bq-piel .sheet h2,html.bq-piel .sheet h3,html.bq-piel:not(.bq-sin-cartel) .ccard h2,html.bq-piel:not(.bq-sin-cartel) .ccard h3,html.bq-piel .side-panel h2,html.bq-piel .side-panel h3{font-family:var(--f-titulo)!important;font-weight:800!important;color:var(--cal)!important;letter-spacing:-.2px}
+html.bq-piel:not(.bq-sin-cartel) .ccard h3,html.bq-piel:not(.bq-sin-cartel) .ccard h2{font-size:28px!important;line-height:1.08!important}
+html.bq-piel .sheet h4,html.bq-piel:not(.bq-sin-cartel) .ccard h4,html.bq-piel .side-panel h4{font-family:var(--f-titulo)!important;color:var(--cal)!important}
+html.bq-piel .sheet p,html.bq-piel .sheet li,html.bq-piel .sheet ul,html.bq-piel .sheet ol,html.bq-piel:not(.bq-sin-cartel) .ccard p,html.bq-piel:not(.bq-sin-cartel) .ccard li,html.bq-piel .side-panel p{color:var(--pasto-seco)!important}
+html.bq-piel .sheet b,html.bq-piel .sheet strong,html.bq-piel:not(.bq-sin-cartel) .ccard b,html.bq-piel:not(.bq-sin-cartel) .ccard strong{color:var(--cal)}
+html.bq-piel .sheet .cap,html.bq-piel:not(.bq-sin-cartel) .ccard .cap,html.bq-piel .sheet small,html.bq-piel:not(.bq-sin-cartel) .ccard small{color:var(--pasto-seco)!important}
+html.bq-piel .sheet a:not(.btn),html.bq-piel:not(.bq-sin-cartel) .ccard a:not(.btn){color:var(--cielo)}
+html.bq-piel .sheet>header .x,html.bq-piel .sheet .x{width:44px!important;height:44px!important;border-radius:50%!important;background:var(--mate-claro)!important;color:var(--cal)!important;border:0!important}
+html.bq-piel .sheet .btn,html.bq-piel:not(.bq-sin-cartel) .ccard .btn,html.bq-piel .side-panel .btn{min-height:48px;border-radius:999px!important;border:0!important;background:var(--mate-claro)!important;color:var(--cal)!important;box-shadow:none!important;font-family:var(--f-texto);font-weight:700}
+html.bq-piel .sheet .btn small,html.bq-piel:not(.bq-sin-cartel) .ccard .btn small{color:var(--pasto-seco)!important;opacity:1!important}
+html.bq-piel .sheet .btn.go,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.go,html.bq-piel .side-panel .btn.go{background:var(--maiz)!important;color:var(--maiz-osc)!important}
+html.bq-piel .sheet .btn.go small,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.go small{color:var(--maiz-osc)!important}
+html.bq-piel .sheet .btn.on,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.on{background:var(--cal)!important;color:var(--monte)!important;box-shadow:none!important}
+html.bq-piel .sheet .btn.on small{color:var(--btn-on-tx)!important}
+html.bq-piel .sheet .btn:has(small),html.bq-piel:not(.bq-sin-cartel) .ccard .btn:has(small){border-radius:16px!important}
+html.bq-piel .sheet .btn.link,html.bq-piel:not(.bq-sin-cartel) .ccard .btn.link{background:none!important;color:var(--cielo)!important;text-decoration:none}
+html.bq-piel .sheet .btn:disabled,html.bq-piel:not(.bq-sin-cartel) .ccard .btn:disabled{opacity:.45}
+html.bq-piel .sheet input:not([type=range]):not([type=checkbox]):not([type=radio]),html.bq-piel .sheet select,html.bq-piel .sheet textarea,
+html.bq-piel:not(.bq-sin-cartel) .ccard input:not([type=range]):not([type=checkbox]):not([type=radio]){background:var(--monte)!important;color:var(--cal)!important;border:1.5px solid var(--alambre)!important;border-radius:14px!important}
+html.bq-piel .sheet input[type=range],html.bq-piel:not(.bq-sin-cartel) .ccard input[type=range]{accent-color:var(--maiz)}
+html.bq-piel:not(.bq-sin-cartel) .ccard .lines,html.bq-piel .sheet .lines{background:var(--mate-claro)!important;border:0!important;border-radius:var(--r-m)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .lines .win,html.bq-piel .sheet .lines .win{color:#8FD6A6!important}
+/* v94 · Casillas del resultado y tablas dentro de un cartel u hoja oscuros: antes quedaban crema con la letra clara encima
+   (no se leía el tiempo, las pistas, las movidas ni los puestos de LudAR). Ahora son del mismo material que el cartel. */
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats>div,html.bq-piel .sheet .stats>div,
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi,html.bq-piel .sheet .posi,
+html.bq-piel:not(.bq-sin-cartel) .ccard .recs,html.bq-piel .sheet .recs{background:var(--mate-claro)!important;border:0!important;border-radius:var(--r-m)!important;color:var(--cal)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats b,html.bq-piel .sheet .stats b{color:var(--cal)!important;font-family:var(--f-titulo)!important;font-size:20px!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats small,html.bq-piel .sheet .stats small{color:var(--pasto-seco)!important;font-size:12px!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats .rec b,html.bq-piel .sheet .stats .rec b,
+html.bq-piel:not(.bq-sin-cartel) .ccard .stats .rec small,html.bq-piel .sheet .stats .rec small{color:var(--maiz)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi div,html.bq-piel .sheet .posi div,
+html.bq-piel:not(.bq-sin-cartel) .ccard .recs div,html.bq-piel .sheet .recs div{color:var(--cal)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi b,html.bq-piel .sheet .posi b,
+html.bq-piel:not(.bq-sin-cartel) .ccard .recs b,html.bq-piel .sheet .recs b{color:var(--cal)!important;font-family:var(--f-titulo)!important}
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi .win,html.bq-piel .sheet .posi .win,
+html.bq-piel:not(.bq-sin-cartel) .ccard .posi .win b,html.bq-piel .sheet .posi .win b{color:var(--maiz)!important}
+html.bq-piel .mreg{background:var(--mate-claro-t)!important;border-color:var(--alambre)!important}
+html.bq-piel .side-panel{background:var(--monte)!important;border-left:1px solid var(--linea)!important}
+html.bq-piel .side-panel button:not(.btn):not(.bq-btn):not(.bq-x),html.bq-piel .side-panel>a{font-family:var(--f-texto)}
+html.bq-piel .menu-list button,html.bq-piel .menu-list a{background:var(--mate)!important;border:0!important;border-radius:14px!important;color:var(--cal)!important;min-height:50px;font-family:var(--f-texto)!important;font-weight:700!important}
+html.bq-piel .menu-list button:active,html.bq-piel .menu-list a:active{background:var(--mate-claro)!important}
+html.bq-piel .side-head h2{font:800 24px/1.1 var(--f-titulo)!important;color:var(--cal)!important}
+html.bq-piel .side-x{border-radius:50%!important;background:var(--mate-claro)!important;color:var(--cal)!important;border:0!important}
+html.bq-piel .side .note{color:var(--pasto-seco)!important}
+html.bq-piel .side-panel .rk-mine{background:var(--mate)!important;border-color:transparent!important;color:var(--cal)}html.bq-piel .side-panel .rk-mine small{color:var(--pasto-seco)!important}
+html.bq-piel .toast{font-family:var(--f-texto)}
+
+/* v94 · un cartel nunca queda cortado: si no entra de alto (celular acostado), se desplaza por dentro y se achica un poco */
+html.bq-piel:not(.bq-sin-cartel) .ccard{max-height:calc(100vh - 68px);max-height:calc(100dvh - 68px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media (max-height:500px) and (orientation:landscape){
+  html.bq-piel:not(.bq-sin-cartel) .ccard{padding:12px 16px 12px!important;gap:7px!important;max-height:calc(100vh - 56px);max-height:calc(100dvh - 56px)}
+  html.bq-piel:not(.bq-sin-cartel) .ccard h3,html.bq-piel:not(.bq-sin-cartel) .ccard h2{font-size:22px!important}
+  html.bq-piel:not(.bq-sin-cartel) .ccard .ic{font-size:26px!important;line-height:1!important}
+}
+/* ── Acostado (poca altura): cabecera más baja ── */
+@media (max-height:500px) and (orientation:landscape){
+  :root{--bq-cab-h:44px}
+  html:is(.bq-piel,.bq-cabz) .top.bq-cab .icon-btn,html:is(.bq-piel,.bq-cabz) .top.bq-cab .games-btn,.bq-cab-b{width:44px!important;height:40px!important}
+  html:is(.bq-piel,.bq-cabz) .top.bq-cab .brand{font-size:18px!important}
+  .bq-hoja{max-height:94%;max-height:94dvh}
+}
+@media (prefers-reduced-motion:reduce){.bq-velo,.bq-hoja,.bq-aviso,.bq-nivel .bq-barra i{transition:none!important}}
+html.sin-anim .bq-velo,html.sin-anim .bq-hoja,html.sin-anim .bq-aviso{transition:none!important}
+/* PoolAR: en partida, con el celular parado, los jugadores suben a la barra en lugar del nombre */
+html:is(.bq-piel,.bq-cabz) body.hudarriba .top.bq-cab .brand{display:none!important}
+html:is(.bq-piel,.bq-cabz) body.hudarriba .top.bq-cab .bq-izq{min-width:0!important}
+/* Ajustes › letra más grande (I3): hojas, menús, carteles y lo propio de comun */
+html.blq-letra-grande .bq-hoja .bq-cuerpo,html.blq-letra-grande .bq-aviso .bq-av-t{zoom:1.12}
+html.blq-letra-grande .sheet .body>*,html.blq-letra-grande .ccard>*,html.blq-letra-grande .side-panel>*{zoom:1.1}
+html.blq-letra-grande .top.bq-cab .brand{font-size:21px!important}
+html.blq-sin-anim .bq-velo,html.blq-sin-anim .bq-hoja,html.blq-sin-anim .bq-aviso,html.blq-sin-anim .bq-nivel .bq-barra i{transition:none!important}
+/* v90 · Vos › Ajustes › Color: dos muestras tocables */
+.g9v-temas{display:flex;gap:8px;flex:none}
+.g9v-temas .g9v-tema{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 8px;border-radius:999px;border:2px solid var(--alambre)!important;background:var(--mate-claro);color:var(--cal);font:700 14px/1 var(--f-texto);cursor:pointer}
+.g9v-temas .g9v-tema[aria-checked="true"]{border-color:var(--maiz)!important;background:var(--hondo)}
+.g9v-tema:focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+.g9v-muestra{width:24px;height:24px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.g9v-m-azul{background:linear-gradient(135deg,#1F2F4A 0 50%,#0E1626 50%)}
+.g9v-m-verde{background:linear-gradient(135deg,#2E4A3A 0 50%,#1B2E24 50%)}
+@media (max-width:380px){.g9v-tema-ren{flex-wrap:wrap}.g9v-temas{width:100%}.g9v-tema{flex:1;justify-content:center}}
+/* v90 · C1 · PC (≥1024 px con mouse): las hojas de abajo pasan a ventanas centradas y los menús de cada
+   juego (#modal .sheet con piel) también. En celular y tablet no cambia nada. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  .bq-velo{align-items:center;padding:24px}
+  .bq-hoja{width:min(600px,100%);max-height:86vh;border-radius:var(--r-l);padding:18px 26px 24px;box-shadow:0 24px 60px var(--sombra-c);transform:translateY(14px) scale(.98);opacity:0;transition:transform .18s ease,opacity .18s ease}
+  .bq-velo.on .bq-hoja{transform:none;opacity:1}
+  .bq-hoja .bq-asa{display:none}
+  .bq-hoja-cab h2{font-size:28px}
+  html.bq-piel .modal{align-items:center!important;justify-content:center!important}
+  html.bq-piel .modal>.sheet{border-radius:var(--r-l)!important;max-height:86vh!important;margin:auto!important;box-shadow:0 24px 60px var(--sombra-c)!important}
+  html.bq-piel .modal>.sheet .grab,html.bq-piel .modal>.sheet .asa{display:none!important}
+  .bq-cab-b:hover,html:is(.bq-piel,.bq-cabz) .top.bq-cab .icon-btn:hover{background:var(--cab-act)!important}
+  .bq-btn:hover{filter:brightness(1.06)}
+  .bq-aviso{left:auto;right:20px;width:400px;margin:0}
+  .g9v-tema-ren{flex-wrap:wrap}.g9v-tema-ren .g9v-temas{width:100%}.g9v-tema-ren .g9v-tema{flex:1;justify-content:center}
+}
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:reduce){.bq-hoja{transition:none}}
+/* v90 · C1: el aviso de la primera vez de los solitarios y LaberintAR («Listo») sigue el color de la app */
+html.bq-piel .tip1 .btn.go{background:var(--maiz)!important;border-color:var(--maiz)!important;color:var(--maiz-osc)!important}
+
+/* ───────── v92 · Configuración de los juegos (BLQ_UI.config) ─────────
+   Grupos con título, controles grandes con el valor a la vista, lo avanzado plegado y el botón fijo abajo.
+   Va igual dentro de la hoja propia de cada juego (#sheet) y en la hoja común. */
+.bq-cfg{font-family:var(--f-texto);color:var(--cal);display:flex;flex-direction:column;gap:12px;text-align:left}
+.bq-cfg h3{font:700 var(--t-4)/1.2 var(--f-titulo);letter-spacing:.02em;color:var(--pasto-seco);margin:0 0 8px}
+.bq-cfg-res{display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:var(--r-m);background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--maiz)}
+.bq-cfg-res span{font-size:var(--t-4);color:var(--pasto-seco)}
+.bq-cfg-res b{font:800 var(--t-3)/1.3 var(--f-titulo);color:var(--cal)}
+.bq-cfg-g{background:var(--mate-claro-t);border-radius:var(--r-m);padding:12px;box-shadow:inset 0 0 0 1px var(--linea)}
+.bq-cfg-c+.bq-cfg-c{margin-top:14px}
+.bq-cfg-et{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 2px 7px;font-size:var(--t-4);color:var(--pasto-seco)}
+.bq-cfg-et span{font-weight:700}
+.bq-cfg-val{font-weight:700;color:var(--maiz);text-align:right}
+.bq-cfg-ay{margin:7px 2px 0;font-size:var(--t-4);line-height:1.35;color:var(--pasto-seco)}
+/* Segmentos: todas las opciones a la vista, del mismo ancho */
+.bq-cfg-seg{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--hondo);box-shadow:inset 0 0 0 1px var(--linea)}
+.bq-cfg-seg button,.bq-cfg-chips button{appearance:none;border:0;margin:0;font:700 15px/1.15 var(--f-texto);color:var(--cal);background:transparent;border-radius:11px;min-height:46px;padding:7px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:background .15s,color .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.bq-cfg-seg button small,.bq-cfg-chips button small,.bq-cfg-lista button small,.bq-cfg-sw small,.bq-cfg-pie small{display:block;font-weight:400;font-size:12px;line-height:1.2;color:var(--pasto-seco)}
+.bq-cfg-seg button.on{background:var(--maiz);color:var(--maiz-osc);box-shadow:0 2px 8px var(--sombra-c)}
+:root .bq-cfg .bq-cfg-seg button.on small,:root .bq-cfg .bq-cfg-chips button.on small,:root .bq-cfg .bq-cfg-jugar small{color:var(--maiz-osc)!important;opacity:.78!important}
+.bq-cfg-ic{font-size:18px;line-height:1}
+/* Chips: muchas opciones cortas, se acomodan en renglones */
+.bq-cfg-chips{display:flex;flex-wrap:wrap;gap:8px}
+.bq-cfg-chips button{flex:1 1 auto;min-width:64px;min-height:44px;padding:8px 14px;background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--linea);border-radius:999px;flex-direction:row}
+.bq-cfg-chips button.on{background:var(--maiz);color:var(--maiz-osc);box-shadow:none}
+/* Lista: opciones con explicación, una por renglón */
+.bq-cfg-lista{display:flex;flex-direction:column;gap:6px}
+.bq-cfg-lista button{appearance:none;border:0;margin:0;text-align:left;font:700 15px/1.2 var(--f-texto);color:var(--cal);background:var(--hondo);border-radius:12px;min-height:52px;padding:9px 44px 9px 14px;position:relative;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--linea);touch-action:manipulation}
+.bq-cfg-lista button.on{box-shadow:inset 0 0 0 2px var(--maiz)}
+.bq-cfg-rd{position:absolute;right:14px;top:50%;width:20px;height:20px;margin-top:-10px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--alambre)}
+.bq-cfg-lista button.on .bq-cfg-rd{box-shadow:inset 0 0 0 6px var(--maiz)}
+.bq-cfg-lista .bq-cfg-ic{margin-right:6px}
+/* Interruptor: renglón entero tocable */
+.bq-cfg-sw{appearance:none;border:0;margin:0;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:transparent;color:var(--cal);font:700 15px/1.25 var(--f-texto);min-height:48px;padding:4px 2px;cursor:pointer;touch-action:manipulation}
+.bq-cfg-sw-t{display:flex;flex-direction:column;gap:2px}
+.bq-cfg-sw-k{flex:0 0 auto;width:50px;height:30px;border-radius:999px;background:var(--hondo);box-shadow:inset 0 0 0 1.5px var(--alambre);position:relative;transition:background .18s}
+.bq-cfg-sw-k i{position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:var(--pasto-seco);transition:transform .18s,background .18s}
+.bq-cfg-sw.on .bq-cfg-sw-k{background:var(--maiz);box-shadow:none}
+.bq-cfg-sw.on .bq-cfg-sw-k i{transform:translateX(20px);background:var(--maiz-osc)}
+/* Deslizador */
+.bq-cfg-rg input{width:100%;accent-color:var(--maiz);height:36px}
+/* Lo avanzado, plegado */
+.bq-cfg-mas{padding:0}
+.bq-cfg-mas summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:13px 44px 13px 14px;position:relative;min-height:48px;justify-content:center}
+.bq-cfg-mas summary::-webkit-details-marker{display:none}
+.bq-cfg-mas summary::after{content:'';position:absolute;right:18px;top:50%;width:9px;height:9px;margin-top:-7px;border-right:2px solid var(--pasto-seco);border-bottom:2px solid var(--pasto-seco);transform:rotate(45deg);transition:transform .18s}
+.bq-cfg-mas[open] summary::after{transform:rotate(225deg);margin-top:-2px}
+.bq-cfg-mas-t{font:700 15px/1.2 var(--f-titulo);color:var(--cal)}
+.bq-cfg-mas summary small{font-size:12px;color:var(--pasto-seco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bq-cfg-mas>.bq-cfg-c{padding:0 12px}
+.bq-cfg-mas>.bq-cfg-c:last-child,.bq-cfg-mas>.bq-cfg-ay:last-child{padding-bottom:12px}
+.bq-cfg-mas>.bq-cfg-ay{padding:0 12px}
+/* Pie fijo: el botón principal siempre a mano */
+.bq-cfg-pie{position:sticky;bottom:-16px;z-index:2;display:flex;flex-direction:column;gap:8px;margin:2px -4px -16px;padding:12px 4px calc(18px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--mate) 12px)}
+.bq-cfg-jugar{min-height:54px;font:800 17px/1.1 var(--f-titulo)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.bq-cfg-otros{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.bq-cfg-otros .bq-btn{min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:700}
+.bq-cfg button:focus-visible,.bq-cfg summary:focus-visible,.bq-cfg input:focus-visible{outline:3px solid var(--cielo);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.bq-cfg *{transition:none!important}}
+/* Acostado: dos columnas para los grupos, el resumen y el pie ocupan todo el ancho */
+@media (orientation:landscape) and (max-height:520px){
+  .bq-cfg{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:10px}
+  .bq-cfg-res,.bq-cfg-pie{grid-column:1/-1}
+  .bq-cfg-pie{flex-direction:row;align-items:center;padding-top:8px}.bq-cfg-pie .bq-cfg-jugar{flex:1.2;min-height:46px}
+  .bq-cfg-pie .bq-cfg-otros{flex:1.5;display:flex;gap:6px}.bq-cfg-pie .bq-cfg-otros .bq-btn{flex:1;min-height:42px;font-size:13px;padding:4px 8px}
+  .bq-cfg-pie .bq-cfg-otros small{display:none}
+  .bq-cfg-res{padding:7px 12px}.bq-cfg-res span{display:none}
+  .bq-cfg-seg button,.bq-cfg-chips button{min-height:40px}.bq-cfg-lista button{min-height:44px}
+}
+/* PC: dos columnas cuando la ventana es ancha */
+@media (min-width:1024px) and (hover:hover){
+  .bq-cfg{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:12px}
+  .bq-cfg-res,.bq-cfg-pie{grid-column:1/-1}
+  .bq-cfg-pie{flex-direction:row;align-items:center}.bq-cfg-pie .bq-cfg-jugar{flex:1.2}.bq-cfg-pie .bq-cfg-otros{flex:1.4;display:flex;gap:8px}.bq-cfg-pie .bq-cfg-otros .bq-btn{flex:1}
+  .bq-cfg-seg button:hover:not(.on),.bq-cfg-chips button:hover:not(.on),.bq-cfg-lista button:hover{background:var(--mate-claro)}
+}
+/* La hoja de configuración más ancha donde sobra lugar (acostado y PC), para las dos columnas */
+@media (orientation:landscape) and (max-height:520px){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(820px,96vw)!important;max-width:none!important}}
+@media (min-width:1024px) and (hover:hover){html .sheet:has(.bq-cfg-raiz),html .bq-hoja:has(.bq-cfg){width:min(780px,92vw)!important;max-width:none!important}}
+.bq-cfg-pinta{display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--k,#888);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 0 0 1.5px rgba(255,255,255,.35);vertical-align:-3px}
+
+/* v95 · Letra mínima de 11 px en toda la app (antes había rótulos de 8 a 10,5: marcadores de BloqueAR, barra de EstanciAR,
+   PoblAR, MarcAR, PoolAR, FortinAR). Quedan afuera los rótulos dibujados sobre el mapa de PoblAR, que se agrandan con el zoom. */
+html body .games-btn b,html body .games b{font-size:11px!important;letter-spacing:0!important}
+html body .eyebrow,html body .mini-stats span,html body .record,html body .top-rail #solo-area #card-stats .mini-stats span{font-size:11px!important}
+html body .tool small,html body .ph83{font-size:11px!important}
+html body .mano-tag{font-size:11px!important}
+html body .fuerza .lbl small,html body .tirar small,html body .efx small{font-size:11px!important}
+html body .mc-reloj small,html body .armabox .nom,html body .tb{font-size:11px!important}html body .mc-lbl{font-size:13.5px!important}
+html body .app.immersive #score .pl small,html body .app.immersive .status small,html body .app.immersive .total-hand span,html body .app.immersive .dev-shortcuts .dev-empty,
+html body .app.immersive .dev-shortcuts .dev-x,html body .app.immersive .act b,html body .act .act-n,html body .app.immersive .activity-head{font-size:11px!important}
+html body .marca em{font-size:11px!important}
+html body .pt-titulo small{font-size:11px!important}
+/* BloqueAR en el celular: con la letra de 11, los tres rótulos del marcador entran sin cortarse («PU…») */
+@media (max-width:700px){html body .top-rail .eyebrow,html body .top-rail .mini-stats span{letter-spacing:0!important;white-space:nowrap}
+  html body .top-rail #solo-area #card-stats{grid-template-columns:max-content max-content max-content!important;justify-content:space-between!important;column-gap:4px!important}
+  html body .top-rail #solo-area #card-stats .eyebrow{overflow:visible!important;text-overflow:clip!important}}
+
+/* v97 · La cabecera común también en las páginas que no llevan la piel entera (EstanciAR): html.bq-cabz.
+   Variante «campo» (html.bq-cab-campo): mismos botones en los mismos lugares, con la madera y el dorado de la estancia. */
+html.bq-cabz.bq-cab-campo .top.bq-cab{background:linear-gradient(180deg,#2b2114,#1d160d)!important;border-bottom:1px solid #4d3c22!important;color:#f3e9d2!important}
+html.bq-cabz.bq-cab-campo .top.bq-cab .brand{color:#f3e9d2!important}
+html.bq-cabz.bq-cab-campo .top.bq-cab .brand span{color:#e0bc62!important}
+html.bq-cabz.bq-cab-campo .top.bq-cab .icon-btn,html.bq-cabz.bq-cab-campo .top.bq-cab .bq-cab-b{color:#f3e9d2!important}
+html.bq-cabz.bq-cab-campo .top.bq-cab .icon-btn:active{background:rgba(243,233,210,.12)!important}
+
+/* v97b · Íconos propios (rellenos) */
+svg.bqi{width:1.2em;height:1.2em;flex:none;vertical-align:-.22em;display:inline-block;overflow:visible}
+svg.bqi[width]{width:auto;height:auto;vertical-align:middle}
+svg.bqi.bqi-t{margin-right:.4em}
+</style>
+<style>
+/* v97b · Página para probar los tres juegos de sonidos de interfaz y elegir uno. Se entra desde Vos › Ajustes › «Probar sonidos». */
+html,body{margin:0;background:var(--monte,#0E1626);color:var(--cal,#F2F4FA);font:16px/1.4 var(--f-texto,system-ui,sans-serif);-webkit-text-size-adjust:100%}
+body{padding:max(14px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+main{max-width:560px;margin:0 auto}
+.cab{display:flex;align-items:center;gap:6px;margin-bottom:6px}.cab a{width:44px;height:44px;display:grid;place-items:center;color:inherit;border-radius:50%;margin-left:-10px}
+h1{font:800 24px/1.15 var(--f-titulo,system-ui);margin:0}p{margin:6px 0 14px;color:var(--pasto-seco,#A9B6CD)}
+.jgo{background:var(--mate,#16233A);border:2px solid transparent;border-radius:var(--r-m,16px);padding:14px 14px 12px;margin-bottom:12px}
+.jgo.on{border-color:var(--maiz,#F2C14E)}.jgo h2{font:800 19px/1.2 var(--f-titulo,system-ui);margin:0;display:flex;align-items:center;gap:8px}
+.jgo h2 small{font:700 11px/1 var(--f-texto,system-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--maiz-osc,#3A2E0A);background:var(--maiz,#F2C14E);border-radius:999px;padding:4px 8px;display:none}.jgo.on h2 small{display:inline-block}
+.jgo .d{font-size:14px;margin:3px 0 10px;color:var(--pasto-seco,#A9B6CD)}
+.prb{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font:700 15px/1.2 var(--f-texto,system-ui);color:var(--cal,#F2F4FA);background:var(--mate-claro,#1F2F4A);border:0;border-radius:999px;min-height:46px;padding:0 12px;cursor:pointer;touch-action:manipulation}
+button:active{filter:brightness(1.25)}button.usar{grid-column:1/-1;background:var(--maiz,#F2C14E);color:var(--maiz-osc,#3A2E0A);min-height:48px;margin-top:2px}.jgo.on button.usar{background:transparent;color:var(--maiz,#F2C14E);box-shadow:inset 0 0 0 2px var(--maiz,#F2C14E)}
+.fila{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--mate,#16233A);border-radius:var(--r-m,16px);padding:12px 14px;margin-bottom:12px}.fila b{display:block}.fila small{color:var(--pasto-seco,#A9B6CD);font-size:13px}
+.sw{width:54px;min-width:54px;height:44px;min-height:44px;border-radius:999px;background:none;position:relative;padding:0}.sw::before{content:"";position:absolute;left:0;top:6px;width:54px;height:32px;border-radius:999px;background:var(--mate-claro,#1F2F4A)}.sw::after{content:"";position:absolute;top:10px;left:4px;width:24px;height:24px;border-radius:50%;background:var(--pasto-seco,#A9B6CD);transition:transform .2s}
+.sw[aria-checked="true"]::before{background:var(--maiz,#F2C14E)}.sw[aria-checked="true"]::after{transform:translateX(22px);background:var(--maiz-osc,#3A2E0A)}
+.nota{font-size:13px;color:var(--pasto-seco,#A9B6CD);margin-top:14px}
+</style>
+</head>
+<body data-sin-toque>
+<main>
+  <div class="cab"><a href="./#vos" aria-label="Volver"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a><h1>Sonidos de la app</h1></div>
+  <p>Así suenan los botones de los menús en toda la app. Probá los tres y quedate con el que más te guste. Subí el volumen del teléfono y sacalo del modo silencio.</p>
+  <div class="fila"><span><b>Sonidos de la app</b><small>Los de los menús. Los de cada juego no cambian.</small></span><button type="button" class="sw" role="switch" id="sw-son" aria-label="Sonidos de la app"></button></div>
+  <div id="juegos"></div>
+  <div class="fila"><span><b>Vibración</b><small>Un golpecito al tocar el botón principal y los interruptores.</small></span><button type="button" class="sw" role="switch" id="sw-vib" aria-label="Vibración"></button></div>
+  <button type="button" id="prb-vib" style="width:100%">Probar la vibración</button>
+  <h1 id="musica" style="margin-top:26px">Música de los juegos de mesa</h1>
+  <p>Suena bajito de fondo en TrucAR, UnoAR, LudAR, AjedrezAR, PoolAR, SudokAR, BuscaminAR y SolitARio. Escuchá las tres y elegí. En cada juego se apaga desde el menú «⋯».</p>
+  <div class="fila"><span><b>Música en los juegos de mesa</b><small>Si escuchás tu propia música, apagala acá.</small></span><button type="button" class="sw" role="switch" id="sw-mus" aria-label="Música en los juegos de mesa"></button></div>
+  <div id="musicas"></div>
+  <p class="nota">Los sonidos y la música de la app se mezclan con la música de tu teléfono: no la cortan. La vibración en iPhone necesita iOS 18 o más nuevo; en Android anda siempre. Lo que elijas queda guardado en este aparato.</p>
+</main>
+<script>
+/* ───────── v83 · Movimiento y «jugo» de los juegos (pedido del 31/10: «mejorar las animaciones de la app y de los
+   juegos» y «que los juegos sean estimulantes, cada uno a su medida, sin ser abusivos») ─────────
+   Va en todas las páginas (lo inyectan build.sh y package.sh, después de caras.js). En EstanciAR, InvasorAR y MarcAR no
+   hace nada (tienen su propio movimiento); adentro de la ventanita de la estancia, los juegos sí lo usan.
+
+   · Respuesta al tocar: los botones se hunden un poco al apretarlos y vuelven con un rebote chico (sólo los que no
+     tienen ya una transformación propia, para no correr nada de lugar).
+   · Paneles: la hoja (#modal), el menú ☰ (#side) y el cartel del final (#over) también SALEN animados (antes
+     desaparecían de golpe). Usa GESTOS.salida: el original se oculta enseguida, así la lógica no espera nada.
+   · Cartel del final: entra con un «pop», los números cuentan hasta su valor (con una copia encima: el texto real no
+     cambia) y, si ganaste, cae papel picado una sola vez.
+   · Jugo por juego: JUGO.ev(juego, evento, dato) lo llama el sfx() de cada juego (también con el sonido apagado).
+     Chispas, polvo, estrellas, un temblor sutil, un «×2» cuando encadenás aciertos. Nada en bucle, nada que apure.
+   · «Reducir movimiento» del sistema: sin partículas, sin temblores y sin rebotes (queda sólo lo necesario).
+   API: window.JUGO = {ev, burst, confeti, temblor, pop, texto, contar, combo, quieto} */
+(function(){
+'use strict';
+if(window.JUGO)return;
+const PAG=((location.pathname.split('/').pop()||'').replace(/\.html$/,'')||'index').toLowerCase();
+const FUERA=/^(estancia|invasores|marcar|estancia-armado|invasores-armado)/.test(PAG);
+const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||localStorage.getItem('bloques-efectos')==='0';}catch(_){return false;}};
+const noop=()=>{};
+
+/* ── v85 · «Animaciones» en ☰ › Ajustes › Gráficos (pedido del 1/11). Apagadas = 'bloques-efectos' '0' (viaja con la
+   cuenta). En TODAS las páginas: sin partículas, temblores ni rebotes (quieto()), y las animaciones y transiciones de
+   CSS quedan instantáneas (duran 1 ms, así los eventos de fin siguen llegando y nada se queda esperando). Las cartas que
+   viajan (VUELO) pasan a la versión corta. No toca lo que se dibuja en los lienzos de los juegos (es el juego mismo). */
+const EK='bloques-efectos';
+const efectos=()=>{try{return localStorage.getItem(EK)!=='0';}catch(_){return true;}};
+function aplicarEfectos(){const off=!efectos(),r=document.documentElement;if(!r)return;r.classList.toggle('sin-anim',off);
+  if(off&&!document.getElementById('sin-anim-css')){const s=document.createElement('style');s.id='sin-anim-css';
+    s.textContent='html.sin-anim *,html.sin-anim *::before,html.sin-anim *::after{animation-duration:1ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:1ms!important;transition-delay:0s!important;scroll-behavior:auto!important}';
+    (document.head||r).appendChild(s);}}
+function setEfectos(on){try{localStorage.setItem(EK,on?'1':'0');}catch(_){}aplicarEfectos();}
+aplicarEfectos();
+addEventListener('storage',e=>{if(e.key===EK)aplicarEfectos();});
+addEventListener('bloques-sync',aplicarEfectos);
+addEventListener('pageshow',aplicarEfectos);
+
+/* ── v85 · «Más reglas» plegado en las hojas de «Partida nueva» (pedido del 1/11: «la selección de reglas y los menús
+   están muy sobrecargados en TODOS los juegos»). Arriba quedan pocas decisiones (contra quién, cuántos, nivel); el resto
+   va adentro de un renglón que dice lo elegido («A 30 · Sin flor · Ranked») y se abre al tocarlo. Recuerda si lo dejaste
+   abierto (por juego, en este aparato: '<juego>-mas-reglas').
+   MASREGLAS.html(juego, resumen, cuerpo) → HTML · MASREGLAS.cablear() → engancha los que haya en la página. */
+const MR_CSS=`.mreg{margin:16px 0 4px;border-radius:12px;border:1px solid rgba(128,128,128,.32);border:1px solid color-mix(in srgb,currentColor 20%,transparent);background:rgba(128,128,128,.05)}
+.mreg>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 14px;min-height:48px;box-sizing:border-box;cursor:pointer;font-weight:700;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.mreg>summary::-webkit-details-marker{display:none}
+.mreg-t{flex:none}
+.mreg-r{flex:1;min-width:0;text-align:right;font-weight:500;opacity:.68;font-size:.86em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mreg>summary::after{content:'';flex:none;width:7px;height:7px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);margin:-4px 2px 0 0;opacity:.55;transition:transform .2s}
+.mreg[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.mreg[open]>summary .mreg-r{visibility:hidden}
+.mreg>summary:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:12px}
+.mreg-b{padding:0 12px 12px}
+.mreg-b>h4:first-child,.mreg-b>h3:first-child{margin-top:2px}`;
+function mrCss(){if(document.getElementById('mreg-css'))return;const s=document.createElement('style');s.id='mreg-css';s.textContent=MR_CSS;(document.head||document.documentElement).appendChild(s);}
+const mrK=j=>String(j||'juego')+'-mas-reglas';
+function mrAbierto(j){try{return localStorage.getItem(mrK(j))==='1';}catch(_){return false;}}
+function mrHtml(j,resumen,cuerpo){mrCss();const r=(Array.isArray(resumen)?resumen.filter(Boolean).join(' · '):resumen)||'';
+  return `<details class="mreg" data-mreg="${String(j).replace(/"/g,'')}"${mrAbierto(j)?' open':''}><summary><span class="mreg-t">Más reglas</span><span class="mreg-r">${r}</span></summary><div class="mreg-b">${cuerpo}</div></details>`;}
+// «toggle» no burbujea, pero se escucha en captura: un solo oyente para todas las hojas (los juegos rehacen el HTML en cada toque).
+// Sólo cuenta lo que hizo la persona: al dibujarse ya abierto también llega un «toggle», que no cambia nada.
+document.addEventListener('toggle',e=>{const d=e.target;if(!d||!d.matches||!d.matches('details.mreg[data-mreg]'))return;
+  try{localStorage.setItem(mrK(d.dataset.mreg),d.open?'1':'0');}catch(_){}},true);
+function mrCablear(){}
+window.MASREGLAS={html:mrHtml,cablear:mrCablear,abierto:mrAbierto};
+
+if(FUERA){window.JUGO={ev:noop,burst:noop,confeti:noop,temblor:noop,pop:noop,texto:noop,contar:noop,combo:()=>0,quieto,efectos,setEfectos};return;}
+
+/* ── Estilos comunes (variables de movimiento: los juegos y la app pueden usarlas) ── */
+const css=`:root{--j-ease:cubic-bezier(.2,.8,.2,1);--j-ease-in:cubic-bezier(.4,0,1,1);--j-rebote:cubic-bezier(.34,1.56,.64,1);--j-rapido:120ms;--j-medio:220ms;--j-lento:360ms}
+.j-fx{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2147482500}
+.j-txt{position:fixed;left:0;top:0;pointer-events:none;z-index:2147482600;font:900 22px/1 system-ui,-apple-system,"Segoe UI",sans-serif;color:#ffe08a;
+  text-shadow:0 2px 0 #0008,0 0 14px #ffb84d88;white-space:nowrap;will-change:transform,opacity}
+.j-cnt{position:fixed;pointer-events:none;z-index:2147482600;display:flex;align-items:center;justify-content:center;white-space:nowrap}`;
+function ponerCss(){if(document.getElementById('jugo-css'))return;const s=document.createElement('style');s.id='jugo-css';s.textContent=css;(document.head||document.documentElement).appendChild(s);}
+ponerCss();
+
+/* ── Dónde tocó la persona por última vez (para que el jugo salga donde pasó la jugada) ── */
+const ULT={x:innerWidth/2,y:innerHeight/2,t:0};
+addEventListener('pointerup',e=>{ULT.x=e.clientX;ULT.y=e.clientY;ULT.t=performance.now();},{capture:true,passive:true});
+const centro=el=>{const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height};};
+const q=s=>{if(!s)return null;if(s.nodeType)return s;for(const x of String(s).split('|')){const el=document.querySelector(x);if(el&&el.getClientRects().length)return el;}return null;};
+// Punto para un evento: el último toque si fue hace poco (jugada propia); si no, el centro del elemento dado.
+function punto(sel,recienteMs=1500){const el=q(sel);if(performance.now()-ULT.t<recienteMs)return {x:ULT.x,y:ULT.y};if(el){const c=centro(el);return {x:c.x,y:c.y};}return {x:innerWidth/2,y:innerHeight/2};}
+
+/* ── Partículas: un lienzo que sólo existe mientras hay algo volando ── */
+const FX={c:null,g:null,ps:[],raf:0,dpr:1,t:0};
+function lienzo(){if(FX.c)return true;const c=document.createElement('canvas');c.className='j-fx';c.setAttribute('aria-hidden','true');
+  FX.dpr=Math.min(2,devicePixelRatio||1);c.width=innerWidth*FX.dpr;c.height=innerHeight*FX.dpr;const g=c.getContext('2d');if(!g)return false;
+  g.scale(FX.dpr,FX.dpr);document.body.appendChild(c);FX.c=c;FX.g=g;FX.t=performance.now();return true;}
+function cuadro(now){const g=FX.g,dt=Math.min(40,now-FX.t)/16.67;FX.t=now;g.clearRect(0,0,innerWidth,innerHeight);
+  FX.ps=FX.ps.filter(p=>{p.vida-=dt*16.67;if(p.vida<=0)return false;p.vx*=p.roce;p.vy=p.vy*p.roce+p.grav*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;
+    const k=Math.max(0,Math.min(1,p.vida/p.vida0)),a=p.tipo==='confeti'?Math.min(1,k*3):k;g.globalAlpha=a;g.fillStyle=p.col;
+    if(p.tipo==='confeti'){g.save();g.translate(p.x,p.y);g.rotate(p.rot);g.scale(1,Math.cos(p.rot*1.7));g.fillRect(-p.tam,-p.tam*.45,p.tam*2,p.tam*.9);g.restore();}
+    else if(p.tipo==='estrella'){const s=p.tam*(.6+.4*k);g.beginPath();for(let i=0;i<8;i++){const r=i%2?s*.4:s,an=p.rot+i*Math.PI/4;g.lineTo(p.x+Math.cos(an)*r,p.y+Math.sin(an)*r);}g.closePath();g.fill();}
+    else if(p.tipo==='polvo'){g.beginPath();g.arc(p.x,p.y,p.tam*(1.6-k*.6),0,7);g.fill();}
+    else{g.beginPath();g.arc(p.x,p.y,p.tam*(.4+.6*k),0,7);g.fill();}
+    return p.y<innerHeight+40;});
+  g.globalAlpha=1;
+  if(FX.ps.length)FX.raf=requestAnimationFrame(cuadro);else{FX.raf=0;FX.c.remove();FX.c=FX.g=null;}}
+function soltar(){if(!FX.raf)FX.raf=requestAnimationFrame(cuadro);}
+const TOPE=140;   // nunca más de esto en pantalla: cuida el celular
+// burst(x, y, {n, col:[colores], vel, grav, vida, tipo:'chispa'|'estrella'|'polvo', tam, arriba})
+function burst(x,y,o={}){if(quieto()||!document.body||!lienzo())return;const n=Math.min(o.n||14,TOPE-FX.ps.length),cols=o.col||['#ffe08a','#ffb84d','#fff'];
+  for(let i=0;i<n;i++){const an=o.arriba?(-Math.PI/2+(Math.random()-.5)*1.6):Math.random()*Math.PI*2,v=(o.vel||3.2)*(.45+Math.random()*.75),vida=(o.vida||650)*(.7+Math.random()*.5);
+    FX.ps.push({x,y,vx:Math.cos(an)*v,vy:Math.sin(an)*v,grav:o.grav==null?.1:o.grav,roce:o.roce||.95,vida,vida0:vida,col:cols[i%cols.length],tam:(o.tam||3)*(.7+Math.random()*.6),
+      rot:Math.random()*6,vr:(Math.random()-.5)*.3,tipo:o.tipo||'chispa'});}
+  soltar();}
+// Papel picado desde arriba: una sola vez por festejo, cantidad moderada.
+let ultConf=0;
+function confeti(cols,n){if(quieto()||!document.body)return;const now=performance.now();if(now-ultConf<1800)return;ultConf=now;if(!lienzo())return;
+  cols=cols||['#74b9e8','#ffffff','#f2c14e','#57d49b','#ef6f6c'];n=Math.min(n||46,TOPE-FX.ps.length);
+  for(let i=0;i<n;i++){const vida=1700+Math.random()*900;FX.ps.push({x:Math.random()*innerWidth,y:-10-Math.random()*innerHeight*.25,vx:(Math.random()-.5)*2.4,vy:1+Math.random()*2.2,
+    grav:.035,roce:.992,vida,vida0:vida,col:cols[i%cols.length],tam:3.2+Math.random()*2.6,rot:Math.random()*6,vr:(Math.random()-.5)*.25,tipo:'confeti'});}
+  soltar();}
+
+/* ── Temblor sutil (se suma a lo que ya tenga el elemento) ── */
+function temblor(sel,amp=3,ms=240){if(quieto())return;const el=q(sel);if(!el||!el.animate)return;const a=amp,k=[0,-a,a*.8,-a*.55,a*.35,-a*.15,0].map((d,i)=>({transform:`translate(${d}px,${i%2?d*.35:0}px)`}));
+  try{el.animate(k,{duration:ms,easing:'ease-out',composite:'add'});}catch(_){try{el.animate(k,{duration:ms,easing:'ease-out'});}catch(__){}}}
+// Un «pop» de escala en un elemento (dado, botón, ficha…)
+function pop(sel,s=1.14,ms=280){if(quieto())return;const el=q(sel);if(!el||!el.animate)return;const k=[{transform:'scale(1)'},{transform:`scale(${s})`,offset:.35},{transform:'scale(1)'}];
+  try{el.animate(k,{duration:ms,easing:'cubic-bezier(.34,1.56,.64,1)',composite:'add'});}catch(_){try{el.animate(k,{duration:ms});}catch(__){}}}
+// Texto que sube y se va («×3», «+1», «¡Flor!»)
+function texto(t,x,y,o={}){if(quieto()||!document.body)return;const el=document.createElement('div');el.className='j-txt';el.textContent=t;el.setAttribute('aria-hidden','true');
+  if(o.col)el.style.color=o.col;if(o.tam)el.style.fontSize=o.tam+'px';document.body.appendChild(el);const w=el.offsetWidth,h=el.offsetHeight;
+  const X=Math.max(8,Math.min(innerWidth-w-8,x-w/2)),Y=Math.max(8,y-h/2);
+  const an=el.animate([{transform:`translate(${X}px,${Y+8}px) scale(.6)`,opacity:0},{transform:`translate(${X}px,${Y-6}px) scale(1.12)`,opacity:1,offset:.25},{transform:`translate(${X}px,${Y-26}px) scale(1)`,opacity:1,offset:.7},{transform:`translate(${X}px,${Y-40}px) scale(.96)`,opacity:0}],{duration:o.ms||900,easing:'ease-out'});
+  an.onfinish=()=>el.remove();setTimeout(()=>el.remove(),(o.ms||900)+200);}
+
+/* ── Rachas cortas («combo»): aciertos seguidos dentro de una ventana de tiempo ── */
+const CB={};
+function combo(clave,ventana=4500){const now=performance.now(),c=CB[clave]||{n:0,t:0};c.n=now-c.t<=ventana?c.n+1:1;c.t=now;CB[clave]=c;return c.n;}
+
+/* ── Números que cuentan hasta su valor (una copia encima: el texto real no cambia nunca) ── */
+const NUM=/^([+\-−]?)(\d{1,3}(?:\.\d{3})+|\d+)(\s*(?:pts|puntos|XP|de oro|oro)?)$/;
+function contar(el,ms=650,desde=0){if(quieto()||!el||!el.isConnected)return;const s=(el.textContent||'').trim(),m=NUM.exec(s);if(!m)return;const fin=parseInt(m[2].replace(/\./g,''),10);if(!(fin>=2)||fin>999999||desde>=fin)return;
+  const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+  const arriba=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);if(!arriba||!(arriba===el||el.contains(arriba)||arriba.contains(el)))return;   // tapado por otra hoja: no se cuenta
+  const cs=getComputedStyle(el),g=document.createElement('div');g.className='j-cnt';g.setAttribute('aria-hidden','true');
+  Object.assign(g.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',font:cs.font,color:cs.color,letterSpacing:cs.letterSpacing,justifyContent:cs.textAlign==='left'||cs.textAlign==='start'?'flex-start':cs.textAlign==='right'||cs.textAlign==='end'?'flex-end':'center'});
+  const prev=el.style.color;el.style.color='transparent';document.body.appendChild(g);const t0=performance.now(),fmt=n=>m[1]+n.toLocaleString('es-AR')+m[3];
+  (function paso(now){const k=Math.min(1,(now-t0)/ms),e=1-Math.pow(1-k,3);g.textContent=fmt(Math.round(desde+(fin-desde)*e));if(k<1&&el.isConnected)requestAnimationFrame(paso);else{g.remove();el.style.color=prev;}})(t0);}
+
+/* ── Respuesta al tocar: se hunde y vuelve con un rebote chico ── */
+const TOCABLE='button,[role="button"],.btn,.hub-game,.tool-btn,a.cta,label.chip';
+let apretado=null;
+function soltarBoton(){const el=apretado;apretado=null;if(!el||quieto())return;try{el.getAnimations().forEach(a=>{if(a.id==='j-press')a.cancel();});
+  el.animate([{transform:'scale(.95)'},{transform:'scale(1.025)',offset:.55},{transform:'scale(1)'}],{duration:230,easing:'ease-out'});}catch(_){}}
+addEventListener('pointerdown',e=>{if(quieto()||e.button>0)return;const el=e.target&&e.target.closest&&e.target.closest(TOCABLE);if(!el||el.disabled||el.closest('.no-press,canvas'))return;
+  const r=el.getBoundingClientRect();if(r.width>420||r.height>220)return;   // nada grande (paneles, tableros)
+  const cs=getComputedStyle(el);if(cs.transform!=='none'||cs.position==='fixed'&&r.width<60&&el.closest('.cx-toast'))return;
+  try{const a=el.animate([{transform:'scale(1)'},{transform:'scale(.95)'}],{duration:90,easing:'ease-out',fill:'forwards'});a.id='j-press';apretado=el;}catch(_){}},{capture:true,passive:true});
+['pointerup','pointercancel','dragstart'].forEach(t=>addEventListener(t,soltarBoton,{capture:true,passive:true}));
+addEventListener('pointerout',e=>{if(apretado&&e.target===apretado&&!apretado.contains(e.relatedTarget))soltarBoton();},{capture:true,passive:true});
+
+/* ── Paneles de los juegos: salida animada (#modal, #side, #over) y entrada del cartel final ── */
+const PANELES={modal:{panel:'.sheet',dir:'abajo',ms:170},side:{panel:'.side-panel',dir:'derecha',ms:170},over:{dir:'nada',ms:160}};
+const JUEGOS_PAG=/^(truco|uno|ludo|ajedrez|pool|poblar|sudoku|solitario|buscaminas|laberinto)/;
+if(JUEGOS_PAG.test(PAG)){
+  try{const D=Object.getOwnPropertyDescriptor(HTMLElement.prototype,'hidden');
+    if(D&&D.set&&D.get)Object.defineProperty(HTMLElement.prototype,'hidden',{configurable:true,enumerable:D.enumerable,get(){return D.get.call(this);},
+      set(v){try{if(v&&!D.get.call(this)&&this.id&&PANELES[this.id]&&window.GESTOS&&!quieto())GESTOS.salida(this,PANELES[this.id]);}catch(_){}D.set.call(this,v);}});}catch(_){}
+}
+// El cartel del final: entra con pop, los números cuentan y, si ganaste, papel picado.
+const GANE=/ganaste|le ganaste|te quedaste sin cartas|ganaron ustedes|ganamos|¡ganó tu equipo/i;
+function overMostrado(el){const card=el.firstElementChild||el;if(!quieto()&&card.animate)try{card.animate([{transform:'translateY(14px) scale(.94)',opacity:0},{transform:'translateY(-2px) scale(1.015)',opacity:1,offset:.6},{transform:'none',opacity:1}],{duration:340,easing:'cubic-bezier(.2,.8,.2,1)'});}catch(_){}
+  const h=(el.querySelector('h3,h2')||el).textContent||'',ic=(el.querySelector('.ic')||{}).textContent||'';
+  if(/🏆/.test(ic)&&(GANE.test(h)||/en este aparato/i.test(el.textContent||'')))setTimeout(()=>confeti(),120);
+  setTimeout(()=>{let n=0;el.querySelectorAll('b,strong,.num,.n,td,span').forEach(x=>{if(n<4&&x.children.length===0&&NUM.test((x.textContent||'').trim())){contar(x);n++;}});},90);}
+function vigilarOver(){const el=document.getElementById('over');if(!el||el.__jugo)return;el.__jugo=1;let antes=el.hidden;
+  new MutationObserver(()=>{const ahora=el.hidden;if(antes&&!ahora)overMostrado(el);antes=ahora;}).observe(el,{attributes:true,attributeFilter:['hidden']});}
+if(JUEGOS_PAG.test(PAG)){if(document.readyState==='loading')addEventListener('DOMContentLoaded',vigilarOver);else vigilarOver();}
+
+/* ── Inicio (BloqueAR): un solo momento al entrar (las tarjetas de los juegos aparecen escalonadas, una vez por
+      sesión) y el oro que sube contando desde lo último que viste (si ganaste algo jugando). ── */
+const SS={get(k){try{return sessionStorage.getItem(k);}catch(_){return null;}},set(k,v){try{sessionStorage.setItem(k,v);}catch(_){}}};
+function hubMomento(){if(quieto()||SS.get('jugo-hub'))return;SS.set('jugo-hub','1');
+  const L=[...document.querySelectorAll('#hub .hub-game, #ini .ini-hoy, #ini .ini-tarea, #ini .ini-viva, #ini .ini-mini, #ini .ini-amigo')].filter(e=>e.getClientRects().length&&e.getBoundingClientRect().top<innerHeight).slice(0,12);   // v89: también lo que se ve del inicio nuevo
+  L.forEach((e,i)=>{try{e.animate([{opacity:0,transform:'translateY(12px) scale(.97)'},{opacity:1,transform:'none'}],{duration:320,delay:60+i*32,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});}catch(_){}});}
+function hubOro(){const el=document.querySelector('#ini-oro [data-oro-saldo]')||document.querySelector('#hub-oro [data-oro-saldo]');   // v89: el oro del inicio nuevo
+if(!el)return;const v=parseInt((el.textContent||'').replace(/\D/g,''),10);if(!(v>=0))return;
+  const k='jugo-oro-visto',antes=parseInt(SS.get(k)||'',10);SS.set(k,String(v));
+  if(antes>=0&&v>antes){setTimeout(()=>{contar(el,700,antes);const c=centro(el);burst(c.x,c.y,{n:10,col:C.oro,arriba:true,grav:-.01,vel:2,vida:650});},350);}}
+if(/^(index|bloques)$/.test(PAG)){const mira=()=>{const h=document.getElementById('hub');if(!h)return;let antes=h.hidden;const ver=()=>{hubMomento();setTimeout(hubOro,60);};
+  if(!h.hidden)setTimeout(ver,120);new MutationObserver(()=>{const ahora=h.hidden;if(antes&&!ahora)setTimeout(ver,60);antes=ahora;}).observe(h,{attributes:true,attributeFilter:['hidden']});};
+  if(document.readyState==='loading')addEventListener('DOMContentLoaded',mira);else mira();}
+
+/* ── Jugo por juego. Criterio: lo bueno se festeja en proporción (un acierto, chispitas; ganar, papel picado);
+      lo malo se nota con un temblor chiquito y nada más; nada se repite solo ni apura a nadie. ── */
+const C={oro:['#ffe08a','#ffb84d','#fff6d6'],celeste:['#74b9e8','#ffffff','#f2c14e'],uno:['#e5574a','#f6c453','#4fae6a','#3f86d6'],
+  polvo:['#c9b38f','#a8916d','#e6d6b6'],rojo:['#ff6b5b','#ffb27a','#ffd7a8'],hoja:['#ff9fc0','#ffd1e1','#fff'],verde:['#57d49b','#bff2d8','#fff'],humo:['#3a3a3a','#6a5a4a','#8a7a6a']};
+const H={
+  truco(k,x){
+    if(k==='truco')temblor('#felt|#eq-felt',2);else if(k==='retruco')temblor('#felt|#eq-felt',3);else if(k==='vale4'){temblor('#felt|#eq-felt',4,300);}
+    else if(k==='flor'){const p=punto('#felt|#eq-felt',0);burst(p.x,p.y,{n:16,col:C.hoja,tipo:'estrella',tam:4,vel:2.6,grav:.03});}
+    else if(k==='puntos'){const p=punto('#score|#eq-top',0);burst(p.x,p.y,{n:6+Math.min(6,x||1)*2,col:C.oro,arriba:true,grav:-.02,vel:2.2,vida:700});}
+    else if(k==='gano')confeti(C.celeste);},
+  uno(k){
+    if(k==='uno'){const p=punto('#me',0);burst(p.x,p.y,{n:22,col:C.uno,vel:4,tam:3.4});temblor('#hand',2);}
+    else if(k==='gano')confeti(C.uno);},
+  ludo(k){
+    if(k==='comer'){const p=punto('#tab');burst(p.x,p.y,{n:18,col:C.rojo,vel:3.6});temblor('#tabwrap|#tab',3);}
+    else if(k==='comido')temblor('#tabwrap|#tab',2,200);
+    else if(k==='meta'){const p=punto('#tab');burst(p.x,p.y,{n:14,col:C.oro,tipo:'estrella',tam:4.5,vel:2.8,grav:.02});}
+    else if(k==='seis')pop('#dado',1.18);},
+  ajedrez(k){
+    const dest=()=>{const L=[...document.querySelectorAll('#board .sq.last')].find(s=>s.querySelector('.pz'));return L||null;};
+    if(k==='comer'){const d=dest();const p=d?centro(d):punto('#board');burst(p.x,p.y,{n:12,col:C.polvo,tipo:'polvo',tam:3,vel:2,grav:.02,vida:520});}
+    else if(k==='jaque'){const b=q('#bwrap|#board');if(b&&b.animate&&!quieto())try{b.animate([{boxShadow:'0 0 0 0 #ef6f6c00'},{boxShadow:'0 0 0 4px #ef6f6caa'},{boxShadow:'0 0 0 0 #ef6f6c00'}],{duration:520,easing:'ease-out'});}catch(_){}}
+    else if(k==='enroque'){const d=dest();if(d){const p=centro(d);burst(p.x,p.y,{n:8,col:C.oro,tipo:'estrella',tam:3,vel:1.8,grav:0});}}
+    else if(k==='gano')confeti(['#f4ead5','#2b2b2b','#f2c14e','#b07a3c']);},
+  pool(k){if(k==='gano')confeti(['#1f7a4d','#f2c14e','#ffffff','#e5574a']);},
+  solos(k){
+    const juego=PAG;
+    if((k==='palo'||k==='linea')&&juego==='sudoku')return;   // v84: el sudoku va sobrio, sin festejos por línea
+    if(k==='palo'||k==='linea'){const n=combo(juego+':ok',k==='palo'?5000:9000),p=punto(juego==='sudoku'?'#tab':'#mesa');
+      burst(p.x,p.y,{n:k==='linea'?18:10,col:k==='linea'?C.verde:C.oro,tipo:'estrella',tam:k==='linea'?4:3.2,vel:k==='linea'?3:2.3,grav:.02});
+      if(n>=2)texto('×'+n,p.x,p.y-24,{col:n>=4?'#ffd36e':'#fff1c2',tam:Math.min(30,18+n*2)});}
+    else if(k==='pum'){const p=punto('#tab');burst(p.x,p.y,{n:20,col:C.humo,tipo:'polvo',tam:4,vel:3,grav:-.01,vida:800});temblor('#tab|#vp',5,320);}
+    else if(k==='gano')confeti(juego==='solitario'?['#e5574a','#2b2b2b','#ffffff','#f2c14e']:C.verde.concat(['#74b9e8']));},
+  poblar(k,x){   // v84: x = {x,y} de la pieza recién construida (PoblAR la calcula); si no viene, como antes
+    const aca=()=>x&&isFinite(x.x)&&isFinite(x.y)?x:punto('#board|svg');
+    if(k==='town'){const p=aca();burst(p.x,p.y,{n:18,col:C.oro,tipo:'estrella',tam:4,vel:2.8,grav:.02});}
+    else if(k==='ranch'){const p=aca();burst(p.x,p.y,{n:10,col:C.oro,vel:2.2});}
+    else if(k==='road'){const p=aca();burst(p.x,p.y,{n:6,col:C.polvo,tipo:'polvo',tam:2.4,vel:1.5,grav:0,vida:420});}
+    else if(k==='robber')temblor('#board|svg',2);
+    else if(k==='win')confeti(['#f2c14e','#b5512e','#57a35d','#3f86d6','#fff']);}
+};
+function ev(g,k,x){try{if(document.hidden)return;const f=H[g];if(f)f(k,x);}catch(_){}}
+
+window.JUGO={ev,burst,confeti,temblor,pop,texto,contar,combo,quieto,punto,efectos,setEfectos};
+})();
+
+
+/* ───────── v96 · Fin de partida común (opción B, elegida el 12/11): el resultado a pantalla completa ─────────
+   Cada juego sigue armando su cartel como siempre (over()/center() con .ccard). Al entrar a su función de fin avisa con
+   BLQ_FIN.pend(); cuando el cartel aparece, acá se reacomoda: arriba el festejo (ícono, título, detalle), en el medio lo
+   demás (casillas, premios, logros) y abajo, fijos, los botones del juego más «Compartir» y «Ver el tablero».
+   No cambia qué botones hay ni lo que hacen, ni nada de lo que se guarda. Llave de emergencia: localStorage 'bloques-fin-b'='0'. */
+(function(){
+'use strict';
+if(window.BLQ_FIN)return;
+const ls=k=>{try{return localStorage.getItem(k);}catch(_){return null;}};
+const N={truco:'TrucAR',uno:'UnoAR',ludo:'LudAR',ajedrez:'AjedrezAR',pool:'PoolAR',sudoku:'SudokAR',buscaminas:'BuscaminAR',solitario:'SolitARio',laberinto:'LaberintAR',invasores:'InvasorAR',marcar:'MarcAR',poblar:'PoblAR',fortinar:'FortinAR',bloquear:'BloqueAR'};
+const ARTE={estancia:'webp',pampa:'webp',marcar:'webp',fortinar:'webp'};   // el resto son .svg (los arma armar.py desde el Inicio)
+const COLOR={truco:['#2d6a4a','#10231a'],uno:['#1f5a66','#0c2026'],ludo:['#5a3b1f','#1c130a'],ajedrez:['#5a4630','#1a140d'],pool:['#1f6a4a','#0c2219'],sudoku:['#1d3a63','#0E1626'],buscaminas:['#3f6a2a','#12200c'],
+  solitario:['#1f6a4a','#0c2219'],laberinto:['#1a2f7a','#070b1c'],invasores:['#3a1f6a','#0d0720'],marcar:['#5a3b1f','#140d06'],poblar:['#1f5a66','#0a1c22'],fortinar:['#4a5a1f','#12160a'],bloquear:['#1d3a63','#0E1626']};
+let PEND=0,OBS=null;
+const juego=()=>{try{return (window.BLQ_UI&&BLQ_UI.juego&&BLQ_UI.juego())||(location.pathname.match(/(\w+)\.html$/)||[])[1]||'bloquear';}catch(_){return 'bloquear';}};
+function css(){if(document.getElementById('bq-fin-css'))return;const s=document.createElement('style');s.id='bq-fin-css';s.textContent=`
+.bq-fin-on{position:fixed!important;inset:0!important;z-index:60!important;padding:0!important;display:block!important;background:var(--monte,#0E1626)!important;transition:opacity .2s ease}
+.bq-fin-on[hidden]{display:none!important}
+.bq-fin-on.bq-fin-mira{opacity:0;pointer-events:none}
+html body .bq-fin-on .ccard.bq-fin,html.bq-piel:not(.bq-sin-cartel) .bq-fin-on .ccard.bq-fin{position:absolute!important;inset:0!important;width:auto!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;transform:none!important;display:flex!important;flex-direction:column!important;gap:0!important;overflow:hidden!important;text-align:center;background:linear-gradient(180deg,var(--mate-claro,#1F2F4A),var(--monte,#0E1626) 46%)!important;color:var(--cal,#F2F4FA)!important;animation:bqFinIn .3s ease both}
+@keyframes bqFinIn{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+.bq-fin-arte{position:relative;flex:none;padding:calc(env(safe-area-inset-top,0px) + 30px) 20px 10px;overflow:hidden}
+.bq-fin.bq-gane .bq-fin-arte{background:radial-gradient(80% 95% at 50% 0%,rgba(242,193,78,.42),transparent 72%)}
+.bq-fin.bq-empate .bq-fin-arte{background:radial-gradient(80% 95% at 50% 0%,rgba(140,200,240,.26),transparent 72%)}
+.bq-fin-rayos{position:absolute;left:50%;top:86px;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;pointer-events:none;background:repeating-conic-gradient(rgba(255,255,255,.075) 0 8deg,transparent 8deg 20deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 68%);mask:radial-gradient(circle,#000 18%,transparent 68%);animation:bqFinGira 28s linear infinite}
+.bq-fin:not(.bq-gane) .bq-fin-rayos{display:none}
+@keyframes bqFinGira{to{transform:rotate(360deg)}}
+html body .bq-fin .bq-fin-arte .ic{position:relative;font-size:84px!important;line-height:1.05!important;margin:0 0 6px!important;width:auto!important;height:auto!important;background:none!important;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));animation:bqFinPop .5s cubic-bezier(.2,.9,.3,1.3) .08s both}
+@keyframes bqFinPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+html body .bq-fin .bq-fin-arte h3,html body .bq-fin .bq-fin-arte h2,html.bq-piel:not(.bq-sin-cartel) .ccard.bq-fin .bq-fin-arte h3,html.bq-piel:not(.bq-sin-cartel) .ccard.bq-fin .bq-fin-arte h2{position:relative;font:800 38px/1.05 var(--f-titulo,system-ui)!important;margin:0!important;color:var(--cal,#F2F4FA)!important;letter-spacing:-.3px}
+html body .bq-fin .bq-fin-arte p{position:relative;margin:6px 0 0!important;font-size:16px!important;color:var(--pasto-seco,#A9B6CD)!important}
+html body .bq-fin .bq-fin-arte p.bq-fin-marcador{font:800 46px/1.1 var(--f-titulo,system-ui)!important;color:var(--cal,#F2F4FA)!important;margin-top:10px!important}
+.bq-fin-cuerpo .lg-apb,.bq-fin-cuerpo>*:has(>.lg-apb){align-self:center}
+.bq-fin-cuerpo{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px 18px 10px;display:flex;flex-direction:column;gap:12px;width:100%;max-width:560px;margin:0 auto;box-sizing:border-box}
+.bq-fin-cuerpo>*{flex:none;margin-top:0!important;margin-bottom:0!important}
+.bq-fin-pie{flex:none;display:flex;flex-direction:column;gap:8px;padding:10px 18px calc(14px + env(safe-area-inset-bottom,0px));width:100%;max-width:560px;margin:0 auto;box-sizing:border-box;background:linear-gradient(transparent,var(--monte,#0E1626) 22%)}
+.bq-fin-pie .btn,.bq-fin-pie a.btn{width:100%;margin:0!important;box-sizing:border-box}
+.bq-fin-pie .row,.bq-fin-fila{display:flex!important;gap:8px;margin:0!important}.bq-fin-pie .row>*,.bq-fin-fila>*{flex:1 1 0;min-width:0}
+html body .bq-fin .bq-fin-pie .btn.go{min-height:54px;font-size:16.5px;box-shadow:0 4px 0 rgba(0,0,0,.28)}
+.bq-fin-volver{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:61;min-height:48px;padding:0 20px;border-radius:999px;border:0;background:var(--maiz,#F2C14E);color:var(--maiz-osc,#3A2E0A);font:700 15px/1 var(--f-texto,system-ui);box-shadow:0 8px 22px rgba(0,0,0,.45);cursor:pointer}
+/* lo de adentro, con el mismo material en todos los juegos (también en los que tienen su propia piel, como InvasorAR) */
+html body .ccard.bq-fin .btn,html body .ccard.bq-fin a.btn{min-height:48px!important;border-radius:999px!important;border:0!important;background:var(--mate-claro,#1F2F4A)!important;color:var(--cal,#F2F4FA)!important;box-shadow:none!important;font:700 15.5px/1.1 var(--f-texto,system-ui)!important;text-decoration:none!important;display:inline-flex!important;align-items:center;justify-content:center;gap:6px;padding:0 14px!important}
+html body .ccard.bq-fin .btn.go{background:var(--maiz,#F2C14E)!important;color:var(--maiz-osc,#3A2E0A)!important}
+html body .ccard.bq-fin .btn:disabled{opacity:.5}
+html body .ccard.bq-fin .lines,html body .ccard.bq-fin .stats>div,html body .ccard.bq-fin .posi,html body .ccard.bq-fin .recs{background:var(--mate-claro,#1F2F4A)!important;border:0!important;border-radius:var(--r-m,16px)!important;color:var(--cal,#F2F4FA)!important}
+html body .ccard.bq-fin .lines div,html body .ccard.bq-fin .lines span,html body .ccard.bq-fin .lines b{color:var(--cal,#F2F4FA)!important}
+html body .ccard.bq-fin .bq-fin-cuerpo>p,html body .ccard.bq-fin .bq-fin-cuerpo small,html body .ccard.bq-fin .cap{color:var(--pasto-seco,#A9B6CD)!important}
+html body .ccard.bq-fin .bq-fin-cuerpo>p.cap,html body .ccard.bq-fin .bq-fin-cuerpo>.cap,html body .ccard.bq-fin .bq-fin-cuerpo>.note{background:transparent!important;border:0!important;padding:0!important;font-size:13.5px}
+html body .ccard.bq-fin .rs-pts{color:var(--cal,#F2F4FA)!important;font-family:var(--f-titulo,system-ui)!important}html body .ccard.bq-fin .rs-pts small{color:var(--pasto-seco,#A9B6CD)!important}
+html body .ccard.bq-fin .rs-rec{color:var(--pasto-seco,#A9B6CD)!important}html body .ccard.bq-fin .rs-rec b,html body .ccard.bq-fin .rs-rec.nuevo{color:var(--maiz,#F2C14E)!important}
+html body .ccard.bq-fin .pd-h{color:var(--cal,#F2F4FA)!important}html body .ccard.bq-fin .pd-msg{color:var(--pasto-seco,#A9B6CD)!important}html body .ccard.bq-fin .pd-msg a,html body .ccard.bq-fin .bq-fin-cuerpo a:not(.btn){color:var(--cielo,#8CC8F0)!important}
+html body .ccard.bq-fin .premios{background:transparent!important;border:0!important;padding:0!important}html body .ccard.bq-fin .premios>div,html body .ccard.bq-fin .premios span{color:var(--pasto-seco,#A9B6CD)!important}
+.bq-fin-reto{background:rgba(242,193,78,.14);border:1px solid rgba(242,193,78,.45);border-radius:16px;padding:10px 14px;font:700 15px/1.3 var(--f-texto,system-ui);color:var(--cal,#F2F4FA)}.bq-fin-reto small{display:block;font-weight:400;color:var(--pasto-seco,#A9B6CD)}
+html body .ccard.bq-fin .bq-fin-cuerpo table{width:100%;border-collapse:collapse;font-size:14px;color:var(--cal,#F2F4FA)!important;background:var(--mate-claro,#1F2F4A);border-radius:var(--r-m,16px);overflow:hidden}
+html body .ccard.bq-fin .bq-fin-cuerpo th{font:700 11px/1.2 var(--f-texto,system-ui)!important;letter-spacing:.06em;text-transform:uppercase;color:var(--pasto-seco,#A9B6CD)!important;padding:9px 8px 5px!important;border:0!important}
+html body .ccard.bq-fin .bq-fin-cuerpo td{padding:7px 8px!important;border:0!important;border-top:1px solid rgba(255,255,255,.08)!important;color:var(--cal,#F2F4FA)!important;font-weight:600}
+html body .ccard.bq-fin .bq-fin-cuerpo tr.yo td{color:var(--maiz,#F2C14E)!important;font-weight:800}
+html body .ccard.bq-fin .bq-fin-cuerpo td small{color:var(--pasto-seco,#A9B6CD)!important}
+html body .ccard.bq-fin .bq-fin-cuerpo .premio{color:var(--maiz,#F2C14E)!important;font-weight:800;margin:0}
+/* v97: casillas de números iguales en los juegos que no las traían (BloqueAR, PoblAR, FortinAR, MarcAR) */
+html body .ccard.bq-fin .stats.s97{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+html body .ccard.bq-fin .stats.s97>div{padding:11px 4px 9px;display:flex;flex-direction:column;gap:3px;text-align:center;min-width:0}
+html body .ccard.bq-fin .stats.s97 b{font:800 22px/1.1 var(--f-titulo,system-ui)!important;color:var(--cal,#F2F4FA)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .ccard.bq-fin .stats.s97 small{font:400 12px/1.2 var(--f-texto,system-ui)!important;color:var(--pasto-seco,#A9B6CD)!important}
+/* con el cartel abierto, los avisos («+N de oro», logros) van arriba de todo y no pisan el festejo */
+html.bq-fin-abierto .oro-fly,html.bq-fin-abierto .lg-aviso,html.bq-fin-abierto .oro-lvp{top:calc(env(safe-area-inset-top,0px) + 6px)!important;left:50%!important;z-index:95!important}
+@media (min-height:700px){.bq-fin-arte{padding-top:calc(env(safe-area-inset-top,0px) + 58px)}.bq-fin-rayos{top:118px}}
+@media (max-height:500px) and (orientation:landscape){
+  html body .bq-fin-on .ccard.bq-fin,html.bq-piel:not(.bq-sin-cartel) .bq-fin-on .ccard.bq-fin{display:grid!important;grid-template-columns:minmax(0,40%) minmax(0,60%);grid-template-rows:minmax(0,1fr) auto}
+  .bq-fin-arte{grid-row:1/3;display:flex;flex-direction:column;justify-content:center;padding:14px 16px}
+  html body .bq-fin .bq-fin-arte .ic,html.bq-piel:not(.bq-sin-cartel) .ccard.bq-fin .bq-fin-arte .ic{font-size:56px!important;line-height:1.05!important}html body .bq-fin .bq-fin-arte h3,html.bq-piel:not(.bq-sin-cartel) .ccard.bq-fin .bq-fin-arte h3{font-size:26px!important}
+  .bq-fin-rayos{top:50%}.bq-fin-cuerpo{padding:10px 14px 4px;gap:8px}
+  .bq-fin-pie{padding:6px 14px 8px;display:grid!important;grid-template-columns:1fr 1fr;gap:6px;background:none}.bq-fin-pie .row,.bq-fin-pie .bq-fin-fila{display:contents!important}
+  html body .ccard.bq-fin .bq-fin-pie .btn,html body .ccard.bq-fin .bq-fin-pie a.btn{min-height:40px!important;font-size:14.5px!important}html body .bq-fin .bq-fin-pie .btn.go{min-height:40px;box-shadow:none}
+  html.bq-fin-abierto .oro-fly,html.bq-fin-abierto .lg-aviso,html.bq-fin-abierto .oro-lvp{left:20%!important}
+}
+@media (prefers-reduced-motion:reduce){.bq-fin-rayos,html body .bq-fin .bq-fin-arte .ic,html body .bq-fin-on .ccard.bq-fin{animation:none!important}}
+html.sin-anim .bq-fin-rayos,html.blq-sin-anim .bq-fin-rayos{animation:none!important}`;
+  (document.head||document.documentElement).appendChild(s);}
+function resultado(card){let df=card.dataset&&card.dataset.fin;try{const hr=card.querySelector('h3[data-r],h2[data-r]');if(hr)df=hr.dataset.r;}catch(_){}if(df==='gane'||df==='perdi'||df==='empate')return df;const ic=((card.querySelector('.ic')||{}).textContent||''),t=((card.querySelector('h3,h2')||{}).textContent||'');
+  if(/🤝/.test(ic)||/Tablas|Empate/i.test(t))return 'empate';
+  if(/[🏆🌟🎉😎🤠🎓]/u.test(ic)||/Ganaste|Impecable|limpio|resuelto|Aguantaste|Le ganaste|Te quedaste sin cartas|Ganaron con/i.test(t))return 'gane';
+  return 'perdi';}
+const EXTRA=[];   // v97: carteles con otro armado (FortinAR: #resultado/#res-c; PoblAR: #modal/#sheet). La tarjeta es fija y se le cambia lo de adentro.
+function cont(id,sel){if(!EXTRA.some(x=>x[0]===id)){EXTRA.push([id,sel]);if(OBS){const c=document.getElementById(id);if(c)OBS.observe(c,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});}}}
+function conts(){const L=['over','center'].map(id=>document.getElementById(id)).filter(Boolean);for(const [id,sel] of EXTRA){const c=document.getElementById(id);if(c){c._finSel=sel;L.push(c);}}return L;}
+const tarjeta=c=>c._finSel?c.querySelector(c._finSel):c.querySelector(':scope>.ccard');
+const armada=k=>k.classList.contains('bq-fin')&&!!k.querySelector(':scope>.bq-fin-arte');
+function vigilar(){if(OBS)return;OBS=new MutationObserver(mirar);for(const c of conts())OBS.observe(c,{childList:true,subtree:!!c._finSel,attributes:true,attributeFilter:['hidden']});}
+function limpiar(c){c._finTit='';try{const k=tarjeta(c);if(k&&c._finSel){k.classList.remove('bq-fin','bq-gane','bq-perdi','bq-empate');if(k._finCc){k.classList.remove('ccard');k._finCc=0;}}}catch(_){}document.documentElement.classList.remove('bq-fin-abierto');c.classList.remove('bq-fin-on','bq-fin-mira');document.querySelectorAll('.bq-fin-volver').forEach(b=>b.remove());}
+function mirar(){for(const c of conts()){const card=tarjeta(c);
+  if(c.hidden||!card){if(c.classList.contains('bq-fin-on'))limpiar(c);continue;}
+  if(armada(card)||(!c._finSel&&(card.classList.contains('bq-fin')||card===c._finViejo)))continue;   // un cartel que ya estaba antes del fin no es el del fin
+  // el juego volvió a dibujar el mismo cartel (p. ej. al llegar la tabla): se reacomoda de nuevo; si es otro (p. ej. «Revancha»), no
+  const h=card.querySelector(':scope>h3,:scope>h2'),mismo=!!(h&&c._finTit&&h.textContent.trim()===c._finTit&&Date.now()-c._finT<60000);
+  if(c.classList.contains('bq-fin-on')&&!mismo)limpiar(c);
+  if(mismo||(PEND&&Date.now()-PEND<9000))try{armar(c,card);}catch(_){}}}
+function armar(c,card){
+  const h=card.querySelector(':scope>h3,:scope>h2');if(!h||ls('bloques-fin-b')==='0')return;
+  PEND=0;css();c._finTit=h.textContent.trim();c._finT=Date.now();
+  const res=resultado(card),ic=card.querySelector(':scope>.ic');
+  const arte=document.createElement('div');arte.className='bq-fin-arte';arte.innerHTML='<div class="bq-fin-rayos" aria-hidden="true"></div>';
+  const cuerpo=document.createElement('div');cuerpo.className='bq-fin-cuerpo';
+  const pie=document.createElement('div');pie.className='bq-fin-pie';
+  let p1=h.nextElementSibling;if(!(p1&&p1.tagName==='P'&&!p1.classList.contains('cap')&&!p1.querySelector('button,a.btn')))p1=null;
+  const esBoton=e=>e.matches('button,a.btn,.btn,.row,.btns,.acts')&&!e.matches('.lg-apb')||(e.children.length>0&&[...e.children].every(x=>x.matches('button,a.btn,.btn')));
+  const hijos=[...card.children];
+  if(ic)arte.appendChild(ic);arte.appendChild(h);if(p1)arte.appendChild(p1);
+  if(p1&&/font/.test(p1.getAttribute('style')||'')){p1.removeAttribute('style');p1.classList.add('bq-fin-marcador');}   // el tanteador (TrucAR): grande
+  for(const e of hijos){if(e===ic||e===h||e===p1)continue;(esBoton(e)&&!e.querySelector('.lg-apb')&&!e.classList.contains('lg-apb')?pie:cuerpo).appendChild(e);}
+  // orden del pie: primero el botón principal; «Menú de juegos» va al final, al lado de «Ver el tablero»
+  const go=pie.querySelector('.btn.go');if(go){const top=go.parentElement===pie?go:go.closest('.bq-fin-pie>*');if(top&&top!==pie.firstElementChild)pie.insertBefore(top,pie.firstElementChild);}
+  const menu=[...pie.querySelectorAll('a,button')].find(e=>/^(Men[uú] de juegos|Volver a BloqueAR)/i.test(e.textContent.trim()));
+  const chat=[...pie.querySelectorAll('button')].find(e=>/Compartir/i.test(e.textContent));
+  // v96: si venías de un desafío («superá mi puntaje»), el juego dice cómo te fue contra el que te desafió
+  try{const r=window.BLQ_FIN_RETO_TXT&&window.BLQ_FIN_RETO_TXT();if(r){const d=document.createElement('div');d.className='bq-fin-reto';d.innerHTML=r;cuerpo.insertBefore(d,cuerpo.firstChild);}}catch(_){}
+  const titulo=h.textContent.trim(),detalle=p1?p1.textContent.trim():'';
+  const stats=[...cuerpo.querySelectorAll('.stats>div')].slice(0,3).map(d=>[(d.querySelector('b')||{}).textContent||'',(d.querySelector('small')||{}).textContent||'']);
+  const fila=document.createElement('div');fila.className='bq-fin-fila';
+  const bc=document.createElement('button');bc.type='button';bc.className='btn';bc.dataset.fin='compartir';bc.textContent='Compartir';
+  bc.onclick=()=>compartir({juego:juego(),res,titulo,detalle,stats},bc);fila.appendChild(bc);
+  {const j=pie.querySelector('[data-fin-junto]');if(j&&!chat){const v=j.parentElement;fila.appendChild(j);if(v&&v!==pie&&!v.children.length)v.remove();}}   // v97: un botón del juego que va al lado de «Compartir»
+  if(chat){chat.textContent='💬 Al chat';chat.setAttribute('aria-label','Compartir con un amigo por el chat');fila.appendChild(chat);}
+  const fila2=document.createElement('div');fila2.className='bq-fin-fila';
+  if(![...pie.querySelectorAll('button,a')].some(b=>/^\s*Ver (la|el|cómo)/i.test(b.textContent))){
+    const bv=document.createElement('button');bv.type='button';bv.className='btn';bv.dataset.fin='ver';bv.textContent='Ver el tablero';
+    bv.onclick=()=>{c.classList.add('bq-fin-mira');const v=document.createElement('button');v.type='button';v.className='bq-fin-volver';v.textContent='Volver al resultado';
+      v.onclick=()=>{v.remove();c.classList.remove('bq-fin-mira');};document.body.appendChild(v);};fila2.appendChild(bv);}
+  if(menu)fila2.appendChild(menu);
+  if(menu)menu.textContent='Menú de juegos';
+  for(const e of [...pie.children])if(e.tagName==='DIV'&&e.children.length&&[...e.children].every(x=>x.matches('button,a')))e.classList.add('bq-fin-fila');   // v97: las filas de botones de cada juego, todas con el mismo armado
+  pie.appendChild(fila);if(fila2.children.length)pie.appendChild(fila2);
+  for(const e of [...pie.children])if(e!==fila&&e!==fila2&&e.matches('.row,.btns,.acts,div')&&!e.querySelector('button,a'))e.remove();   // filas que quedaron vacías
+  if(!card.classList.contains('ccard')){card.classList.add('ccard');card._finCc=1;}
+  card.classList.remove('bq-gane','bq-perdi','bq-empate');card.append(arte,cuerpo,pie);card.classList.add('bq-fin','bq-'+res);
+  try{dispatchEvent(new CustomEvent('blq-fin',{detail:{res,juego:(()=>{const p=(location.pathname.split('/').pop()||'index.html').replace(/\.html$/,'')||'index';return p==='index'?'bloquear':p;})()}}));}catch(_){}   // v99: lo usa el calendario de eventos
+c.classList.add('bq-fin-on');document.documentElement.classList.add('bq-fin-abierto');c.classList.remove('bq-fin-mira');
+  try{card.setAttribute('role','dialog');card.setAttribute('aria-label',titulo);const go=pie.querySelector('.btn.go');if(go&&matchMedia('(pointer:fine)').matches)go.focus({preventScroll:true});}catch(_){}
+}
+function pend(){if(ls('bloques-fin-b')==='0')return;PEND=Date.now();try{vigilar();for(const c of conts()){const k=tarjeta(c);c._finViejo=(k&&!c.hidden&&!k.classList.contains('bq-fin'))?k:null;}}catch(_){}for(const ms of [0,60,300,900,2000,4000,7000])setTimeout(mirar,ms);}
+
+/* ── Imagen para compartir: se dibuja en el celular (sin servidores) y sale por el menú de compartir del teléfono ── */
+function cuenta(){try{const a=JSON.parse(localStorage.getItem('bloques-acct-v1')||'null');return a&&a.usuario?a:null;}catch(_){return null;}}
+function cargar(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src;setTimeout(()=>r(null),2500);});}
+function partir(g,t,w){const out=[];let l='';for(const p of String(t).split(/\s+/)){const x=l?l+' '+p:p;if(g.measureText(x).width>w&&l){out.push(l);l=p;}else l=x;}if(l)out.push(l);return out;}
+async function imagen(o){
+  const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  const col=COLOR[o.juego]||COLOR.bloquear,ft=getComputedStyle(document.documentElement).getPropertyValue('--f-titulo').trim()||'system-ui',fx=getComputedStyle(document.documentElement).getPropertyValue('--f-texto').trim()||'system-ui';
+  try{await Promise.all([document.fonts.load('800 80px '+ft),document.fonts.load('700 40px '+fx)]);}catch(_){}
+  let G=g.createLinearGradient(0,0,W*.4,H);G.addColorStop(0,col[0]);G.addColorStop(.62,col[1]);g.fillStyle=G;g.fillRect(0,0,W,H);
+  const im=await cargar('juegos_arte/'+o.juego+'.'+(ARTE[o.juego]||'svg'));
+  if(im){const s=Math.max(W/im.width,760/im.height),w=im.width*s,h=im.height*s;g.save();g.globalAlpha=.92;g.drawImage(im,(W-w)/2,0,w,h);g.restore();
+    G=g.createLinearGradient(0,300,0,800);G.addColorStop(0,'rgba(0,0,0,0)');G.addColorStop(1,col[1]);g.fillStyle=G;g.fillRect(0,300,W,500);g.fillStyle=col[1];g.fillRect(0,799,W,H-799);
+    G=g.createLinearGradient(0,0,0,220);G.addColorStop(0,'rgba(0,0,0,.55)');G.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=G;g.fillRect(0,0,W,220);}
+  g.textBaseline='alphabetic';g.fillStyle='#F2F4FA';g.font='800 56px '+ft;g.fillText('Bloque',64,112);const bw=g.measureText('Bloque').width;g.fillStyle='#F2C14E';g.fillText('AR',64+bw,112);
+  const a=cuenta();if(a){g.font='700 40px '+fx;const t=(a.avatar&&a.avatar.length<=4?a.avatar+' ':'')+a.usuario;const w=g.measureText(t).width;g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.roundRect(W-64-w-44,60,w+44,72,36);g.fill();g.fillStyle='#F2F4FA';g.fillText(t,W-64-w-22,110);}
+  let y=870;g.fillStyle=o.res==='gane'?'#F2C14E':'#8CC8F0';g.font='700 38px '+fx;g.fillText((N[o.juego]||'BloqueAR').toUpperCase(),64,y);y+=96;
+  g.fillStyle='#F2F4FA';let tam=104;g.font='800 '+tam+'px '+ft;let L=partir(g,o.titulo,W-128);while(L.length>2&&tam>60){tam-=10;g.font='800 '+tam+'px '+ft;L=partir(g,o.titulo,W-128);}
+  for(const l of L.slice(0,2)){g.fillText(l,64,y);y+=tam*1.08;}
+  y+=4;g.fillStyle='rgba(242,244,250,.78)';g.font='400 40px '+fx;for(const l of partir(g,o.detalle,W-128).slice(0,2)){g.fillText(l,64,y);y+=52;}
+  const st=(o.stats||[]).filter(s=>s[0]);if(st.length){y+=18;const n=st.length,gw=24,cw=(W-128-gw*(n-1))/n;st.forEach((s,i)=>{const x=64+i*(cw+gw);g.fillStyle='rgba(255,255,255,.1)';g.beginPath();g.roundRect(x,y,cw,132,28);g.fill();
+      g.textAlign='center';g.fillStyle=/récord/i.test(s[1])?'#F2C14E':'#F2F4FA';g.font='800 58px '+ft;g.fillText(s[0],x+cw/2,y+70);g.fillStyle='rgba(242,244,250,.7)';g.font='400 30px '+fx;g.fillText(s[1],x+cw/2,y+110);g.textAlign='left';});}
+  g.fillStyle='#F2C14E';g.beginPath();g.roundRect(64,H-196,W-128,132,36);g.fill();g.fillStyle='#3A2E0A';g.font='800 54px '+ft;g.fillText(o.reto||'¿Jugamos?',100,H-128);g.font='700 30px '+fx;g.fillText(o.retoSub||'Tocá el link y vení a jugar',100,H-88);
+  return cv;}
+async function compartir(o,boton){
+  const txt0=boton?boton.textContent:'';if(boton){boton.disabled=true;boton.textContent='Armando…';}
+  try{
+    let reto=null;try{reto=window.BLQ_FIN_RETO?window.BLQ_FIN_RETO(o):null;}catch(_){}
+    const url=location.origin+location.pathname+(reto&&reto.hash?reto.hash:'');
+    if(reto){o.reto=reto.titulo||'¿Me ganás?';o.retoSub=reto.sub||'Tocá el link y jugá lo mismo';}
+    const cv=await imagen(o),blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+    const texto=`${o.titulo} ${o.detalle?'· '+o.detalle+' ':''}· ${N[o.juego]||'BloqueAR'}`;
+    const file=blob?new File([blob],'bloquear-'+o.juego+'.png',{type:'image/png'}):null;
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:texto+'\n'+url});return 'compartido';}catch(e){if(e&&e.name==='AbortError')return 'cancelado';}}
+    if(navigator.share&&!file){try{await navigator.share({text:texto,url});return 'compartido';}catch(e){if(e&&e.name==='AbortError')return 'cancelado';}}
+    // sin menú de compartir (PC): se baja la imagen y se copia el link
+    if(blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bloquear-'+o.juego+'.png';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}
+    try{await navigator.clipboard.writeText(texto+'\n'+url);}catch(_){}
+    try{(window.toast||(()=>{}))('Imagen guardada y link copiado');}catch(_){}
+    return 'bajado';
+  }finally{if(boton){boton.disabled=false;boton.textContent=txt0;}}
+}
+window.BLQ_FIN={pend,mirar,imagen,compartir,resultado,cont,activo:()=>ls('bloques-fin-b')!=='0'};
+})();
+
+/* ───────── v97b · Sonidos y vibración de interfaz, iguales en toda la app (BLQ_TOQUE) ─────────
+   Un toque corto y suave al apretar botones de la app (barra de arriba, menús, hojas, entrada, fin de partida, Inicio).
+   NO suena en el tablero ni en los botones de juego: cada juego tiene ahí sus propios sonidos.
+   · Tres juegos de sonidos para elegir: 'madera' (de fábrica), 'cristal' y 'suave'. Se elige en la página de prueba
+     (sonidos.html) y queda en 'blq-ajustes-v89'.son. Se apagan con «Sonidos de la app» en Vos › Ajustes (.toques=false).
+   · Pasan por el volumen general (el AudioContext ya viene envuelto por 03_comun) y por la sesión 'ambient' de 01_sonido:
+     no cortan la música del teléfono. Con el volumen en 0 no suenan.
+   · Vibración: respeta «Vibración» de Ajustes. Android: navigator.vibrate. iPhone (iOS 18+): el truco del interruptor nativo.
+   · Clases de toque: 'toque' (cualquier botón), 'pri' (el botón principal), 'atras' (cerrar, volver), 'cambio' (interruptores).
+   · Un botón o zona con data-sin-toque queda afuera. window.BLQ_TOQUE.sonar(clase[, juego]) para probar. */
+(function(){
+  const AJK='blq-ajustes-v89';
+  const aj=()=>{let o={};try{o=JSON.parse(localStorage.getItem(AJK)||'{}')||{};}catch(_){}return o;};
+  const SETS={madera:1,cristal:1,suave:1};
+  const juego=()=>{const s=aj().son;return SETS[s]?s:'madera';};
+  const sonOn=()=>aj().toques!==false, vibOn=()=>aj().vibrar!==false;
+  let AC=null;
+  function ctx(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;window.__BLQ_SIN_NIVEL=1;try{AC=new C();}finally{window.__BLQ_SIN_NIVEL=0;}}if(AC.state==='suspended')AC.resume();return AC;}catch(_){return null;}}
+  // un golpecito: onda `tipo` que baja de f0 a f1 en `d` segundos, con volumen pico `g`
+  function nota(a,t,tipo,f0,f1,d,g){const o=a.createOscillator(),v=a.createGain();o.type=tipo;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(30,f1),t+d);
+    v.gain.setValueAtTime(0.0001,t);v.gain.exponentialRampToValueAtTime(g,t+0.006);v.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(v);v.connect(a.destination);o.start(t);o.stop(t+d+0.02);}
+  const RECETA={
+    madera:{toque:a=>[[0,'triangle',300,170,.05,.085]],pri:a=>[[0,'triangle',360,200,.06,.10],[.045,'triangle',480,300,.07,.085]],atras:a=>[[0,'triangle',230,140,.06,.075]],cambio:a=>[[0,'triangle',420,330,.035,.085]]},
+    cristal:{toque:a=>[[0,'sine',1250,1180,.07,.05],[0,'sine',2500,2400,.04,.014]],pri:a=>[[0,'sine',1180,1150,.08,.055],[.06,'sine',1770,1740,.12,.05],[.06,'sine',3540,3500,.06,.012]],atras:a=>[[0,'sine',940,880,.08,.045]],cambio:a=>[[0,'sine',1570,1560,.05,.05]]},
+    suave:{toque:a=>[[0,'sine',210,150,.03,.04]],pri:a=>[[0,'sine',240,160,.045,.06]],atras:a=>[[0,'sine',180,130,.03,.035]],cambio:a=>[[0,'sine',260,220,.025,.045]]}};
+  function sonar(clase,j){if(!sonOn()&&!j)return false;const a=ctx();if(!a)return false;const r=(RECETA[j||juego()]||RECETA.madera)[clase]||RECETA.madera.toque;
+    try{const t=a.currentTime+0.004;for(const n of r(a))nota(a,t+n[0],n[1],n[2],n[3],n[4],n[5]);return true;}catch(_){return false;}}
+  // vibración
+  const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  let lab=null;
+  function vibrar(clase){if(!vibOn())return false;try{
+      if(!isIOS){if(typeof navigator.vibrate==='function'){navigator.vibrate(clase==='pri'?12:clase==='cambio'?9:6);return true;}return false;}
+      if(clase==='toque'||clase==='atras')return false;       // en iPhone sólo en el botón principal y los interruptores: el golpe del sistema es más fuerte
+      if(!lab){const i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');i.id='blq-toque-h';i.tabIndex=-1;i.setAttribute('aria-hidden','true');
+        lab=document.createElement('label');lab.htmlFor=i.id;lab.setAttribute('aria-hidden','true');lab.setAttribute('data-sin-toque','');
+        for(const e of [i,lab])e.style.cssText='position:fixed;left:-200px;top:-200px;width:1px;height:1px;opacity:0;pointer-events:none';document.body.append(i,lab);}
+      lab.click();return true;}catch(_){return false;}}
+  // dónde suena: sólo la interfaz de la app
+  const ZONAS='.top.bq-cab,.top,.topbar,#side,#side-panel,.side,.bq-hoja,.bq-ent,.ccard.bq-fin,.bq-fin-volver,.nv-card,.nv-chico,[class^="g9-"],[class*=" g9-"],.cx-panel,.cx-cab,#menu,.menu,.mode-pop,.sheet,#sheet,.vt-barra,.ini-tabs';
+  const QUE='button,a,summary,[role="tab"],[role="radio"],[role="switch"],[role="menuitem"],input[type="checkbox"],input[type="radio"]';
+  const NO='[data-sin-toque],[role="grid"],[role="gridcell"],.cx-msgs,.cx-envio,.cx-emo,.teclado,.pad,.keys,.numpad,#board,.board,.tablero,canvas,.mano,.cartas';
+  let ult=0,JUGO_PROPIO=null;
+  function clase(b){if(b.matches('[role="switch"],input[type="checkbox"],input[type="radio"],[role="radio"],[role="tab"]'))return 'cambio';
+    if(b.matches('.go,.primary,.bq-ent-go,.pri,.bq-btn.pri,.bq-pri'))return 'pri';
+    const al=(b.getAttribute('aria-label')||'')+' '+(b.id||'');if(/^(Cerrar|Volver)|sh-x|cerrar|btn-games|games-btn/i.test(al.trim())||b.matches('.x,.cerrar,.bq-hoja-x,.bq-fin-volver'))return 'atras';
+    return 'toque';}
+  function alTocar(e){try{const t=e.target;if(!t||!t.closest||e.isTrusted===false&&!window.__BLQ_TOQUE_PRUEBA)return;const b=t.closest(QUE);if(!b||b.disabled||b.getAttribute('aria-disabled')==='true')return;
+      if(b.closest(NO)||!b.closest(ZONAS))return;const ah=performance.now();if(ah-ult<45)return;ult=ah;const c=clase(b);API.ultimo=c;API.n++;sonar(c);vibrar(c);}catch(_){}}
+  const API={sonar,vibrar,juego,juegos:Object.keys(SETS),elegir(j){if(!SETS[j])return;const o=aj();o.son=j;try{localStorage.setItem(AJK,JSON.stringify(o));}catch(_){}},
+    prender(on){const o=aj();o.toques=!!on;try{localStorage.setItem(AJK,JSON.stringify(o));}catch(_){}},activo:sonOn,ultimo:'',n:0};
+  window.BLQ_TOQUE=API;
+  if(localStorage.getItem('bloques-toques')!=='0')document.addEventListener('click',alTocar,true);   // llave de emergencia
+})();
+
+/* ───────── v98 · Música suave para los juegos de mesa (BLQ_MUSICA) ─────────
+   Música hecha en el momento (no hay archivos de audio): tres estilos para elegir, bajitos, que acompañan sin distraer.
+   · 'guitarra': milonga campera punteada, en La menor.  · 'vals': vals criollo en Sol, más luminoso.  · 'calma': acordes largos, sin ritmo.
+   · Suena sola en los juegos de mesa (MESA) después del primer toque, y se calla cuando salís de la pantalla.
+   · Se prende y apaga con «Música» en el menú ⋯ y en Vos › Ajustes; el estilo se elige en sonidos.html.
+     Guardado en 'blq-ajustes-v89': musica (false = apagada) y mus (estilo). Llave de emergencia: 'bloques-musica'='0'.
+   · Pasa por el volumen general y por la sesión 'ambient' (01_sonido): se MEZCLA con la música del teléfono, no la corta.
+     Por eso tiene interruptor a mano: quien escucha su música la apaga con un toque.
+   · BloqueAR, EstanciAR, MarcAR y los demás juegos con música propia no se tocan. */
+(function(){
+  const AJK='blq-ajustes-v89',MESA={truco:1,uno:1,ludo:1,ajedrez:1,pool:1,sudoku:1,buscaminas:1,solitario:1};
+  const aj=()=>{let o={};try{o=JSON.parse(localStorage.getItem(AJK)||'{}')||{};}catch(_){}return o;};
+  const pon=(k,v)=>{const o=aj();o[k]=v;try{localStorage.setItem(AJK,JSON.stringify(o));}catch(_){}try{dispatchEvent(new CustomEvent('blq-musica',{detail:{k,v}}));}catch(_){}};
+  const EST={guitarra:1,vals:1,calma:1};
+  const estilo=()=>{const s=aj().mus;return EST[s]?s:'guitarra';};
+  const prendida=()=>aj().musica!==false&&localStorage.getItem('bloques-musica')!=='0';
+  const pagina=()=>{try{return (location.pathname.split('/').pop()||'index.html').replace(/\.html$/,'')||'index';}catch(_){return '';}};
+  let AC=null,SAL=null,T=0,sig=0,paso=0,cual='',NOTAS=0;
+  function ctx(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;window.__BLQ_SIN_NIVEL=1;try{AC=new C();}finally{window.__BLQ_SIN_NIVEL=0;}
+      SAL=AC.createGain();SAL.gain.value=0.0001;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=3200;SAL.connect(f);f.connect(AC.destination);}
+    if(AC.state==='suspended')AC.resume();return AC;}catch(_){return null;}}
+  // una cuerda punteada: triángulo que se apaga solo, con un brillo corto al principio
+  function cuerda(t,f,g,dur){const o=AC.createOscillator(),o2=AC.createOscillator(),v=AC.createGain(),v2=AC.createGain();o.type='triangle';o.frequency.value=f;o2.type='sine';o2.frequency.value=f*2;
+    v.gain.setValueAtTime(0.0001,t);v.gain.exponentialRampToValueAtTime(g,t+0.008);v.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    v2.gain.setValueAtTime(0.0001,t);v2.gain.exponentialRampToValueAtTime(g*0.35,t+0.006);v2.gain.exponentialRampToValueAtTime(0.0001,t+dur*0.35);
+    o.connect(v);o2.connect(v2);v.connect(SAL);v2.connect(SAL);o.start(t);o2.start(t);o.stop(t+dur+0.05);o2.stop(t+dur*0.35+0.05);NOTAS++;}
+  function colchon(t,f,g,dur){const o=AC.createOscillator(),v=AC.createGain();o.type='sine';o.frequency.value=f;v.gain.setValueAtTime(0.0001,t);v.gain.linearRampToValueAtTime(g,t+dur*0.4);v.gain.linearRampToValueAtTime(0.0001,t+dur);o.connect(v);v.connect(SAL);o.start(t);o.stop(t+dur+0.05);NOTAS++;}
+  const h=()=>0.85+Math.random()*0.3;   // que no suene a máquina
+  // acordes: [bajo, quinta del bajo, tres notas]
+  const Am=[110,164.8,220,261.6,329.6],E7=[82.4,123.5,207.7,246.9,293.7],Dm=[146.8,110,220,293.7,349.2];
+  const G=[98,146.8,246.9,293.7,392],D7=[146.8,110,220,261.6,370],C=[130.8,98,196,261.6,329.6];
+  const PROG={guitarra:[Am,Am,E7,E7,E7,E7,Am,Am,Dm,Dm,Am,Am,E7,E7,Am,Am],vals:[G,G,D7,D7,D7,D7,G,G,C,C,G,G,D7,D7,G,G]};
+  const CALMA=[[110,164.8,261.6],[98,146.8,246.9],[130.8,196,329.6],[87.3,130.8,220]];
+  // devuelve cuánto dura el paso que acaba de programar
+  function programar(t){
+    if(cual==='guitarra'){const c=PROG.guitarra[(paso>>3)%16],i=paso&7,d=0.39;   // 8 corcheas por compás, acento 3-3-2
+      if(i===0||i===3||i===6)cuerda(t,c[i===3?1:0],0.30*h(),1.3);else cuerda(t,c[2+((i+(paso>>3))%3)],0.13*h(),0.9);
+      if(i===0&&((paso>>3)&1))cuerda(t+0.02,c[4],0.09*h(),1.1);return d;}
+    if(cual==='vals'){const c=PROG.vals[Math.floor(paso/3)%16],i=paso%3,d=0.62;   // 3 negras por compás
+      if(i===0)cuerda(t,c[(Math.floor(paso/3)&1)?1:0],0.30*h(),1.6);else{cuerda(t,c[2],0.10*h(),0.8);cuerda(t+0.012,c[3],0.10*h(),0.8);cuerda(t+0.024,c[4],0.08*h(),0.8);}return d;}
+    const c=CALMA[paso%4];colchon(t,c[0],0.16,9);colchon(t+0.4,c[1],0.11,8.5);colchon(t+0.9,c[2],0.08,8);if(paso%2)colchon(t+3,c[2]*1.5,0.04,5);return 6.5;}
+  function tic(){if(!AC||!cual)return;const ah=AC.currentTime;if(sig<ah)sig=ah+0.08;while(sig<ah+0.45){sig+=programar(sig);paso++;}}
+  function tocar(e){const a=ctx();if(!a)return false;const n=EST[e]?e:estilo();if(cual===n&&T)return true;cual=n;paso=0;sig=0;
+    try{SAL.gain.cancelScheduledValues(a.currentTime);SAL.gain.setTargetAtTime(n==='calma'?0.4:0.32,a.currentTime,0.6);}catch(_){}
+    clearInterval(T);T=setInterval(tic,120);tic();return true;}
+  function parar(){clearInterval(T);T=0;cual='';try{if(AC&&SAL){SAL.gain.cancelScheduledValues(AC.currentTime);SAL.gain.setTargetAtTime(0.0001,AC.currentTime,0.15);}}catch(_){}}
+  const API={tocar,parar,estilo,estilos:Object.keys(EST),prendida,sonando:()=>cual,notas:()=>NOTAS,
+    elegir(e){if(!EST[e])return;pon('mus',e);if(T&&MESA[pagina()])tocar(e);},
+    prender(on){pon('musica',!!on);if(on){if(MESA[pagina()])tocar();}else parar();},esMesa:()=>!!MESA[pagina()]};
+  window.BLQ_MUSICA=API;
+  // en los juegos de mesa arranca sola con el primer toque (los navegadores no dejan sonar antes) y se calla al salir
+  if(MESA[pagina()]){
+    const arr=()=>{if(prendida()&&!T&&!document.hidden)tocar();};
+    addEventListener('pointerdown',arr,{passive:true});addEventListener('keydown',arr);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)parar();});
+    addEventListener('pagehide',parar);
+    addEventListener('storage',e=>{if(e.key===AJK){if(!prendida())parar();else if(T&&estilo()!==cual)tocar();}});
+    // «Música» en el menú ⋯, debajo del volumen
+    const fila=()=>{try{const p=document.getElementById('side-panel');if(!p||p.querySelector('.bq-mus-fila'))return;const v=p.querySelector('.bq-vol-fila');if(!v)return;
+        const d=document.createElement('div');d.className='bq-mus-fila';d.innerHTML='<span class="bq-mus-tx"><b>Música</b><small>Suave, de fondo. <a href="sonidos.html#musica">Cambiar</a></small></span><button type="button" class="bq-mus-sw" role="switch" aria-label="Música" aria-checked="'+prendida()+'"></button>';
+        v.parentNode.insertBefore(d,v.nextSibling);d.querySelector('button').onclick=e=>{const on=!prendida();API.prender(on);e.currentTarget.setAttribute('aria-checked',String(on));};}catch(_){}};
+    const ob=()=>{fila();try{const p=document.getElementById('side-panel');if(p)new MutationObserver(fila).observe(p,{childList:true});}catch(_){}};
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(ob,0));else setTimeout(ob,0);
+    try{const st=document.createElement('style');st.textContent='.bq-mus-fila{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 2px 10px}.bq-mus-tx b{display:block;font-weight:700}.bq-mus-tx small{font-size:13px;opacity:.75}.bq-mus-tx a{color:var(--cielo,#8CC8F0)}'
+      +'.bq-mus-sw{width:54px;min-width:54px;height:44px;min-height:44px;border:0;background:none;position:relative;padding:0;cursor:pointer}.bq-mus-sw::before{content:"";position:absolute;left:0;top:6px;width:54px;height:32px;border-radius:999px;background:var(--mate-claro,#1F2F4A);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}'
+      +'.bq-mus-sw::after{content:"";position:absolute;top:10px;left:4px;width:24px;height:24px;border-radius:50%;background:var(--pasto-seco,#A9B6CD);transition:transform .2s}.bq-mus-sw[aria-checked="true"]::before{background:var(--maiz,#F2C14E)}.bq-mus-sw[aria-checked="true"]::after{transform:translateX(22px);background:var(--maiz-osc,#3A2E0A)}';
+      (document.head||document.documentElement).appendChild(st);}catch(_){}
+  }
+})();
+
+/* ───────── v99 · Motor de eventos por fecha y el primero: Calendario de Navidad (BLQ_EVENTO) ─────────
+   Un evento = unas fechas, un calendario de días con misión y regalo, y una decoración. Hoy hay uno (Navidad); los demás
+   (Día de la Tradición, 25 de Mayo…) se suman en EVENTOS sin tocar el resto.
+   · Calendario de Navidad: del 1 al 24 de diciembre, un casillero por día. La misión del día se cumple jugando (cualquier
+     juego avisa su final con el evento 'blq-fin' que dispara el cartel de fin común) o entrando a tu estancia. Regalo: oro,
+     y los días 8, 16 y 24 un adorno especial que llega a la estancia por la cola de regalos de siempre ('estancia-premios').
+   · No castiga: un día que se pasó se recupera solo, uno por cada partida que termines, hasta el 6 de enero.
+   · Los días abiertos se guardan en 'bloques-evento-v99' y viajan entre tus aparatos (05_sync, regla «claves»: se juntan).
+     El avance de la misión de hoy es de este aparato ('bloques-evento-prog').
+   · Decoración: guirnalda de luces bajo la barra en todos los juegos; en los de mesa, además, luz cálida y bichitos de luz.
+     Obedece a «Temporada» de Ajustes ('bloques-temporada' = si | no | auto) y a «Animaciones».
+   · Para probar otra fecha: localStorage 'bloques-evento-hoy' = 'AAAA-MM-DD'. Llave de emergencia: 'bloques-evento' = '0'. */
+(function(){
+  const K='bloques-evento-v99',KP='bloques-evento-prog';
+  const lg=k=>{try{return localStorage.getItem(k);}catch(_){return null;}},lp=(k,v)=>{try{localStorage.setItem(k,v);}catch(_){}};
+  const js=(k,d)=>{try{const v=JSON.parse(lg(k)||'null');return v&&typeof v==='object'?v:d;}catch(_){return d;}};
+  const pagina=()=>{try{const p=(location.pathname.split('/').pop()||'index.html').replace(/\.html$/,'')||'index';return p==='index'?'bloquear':p;}catch(_){return '';}};
+  const NOM={truco:'TrucAR',uno:'UnoAR',ludo:'LudAR',ajedrez:'AjedrezAR',pool:'PoolAR',sudoku:'SudokAR',buscaminas:'BuscaminAR',solitario:'SolitARio',bloquear:'BloqueAR'};
+  const HREF={bloquear:'./#bloquear'};
+  // hoy, en hora de la Argentina (o la fecha de prueba)
+  function hoy(){const f=lg('bloques-evento-hoy');if(f&&/^\d{4}-\d{2}-\d{2}$/.test(f))return f;return new Date(Date.now()-3*3600e3).toISOString().slice(0,10);}
+  // misiones: J n = terminá n partidas · G = ganá una · D = jugá 2 juegos distintos · X juego = jugá ese juego · E = entrá a tu estancia
+  const M=[null,['J',1],['X','truco'],['G'],['E'],['D'],['X','sudoku'],['J',2],['G'],['X','bloquear'],['E'],['X','ludo'],['D'],['J',3],['X','solitario'],['G'],['J',2],['X','uno'],['E'],['X','buscaminas'],['D'],['X','pool'],['G'],['J',3],['J',1]];
+  const GRANDE={8:['arco_luces','Arco de luces','✨'],16:['trineo','Trineo de Papá Noel','🛷'],24:['arbolito_dorado','Arbolito dorado','🎄']};
+  const oroDe=n=>GRANDE[n]?50:(M[n][0]==='G'||M[n][0]==='D'||(M[n][0]==='J'&&M[n][1]>=3))?40:30;
+  const txt=m=>m[0]==='J'?(m[1]===1?'Terminá una partida de cualquier juego':`Terminá ${m[1]} partidas de cualquier juego`):m[0]==='G'?'Ganá una partida de cualquier juego':m[0]==='D'?'Jugá dos juegos distintos':m[0]==='X'?`Jugá una partida de ${NOM[m[1]]||m[1]}`:'Entrá a tu estancia';
+  // ¿en qué punto del evento estamos?
+  function donde(){const f=hoy(),y=+f.slice(0,4),m=+f.slice(5,7),d=+f.slice(8,10);
+    if(lg('bloques-evento')==='0')return null;
+    if(m===12)return {anio:y,n:d<=24?d:0,fin:false,dia:f};
+    if(m===1&&d<=6)return {anio:y-1,n:0,fin:false,dia:f};
+    return null;}
+  const clave=(a,n)=>a+'-nav-'+n;
+  const abiertos=()=>js(K,{});
+  function estado(){const w=donde();if(!w)return {activo:false};const A=abiertos(),dias=[];let hechos=0;
+    for(let n=1;n<=24;n++){const ab=!!A[clave(w.anio,n)],pas=w.n===0||n<w.n;if(ab)hechos++;dias.push({n,abierto:ab,hoy:n===w.n,perdido:!ab&&pas,grande:GRANDE[n]||null,oro:oroDe(n)});}
+    const P=prog(w),m=w.n?M[w.n]:null;let mis=null;
+    if(m){const meta=m[0]==='J'?m[1]:m[0]==='D'?2:1,van=m[0]==='J'?P.j:m[0]==='G'?P.g:m[0]==='D'?P.x.length:m[0]==='X'?(P.x.includes(m[1])?1:0):(P.e?1:0);
+      mis={texto:txt(m),van:Math.min(van,meta),meta,tipo:m[0],juego:m[0]==='X'?m[1]:'',lista:!!A[clave(w.anio,w.n)]};}
+    return {activo:true,anio:w.anio,hoy:w.n,dias,mision:mis,hechos,perdidos:dias.filter(x=>x.perdido).length,hastaReyes:w.n===0};}
+  function prog(w){const P=js(KP,{});if(P.d!==w.dia)return {d:w.dia,j:0,g:0,x:[],e:0};P.x=Array.isArray(P.x)?P.x:[];return P;}
+  function abrir(w,n,recup){const A=abiertos(),k=clave(w.anio,n);if(A[k])return false;A[k]=Date.now();lp(K,JSON.stringify(A));
+    const oro=oroDe(n),g=GRANDE[n];try{window.ORO&&ORO.ganar&&ORO.ganar(oro,'Calendario de Navidad',true);}catch(_){}
+    if(g)try{const Q=js('estancia-premios',null)||[];const L=Array.isArray(Q)?Q:[];L.push({de:'Calendario de Navidad · día '+n,trigo:0,pesos:0,obj:[g[0]],t:Date.now()+n});lp('estancia-premios',JSON.stringify(L.slice(-40)));}catch(_){}
+    avisar(n,oro,g,recup);try{dispatchEvent(new CustomEvent('blq-evento',{detail:{n,oro,obj:g?g[0]:'',recup:!!recup}}));}catch(_){}pintarSiAbierta();return true;}
+  // lo que pasó: 'fin' (terminó una partida) o 'estancia' (entró a su estancia)
+  function paso(tipo,d){const w=donde();if(!w)return;const P=prog(w);
+    if(tipo==='fin'){P.j++;if(d&&d.res==='gane')P.g++;const jg=(d&&d.juego)||pagina();if(jg&&!P.x.includes(jg))P.x.push(jg);}
+    else if(tipo==='estancia')P.e=1;
+    lp(KP,JSON.stringify(P));
+    const E=estado();if(E.mision&&!E.mision.lista&&E.mision.van>=E.mision.meta)abrir(w,w.n,false);
+    if(tipo==='fin'){const per=estado().dias.find(x=>x.perdido);if(per)abrir(w,per.n,true);}   // una partida terminada recupera un día perdido
+    pintarSiAbierta();}
+  let ultFin=0;
+  addEventListener('blq-fin',e=>{const t=Date.now();if(t-ultFin<4000)return;ultFin=t;try{paso('fin',e.detail||{});}catch(_){}});
+  // ── aviso al abrir un día ──
+  let css0=false;
+  function css(){if(css0)return;css0=true;const s=document.createElement('style');s.id='ev99-css';s.textContent=CSS;(document.head||document.documentElement).appendChild(s);}
+  function avisar(n,oro,g,recup){try{css();const a=document.createElement('button');a.type='button';a.className='ev-aviso';a.setAttribute('data-sin-ico','');
+      a.innerHTML=`<span class="e" aria-hidden="true">${g?g[2]:'🎄'}</span><span><b>${recup?'Recuperaste el día '+n:'Día '+n+' abierto'}</b><small>+${oro} de oro${g?' y «'+g[1]+'» para tu estancia':''}</small></span>`;
+      a.onclick=()=>{a.remove();abrirHoja();};document.body.appendChild(a);requestAnimationFrame(()=>a.classList.add('on'));setTimeout(()=>{a.classList.remove('on');setTimeout(()=>a.remove(),400);},5200);}catch(_){}}
+  // ── la hoja del calendario ──
+  let HOJA=null;
+  function htmlHoja(){const E=estado();if(!E.activo)return '<div class="ev-cab"><div class="e">🎄</div><h2>Calendario de Navidad</h2><p>Vuelve el 1 de diciembre.</p></div>';
+    const m=E.mision,dd=E.dias.map(x=>`<div class="ev-d${x.abierto?' ok':''}${x.hoy&&!x.abierto?' hoy':''}${x.perdido?' per':''}${x.grande?' gr':''}" title="Día ${x.n}">${x.abierto?'✓':x.n}</div>`).join('');
+    const ir=m&&!m.lista?(m.tipo==='E'?(pagina()==='estancia'?'':'<a class="ev-ir" href="estancia.html">Ir a mi estancia</a>'):m.tipo==='X'&&m.juego!==pagina()?`<a class="ev-ir" href="${HREF[m.juego]||m.juego+'.html'}">Jugar ${NOM[m.juego]}</a>`:''):'';
+    const caja=m?`<div class="ev-hoy${m.lista?' ok':''}"><small>${m.lista?'HOY · LISTO':'HOY · DÍA '+E.hoy}</small><b>${m.lista?'Ya abriste el regalo de hoy':m.texto}</b><span>${m.lista?'Volvé mañana por el siguiente.':'Regalo: '+E.dias[E.hoy-1].oro+' de oro'+(E.dias[E.hoy-1].grande?' y «'+E.dias[E.hoy-1].grande[1]+'»':'')}</span>${m.lista?'':`<div class="ev-bar"><i style="width:${Math.round(100*m.van/m.meta)}%"></i></div>${m.meta>1?`<span class="ev-van">${m.van} de ${m.meta}</span>`:''}`}${ir}</div>`
+      :`<div class="ev-hoy"><small>HASTA EL 6 DE ENERO</small><b>${E.perdidos?'Te quedan '+E.perdidos+' regalos por recuperar':'¡Abriste los 24 regalos!'}</b><span>${E.perdidos?'Cada partida que termines abre uno.':'Felices fiestas.'}</span></div>`;
+    return `<div class="ev-cab"><div class="e" aria-hidden="true">🎄</div><h2>Calendario de Navidad</h2><p>Un regalo por día hasta Nochebuena · ${E.hechos} de 24</p></div>${caja}
+      <div class="ev-gr" role="list">${dd}</div>
+      <p class="ev-pie">${E.perdidos&&m?'En celeste: días que se te pasaron. <b>Cada partida que termines recupera uno.</b> ':''}Con borde rojo: regalo grande para tu estancia.</p>
+      <div class="ev-pr">${[8,16,24].map(n=>`<div class="${E.dias[n-1].abierto?'ok':''}"><b aria-hidden="true">${GRANDE[n][2]}</b>Día ${n}<br>${GRANDE[n][1].replace(' de Papá Noel','')}</div>`).join('')}</div>
+      <p class="ev-pie">Los adornos de Navidad también están en la tienda de tu estancia, en «Temporada».</p>`;}
+  function pintarSiAbierta(){if(HOJA&&HOJA.isConnected){const c=HOJA.querySelector('.ev-cu');if(c)c.innerHTML=htmlHoja();}}
+  function abrirHoja(){css();if(HOJA&&HOJA.isConnected)return;HOJA=document.createElement('div');HOJA.className='ev-hoja';HOJA.setAttribute('role','dialog');HOJA.setAttribute('aria-label','Calendario de Navidad');
+    HOJA.innerHTML='<div class="ev-pan"><button type="button" class="ev-x" aria-label="Cerrar" data-sin-ico>✕</button><div class="ev-cu"></div></div>';HOJA.querySelector('.ev-cu').innerHTML=htmlHoja();
+    const cerrar=()=>{HOJA&&HOJA.remove();HOJA=null;};HOJA.addEventListener('click',e=>{if(e.target===HOJA||e.target.closest('.ev-x'))cerrar();});
+    document.body.appendChild(HOJA);try{HOJA.querySelector('.ev-x').focus({preventScroll:true});}catch(_){}}
+  // ── decoración ──
+  const MESA={truco:1,uno:1,ludo:1,ajedrez:1,pool:1,sudoku:1,buscaminas:1,solitario:1,poblar:1,pampa:1};
+  const SIN={bloquear:1,estancia:1,sonidos:1};   // el Inicio y la estancia ya tienen su Navidad
+  function decoOn(){const t=lg('bloques-temporada');if(t==='no'||lg('bloques-evento')==='0')return false;return t==='si'||!!donde();}
+  function decorar(){try{const pg=pagina();if(SIN[pg]||!decoOn()||document.getElementById('ev-guir'))return;const top=document.querySelector('.app>.top,body>.top');if(!top)return;css();
+      const h=document.documentElement;h.classList.add('bq-navidad');if(MESA[pg])h.classList.add('bq-nav-fest');
+      const cols=['#F2C14E','#E0565B','#9FD3EE','#7BD88F'];let luces='';for(let i=0;i<16;i++){const x=12+i*24.4,y=5+Math.sin(x/390*Math.PI)*13;luces+=`<circle cx="${x.toFixed(1)}" cy="${(y+3).toFixed(1)}" r="3.4" fill="${cols[i%4]}"/>`;}
+      const g=document.createElement('div');g.id='ev-guir';g.setAttribute('aria-hidden','true');
+      g.innerHTML=`<svg viewBox="0 0 390 30" preserveAspectRatio="none"><path d="M0 4 Q195 32 390 4" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.4"/>${luces}</svg>`+(MESA[pg]?'<div class="ev-calor"></div>'+Array.from({length:9},(_,i)=>`<i class="ev-bicho" style="left:${6+((i*37)%88)}%;top:${16+((i*53)%74)}%;animation-delay:-${(i*1.7).toFixed(1)}s;animation-duration:${7+(i%4)*2}s"></i>`).join(''):'');
+      document.body.appendChild(g);const pos=()=>{try{g.style.setProperty('--ev-top',Math.round(top.getBoundingClientRect().bottom)+'px');}catch(_){}};pos();addEventListener('resize',pos);setTimeout(pos,800);}catch(_){}}
+  // ── «Calendario de Navidad» en el menú ⋯ de cada juego ──
+  function filaMenu(){try{if(!donde())return;const p=document.getElementById('side-panel');if(!p||p.querySelector('.ev-fila'))return;css();const E=estado();
+      const b=document.createElement('button');b.type='button';b.className='ev-fila';b.setAttribute('data-sin-ico','');b.innerHTML=`<span aria-hidden="true">🎄</span><span><b>Calendario de Navidad</b><small>${E.mision&&!E.mision.lista?'Hoy: '+E.mision.texto.charAt(0).toLowerCase()+E.mision.texto.slice(1):E.perdidos?E.perdidos+' regalos por recuperar':E.hechos+' de 24 abiertos'}</small></span>`;
+      b.onclick=abrirHoja;const v=p.querySelector('.bq-mus-fila,.bq-vol-fila');if(v&&v.parentNode)v.parentNode.insertBefore(b,v.nextSibling);else p.insertBefore(b,p.firstChild);}catch(_){}}
+  const CSS=`.ev-aviso{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 62px);transform:translate(-50%,-20px);opacity:0;z-index:2147482000;display:flex;align-items:center;gap:10px;max-width:min(92vw,420px);text-align:left;padding:10px 16px 10px 12px;border:0;border-radius:18px;background:#16233A;color:#F2F4FA;box-shadow:0 0 0 2px #F2C14E,0 10px 30px rgba(0,0,0,.5);font:16px/1.25 var(--f-texto,system-ui);transition:transform .3s,opacity .3s;cursor:pointer}
+.ev-aviso.on{transform:translate(-50%,0);opacity:1}.ev-aviso .e{font-size:28px}.ev-aviso b{display:block;font-weight:800}.ev-aviso small{font-size:13px;color:#A9B6CD}
+.ev-hoja{position:fixed;inset:0;z-index:2147481000;background:rgba(5,8,14,.72);display:flex;align-items:flex-end;justify-content:center}
+.ev-pan{position:relative;width:min(460px,100%);max-height:94%;overflow:auto;background:#0E1626;color:#F2F4FA;border-radius:28px 28px 0 0;padding:8px 16px calc(18px + env(safe-area-inset-bottom));font:15px/1.35 var(--f-texto,system-ui);animation:evSube .3s cubic-bezier(.2,.9,.3,1) both}
+@media (min-width:700px){.ev-hoja{align-items:center}.ev-pan{border-radius:28px}}
+@keyframes evSube{from{transform:translateY(40px);opacity:0}}
+.ev-x{position:absolute;right:10px;top:10px;width:44px;height:44px;border-radius:50%;border:0;background:#1F2F4A;color:#F2F4FA;font-size:16px;cursor:pointer}
+.ev-cab{text-align:center;padding:10px 44px 4px}.ev-cab .e{font-size:40px;line-height:1.1}.ev-cab h2{font:800 24px/1.15 var(--f-titulo,system-ui);margin:2px 0;color:#F2F4FA}.ev-cab p{margin:0;color:#A9B6CD;font-size:14px}
+.ev-hoy{margin:12px 0 10px;background:#16233A;box-shadow:inset 0 0 0 2px #F2C14E;border-radius:18px;padding:12px 14px}.ev-hoy.ok{box-shadow:inset 0 0 0 2px #3f7a57}.ev-hoy small{color:#F2C14E;font:800 11px/1 var(--f-texto,system-ui);letter-spacing:.06em}.ev-hoy.ok small{color:#8fd6a8}
+.ev-hoy b{display:block;font-size:17px;margin:4px 0 2px}.ev-hoy span{color:#A9B6CD;font-size:13px}.ev-bar{height:8px;background:#1F2F4A;border-radius:9px;margin-top:9px;overflow:hidden}.ev-bar i{display:block;height:100%;background:#F2C14E;border-radius:9px}.ev-van{display:block;margin-top:4px}
+.ev-ir{display:flex;align-items:center;justify-content:center;min-height:46px;margin-top:10px;border-radius:999px;background:#F2C14E;color:#3A2E0A!important;font-weight:800;text-decoration:none}
+.ev-gr{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.ev-d{aspect-ratio:1;border-radius:12px;background:#16233A;display:grid;place-items:center;font:800 15px/1 var(--f-titulo,system-ui);color:#A9B6CD}
+.ev-d.ok{background:#2c5a3f;color:#dff5e6}.ev-d.hoy{background:#F2C14E;color:#3A2E0A}.ev-d.per{box-shadow:inset 0 0 0 2px #8CC8F0;color:#8CC8F0}.ev-d.gr:not(.ok):not(.hoy){box-shadow:inset 0 0 0 2px #E0565B}.ev-d.gr.per{box-shadow:inset 0 0 0 2px #E0565B,inset 0 0 0 4px #8CC8F0}
+.ev-pie{margin:10px 2px 0;color:#A9B6CD;font-size:13px}.ev-pie b{color:#F2F4FA}
+.ev-pr{display:flex;gap:8px;margin-top:10px}.ev-pr div{flex:1;background:#16233A;border-radius:14px;padding:9px 4px;text-align:center;font-size:12px;color:#A9B6CD}.ev-pr div.ok{background:#2c5a3f;color:#dff5e6}.ev-pr b{display:block;font-size:24px;line-height:1.2}
+.ev-fila{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;text-align:left;margin:2px 0 8px;padding:8px 12px;border:0;border-radius:14px;background:rgba(242,193,78,.14);box-shadow:inset 0 0 0 1px rgba(242,193,78,.5);color:inherit;font:inherit;cursor:pointer}.ev-fila>span:first-child{font-size:24px}.ev-fila b{display:block;font-weight:700}.ev-fila small{font-size:13px;opacity:.8}
+#ev-guir{position:fixed;left:0;right:0;top:var(--ev-top,52px);bottom:0;z-index:4;pointer-events:none;overflow:hidden}#ev-guir svg{position:absolute;left:0;top:-2px;width:100%;height:26px}
+#ev-guir circle{animation:evLuz 2.6s ease-in-out infinite}#ev-guir circle:nth-child(2n){animation-delay:1.3s}@keyframes evLuz{50%{opacity:.35}}
+.ev-calor{position:absolute;inset:0;background:radial-gradient(120% 55% at 50% 0%,rgba(245,210,122,.13),transparent 62%)}
+.ev-bicho{position:absolute;width:4px;height:4px;border-radius:50%;background:#ffe9a0;box-shadow:0 0 9px 3px rgba(255,225,130,.5);opacity:0;animation:evBicho 9s ease-in-out infinite}
+@keyframes evBicho{0%,100%{opacity:0;transform:translate(0,0)}20%{opacity:.85}50%{opacity:.25;transform:translate(14px,-18px)}75%{opacity:.8;transform:translate(-8px,-30px)}}
+html.blq-sin-anim #ev-guir circle,html.blq-sin-anim .ev-bicho{animation:none}html.blq-sin-anim .ev-bicho{display:none}
+@media (prefers-reduced-motion:reduce){#ev-guir circle,.ev-bicho{animation:none}.ev-bicho{display:none}}
+@media (max-height:500px){.ev-bicho,.ev-calor{display:none}#ev-guir svg{height:18px}}
+body:has(.bq-fin-on) #ev-guir,body:has(.ev-hoja) #ev-guir{display:none}`;
+  window.BLQ_EVENTO={estado,abrirHoja,paso,hoy,decorar,activo:()=>!!donde(),texto:txt};
+  function arr(){try{decorar();}catch(_){}try{if(pagina()==='estancia')setTimeout(()=>paso('estancia'),2500);}catch(_){}
+    try{filaMenu();const p=document.getElementById('side-panel');if(p)new MutationObserver(filaMenu).observe(p,{childList:true});}catch(_){}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(arr,0));else setTimeout(arr,0);
+})();
+</script>
+<script>
+(function(){
+  const T=window.BLQ_TOQUE,AJK='blq-ajustes-v89';
+  const aj=()=>{try{return JSON.parse(localStorage.getItem(AJK)||'{}')||{};}catch(_){return {};}};
+  const guardar=(k,v)=>{const o=aj();o[k]=v;try{localStorage.setItem(AJK,JSON.stringify(o));}catch(_){}};
+  const J=[['madera','Madera','Golpecito seco y cálido, como apoyar una ficha. Es el que viene puesto.'],['cristal','Cristal','Agudo y cortito, más brillante. Se nota más.'],['suave','Casi mudo','Apenas un soplo grave. Para quien no quiere que se note.']];
+  const C=[['toque','Un botón'],['pri','Botón principal'],['atras','Volver o cerrar'],['cambio','Interruptor']];
+  const caja=document.getElementById('juegos');
+  function pinta(){const el=T.juego();caja.innerHTML=J.map(([k,n,d])=>`<section class="jgo${k===el?' on':''}" data-j="${k}"><h2>${n}<small>Elegido</small></h2><div class="d">${d}</div><div class="prb">${C.map(([c,t])=>`<button type="button" data-c="${c}">${t}</button>`).join('')}<button type="button" class="usar" data-usar="1">${k===el?'Es el que está puesto':'Usar éste'}</button></div></section>`).join('');
+    document.getElementById('sw-son').setAttribute('aria-checked',String(T.activo()));document.getElementById('sw-vib').setAttribute('aria-checked',String(aj().vibrar!==false));}
+  caja.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const j=b.closest('.jgo').dataset.j;
+    if(b.dataset.usar){T.elegir(j);pinta();T.sonar('pri',j);T.vibrar('pri');return;}T.sonar(b.dataset.c,j);T.vibrar(b.dataset.c);});
+  document.getElementById('sw-son').onclick=e=>{const on=!T.activo();T.prender(on);pinta();if(on)T.sonar('cambio',T.juego());};
+  document.getElementById('sw-vib').onclick=e=>{const on=aj().vibrar===false;guardar('vibrar',on);pinta();if(on)T.vibrar('cambio');};
+  document.getElementById('prb-vib').onclick=()=>{const ok=T.vibrar('pri');if(!ok)document.getElementById('prb-vib').textContent=aj().vibrar===false?'La vibración está apagada':'Este aparato no deja vibrar desde la app';};
+  pinta();
+  // v98 · música de los juegos de mesa: escuchar y elegir
+  const M=window.BLQ_MUSICA,cm=document.getElementById('musicas');
+  const E=[['guitarra','Guitarra criolla','Una milonga punteada, tranquila. Es la que viene puesta.'],['vals','Vals criollo','En tres tiempos, más alegre y luminoso.'],['calma','Calma','Acordes largos, sin ritmo. La que menos se nota.']];
+  function pintaM(){const el=M.estilo(),so=M.sonando();cm.innerHTML=E.map(([k,n,d])=>`<section class="jgo${k===el?' on':''}" data-e="${k}"><h2>${n}<small>Elegida</small></h2><div class="d">${d}</div><div class="prb"><button type="button" data-oir="1">${so===k?'■ Parar':'▶ Escuchar'}</button><button type="button" data-usarm="1"${k===el?' disabled style="opacity:.55"':''}>${k===el?'Está puesta':'Usar ésta'}</button></div></section>`).join('');
+    document.getElementById('sw-mus').setAttribute('aria-checked',String(M.prendida()));}
+  cm.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.closest('.jgo').dataset.e;
+    if(b.dataset.usarm){M.elegir(k);pintaM();return;}if(M.sonando()===k)M.parar();else M.tocar(k);pintaM();});
+  document.getElementById('sw-mus').onclick=()=>{const on=!M.prendida();M.prender(on);if(!on)M.parar();pintaM();};
+  addEventListener('pagehide',()=>M.parar());document.addEventListener('visibilitychange',()=>{if(document.hidden){M.parar();pintaM();}});
+  pintaM();
+})();
+</script>
+</body>
+</html>
